@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Morning Upgrade — Why your coffee quits at 2pm</title>
+<meta name="description" content="A 60-second quiz, a free 7-day guide, and the coffee that keeps up past lunch. Natural caffeine + L-theanine, one scoop, hot water.">
+<link rel="icon" href="img/mark.jpg">
+<meta property="og:title" content="Why your coffee quits at 2pm">
+<meta property="og:description" content="Take the 60-second quiz and get the free 7 Mornings guide.">
+<meta property="og:image" content="https://themorningupgrades.com/img/flatlay.jpg">
+<meta property="og:url" content="https://themorningupgrades.com/">
+<!-- Meta Pixel: paste your pixel ID in PIXEL_ID below once the ad account exists -->
+<script>
+window.PIXEL_ID = "";
+!function(f,b,e,v,n,t,s){if(f.fbq||!window.PIXEL_ID)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+if(window.PIXEL_ID){fbq('init',window.PIXEL_ID);fbq('track','PageView');fbq('track','ViewContent');}
+</script>
+<style>
+:root{--cream:#F3EBDD;--cream2:#FBF7EF;--copper:#B5734A;--copper2:#9A5F3B;--ink:#1E2430;--muted:#6B6257;--line:#E7DCC8;--white:#fff}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--cream);color:var(--ink);font-family:Georgia,'Times New Roman',serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+.sans{font-family:Helvetica,Arial,sans-serif}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+a{color:var(--copper2)}
+header{padding:18px 0}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink)}
+.brand img{width:34px;height:34px;border-radius:50%}
+.brand b{font-family:Helvetica,Arial,sans-serif;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--copper)}
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;padding:28px 0 56px}
+.hero h1{font-size:clamp(34px,5vw,56px);line-height:1.08;margin:0 0 18px;font-weight:normal}
+.hero p.lead{font-size:19px;margin:0 0 26px;max-width:46ch}
+.hero .img{border-radius:18px;overflow:hidden;box-shadow:0 20px 60px rgba(30,36,48,.15);aspect-ratio:1;background:#ddd}
+.hero .img img{width:100%;height:100%;object-fit:cover;display:block}
+.btn{display:inline-block;background:var(--copper);color:#fff;text-decoration:none;font-family:Helvetica,Arial,sans-serif;font-weight:bold;font-size:16px;padding:16px 28px;border-radius:10px;border:0;cursor:pointer}
+.btn:hover{background:var(--copper2)}
+.btn.ghost{background:transparent;color:var(--ink);border:2px solid var(--ink)}
+.sub{font-family:Helvetica,Arial,sans-serif;font-size:13px;color:var(--muted);margin-top:10px}
+section{padding:56px 0}
+section.alt{background:var(--cream2)}
+h2{font-size:clamp(26px,3.6vw,38px);line-height:1.15;margin:0 0 14px;font-weight:normal}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.card{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:22px}
+.card h3{margin:0 0 8px;font-size:19px;font-weight:normal}
+.card p{margin:0;color:var(--muted);font-size:16px}
+.quiz{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:30px;max-width:640px;margin:0 auto}
+.quiz .q{display:none}.quiz .q.on{display:block}
+.quiz h3{font-size:22px;margin:0 0 16px;font-weight:normal}
+.opt{display:block;width:100%;text-align:left;background:var(--cream2);border:1px solid var(--line);border-radius:10px;padding:14px 16px;font:inherit;font-size:17px;margin:0 0 10px;cursor:pointer;color:var(--ink)}
+.opt:hover{border-color:var(--copper)}
+.prog{font-family:Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--copper);margin-bottom:10px}
+label{display:block;font-family:Helvetica,Arial,sans-serif;font-size:13px;color:var(--muted);margin:12px 0 6px}
+input[type=text],input[type=email]{width:100%;font:inherit;font-size:17px;padding:13px 14px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.fine{font-family:Helvetica,Arial,sans-serif;font-size:12px;color:var(--muted);line-height:1.5}
+.result{background:var(--cream);border-radius:12px;padding:16px 18px;margin:0 0 16px}
+.result b{display:block;font-family:Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--copper);margin-bottom:6px}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+.split .img{border-radius:16px;overflow:hidden;aspect-ratio:4/5;background:#ddd}
+.split .img img{width:100%;height:100%;object-fit:cover;display:block}
+ul.clean{padding-left:20px;margin:0 0 18px}ul.clean li{margin-bottom:8px}
+.math{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:22px 0}
+.math div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px;text-align:center}
+.math strong{display:block;font-size:30px;line-height:1;margin-bottom:6px}
+.math span{font-family:Helvetica,Arial,sans-serif;font-size:13px;color:var(--muted)}
+details{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin-bottom:10px}
+summary{cursor:pointer;font-size:18px}
+details p{margin:10px 0 0;color:var(--muted)}
+footer{padding:40px 0 50px;border-top:1px solid var(--line)}
+footer p{font-family:Helvetica,Arial,sans-serif;font-size:13px;color:var(--muted);line-height:1.6;margin:0 0 10px}
+@media(max-width:820px){.hero,.split{grid-template-columns:1fr}.grid3,.math{grid-template-columns:1fr}.hero{padding-top:8px}.hero .img{order:-1;max-width:420px}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><a class="brand" href="/"><img src="img/mark.jpg" alt=""><b>The Morning Upgrade</b></a></div></header>
+
+<div class="wrap hero">
+  <div>
+    <h1>Why your coffee quits on you at 2pm.</h1>
+    <p class="lead">It's not willpower. It's the cup. Take the 60-second quiz, get the free <em>7 Mornings</em> guide, and see what a different scoop does to your afternoon.</p>
+    <a class="btn" href="#quiz">Take the 60-second quiz</a>
+    <p class="sub">Free guide. No spam. Unsubscribe any time.</p>
+  </div>
+  <div class="img"><img src="img/flatlay.jpg" alt="Morning counter with a scoop, a mug and a bag of coffee"></div>
+</div>
+
+<section class="alt"><div class="wrap">
+  <h2>Three mornings, three problems</h2>
+  <div class="grid3">
+    <div class="card"><h3>The 2pm slide</h3><p>A big cup hits fast and leaves fast. By the afternoon meeting your focus has gone home without you.</p></div>
+    <div class="card"><h3>The second-cup jitters</h3><p>So you pour another, and now your hands are busy and your sleep is worse. Tomorrow starts tired.</p></div>
+    <div class="card"><h3>The $6 habit</h3><p>A latte on the way in, a cold brew after lunch. Two stops, two lines, and the same slump either way.</p></div>
+  </div>
+</div></section>
+
+<section id="quiz"><div class="wrap">
+  <h2 style="text-align:center">Which morning are you?</h2>
+  <p style="text-align:center;color:var(--muted);margin:0 0 26px">Three quick questions. Then the guide is yours.</p>
+  <div class="quiz">
+    <div class="q on" data-q="1">
+      <div class="prog">Question 1 of 3</div>
+      <h3>When does your energy actually drop off?</h3>
+      <button class="opt" data-v="crash">Early afternoon. 2pm is a wall.</button>
+      <button class="opt" data-v="jitters">It doesn't drop so much as spike. I get wired, then flat.</button>
+      <button class="opt" data-v="parent">By the time the kids are back it's gone.</button>
+      <button class="opt" data-v="desk">Mid-morning, right when the real work starts.</button>
+    </div>
+    <div class="q" data-q="2">
+      <div class="prog">Question 2 of 3</div>
+      <h3>How many cups does it take to get through a day?</h3>
+      <button class="opt" data-v="1">One, and I'm hanging on.</button>
+      <button class="opt" data-v="2">Two. The second one is damage control.</button>
+      <button class="opt" data-v="3">Three or more. I've stopped counting.</button>
+    </div>
+    <div class="q" data-q="3">
+      <div class="prog">Question 3 of 3</div>
+      <h3>What would you want from a better cup?</h3>
+      <button class="opt" data-v="focus">Focus that lasts into the afternoon.</button>
+      <button class="opt" data-v="smooth">Energy without the shaky edge.</button>
+      <button class="opt" data-v="simple">Something simple I'll actually stick with.</button>
+    </div>
+    <div class="q" data-q="4">
+      <div class="prog">Your result</div>
+      <div class="result"><b id="r-label">Result</b><span id="r-text"></span></div>
+      <h3>Get the 7 Mornings guide</h3>
+      <form id="tmu-form" novalidate>
+        <label>First name</label><input type="text" name="first_name" autocomplete="given-name">
+        <label>Email</label><input type="email" name="email" required autocomplete="email">
+        <input type="hidden" name="quiz_result"><input type="hidden" name="cups"><input type="hidden" name="want">
+        <p style="margin:16px 0 8px"><button class="btn" type="submit">Send me the guide</button></p>
+        <p class="fine">You'll get the guide right away and a short series of notes after it. Unsubscribe in one click. Ad: The Morning Upgrade is run by an independent distributor and earns a commission on purchases.</p>
+        <p id="tmu-msg" class="fine" role="status" style="color:var(--copper2)"></p>
+      </form>
+    </div>
+  </div>
+</div></section>
+
+<section class="alt"><div class="wrap split">
+  <div class="img"><img src="img/scoop.jpg" alt="A scoop of coffee going into a mug" loading="lazy"></div>
+  <div>
+    <h2>Same ritual. Different cup.</h2>
+    <p>Most coffee is built for the first hour. This one is built around <strong>natural caffeine paired with L-theanine</strong>, the amino acid green-tea drinkers know, and people describe the combination as sharper, not shakier.</p>
+    <ul class="clean">
+      <li>One level scoop, 8 oz of hot water, stir. No machine, no grounds.</li>
+      <li>Tastes like coffee. Medium roast. Creamer welcome.</li>
+      <li>30 servings a bag: one scoop every morning for a month.</li>
+    </ul>
+    <p class="fine">Supports focus and energy. The full supplement-facts panel is on the product page.</p>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>The math people ask about</h2>
+  <div class="math">
+    <div><strong>$2.33</strong><span>per cup on Subscribe &amp; Save</span></div>
+    <div><strong>$5–7</strong><span>a coffee-shop latte</span></div>
+    <div><strong>30</strong><span>mornings in a bag</span></div>
+  </div>
+  <p>It costs about what you're spending now. The afternoon is the difference. Your bag ships from the maker directly; we never touch your order or your card.</p>
+  <p><a class="btn" id="cta-mid" href="https://marketplaceglobal.com/rectorandstull/product/coffee/mpgxtreme-1-bag-corejava-coffee-skucl805-us-id194?utm_source=site&utm_medium=presell&utm_campaign=mid" rel="sponsored">See the product page</a> &nbsp; <a class="btn ghost" href="#quiz">Or take the quiz first</a></p>
+</div></section>
+
+<section class="alt"><div class="wrap split">
+  <div>
+    <h2>Questions, answered plainly</h2>
+    <details><summary>Does it taste like coffee?</summary><p>Yes. Medium roast, a little smoother than drip. Black is fine; creamer is fine.</p></details>
+    <details><summary>Is it one cup or two?</summary><p>One scoop is the serving. Most people find one is the right amount.</p></details>
+    <details><summary>What if I drink coffee all day?</summary><p>Swap the first cup only for a week. That's the cup that sets the curve for the rest of the day.</p></details>
+    <details><summary>How does shipping work?</summary><p>You order on the product page and it ships from the maker. Subscribe &amp; Save sends a bag a month; you manage it from the same page.</p></details>
+    <details><summary>Why do you keep saying you earn a commission?</summary><p>Because we do, and the rules say to disclose it. We'd rather be boring about that than clever.</p></details>
+  </div>
+  <div class="img"><img src="img/pour.jpg" alt="Hot water poured into a glass mug" loading="lazy"></div>
+</div></section>
+
+<footer><div class="wrap">
+  <p><strong>Ad.</strong> The Morning Upgrade is run by Rector &amp; Stull LLC, an independent distributor. We earn a commission on purchases made through links on this site. Product images show the actual packaging.</p>
+  <p>These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease. Consult a physician before use if you are pregnant, nursing, taking medication, or have a medical condition.</p>
+  <p>&copy; <span id="yr"></span> Rector &amp; Stull LLC &middot; hello@themorningupgrades.com</p>
+</div></footer>
+
+<script>
+(function(){
+  document.getElementById('yr').textContent=new Date().getFullYear();
+  var ans={}, f=document.getElementById('tmu-form'), msg=document.getElementById('tmu-msg');
+  var results={
+    crash:['The 2pm crash','Your first cup sets a curve that peaks early and slides into the afternoon. The guide starts with the one change that flattens it.'],
+    jitters:['Sharp, not shaky','You don’t need more caffeine; you need a steadier kind. Day 1 of the guide is about the pairing that makes the difference.'],
+    parent:['The 3pm pickup','Your day has a second shift. The guide is built around one cup that’s still working when it starts.'],
+    desk:['Mid-morning fade','The slump arrives before lunch, which usually means the cup is doing too much too fast. The guide fixes the timing first.']
+  };
+  function show(n){document.querySelectorAll('.q').forEach(function(q){q.classList.toggle('on',q.dataset.q==String(n))});document.getElementById('quiz').scrollIntoView({behavior:'smooth',block:'start'});}
+  document.querySelectorAll('.q[data-q="1"] .opt').forEach(function(b){b.onclick=function(){ans.quiz_result=b.dataset.v;show(2)}});
+  document.querySelectorAll('.q[data-q="2"] .opt').forEach(function(b){b.onclick=function(){ans.cups=b.dataset.v;show(3)}});
+  document.querySelectorAll('.q[data-q="3"] .opt').forEach(function(b){b.onclick=function(){ans.want=b.dataset.v;
+    var r=results[ans.quiz_result]||results.crash; document.getElementById('r-label').textContent=r[0]; document.getElementById('r-text').textContent=r[1];
+    f.quiz_result.value=ans.quiz_result; f.cups.value=ans.cups; f.want.value=ans.want; show(4);
+    if(window.fbq&&window.PIXEL_ID)fbq('trackCustom','QuizComplete',{result:ans.quiz_result});}});
+  var q=new URLSearchParams(location.search);
+  f.addEventListener('submit',function(e){
+    e.preventDefault();
+    var email=f.email.value.trim(); if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){msg.textContent='Check the email address.';return;}
+    var btn=f.querySelector('button'); btn.disabled=true; msg.textContent='Sending…';
+    var body={data:{type:'subscription',attributes:{custom_source:'themorningupgrades.com quiz',
+      profile:{data:{type:'profile',attributes:{email:email,first_name:f.first_name.value.trim(),
+        properties:{quiz_result:f.quiz_result.value||'none',cups:f.cups.value,want:f.want.value,lead_magnet:'7 Mornings guide',
+          utm_source:q.get('utm_source')||'',utm_medium:q.get('utm_medium')||'',utm_campaign:q.get('utm_campaign')||'',utm_content:q.get('utm_content')||''}}}}},
+      relationships:{list:{data:{type:'list',id:'WgctGT'}}}}};
+    fetch('https://a.klaviyo.com/client/subscriptions/?company_id=Ucdz59',{method:'POST',headers:{'Content-Type':'application/json','revision':'2025-01-15'},body:JSON.stringify(body)})
+    .then(function(r){ if(r.status===202){ if(window.fbq&&window.PIXEL_ID)fbq('track','Lead'); location.href='thanks.html?r='+encodeURIComponent(f.quiz_result.value||''); } else { throw new Error(r.status); } })
+    .catch(function(){ msg.textContent='Something went wrong. Try again in a moment.'; btn.disabled=false; });
+  });
+})();
+</script>
+</body>
+</html>
