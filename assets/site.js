@@ -59,19 +59,31 @@ window.TMU = {
     // year
     document.querySelectorAll('.yr').forEach(function(e){ e.textContent=new Date().getFullYear(); });
 
+    // Plan picker: radio choice drives the single buy button
+    document.querySelectorAll('[data-picker]').forEach(function(p){
+      var btn=p.querySelector('[data-picker-btn]');
+      p.querySelectorAll('input[name=plan]').forEach(function(r){ r.addEventListener('change', function(){
+        p.querySelectorAll('.opt').forEach(function(o){ o.classList.toggle('on', o.contains(r)); });
+        btn.setAttribute('data-buy', r.value); wire(btn);
+      }); });
+    });
     // Buy buttons: data-buy="onetime|subscribe"
     var utm = location.search ? location.search.replace(/^\?/,'') : '';
-    document.querySelectorAll('[data-buy]').forEach(function(a){
+    function wire(a){
       var kind=a.getAttribute('data-buy');
       var link = kind==='subscribe' ? C.STRIPE_SUBSCRIBE : C.STRIPE_ONETIME;
       if (link) {
         a.href = link + (link.indexOf('?')>-1?'&':'?') + 'utm_source=site' + (utm?'&'+utm:'');
-        a.removeAttribute('rel');
+        a.removeAttribute('rel'); a.removeAttribute('target');
       } else {
         a.href = C.MPG_PRODUCT + '?utm_source=site&utm_medium=shop&utm_campaign=' + kind + (utm?'&'+utm:'');
         a.setAttribute('rel','sponsored'); a.setAttribute('target','_blank');
       }
-      a.addEventListener('click', function(){ track('InitiateCheckout',{plan:kind, mode: link?'stripe':'mpg'}); });
+      a.dataset.mode = link?'stripe':'mpg';
+    }
+    document.querySelectorAll('[data-buy]').forEach(function(a){
+      wire(a);
+      a.addEventListener('click', function(){ track('InitiateCheckout',{plan:a.getAttribute('data-buy'), mode:a.dataset.mode}); });
     });
     // Shipping / checkout copy depends on which checkout is live. Never promise free shipping in handoff mode.
     var SELF = !!(C.STRIPE_ONETIME||C.STRIPE_SUBSCRIBE);
