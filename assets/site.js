@@ -61,9 +61,9 @@ window.TMU = {
       checkout:'Secure checkout by Stripe', damage:'Replaced or refunded if it arrives damaged',
       policy:'Standard shipping is included in the price. Orders placed by 2 PM Central on a business day ship that day or the next.'
     } : {
-      bar:'Ships to all 50 states', short:'ships to all 50 states', trust:'Ships to all 50 states', long:'Ships to all 50 states. Shipping calculated at checkout.',
+      bar:'$8.95 flat US shipping', short:'$8.95 US shipping', trust:'$8.95 flat US shipping', long:'$8.95 flat US shipping, shown at checkout.',
       checkout:'Secure checkout', damage:'Made right if it arrives damaged',
-      policy:'Right now orders are fulfilled by the maker, MarketPlace Global, and shipping is calculated at their checkout before you pay.'
+      policy:'Orders are fulfilled by the maker, MarketPlace Global. US shipping is a flat $8.95 for a bag, shown at their checkout before you pay.'
     };
     document.querySelectorAll('[data-ship]').forEach(function(e){ var k=e.getAttribute('data-ship'); if(SHIP[k]) e.textContent = SHIP[k]; });
 
