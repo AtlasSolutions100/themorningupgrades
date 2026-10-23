@@ -12,7 +12,7 @@ window.TMU = {
   // Lists
   KLAVIYO_COMPANY: "Ucdz59",
   KLAVIYO_LIST_QUIZ: "WgctGT",
-  KLAVIYO_LIST_PARTNERS: "",   // separate list; never the customer list
+  KLAVIYO_LIST_PARTNERS: "WeMj34",   // separate list; never the customer list
   // Tracking
   PIXEL_ID: "",                // Meta pixel
   ANALYTICS_DOMAIN: "themorningupgrades.com"
