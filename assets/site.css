@@ -165,3 +165,9 @@ footer p{font-family:Helvetica,Arial,sans-serif;font-size:13px;color:var(--muted
 @media(max-width:860px){.levels{grid-template-columns:1fr}}
 
 .ladder[hidden],.math[hidden]{display:none!important}
+
+/* analytics notice */
+.notice{position:fixed;left:16px;right:16px;bottom:84px;max-width:560px;margin:0 auto;background:var(--ink2);color:var(--cream);font-family:Helvetica,Arial,sans-serif;font-size:13px;padding:12px 14px;border-radius:12px;display:flex;gap:12px;align-items:center;z-index:40;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.notice a{color:#E3B08A}
+.notice button{margin-left:auto;background:var(--copper);color:#fff;border:0;border-radius:8px;padding:8px 14px;font:inherit;font-weight:bold;cursor:pointer}
+@media(min-width:861px){.notice{bottom:16px}}

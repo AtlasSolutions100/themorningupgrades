@@ -15,12 +15,19 @@ window.TMU = {
   KLAVIYO_LIST_PARTNERS: "WeMj34",   // separate list; never the customer list
   // Tracking
   RETAIL_BONUS_PCT: 0,         // ISR Retail Customer Bonus % on referred customer orders (0 = hide the math)
+  GA4_ID: "G-G79BLY9MDG",       // Google Analytics 4
   PIXEL_ID: "",                // Meta pixel
   ANALYTICS_DOMAIN: "themorningupgrades.com"
 };
 
 (function(){
   var C = window.TMU;
+  // Google Analytics 4
+  if (C.GA4_ID) {
+    var g=document.createElement('script'); g.async=true; g.src='https://www.googletagmanager.com/gtag/js?id='+C.GA4_ID; document.head.appendChild(g);
+    window.dataLayer = window.dataLayer || []; window.gtag = function(){ dataLayer.push(arguments); };
+    gtag('js', new Date()); gtag('config', C.GA4_ID, { anonymize_ip: true });
+  }
   // Meta pixel
   if (C.PIXEL_ID) {
     !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
@@ -30,7 +37,7 @@ window.TMU = {
   if (C.ANALYTICS_DOMAIN && window.TMU_ANALYTICS_ON) {
     var s=document.createElement('script'); s.defer=true; s.setAttribute('data-domain',C.ANALYTICS_DOMAIN); s.src='https://plausible.io/js/script.outbound-links.js'; document.head.appendChild(s);
   }
-  window.track = function(name, props){ try{ if(window.fbq&&C.PIXEL_ID) fbq('track',name,props||{}); if(window.plausible) plausible(name,{props:props||{}}); }catch(e){} };
+  window.track = function(name, props){ try{ if(window.gtag&&C.GA4_ID) gtag('event', name, props||{}); if(window.fbq&&C.PIXEL_ID) fbq('track',name,props||{}); if(window.plausible) plausible(name,{props:props||{}}); }catch(e){} };
 
   document.addEventListener('DOMContentLoaded', function(){
     // nav
@@ -38,6 +45,8 @@ window.TMU = {
     if(b&&m) b.onclick=function(){ m.classList.toggle('open'); };
     var here=location.pathname.replace(/\/index\.html$/,'/');
     document.querySelectorAll('.menu a').forEach(function(a){ var h=a.getAttribute('href'); if(h && (h===here || (h!=='/' && here.indexOf(h)===0))) a.classList.add('on'); });
+    // analytics notice (dismissable, remembered per browser)
+    try{ if(C.GA4_ID && !localStorage.getItem('tmu_notice')){ var n=document.createElement('div'); n.className='notice'; n.innerHTML='We use Google Analytics to see which pages and videos bring people here. No ads cookies. <a href="/privacy.html">Privacy</a> <button type="button">OK</button>'; document.body.appendChild(n); n.querySelector('button').onclick=function(){ try{localStorage.setItem('tmu_notice','1')}catch(e){} n.remove(); }; } }catch(e){}
     // year
     document.querySelectorAll('.yr').forEach(function(e){ e.textContent=new Date().getFullYear(); });
 
@@ -53,7 +62,7 @@ window.TMU = {
         a.href = C.MPG_PRODUCT + '?utm_source=site&utm_medium=shop&utm_campaign=' + kind + (utm?'&'+utm:'');
         a.setAttribute('rel','sponsored'); a.setAttribute('target','_blank');
       }
-      a.addEventListener('click', function(){ track('InitiateCheckout',{plan:kind}); });
+      a.addEventListener('click', function(){ track('InitiateCheckout',{plan:kind, mode: link?'stripe':'mpg'}); });
     });
     // Shipping / checkout copy depends on which checkout is live. Never promise free shipping in handoff mode.
     var SELF = !!(C.STRIPE_ONETIME||C.STRIPE_SUBSCRIBE);
