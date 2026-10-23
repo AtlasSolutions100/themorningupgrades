@@ -32,6 +32,7 @@ FOOTER = """
       <a href="/ingredients.html">What's in it</a>
       <a href="/faq.html">Questions</a>
       <a href="/shipping-returns.html">Shipping &amp; returns</a>
+      <a href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00" rel="noopener">Manage subscription</a>
     </div>
     <div>
       <h4>Company</h4>
@@ -234,7 +235,7 @@ HOME = """
     <details><summary>Does it taste like coffee?</summary><p>Yes. Medium roast, a little smoother than drip. Black is fine; creamer is fine.</p></details>
     <details><summary>Is it one cup or two?</summary><p>One scoop is the serving. Most people find one is the right amount.</p></details>
     <details><summary>What if I drink coffee all day?</summary><p>Swap the first cup only for a week. That's the cup that sets the curve for the rest of the day.</p></details>
-    <details><summary>Can I cancel the subscription?</summary><p>Any time, from the link in your receipt. No calls, no forms.</p></details>
+    <details><summary>Can I cancel the subscription?</summary><p>Any time. Use the link in your receipt, or <a href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00">manage your subscription here</a>: pause a month, cancel, or update your card. No calls, no forms.</p></details>
     <p><a class="btn ghost" href="/faq.html">All questions</a></p>
   </div>
   <div class="frame p45"><img src="/img/pour.jpg" alt="Hot water poured into a glass mug" loading="lazy"></div>
@@ -365,7 +366,7 @@ FAQ = """
   <details><summary>What does it do?</summary><p>The label says: supports healthy appetite control, focus and energy. We stick to that. It's a dietary supplement, not a medicine, and it hasn't been evaluated by the FDA.</p></details>
   <details><summary>Who shouldn't take it?</summary><p>Children, and anyone pregnant or nursing. If you take medication or have a medical condition, ask your physician first.</p></details>
   <h2>Ordering</h2>
-  <details><summary>How does Subscribe &amp; Save work?</summary><p>A bag ships every 30 days at $69.95. Pause, skip or cancel from the link in your receipt, any time, no calls.</p></details>
+  <details><summary>How does Subscribe &amp; Save work?</summary><p>A bag ships every 30 days at $69.95. Pause a month, cancel, or update your card any time from the link in your receipt or at <a href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00">the subscription portal</a>. No calls.</p></details>
   <details><summary>Where does it ship from, and how fast?</summary><p><span class="ships-from">Ships from the maker directly.</span> US addresses only for now. Tracking arrives by email.</p></details>
   <details><summary>Returns?</summary><p>If a bag arrives damaged or wrong, email hello@themorningupgrades.com within 14 days and we'll replace it or refund it. Full policy on the <a href="/shipping-returns.html">Shipping &amp; returns</a> page.</p></details>
   <details><summary>Who am I buying from?</summary><p>Rector &amp; Stull LLC, an independent distributor of MarketPlace Global products. MarketPlace Global makes CoreJava; we sell it.</p></details>
@@ -483,7 +484,7 @@ SHIPPING = """
   <h2>Shipping</h2>
   <p>We ship to addresses in the United States. <span class="ships-from">Ships from the maker directly.</span> Orders placed by 2 PM Central on a business day ship that day or the next. Standard shipping is included in the price. You'll get a tracking email when it leaves.</p>
   <h2>Subscribe &amp; Save</h2>
-  <p>A new bag ships every 30 days and your card is charged $69.95 each time. You can pause, skip a month, or cancel from the link in any receipt, up to the day before your next shipment. There are no cancellation fees.</p>
+  <p>A new bag ships every 30 days and your card is charged $69.95 each time. You can pause a month or cancel from the link in any receipt, or at <a href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00">the subscription portal</a>, up to the day before your next shipment. There are no cancellation fees.</p>
   <h2>Returns and refunds</h2>
   <p>If your order arrives damaged, opened, or wrong, email hello@themorningupgrades.com within 14 days of delivery with your order number and a photo, and we'll replace it or refund it in full. For unopened bags you simply don't want, email us within 30 days of delivery and we'll refund the price once the bag is back with us; return shipping is on you. Opened bags can't be returned for a change of mind, for food-safety reasons.</p>
   <h2>Questions</h2>
