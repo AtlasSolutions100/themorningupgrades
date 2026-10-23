@@ -234,7 +234,7 @@ HOME = """
     <details><summary>Can I cancel the subscription?</summary><p>Any time. Use the link in your receipt, or <a href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00">manage your subscription here</a>: pause a month, cancel, or update your card. No calls, no forms.</p></details>
     <p><a class="btn ghost" href="/faq.html">All questions</a></p>
   </div>
-  <div class="frame p45"><img src="/img/pour.jpg" alt="Hot water poured into a glass mug" loading="lazy"></div>
+  <div class="frame p45"><img src="/img/patio_iced.jpg" alt="Iced CoreJava on a sunny patio" loading="lazy"></div>
 </div></section>
 <section class="alt"><div class="wrap split">
   <div>
@@ -283,10 +283,10 @@ HOME = """
 SHOP = """
 <section style="padding-top:36px"><div class="wrap split" style="align-items:start">
   <div>
-    <div class="frame sq" style="background:#0B0F17"><img src="/img/bag.png" alt="CoreJava coffee bag, 30 servings" style="object-fit:contain;padding:8%"></div>
+    <div class="frame p45"><img src="/img/hero_breakfast.jpg" alt="CoreJava coffee bag on a breakfast table in morning light"></div>
     <div class="gallery">
       <div class="frame" style="aspect-ratio:9/16"><video muted loop playsinline autoplay poster="/media/ambient.jpg"><source src="/media/ambient.mp4" type="video/mp4"></video></div>
-      <div class="frame" style="aspect-ratio:9/16"><img src="/img/scoop.jpg" alt="Scoop of coffee" loading="lazy"></div>
+      <div class="frame" style="aspect-ratio:9/16"><img src="/img/kitchen_pour.jpg" alt="Pouring hot water next to a CoreJava bag" loading="lazy"></div>
       <div class="frame" style="aspect-ratio:9/16"><video muted loop playsinline autoplay poster="/media/iced.jpg"><source src="/media/iced.mp4" type="video/mp4"></video></div>
     </div>
   </div>
@@ -477,7 +477,7 @@ SHARE = """
     <p><a class="btn" href="#levels">See the three levels</a> &nbsp; <a class="btn ghost" href="#honest">What this actually is</a></p>
     <p class="fine" style="margin-top:14px">Independent Sales Representative (ISR) program of MarketPlace Global. Paid on product sales only. Most participants earn little; see the <a data-disclosure href="#">income disclosure</a>.</p>
   </div>
-  <div class="frame phone"><video autoplay muted loop playsinline poster="/media/ritual.jpg"><source src="/media/ritual.mp4" type="video/mp4"></video></div>
+  <div class="frame phone"><img src="/img/gym.jpg" alt="Woman on a yoga mat holding a CoreJava bag and a mug"></div>
 </div></section>
 
 <section class="alt" id="levels"><div class="wrap">
@@ -565,7 +565,7 @@ ABOUT = """
     <p>Everything on this site that earns us money says so. Every video that uses an AI-generated scene is labeled. If something's unclear, email us and a human will answer: hello@themorningupgrades.com.</p>
     <p><a class="btn" href="/shop.html">Buy CoreJava</a> &nbsp; <a class="btn ghost" href="/partner.html">Partner with us</a></p>
   </div>
-  <div class="frame p45"><img src="/img/flatlay.jpg" alt="Morning counter with a scoop, a mug and a bag of coffee"></div>
+  <div class="frame p45"><img src="/img/bag_shadows.jpg" alt="CoreJava bag with leaf shadows"></div>
 </div></section>
 """
 
@@ -660,7 +660,7 @@ THANKS = """
 
 PAGES = {
   "index.html": ("The Morning Upgrade — Coffee that keeps up past lunch", "CoreJava performance coffee: natural caffeine + L-theanine, one scoop, hot water. $79.95 a bag or $69.95 a month. Take the 60-second quiz.", HOME, "/img/flatlay.jpg", False),
-  "shop.html": ("Buy CoreJava Coffee — The Morning Upgrade", "CoreJava coffee, 30 servings. $79.95 one bag or $69.95 a month on Subscribe & Save. Natural caffeine, L-theanine and four more actives.", SHOP, "/img/bag.png", False),
+  "shop.html": ("Buy CoreJava Coffee — The Morning Upgrade", "CoreJava coffee, 30 servings. $79.95 one bag or $69.95 a month on Subscribe & Save. Natural caffeine, L-theanine and four more actives.", SHOP, "/img/hero_breakfast.jpg", False),
   "ingredients.html": ("What's in CoreJava — The Morning Upgrade", "Seven ingredients and what each one is: MCT powder, natural caffeine, L-theanine, ChromeMate, Paradoxine, Garcinia Cambogia, Saffr'Activ.", ING, "/media/ingredients.jpg", False),
   "faq.html": ("FAQ — The Morning Upgrade", "Taste, caffeine, shipping, subscriptions, returns, and who you're buying from.", FAQ, "/img/pour.jpg", False),
   "partner.html": ("Build with us — The Morning Upgrade", "Join our MarketPlace Global team and sell CoreJava with the same videos, site and email system we use. Honest numbers first.", PARTNER, "/media/ambient.jpg", False),
