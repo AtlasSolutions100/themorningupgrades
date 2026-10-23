@@ -12,7 +12,7 @@ NAV = """
     <a href="/ingredients.html">Ingredients</a>
     <a href="/faq.html">FAQ</a>
     <a href="/about.html">About</a>
-    <a href="/partner.html">Partner with us</a>
+    <a href="/share.html">Share &amp; earn</a>
     <a class="btn sm" href="/shop.html">Buy CoreJava</a>
   </div>
 </div></nav>
@@ -37,7 +37,8 @@ FOOTER = """
     <div>
       <h4>Company</h4>
       <a href="/about.html">About us</a>
-      <a href="/partner.html">Partner with us</a>
+      <a href="/share.html">Share &amp; earn</a>
+      <a href="/partner.html">Build with us</a>
       <a href="/privacy.html">Privacy</a>
       <a href="/terms.html">Terms</a>
     </div>
@@ -94,7 +95,7 @@ COMPARE = """
     <div><span>Per month</span><span>$150&ndash;210</span><span>$60&ndash;120</span><span class="hl">$69.95&ndash;79.95</span></div>
     <div><span>Time</span><span>A line and a drive</span><span>Grind, brew, clean</span><span class="hl">30 seconds</span></div>
     <div><span>Afternoon</span><span>The slide</span><span>The slide, then jitters</span><span class="hl">That's the point</span></div>
-    <div><span>What's in it</span><span>Caffeine, sugar, milk</span><span>Caffeine</span><span class="hl">Caffeine + L-theanine + 4 more</span></div>
+    <div><span>What's in it</span><span>Caffeine, sugar, milk</span><span>Caffeine</span><span class="hl">Caffeine + L-theanine + 5 more</span></div>
   </div>
   <p class="fine" style="text-align:center;margin-top:14px">Caf&eacute; and drip costs are typical US prices; yours will vary. CoreJava prices are ours.</p>
 </div></section>
@@ -153,8 +154,8 @@ HOME = """
 <section class="dark"><div class="wrap split">
   <div>
     <p class="eyebrow">What's in it</p>
-    <h2>Six things, one scoop.</h2>
-    <p>Natural caffeine from coffee beans. L-theanine, the amino acid in green tea. ChromeMate, a patented chromium. Paradoxine, grains of paradise extract. Garcinia Cambogia fruit extract. Saffr'Activ saffron extract. The label says what it does: supports healthy appetite control, focus and energy.</p>
+    <h2>Seven things, one scoop.</h2>
+    <p>MCT powder, for a creamy cup. Natural caffeine from coffee beans. L-theanine, the amino acid in green tea. ChromeMate, a patented chromium. Paradoxine, grains of paradise extract. Garcinia Cambogia fruit extract. Saffr'Activ saffron extract. The label says what it does: supports healthy appetite control, focus and energy.</p>
     <p><a class="btn" href="/ingredients.html">See every ingredient</a></p>
   </div>
   <div class="frame phone"><video autoplay muted loop playsinline poster="/media/ingredients.jpg"><source src="/media/ingredients.mp4" type="video/mp4"></video></div>
@@ -235,6 +236,15 @@ HOME = """
   </div>
   <div class="frame p45"><img src="/img/pour.jpg" alt="Hot water poured into a glass mug" loading="lazy"></div>
 </div></section>
+<section class="alt"><div class="wrap split">
+  <div>
+    <p class="eyebrow">Share &amp; earn</p>
+    <h2>Your coffee, paid for by the friends who steal a cup.</h2>
+    <p>Tell people about it anyway? MarketPlace Global pays a bonus on every order a friend places through your link. Three levels, explained without the hype.</p>
+    <p><a class="btn ghost" href="/share.html">How it works</a></p>
+  </div>
+  <div class="frame p45"><img src="/img/scoop.jpg" alt="A scoop of CoreJava" loading="lazy"></div>
+</div></section>
 <section class="dark" style="text-align:center"><div class="wrap">
   <h2>Tomorrow's first cup.</h2>
   <p>One scoop, hot water, and an afternoon that doesn't need rescuing.</p>
@@ -301,7 +311,7 @@ SHOP = """
     <h3 style="margin-top:30px">Details</h3>
     <ul class="clean">
       <li><strong>Serving:</strong> 1 level scoop (about 6.8 g) in 8 fl oz hot water. 30 servings per 7.2 oz (204 g) bag.</li>
-      <li><strong>Actives:</strong> natural caffeine, L-theanine, ChromeMate&reg; chromium, Paradoxine&reg; grains of paradise extract, Garcinia Cambogia extract, Saffr'Activ&reg; saffron extract. <a href="/ingredients.html">Full breakdown</a>.</li>
+      <li><strong>Ingredients:</strong> MCT powder, natural caffeine, L-theanine, ChromeMate&reg; chromium, Paradoxine&reg; grains of paradise extract, Garcinia Cambogia extract, Saffr'Activ&reg; saffron extract. <a href="/ingredients.html">Full breakdown</a>.</li>
       <li><strong>Taste:</strong> medium roast, smooth. Works black, with creamer, or over ice.</li>
       <li><strong>Who it's for:</strong> adults who drink coffee daily and want a steadier morning. Not for children, or if you're pregnant or nursing. Contains caffeine.</li>
       <li><strong>Made by:</strong> MarketPlace Global. Sold by Rector &amp; Stull LLC, Independent MarketPlace Global ISR.</li>
@@ -325,13 +335,14 @@ SHOP = """
 ING = """
 <section style="padding-top:36px"><div class="wrap">
   <p class="eyebrow">What's in it</p>
-  <h1 style="font-size:clamp(30px,4vw,46px)">Six ingredients, and what each one is.</h1>
+  <h1 style="font-size:clamp(30px,4vw,46px)">Seven ingredients, and what each one is.</h1>
   <p class="lead">We'll tell you where each ingredient comes from. For what the blend does, the label is the authority: <em>supports healthy appetite control, focus and energy.</em> We don't go past that.</p>
 </div></section>
 <section class="dark" style="padding-top:0"><div class="wrap">
   <div class="split" style="margin-bottom:40px">
     <div class="frame phone"><video autoplay muted loop playsinline poster="/media/ingredients.jpg"><source src="/media/ingredients.mp4" type="video/mp4"></video></div>
     <div class="ing" style="grid-template-columns:1fr 1fr">
+      <div class="card"><b>MCT powder</b><h3>First on the label</h3><p>Medium-chain triglycerides, usually from coconut oil, in powder form. It&rsquo;s what gives the cup body and a creamy texture without adding cream.</p></div>
       <div class="card"><b>Natural caffeine</b><h3>From coffee beans</h3><p>The same caffeine you already drink, from coffee, not synthesized. About the amount in a strong cup.</p></div>
       <div class="card"><b>L-theanine</b><h3>The amino acid in green tea</h3><p>Found naturally in tea leaves. Commonly paired with caffeine; many people describe the pairing as smoother than coffee alone.</p></div>
       <div class="card"><b>ChromeMate&reg;</b><h3>A patented chromium</h3><p>A branded form of the mineral chromium, bound to niacin. Chromium is an essential trace mineral.</p></div>
@@ -343,7 +354,7 @@ ING = """
   <p class="fine">Full Supplement Facts, including amounts per serving and other ingredients, are printed on the bag. Trademarks belong to their respective ingredient suppliers.</p>
 </div></section>
 <section><div class="wrap" style="text-align:center">
-  <h2>One scoop has all six.</h2>
+  <h2>One scoop has all seven.</h2>
   <p style="color:var(--muted)">$79.95 a bag, or $69.95 a month on Subscribe &amp; Save.</p>
 """ + CTA_BLOCK + """
 </div></section>
@@ -374,7 +385,7 @@ FAQ = """
 PARTNER = """
 <section style="padding-top:36px"><div class="wrap split">
   <div>
-    <p class="eyebrow">Partner with us</p>
+    <p class="eyebrow">Build track</p>
     <h1 style="font-size:clamp(30px,4vw,46px)">Sell the coffee you already drink. We'll show you exactly how we do it.</h1>
     <p class="lead">Rector &amp; Stull is a small team of Independent Sales Representatives (ISRs) for MarketPlace Global. We sell CoreJava online with short videos, a simple website and an email list. If you join our team, we show you how we do it and meet weekly to go over what&rsquo;s working.</p>
     <p><a class="btn" data-enroll data-fallback="Ask about joining" href="#apply">Join our team</a> &nbsp; <a class="btn ghost" href="#how">How it works</a></p>
@@ -456,6 +467,93 @@ PARTNER = """
 </script>
 """
 
+
+SHARE = """
+<section style="padding-top:36px"><div class="wrap split">
+  <div>
+    <p class="eyebrow">Share &amp; earn</p>
+    <h1 style="font-size:clamp(32px,4.4vw,50px)">Your coffee, paid for by the friends who steal a cup.</h1>
+    <p class="lead">You already tell people about the coffee that got you through the afternoon. With MarketPlace Global&rsquo;s referral program you get paid every time one of them orders. Three levels. Start wherever you like.</p>
+    <p><a class="btn" href="#levels">See the three levels</a> &nbsp; <a class="btn ghost" href="#honest">What this actually is</a></p>
+    <p class="fine" style="margin-top:14px">Independent Sales Representative (ISR) program of MarketPlace Global. Paid on product sales only. Most participants earn little; see the <a data-disclosure href="#">income disclosure</a>.</p>
+  </div>
+  <div class="frame phone"><video autoplay muted loop playsinline poster="/media/ritual.jpg"><source src="/media/ritual.mp4" type="video/mp4"></video></div>
+</div></section>
+
+<section class="alt" id="levels"><div class="wrap">
+  <h2 style="text-align:center">Three levels. No pressure to climb.</h2>
+  <div class="levels">
+    <div class="lvl">
+      <span class="num">1</span>
+      <h3>Sip</h3>
+      <p class="tag2">Just drink it</p>
+      <p>One bag, or Subscribe &amp; Save. Enjoy your mornings. That&rsquo;s it; most people stay right here and that&rsquo;s the point.</p>
+      <a class="btn ghost sm" href="/shop.html">Get the coffee</a>
+    </div>
+    <div class="lvl best">
+      <span class="num">2</span>
+      <h3>Share</h3>
+      <p class="tag2">Get your bag covered</p>
+      <p>Become an MPG referral rep and get your own link. Friends order through it, you earn a bonus on every order and re-order. <span class="math" hidden>At <b class="pct"></b> back, <b class="n3"></b> friends on Subscribe &amp; Save covers your own bag every month.</span></p>
+      <div class="ladder" hidden>
+        <div><i>1 friend</i><b class="l1"></b><em>/mo</em></div>
+        <div><i>3 friends</i><b class="l3"></b><em>/mo</em></div>
+        <div><i>5 friends</i><b class="l5"></b><em>/mo</em></div>
+        <div><i>10 friends</i><b class="l10"></b><em>/mo</em></div>
+      </div>
+      <a class="btn sm" data-enroll href="#">Start sharing</a>
+    </div>
+    <div class="lvl">
+      <span class="num">3</span>
+      <h3>Build</h3>
+      <p class="tag2">Take it seriously</p>
+      <p>You like the selling part. We hand you everything we use: the video system, the site, the email flows, the weekly call. You bring the work.</p>
+      <a class="btn ghost sm" href="/partner.html">See the Build track</a>
+    </div>
+  </div>
+  <p class="fine" style="text-align:center;margin-top:18px">Ladder figures are illustrative, based on friends ordering one bag a month at the current Subscribe &amp; Save price, before any expenses. They are not projections of what you will earn.</p>
+</div></section>
+
+<section id="honest"><div class="wrap" style="max-width:820px">
+  <p class="eyebrow">In plain language</p>
+  <h2>What &ldquo;Share&rdquo; actually is</h2>
+  <div class="card" style="padding:28px">
+    <ul class="clean" style="margin:0">
+      <li><strong>It&rsquo;s MarketPlace Global&rsquo;s Independent Sales Representative program.</strong> MPG is the direct-sales company that makes CoreJava. We&rsquo;re ISRs too; if you join through us, we&rsquo;re your sponsor and the people on the weekly call.</li>
+      <li><strong>It costs money to start.</strong> The CoreJava Starter Kit is $179.90 (two bags plus two 6-day experience packs) and the Builder Kit is $229.90 (three of each). Both include the $29.95 annual membership. Plus shipping and tax.</li>
+      <li><strong>You earn on product sales, not on signing people up.</strong> A Retail Customer Bonus every time someone you referred orders, and a Fast Start Bonus if someone you introduce enrolls with a kit. MPG pays weekly.</li>
+      <li><strong>To stay eligible for team commissions you keep 50 QV a month,</strong> which is roughly one bag of your own or one customer order. Most people in the Share level do this by drinking the coffee they were already buying.</li>
+      <li><strong>Most participants earn little.</strong> MPG&rsquo;s own disclosure projects average annual gross revenue of roughly $500 to $2,000 before expenses, which can exceed what you earn. Read it: <a data-disclosure href="#">income disclosure statement</a>. Also read the <a href="https://cdn.raveretailer.com/4450703AD7/2024/12/GSR_6751b39409eb32803571733411236.pdf" rel="noopener">Policies &amp; Procedures</a> and <a href="https://cdn.raveretailer.com/4450703AD7/2026/09/GSR_6a99a5994071e2714841788457897.pdf" rel="noopener">Compensation Plan</a>.</li>
+      <li><strong>You can stop whenever.</strong> Don&rsquo;t renew the membership and it lapses. 30-day money-back on unopened product bought as an ISR.</li>
+    </ul>
+  </div>
+  <p style="margin-top:22px">If that all sounds fine and you mostly want your coffee covered, Share is for you. If you read it and thought &ldquo;I could do more than three friends,&rdquo; look at <a href="/partner.html">Build</a>.</p>
+  <p><a class="btn" data-enroll href="#">Start sharing</a></p>
+</div></section>
+
+<section class="alt"><div class="wrap split">
+  <div class="frame p45"><img src="/img/desk.jpg" alt="Laptop, mug and a bag of CoreJava on a desk" loading="lazy"></div>
+  <div>
+    <h2>Questions people ask before they share</h2>
+    <details><summary>Do I have to recruit anyone?</summary><p>No. The Share level is customers only: friends who buy coffee. Nobody is paid for recruiting at any level; compensation is on product sales.</p></details>
+    <details><summary>Is this an MLM?</summary><p>MarketPlace Global is a direct-sales company whose compensation plan includes sponsoring other reps, so yes, it&rsquo;s in that category. We&rsquo;d rather you know that on this page than find out later.</p></details>
+    <details><summary>What do my friends pay?</summary><p>The same prices as anyone else: $79.95 a bag or $69.95 a month on Subscribe &amp; Save, plus shipping. Your link doesn&rsquo;t change their price.</p></details>
+    <details><summary>What if I already have an MPG account?</summary><p>Then you already have a sponsor and MPG policy doesn&rsquo;t allow switching. Keep sharing through your own link; we&rsquo;re happy to compare notes.</p></details>
+    <details><summary>Do I need to buy inventory?</summary><p>No. Friends order from MPG directly through your link and MPG ships to them. The kit is the only purchase.</p></details>
+  </div>
+</div></section>
+
+<script>
+(function(){
+  var pct = (window.TMU && TMU.RETAIL_BONUS_PCT) || 0; if(!pct) return;
+  var price = 69.95, bag = 69.95 + 8.95, per = price * pct / 100;
+  var n3 = Math.ceil(bag / per);
+  document.querySelectorAll('.math').forEach(function(e){ e.hidden=false; e.querySelector('.pct').textContent = pct + '%'; e.querySelector('.n3').textContent = n3; });
+  document.querySelectorAll('.ladder').forEach(function(l){ l.hidden=false; [1,3,5,10].forEach(function(n){ l.querySelector('.l'+n).textContent = '$' + Math.round(per*n); }); });
+})();
+</script>
+"""
+
 # ---------- ABOUT ----------
 ABOUT = """
 <section style="padding-top:36px"><div class="wrap split">
@@ -477,11 +575,11 @@ SHIPPING = """
   <p class="eyebrow">Policies</p>
   <h1 style="font-size:clamp(30px,4vw,46px)">Shipping &amp; returns</h1>
   <h2>Shipping</h2>
-  <p>We ship to addresses in the United States. <span data-ship="policy">Right now orders are fulfilled by the maker, MarketPlace Global, and shipping is calculated at their checkout before you pay.</span> You'll get a tracking email when it leaves.</p>
+  <p>We ship to addresses in the United States. <span data-ship="policy">Orders are fulfilled by the maker, MarketPlace Global, from Maple Grove, Minnesota, usually within two business days, then 3&ndash;6 days in transit.</span> You'll get a tracking email when it leaves.</p>
   <h2>Subscribe &amp; Save</h2>
   <p>A new bag ships every 30 days and your card is charged $69.95 each time. You can pause a month or cancel from the link in any receipt, or at <a href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00">the subscription portal</a>, up to the day before your next shipment. There are no cancellation fees.</p>
   <h2>Returns and refunds</h2>
-  <p>If your order arrives damaged, opened, or wrong, email hello@themorningupgrades.com within 14 days of delivery with your order number and a photo, and we'll replace it or refund it in full. For unopened bags you simply don't want, email us within 30 days of delivery and we'll refund the price once the bag is back with us; return shipping is on you. Opened bags can't be returned for a change of mind, for food-safety reasons.</p>
+  <p>MarketPlace Global, the maker, backs every customer order with a 90-day money-back guarantee on unopened product in resalable condition, and replaces anything that arrives damaged or defective if you tell us within ten business days. Email hello@themorningupgrades.com with your order number (and a photo if it&rsquo;s damaged) and we handle the return authorization for you. Return shipping on change-of-mind returns is paid by the customer; original shipping isn&rsquo;t refunded. Opened bags can&rsquo;t be returned for a change of mind, for food-safety reasons.</p>
   <h2>Questions</h2>
   <p>hello@themorningupgrades.com. A real person answers, usually the same business day.</p>
   <p class="fine">Rector &amp; Stull LLC, 30 N Gould St Ste R, Sheridan, WY 82801. Independent ISR of MarketPlace Global products and services. Last updated October 2026.</p>
@@ -494,9 +592,9 @@ PRIVACY = """
   <h1 style="font-size:clamp(30px,4vw,46px)">Privacy</h1>
   <p>This is the privacy policy for themorningupgrades.com, operated by Rector &amp; Stull LLC ("we"). It's written to be read.</p>
   <h2>What we collect</h2>
-  <ul><li><strong>If you take the quiz:</strong> your answers, first name and email, so we can send you the guide and the follow-up emails.</li><li><strong>If you buy:</strong> your name, shipping address, email and phone (for the carrier). Payment details go to Stripe; we never see your card number.</li><li><strong>If you ask about partnering:</strong> what you type into the form.</li><li><strong>Automatically:</strong> basic, aggregated analytics (pages viewed, where visitors came from). If we run ads, a Meta pixel may record page views and purchases so we can measure them.</li></ul>
+  <ul><li><strong>If you take the quiz:</strong> your answers, first name and email, so we can send you the guide and the follow-up emails.</li><li><strong>If you buy:</strong> your name, shipping address, email and phone. Payment details go to Stripe; we never see your card number. To fulfil your order we create a customer account for you with MarketPlace Global, the maker, and pass them your name, address, email and phone so they can ship to you and honor their guarantee. Their <a href="https://marketplaceglobal.com/rectorandstull/privacy-policy">privacy policy</a> covers what they do with it.</li><li><strong>If you ask about partnering:</strong> what you type into the form.</li><li><strong>Automatically:</strong> basic, aggregated analytics (pages viewed, where visitors came from). If we run ads, a Meta pixel may record page views and purchases so we can measure them.</li></ul>
   <h2>What we do with it</h2>
-  <p>Fulfil orders, send the emails you signed up for, answer your questions, and measure which of our posts bring people here. We don't sell your data. We don't share it except with the services that make the site work: Stripe (payments), Klaviyo (email), our shipping carrier, GitHub (hosting), and analytics providers.</p>
+  <p>Fulfil orders, send the emails you signed up for, answer your questions, and measure which of our posts bring people here. We don't sell your data. We don't share it except with the services that make the site work: Stripe (payments), MarketPlace Global (the maker, who fulfils and ships orders), Klaviyo (email), GitHub (hosting), and analytics providers.</p>
   <h2>Your choices</h2>
   <p>Every email has an unsubscribe link. To see, correct or delete what we hold about you, email hello@themorningupgrades.com and we'll do it within 30 days.</p>
   <h2>Cookies</h2>
@@ -531,7 +629,7 @@ ORDER_COMPLETE = """
   <div class="card" style="padding:34px 30px">
     <p class="eyebrow">Order received</p>
     <h1 style="font-size:clamp(30px,4vw,44px)">Your coffee is on its way.</h1>
-    <p>Stripe has emailed your receipt. You'll get a tracking email when the bag ships. If anything looks wrong, reply to the receipt or write hello@themorningupgrades.com.</p>
+    <p>Stripe has emailed your receipt. We set up your CoreJava customer account with MarketPlace Global, the maker, who ships from Maple Grove, Minnesota within about two business days; you'll get a tracking email when it leaves. If anything looks wrong, reply to the receipt or write hello@themorningupgrades.com.</p>
     <h3 style="margin-top:26px">While you wait</h3>
     <ul class="clean">
       <li>Morning 1: swap your <em>first</em> cup only. One level scoop, 8 oz hot water, stir.</li>
@@ -563,9 +661,10 @@ THANKS = """
 PAGES = {
   "index.html": ("The Morning Upgrade — Coffee that keeps up past lunch", "CoreJava performance coffee: natural caffeine + L-theanine, one scoop, hot water. $79.95 a bag or $69.95 a month. Take the 60-second quiz.", HOME, "/img/flatlay.jpg", False),
   "shop.html": ("Buy CoreJava Coffee — The Morning Upgrade", "CoreJava coffee, 30 servings. $79.95 one bag or $69.95 a month on Subscribe & Save. Natural caffeine, L-theanine and four more actives.", SHOP, "/img/bag.png", False),
-  "ingredients.html": ("What's in CoreJava — The Morning Upgrade", "Six ingredients and what each one is: natural caffeine, L-theanine, ChromeMate, Paradoxine, Garcinia Cambogia, Saffr'Activ.", ING, "/media/ingredients.jpg", False),
+  "ingredients.html": ("What's in CoreJava — The Morning Upgrade", "Seven ingredients and what each one is: MCT powder, natural caffeine, L-theanine, ChromeMate, Paradoxine, Garcinia Cambogia, Saffr'Activ.", ING, "/media/ingredients.jpg", False),
   "faq.html": ("FAQ — The Morning Upgrade", "Taste, caffeine, shipping, subscriptions, returns, and who you're buying from.", FAQ, "/img/pour.jpg", False),
-  "partner.html": ("Partner with us — The Morning Upgrade", "Join our MarketPlace Global team and sell CoreJava with the same videos, site and email system we use. Honest numbers first.", PARTNER, "/media/ambient.jpg", False),
+  "partner.html": ("Build with us — The Morning Upgrade", "Join our MarketPlace Global team and sell CoreJava with the same videos, site and email system we use. Honest numbers first.", PARTNER, "/media/ambient.jpg", False),
+  "share.html": ("Share & earn — The Morning Upgrade", "Get your coffee covered by the friends who steal a cup. MarketPlace Global's referral program, explained in plain language.", SHARE, "/media/ritual.jpg", False),
   "about.html": ("About — The Morning Upgrade", "Rector & Stull LLC, Independent Sales Representatives for MarketPlace Global, and why we sell one bag of coffee.", ABOUT, "/img/flatlay.jpg", False),
   "shipping-returns.html": ("Shipping & returns — The Morning Upgrade", "US shipping, Subscribe & Save terms, and our 14-day replacement / 30-day unopened return policy.", SHIPPING, "/img/flatlay.jpg", False),
   "privacy.html": ("Privacy — The Morning Upgrade", "What we collect, what we do with it, and how to opt out.", PRIVACY, "/img/flatlay.jpg", False),

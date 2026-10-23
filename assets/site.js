@@ -14,6 +14,7 @@ window.TMU = {
   KLAVIYO_LIST_QUIZ: "WgctGT",
   KLAVIYO_LIST_PARTNERS: "WeMj34",   // separate list; never the customer list
   // Tracking
+  RETAIL_BONUS_PCT: 0,         // ISR Retail Customer Bonus % on referred customer orders (0 = hide the math)
   PIXEL_ID: "",                // Meta pixel
   ANALYTICS_DOMAIN: "themorningupgrades.com"
 };
@@ -57,13 +58,13 @@ window.TMU = {
     // Shipping / checkout copy depends on which checkout is live. Never promise free shipping in handoff mode.
     var SELF = !!(C.STRIPE_ONETIME||C.STRIPE_SUBSCRIBE);
     var SHIP = SELF ? {
-      bar:'Free US shipping on every order', short:'free US shipping', trust:'Free US shipping', long:'Free US shipping. Ships within 2 business days.',
-      checkout:'Secure checkout by Stripe', damage:'Replaced or refunded if it arrives damaged',
-      policy:'Standard shipping is included in the price. Orders placed by 2 PM Central on a business day ship that day or the next.'
+      bar:'$8.95 flat US shipping', short:'$8.95 US shipping', trust:'$8.95 flat US shipping', long:'$8.95 flat US shipping, added at checkout.',
+      checkout:'Secure checkout by Stripe', damage:'90-day money-back guarantee on unopened bags',
+      policy:'Orders are fulfilled by the maker, MarketPlace Global, from Maple Grove, Minnesota, usually within two business days, then 3\u20136 days in transit. US shipping is a flat $8.95 a bag.'
     } : {
       bar:'$8.95 flat US shipping', short:'$8.95 US shipping', trust:'$8.95 flat US shipping', long:'$8.95 flat US shipping, shown at checkout.',
       checkout:'Secure checkout', damage:'Made right if it arrives damaged',
-      policy:'Orders are fulfilled by the maker, MarketPlace Global. US shipping is a flat $8.95 for a bag, shown at their checkout before you pay.'
+      policy:'Orders are fulfilled by the maker, MarketPlace Global, from Maple Grove, Minnesota, usually within two business days, then 3\u20136 days in transit. US shipping is a flat $8.95 a bag, shown at their checkout before you pay.'
     };
     document.querySelectorAll('[data-ship]').forEach(function(e){ var k=e.getAttribute('data-ship'); if(SHIP[k]) e.textContent = SHIP[k]; });
 
