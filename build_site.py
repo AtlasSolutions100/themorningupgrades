@@ -44,7 +44,7 @@ FOOTER = """
   </div>
   <p>These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease. Consult a physician before use if you are pregnant, nursing, taking medication, or have a medical condition. Contains caffeine.</p>
   <p>CoreJava is a product of MarketPlace Global. Rector &amp; Stull LLC is an independent distributor and is not the manufacturer. We earn income on the products we sell and on sales made by partners we introduce.</p>
-  <p>&copy; <span class="yr"></span> Rector &amp; Stull LLC</p>
+  <p>&copy; <span class="yr"></span> Rector &amp; Stull LLC &middot; 30 N Gould St Ste R, Sheridan, WY 82801</p>
 </div></footer>
 """
 
@@ -489,7 +489,7 @@ SHIPPING = """
   <p>If your order arrives damaged, opened, or wrong, email hello@themorningupgrades.com within 14 days of delivery with your order number and a photo, and we'll replace it or refund it in full. For unopened bags you simply don't want, email us within 30 days of delivery and we'll refund the price once the bag is back with us; return shipping is on you. Opened bags can't be returned for a change of mind, for food-safety reasons.</p>
   <h2>Questions</h2>
   <p>hello@themorningupgrades.com. A real person answers, usually the same business day.</p>
-  <p class="fine">Rector &amp; Stull LLC, independent distributor of MarketPlace Global products. Last updated October 2026.</p>
+  <p class="fine">Rector &amp; Stull LLC, 30 N Gould St Ste R, Sheridan, WY 82801. Independent distributor of MarketPlace Global products. Last updated October 2026.</p>
 </div></section>
 """
 
@@ -506,7 +506,7 @@ PRIVACY = """
   <p>Every email has an unsubscribe link. To see, correct or delete what we hold about you, email hello@themorningupgrades.com and we'll do it within 30 days.</p>
   <h2>Cookies</h2>
   <p>The site itself sets none. Stripe and Klaviyo set the ones they need to work. If a Meta pixel is active, it sets its own; you can opt out at facebook.com/ads/preferences.</p>
-  <p class="fine">Rector &amp; Stull LLC. Last updated October 2026.</p>
+  <p class="fine">Rector &amp; Stull LLC, 30 N Gould St Ste R, Sheridan, WY 82801 &middot; hello@themorningupgrades.com. Last updated October 2026.</p>
 </div></section>
 """
 
@@ -527,7 +527,7 @@ TERMS = """
   <p>To the extent the law allows, our liability for any order is limited to the amount you paid for it.</p>
   <h2>Partner opportunity</h2>
   <p>Information on the Partner page describes an independent distributor opportunity with MarketPlace Global and is governed by MarketPlace Global's own agreement and policies, which you accept when you enroll with them. We make no guarantee of income.</p>
-  <p class="fine">Rector &amp; Stull LLC. Governing law: Idaho. Last updated October 2026.</p>
+  <p class="fine">Rector &amp; Stull LLC, 30 N Gould St Ste R, Sheridan, WY 82801 &middot; hello@themorningupgrades.com. Governing law: Wyoming. Last updated October 2026.</p>
 </div></section>
 """
 
