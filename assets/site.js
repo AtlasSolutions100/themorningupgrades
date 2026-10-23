@@ -16,6 +16,7 @@ window.TMU = {
   // Tracking
   RETAIL_BONUS_PCT: 0,         // ISR Retail Customer Bonus % on referred customer orders (0 = hide the math)
   GA4_ID: "G-G79BLY9MDG",       // Google Analytics 4
+  TIKTOK_PIXEL: "DBDQJRRC77U24SKT5GP0", // TikTok pixel
   PIXEL_ID: "",                // Meta pixel
   ANALYTICS_DOMAIN: "themorningupgrades.com"
 };
@@ -28,6 +29,11 @@ window.TMU = {
     window.dataLayer = window.dataLayer || []; window.gtag = function(){ dataLayer.push(arguments); };
     gtag('js', new Date()); gtag('config', C.GA4_ID, { anonymize_ip: true });
   }
+  // TikTok pixel
+  if (C.TIKTOK_PIXEL) {
+    !function (w, d, t) { w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};var s=document.createElement("script");s.type="text/javascript",s.async=!0,s.src=r+"?sdkid="+e+"&lib="+t;var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(s,a)};
+      ttq.load(C.TIKTOK_PIXEL); ttq.page(); }(window, document, 'ttq');
+  }
   // Meta pixel
   if (C.PIXEL_ID) {
     !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
@@ -37,7 +43,8 @@ window.TMU = {
   if (C.ANALYTICS_DOMAIN && window.TMU_ANALYTICS_ON) {
     var s=document.createElement('script'); s.defer=true; s.setAttribute('data-domain',C.ANALYTICS_DOMAIN); s.src='https://plausible.io/js/script.outbound-links.js'; document.head.appendChild(s);
   }
-  window.track = function(name, props){ try{ if(window.gtag&&C.GA4_ID) gtag('event', name, props||{}); if(window.fbq&&C.PIXEL_ID) fbq('track',name,props||{}); if(window.plausible) plausible(name,{props:props||{}}); }catch(e){} };
+  var TT_MAP={InitiateCheckout:'InitiateCheckout',Lead:'CompleteRegistration',QuizComplete:'ViewContent',PartnerLead:'SubmitForm',PartnerClick:'ClickButton',Purchase:'CompletePayment'};
+  window.track = function(name, props){ try{ if(window.gtag&&C.GA4_ID) gtag('event', name, props||{}); if(window.ttq&&C.TIKTOK_PIXEL&&TT_MAP[name]) ttq.track(TT_MAP[name], name==='Purchase'?{value:79.95,currency:'USD',content_type:'product',content_id:'CL805'}:(props||{})); if(window.fbq&&C.PIXEL_ID) fbq('track',name,props||{}); if(window.plausible) plausible(name,{props:props||{}}); }catch(e){} };
 
   document.addEventListener('DOMContentLoaded', function(){
     // nav
@@ -46,7 +53,7 @@ window.TMU = {
     var here=location.pathname.replace(/\/index\.html$/,'/');
     document.querySelectorAll('.menu a').forEach(function(a){ var h=a.getAttribute('href'); if(h && (h===here || (h!=='/' && here.indexOf(h)===0))) a.classList.add('on'); });
     // analytics notice (dismissable, remembered per browser)
-    try{ if(C.GA4_ID && !localStorage.getItem('tmu_notice')){ var n=document.createElement('div'); n.className='notice'; n.innerHTML='We use Google Analytics to see which pages and videos bring people here. No ads cookies. <a href="/privacy.html">Privacy</a> <button type="button">OK</button>'; document.body.appendChild(n); n.querySelector('button').onclick=function(){ try{localStorage.setItem('tmu_notice','1')}catch(e){} n.remove(); }; } }catch(e){}
+    try{ if(C.GA4_ID && !localStorage.getItem('tmu_notice')){ var n=document.createElement('div'); n.className='notice'; n.innerHTML='We use Google Analytics and a TikTok pixel to see which pages and videos bring people here. <a href="/privacy.html">Privacy</a> <button type="button">OK</button>'; document.body.appendChild(n); n.querySelector('button').onclick=function(){ try{localStorage.setItem('tmu_notice','1')}catch(e){} n.remove(); }; } }catch(e){}
     // year
     document.querySelectorAll('.yr').forEach(function(e){ e.textContent=new Date().getFullYear(); });
 
