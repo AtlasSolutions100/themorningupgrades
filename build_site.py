@@ -23,7 +23,7 @@ FOOTER = """
   <div class="cols">
     <div>
       <h4>The Morning Upgrade</h4>
-      <p>Coffee that keeps up past lunch. One scoop, hot water, smooth energy and sharp focus. Sold by Rector &amp; Stull LLC, an independent distributor of MarketPlace Global products.</p>
+      <p>Coffee that keeps up past lunch. One scoop, hot water, smooth energy and sharp focus. Sold by Rector &amp; Stull LLC, Independent ISR of MarketPlace Global products and services.</p>
       <p>hello@themorningupgrades.com</p>
     </div>
     <div>
@@ -43,7 +43,7 @@ FOOTER = """
     </div>
   </div>
   <p>These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease. Consult a physician before use if you are pregnant, nursing, taking medication, or have a medical condition. Contains caffeine.</p>
-  <p>CoreJava is a product of MarketPlace Global. Rector &amp; Stull LLC is an independent distributor and is not the manufacturer. We earn income on the products we sell and on sales made by partners we introduce.</p>
+  <p>CoreJava is a product of MarketPlace Global. Rector &amp; Stull LLC is an Independent Sales Representative (ISR) of MarketPlace Global, not the manufacturer, and not MarketPlace Global itself. We earn income on the products we sell and on sales made by partners we introduce.</p>
   <p>&copy; <span class="yr"></span> Rector &amp; Stull LLC &middot; 30 N Gould St Ste R, Sheridan, WY 82801</p>
 </div></footer>
 """
@@ -66,7 +66,7 @@ def page(title, desc, body, og_image="/img/flatlay.jpg", noindex=False, extra_he
 {extra_head}
 </head>
 <body>
-<div class="bar"><span data-ship="bar">Ships to all 50 states</span> &middot; Subscribe &amp; Save: $69.95 a month, cancel anytime</div>
+<div class="bar"><span class="isr-logo"></span>Rector &amp; Stull LLC &middot; Independent MarketPlace Global ISR &middot; <a href="https://marketplaceglobal.com/rectorandstull" rel="noopener">MarketPlace Global corporate site &rarr;</a></div>
 {NAV}
 {body}
 {FOOTER}
@@ -304,7 +304,7 @@ SHOP = """
       <li><strong>Actives:</strong> natural caffeine, L-theanine, ChromeMate&reg; chromium, Paradoxine&reg; grains of paradise extract, Garcinia Cambogia extract, Saffr'Activ&reg; saffron extract. <a href="/ingredients.html">Full breakdown</a>.</li>
       <li><strong>Taste:</strong> medium roast, smooth. Works black, with creamer, or over ice.</li>
       <li><strong>Who it's for:</strong> adults who drink coffee daily and want a steadier morning. Not for children, or if you're pregnant or nursing. Contains caffeine.</li>
-      <li><strong>Made by:</strong> MarketPlace Global. Sold by Rector &amp; Stull LLC, independent distributor.</li>
+      <li><strong>Made by:</strong> MarketPlace Global. Sold by Rector &amp; Stull LLC, Independent MarketPlace Global ISR.</li>
     </ul>
   </div>
 </div></section>
@@ -364,9 +364,9 @@ FAQ = """
   <details><summary>How does Subscribe &amp; Save work?</summary><p>A bag ships every 30 days at $69.95. Pause a month, cancel, or update your card any time from the link in your receipt or at <a href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00">the subscription portal</a>. No calls.</p></details>
   <details><summary>Where does it ship from, how fast, and what does shipping cost?</summary><p><span data-ship="policy">Right now orders are fulfilled by the maker, MarketPlace Global, and shipping is calculated at their checkout before you pay.</span> US addresses only for now. Tracking arrives by email.</p></details>
   <details><summary>Returns?</summary><p>If a bag arrives damaged or wrong, email hello@themorningupgrades.com within 14 days and we'll replace it or refund it. Full policy on the <a href="/shipping-returns.html">Shipping &amp; returns</a> page.</p></details>
-  <details><summary>Who am I buying from?</summary><p>Rector &amp; Stull LLC, an independent distributor of MarketPlace Global products. MarketPlace Global makes CoreJava; we sell it.</p></details>
+  <details><summary>Who am I buying from?</summary><p>Rector &amp; Stull LLC, Independent ISR of MarketPlace Global products and services. MarketPlace Global makes CoreJava; we sell it.</p></details>
   <h2>The business</h2>
-  <details><summary>Is this an MLM?</summary><p>MarketPlace Global sells through independent distributors, and distributors can introduce other distributors. We earn on the coffee we sell and on sales made by partners we introduce. If that interests you, the <a href="/partner.html">Partner page</a> explains it without the hype.</p></details>
+  <details><summary>Is this an MLM?</summary><p>MarketPlace Global is a direct sales company that sells through Independent Sales Representatives (ISRs), and ISRs can sponsor other ISRs. We earn on the coffee we sell and on sales made by partners we introduce. If that interests you, the <a href="/partner.html">Partner page</a> explains it without the hype.</p></details>
 </div></section>
 """
 
@@ -376,9 +376,9 @@ PARTNER = """
   <div>
     <p class="eyebrow">Partner with us</p>
     <h1 style="font-size:clamp(30px,4vw,46px)">Sell the coffee you already drink. We'll show you exactly how we do it.</h1>
-    <p class="lead">Rector &amp; Stull is a small team of independent distributors for MarketPlace Global. We sell CoreJava online with short videos, a simple website and an email list. If you join our team, you get the same playbook, the same creative, and a weekly call with people doing it.</p>
+    <p class="lead">Rector &amp; Stull is a small team of Independent Sales Representatives (ISRs) for MarketPlace Global. We sell CoreJava online with short videos, a simple website and an email list. If you join our team, we show you how we do it and meet weekly to go over what&rsquo;s working.</p>
     <p><a class="btn" data-enroll data-fallback="Ask about joining" href="#apply">Join our team</a> &nbsp; <a class="btn ghost" href="#how">How it works</a></p>
-    <p class="fine" style="margin-top:14px">Independent distributor opportunity with MarketPlace Global. Earnings depend on your own sales and effort; most participants earn little or nothing. Read the <a data-disclosure href="#">income disclosure statement</a> before you decide.</p>
+    <p class="fine" style="margin-top:14px">Independent Sales Representative (ISR) opportunity with MarketPlace Global. Compensation is based on sales of MarketPlace Global products and on sponsoring other ISRs who sell them; no compensation is paid for recruiting. Success can be achieved only through substantial independent effort, and most participants earn little or nothing. Read the <a data-disclosure href="#">income disclosure statement</a>, the <a href="https://cdn.raveretailer.com/4450703AD7/2024/12/GSR_6751b39409eb32803571733411236.pdf" rel="noopener">Policies &amp; Procedures</a> and the <a href="https://cdn.raveretailer.com/4450703AD7/2026/09/GSR_6a99a5994071e2714841788457897.pdf" rel="noopener">Compensation Plan</a> before you decide.</p>
   </div>
   <div class="frame phone"><video autoplay muted loop playsinline poster="/media/ambient.jpg"><source src="/media/ambient.mp4" type="video/mp4"></video></div>
 </div></section>
@@ -386,8 +386,8 @@ PARTNER = """
 <section class="alt" id="how"><div class="wrap">
   <h2>How it works</h2>
   <div class="steps">
-    <div><h3>Enroll with MarketPlace Global</h3><p>You sign up as an independent distributor under our team. MarketPlace Global handles product, shipping, payments and commissions.</p></div>
-    <div><h3>Get the playbook</h3><p>Our content system: the product films, the captions, the pre-sell page, the email flows, and the disclosure rules that keep it clean. Yours to use on day one.</p></div>
+    <div><h3>Enroll with MarketPlace Global</h3><p>You sign up as an Independent Sales Representative under our team. MarketPlace Global handles product, shipping, payments and commissions.</p></div>
+    <div><h3>Learn how we do it</h3><p>MarketPlace Global provides the training, tools and approved materials. We add a weekly call where we walk through what we post, what we say, and the compliance rules that keep it clean.</p></div>
     <div><h3>Sell, then teach</h3><p>You earn on the coffee you sell. If you introduce partners, you earn on what they sell too. We meet weekly to go over what's working.</p></div>
   </div>
 </div></section>
@@ -399,11 +399,10 @@ PARTNER = """
     <ul class="clean">
       <li>You drink coffee every day and you'd rather sell one thing you use than ten you don't.</li>
       <li>You're comfortable posting short videos, or willing to learn with templates that do most of the work.</li>
-      <li>You want a side income you can build in evenings, not a second job.</li>
       <li>You're fine with honest numbers. We'll show you ours.</li>
     </ul>
     <h2 style="margin-top:28px">Who it isn't for</h2>
-    <p style="color:var(--muted)">Anyone who needs income this month. Anyone who wants to recruit before they've sold a bag. Anyone who'd rather not disclose that they earn a commission.</p>
+    <p style="color:var(--muted)">Anyone who needs income this month. Anyone who wants to recruit before they've sold a bag. Anyone who'd rather not identify themselves as an independent MarketPlace Global ISR in everything they post.</p>
   </div>
 </div></section>
 
@@ -414,7 +413,7 @@ PARTNER = """
     <div class="card"><h3>Most people earn little</h3><p>That's true of every direct-sales company, and the income disclosure statement shows it. We'd rather you read it first than hear it later.</p></div>
     <div class="card"><h3>Results take work</h3><p>Our system shortens the learning curve. It does not remove the work: posting, replying, following up, every week.</p></div>
   </div>
-  <p class="fine" style="margin-top:22px">Rector &amp; Stull LLC does not guarantee any level of income. Any earnings figures we share are our own, are not typical, and are not a promise of what you will earn. See the <a data-disclosure href="#" style="color:#C9C2B6">MarketPlace Global income disclosure statement</a>.</p>
+  <p class="fine" style="margin-top:22px">Rector &amp; Stull LLC does not guarantee any level of income. MarketPlace Global&rsquo;s own income disclosure projects average annual gross revenue for ISRs of roughly $500 to $2,000 before expenses, which can exceed commissions. Compensation is based solely on product sales, not recruiting, and requires substantial independent effort. See the <a data-disclosure href="#" style="color:#C9C2B6">MarketPlace Global income disclosure statement</a>, <a href="https://cdn.raveretailer.com/4450703AD7/2024/12/GSR_6751b39409eb32803571733411236.pdf" rel="noopener" style="color:#C9C2B6">Policies &amp; Procedures</a> and <a href="https://cdn.raveretailer.com/4450703AD7/2026/09/GSR_6a99a5994071e2714841788457897.pdf" rel="noopener" style="color:#C9C2B6">Compensation Plan</a>.</p>
 </div></section>
 
 <section class="alt" id="apply"><div class="wrap">
@@ -430,8 +429,9 @@ PARTNER = """
         <option value="new">New to selling online</option>
         <option value="social">I post on social already</option>
         <option value="sales">I've done sales or direct sales before</option>
-        <option value="mpg">I'm already with MarketPlace Global</option>
+        <option value="mpg">I'm already a MarketPlace Global ISR</option>
       </select>
+      <p class="fine" style="margin:6px 0 0">If you already have a MarketPlace Global ISR agreement, we can&rsquo;t enroll you under a different sponsor (MPG policy 3.6) &mdash; but we&rsquo;re happy to compare notes.</p>
       <label>Anything you want us to know?</label><textarea name="note"></textarea>
       <p style="margin:16px 0 8px"><button class="btn" type="submit">Send</button></p>
       <p class="fine">You'll hear from a real person at Rector &amp; Stull. We never add partner inquiries to our customer emails.</p>
@@ -462,7 +462,7 @@ ABOUT = """
   <div>
     <p class="eyebrow">About</p>
     <h1 style="font-size:clamp(30px,4vw,46px)">Two people, one bag of coffee, and a website that says what it is.</h1>
-    <p class="lead">Rector &amp; Stull LLC is a small company run by two partners, one in Idaho and one in Texas. We're independent distributors for MarketPlace Global, and CoreJava is the product we drink ourselves, which is why it's the one we sell.</p>
+    <p class="lead">Rector &amp; Stull LLC is a small company run by two partners, one in Idaho and one in Texas. We're Independent Sales Representatives (ISRs) for MarketPlace Global, and CoreJava is the product we drink ourselves, which is why it's the one we sell.</p>
     <p>We started The Morning Upgrade because most coffee marketing is either a lifestyle fantasy or a wall of supplement jargon. We wanted a page that tells you what's in the bag, what it costs per cup, and how to find out in a week whether it's for you.</p>
     <p>Everything on this site that earns us money says so. Every video that uses an AI-generated scene is labeled. If something's unclear, email us and a human will answer: hello@themorningupgrades.com.</p>
     <p><a class="btn" href="/shop.html">Buy CoreJava</a> &nbsp; <a class="btn ghost" href="/partner.html">Partner with us</a></p>
@@ -484,7 +484,7 @@ SHIPPING = """
   <p>If your order arrives damaged, opened, or wrong, email hello@themorningupgrades.com within 14 days of delivery with your order number and a photo, and we'll replace it or refund it in full. For unopened bags you simply don't want, email us within 30 days of delivery and we'll refund the price once the bag is back with us; return shipping is on you. Opened bags can't be returned for a change of mind, for food-safety reasons.</p>
   <h2>Questions</h2>
   <p>hello@themorningupgrades.com. A real person answers, usually the same business day.</p>
-  <p class="fine">Rector &amp; Stull LLC, 30 N Gould St Ste R, Sheridan, WY 82801. Independent distributor of MarketPlace Global products. Last updated October 2026.</p>
+  <p class="fine">Rector &amp; Stull LLC, 30 N Gould St Ste R, Sheridan, WY 82801. Independent ISR of MarketPlace Global products and services. Last updated October 2026.</p>
 </div></section>
 """
 
@@ -509,7 +509,7 @@ TERMS = """
 <section style="padding-top:36px"><div class="wrap legal">
   <p class="eyebrow">Policies</p>
   <h1 style="font-size:clamp(30px,4vw,46px)">Terms of sale</h1>
-  <p>By ordering from themorningupgrades.com you agree to these terms. The seller is Rector &amp; Stull LLC, an independent distributor of MarketPlace Global products. MarketPlace Global manufactures CoreJava; we are not the manufacturer.</p>
+  <p>By ordering from themorningupgrades.com you agree to these terms. The seller is Rector &amp; Stull LLC, Independent ISR of MarketPlace Global products and services. MarketPlace Global manufactures CoreJava; we are not the manufacturer.</p>
   <h2>Orders and prices</h2>
   <p>Prices are in US dollars. Any shipping charge is shown at checkout before you pay. We may change prices at any time; the price you pay is the one shown at checkout. If we can't fill an order we'll refund it in full.</p>
   <h2>Subscriptions</h2>
@@ -521,7 +521,7 @@ TERMS = """
   <h2>Liability</h2>
   <p>To the extent the law allows, our liability for any order is limited to the amount you paid for it.</p>
   <h2>Partner opportunity</h2>
-  <p>Information on the Partner page describes an independent distributor opportunity with MarketPlace Global and is governed by MarketPlace Global's own agreement and policies, which you accept when you enroll with them. We make no guarantee of income.</p>
+  <p>Information on the Partner page describes an Independent Sales Representative (ISR) opportunity with MarketPlace Global and is governed by MarketPlace Global's own agreement and policies, which you accept when you enroll with them. We make no guarantee of income.</p>
   <p class="fine">Rector &amp; Stull LLC, 30 N Gould St Ste R, Sheridan, WY 82801 &middot; hello@themorningupgrades.com. Governing law: Wyoming. Last updated October 2026.</p>
 </div></section>
 """
@@ -566,7 +566,7 @@ PAGES = {
   "ingredients.html": ("What's in CoreJava — The Morning Upgrade", "Six ingredients and what each one is: natural caffeine, L-theanine, ChromeMate, Paradoxine, Garcinia Cambogia, Saffr'Activ.", ING, "/media/ingredients.jpg", False),
   "faq.html": ("FAQ — The Morning Upgrade", "Taste, caffeine, shipping, subscriptions, returns, and who you're buying from.", FAQ, "/img/pour.jpg", False),
   "partner.html": ("Partner with us — The Morning Upgrade", "Join our MarketPlace Global team and sell CoreJava with the same videos, site and email system we use. Honest numbers first.", PARTNER, "/media/ambient.jpg", False),
-  "about.html": ("About — The Morning Upgrade", "Rector & Stull LLC, independent distributors of MarketPlace Global, and why we sell one bag of coffee.", ABOUT, "/img/flatlay.jpg", False),
+  "about.html": ("About — The Morning Upgrade", "Rector & Stull LLC, Independent Sales Representatives for MarketPlace Global, and why we sell one bag of coffee.", ABOUT, "/img/flatlay.jpg", False),
   "shipping-returns.html": ("Shipping & returns — The Morning Upgrade", "US shipping, Subscribe & Save terms, and our 14-day replacement / 30-day unopened return policy.", SHIPPING, "/img/flatlay.jpg", False),
   "privacy.html": ("Privacy — The Morning Upgrade", "What we collect, what we do with it, and how to opt out.", PRIVACY, "/img/flatlay.jpg", False),
   "terms.html": ("Terms of sale — The Morning Upgrade", "Terms for buying CoreJava from Rector & Stull LLC.", TERMS, "/img/flatlay.jpg", False),
