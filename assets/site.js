@@ -54,6 +54,8 @@ window.TMU = {
     document.querySelectorAll('.menu a').forEach(function(a){ var h=a.getAttribute('href'); if(h && (h===here || (h!=='/' && here.indexOf(h)===0))) a.classList.add('on'); });
     // analytics notice (dismissable, remembered per browser)
     try{ if(C.GA4_ID && !localStorage.getItem('tmu_notice')){ var n=document.createElement('div'); n.className='notice'; n.innerHTML='We use Google Analytics and a TikTok pixel to see which pages and videos bring people here. <a href="/privacy.html">Privacy</a> <button type="button">OK</button>'; document.body.appendChild(n); n.querySelector('button').onclick=function(){ try{localStorage.setItem('tmu_notice','1')}catch(e){} n.remove(); }; } }catch(e){}
+    // sound toggle on muted autoplay host videos
+    document.querySelectorAll('[data-unmute]').forEach(function(b){ var v=b.parentNode.querySelector('video'); if(!v) return; b.onclick=function(){ v.muted=!v.muted; if(!v.muted){ v.currentTime=0; v.play(); } b.innerHTML = v.muted ? '&#9654; Sound on' : '&#10073;&#10073; Mute'; track('VideoSound',{on:!v.muted}); }; });
     // year
     document.querySelectorAll('.yr').forEach(function(e){ e.textContent=new Date().getFullYear(); });
 

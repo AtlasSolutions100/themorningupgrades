@@ -82,7 +82,7 @@ p.lead{font-size:19px;max-width:50ch}
 .fine{font-family:Helvetica,Arial,sans-serif;font-size:12px;color:var(--muted);line-height:1.5}
 .dark .fine{color:#9A958C}
 ul.clean{padding-left:20px;margin:0 0 18px}ul.clean li{margin-bottom:8px}
-.frame{border-radius:18px;overflow:hidden;background:#ddd;box-shadow:0 20px 60px rgba(30,36,48,.15)}
+.frame{position:relative;border-radius:18px;overflow:hidden;background:#ddd;box-shadow:0 20px 60px rgba(30,36,48,.15)}
 .frame video,.frame img{width:100%;height:100%;object-fit:cover;display:block}
 .phone{aspect-ratio:9/16;max-width:360px;margin:0 auto}
 .sq{aspect-ratio:1}
@@ -171,3 +171,18 @@ footer p{font-family:Helvetica,Arial,sans-serif;font-size:13px;color:var(--muted
 .notice a{color:#E3B08A}
 .notice button{margin-left:auto;background:var(--copper);color:#fff;border:0;border-radius:8px;padding:8px 14px;font:inherit;font-weight:bold;cursor:pointer}
 @media(min-width:861px){.notice{bottom:16px}}
+
+/* landing + hosts */
+.frame.vid{position:relative}
+.unmute{position:absolute;left:12px;bottom:12px;background:rgba(11,15,23,.78);color:#fff;border:0;border-radius:999px;padding:9px 14px;font-family:Helvetica,Arial,sans-serif;font-size:13px;cursor:pointer;backdrop-filter:blur(6px)}
+.unmute:hover{background:rgba(11,15,23,.95)}
+.ailabel{position:absolute;right:12px;top:12px;background:rgba(255,255,255,.88);color:var(--ink);border-radius:999px;padding:4px 9px;font-family:Helvetica,Arial,sans-serif;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
+.frame.p45{position:relative}
+.ctab.left{text-align:left;margin:22px 0 0}.ctab.left .btn{margin:0 10px 10px 0}
+.callouts .card h3{margin-top:4px}.callouts .card .eyebrow{margin-bottom:4px}
+.guar{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:28px;font-family:Helvetica,Arial,sans-serif;font-size:14px;color:var(--muted);line-height:1.5}
+.guar div{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:18px}
+.guar b{display:block;color:var(--ink);font-size:15px;margin-bottom:6px;font-family:inherit}
+.hosts{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.hosts .frame{box-shadow:none}
+@media(max-width:860px){.guar{grid-template-columns:1fr}.hosts{grid-template-columns:1fr 1fr}.start-hero .frame{height:auto;max-height:none;aspect-ratio:9/16;max-width:300px;margin:0 auto}}

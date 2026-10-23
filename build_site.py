@@ -49,7 +49,7 @@ FOOTER = """
 </div></footer>
 """
 
-def page(title, desc, body, og_image="/img/flatlay.jpg", noindex=False, extra_head=""):
+def page(title, desc, body, og_image="/img/flatlay.jpg", noindex=False, extra_head="", nav=True):
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -68,7 +68,7 @@ def page(title, desc, body, og_image="/img/flatlay.jpg", noindex=False, extra_he
 </head>
 <body>
 <div class="bar"><span class="isr-logo"></span>Rector &amp; Stull LLC &middot; Independent MarketPlace Global ISR &middot; <a href="https://marketplaceglobal.com/rectorandstull" rel="noopener">MarketPlace Global corporate site &rarr;</a></div>
-{NAV}
+{NAV if nav else ''}
 {body}
 {FOOTER}
 <div class="sticky"><div><b>CoreJava &middot; 30 servings</b><span>from $69.95 &middot; <span data-ship="short">ships to all 50 states</span></span></div><a class="btn" data-buy="subscribe" href="#">Buy now</a></div>
@@ -78,8 +78,8 @@ def page(title, desc, body, og_image="/img/flatlay.jpg", noindex=False, extra_he
 
 BENEFITS = """
 <div class="marq"><div>
-  <span>Smooth energy</span><span>Sharp focus</span><span>No 2pm slide</span><span>Tastes like coffee</span><span>Ready in 30 seconds</span><span>30 mornings a bag</span>
-  <span>Smooth energy</span><span>Sharp focus</span><span>No 2pm slide</span><span>Tastes like coffee</span><span>Ready in 30 seconds</span><span>30 mornings a bag</span>
+  <span>Smooth energy</span><span>Sharp focus</span><span>Creamy without the cream</span><span>Tastes like coffee</span><span>Ready in 30 seconds</span><span>30 mornings a bag</span>
+  <span>Smooth energy</span><span>Sharp focus</span><span>Creamy without the cream</span><span>Tastes like coffee</span><span>Ready in 30 seconds</span><span>30 mornings a bag</span>
 </div></div>
 """
 CTA_BLOCK = """
@@ -113,6 +113,19 @@ FOUNDER = """
 </div></section>
 """
 
+HOSTS = """
+<section><div class="wrap">
+  <p class="eyebrow" style="text-align:center">Meet the hosts</p>
+  <h2 style="text-align:center">The people in our videos are AI presenters.</h2>
+  <p style="text-align:center;color:var(--muted);max-width:62ch;margin:0 auto 26px">We say so up front. They show you the coffee, the scoop and what's on the label; they don't claim results, because they haven't had any. Real answers come from a real inbox: hello@themorningupgrades.com.</p>
+  <div class="hosts">
+    <div class="frame p45"><img src="/img/host_p3_marble.jpg" alt="AI host holding a bag of CoreJava at a marble kitchen counter" loading="lazy"><span class="ailabel">AI host</span></div>
+    <div class="frame p45"><img src="/img/host_p1_raglan.jpg" alt="AI host holding a bag of CoreJava in a living room" loading="lazy"><span class="ailabel">AI host</span></div>
+    <div class="frame p45"><img src="/img/host_p2_sofa.jpg" alt="AI host on a yellow sofa with a bag of CoreJava and a mug" loading="lazy"><span class="ailabel">AI host</span></div>
+    <div class="frame p45"><img src="/img/host_p4_gaze.jpg" alt="AI host on a bed with a laptop and a bag of CoreJava" loading="lazy"><span class="ailabel">AI host</span></div>
+  </div>
+</div></section>
+"""
 # ---------- HOME ----------
 HOME = """
 <div class="wrap hero">
@@ -124,7 +137,7 @@ HOME = """
     <p class="sub">$79.95 one bag &middot; $69.95 a month on Subscribe &amp; Save &middot; <span data-ship="short">ships to all 50 states</span></p>
     <div class="trust hero-trust"><span>&#10003; <span data-ship="trust">Ships to all 50 states</span></span><span>&#10003; Cancel anytime</span><span>&#10003; <span data-ship="checkout">Secure checkout</span></span><span>&#10003; <span data-ship="damage">Made right if it arrives damaged</span></span></div>
   </div>
-  <div class="frame phone"><video autoplay muted loop playsinline poster="/media/hero_macro.jpg"><source src="/media/hero_macro.mp4" type="video/mp4"></video></div>
+  <div class="frame phone vid"><video autoplay muted loop playsinline poster="/media/host_kitchen.jpg"><source src="/media/host_kitchen.mp4" type="video/mp4"></video><button class="unmute" type="button" data-unmute aria-label="Turn sound on">&#9654; Sound on</button><span class="ailabel">AI host</span></div>
 </div>
 """ + BENEFITS + """
 
@@ -285,7 +298,7 @@ SHOP = """
   <div>
     <div class="frame p45"><img src="/img/hero_breakfast.jpg" alt="CoreJava coffee bag on a breakfast table in morning light"></div>
     <div class="gallery">
-      <div class="frame" style="aspect-ratio:9/16"><video muted loop playsinline autoplay poster="/media/ambient.jpg"><source src="/media/ambient.mp4" type="video/mp4"></video></div>
+      <div class="frame" style="aspect-ratio:9/16"><video muted loop playsinline autoplay poster="/media/product_callouts_v2.jpg"><source src="/media/product_callouts_v2.mp4" type="video/mp4"></video></div>
       <div class="frame" style="aspect-ratio:9/16"><img src="/img/kitchen_pour.jpg" alt="Pouring hot water next to a CoreJava bag" loading="lazy"></div>
       <div class="frame" style="aspect-ratio:9/16"><video muted loop playsinline autoplay poster="/media/iced.jpg"><source src="/media/iced.mp4" type="video/mp4"></video></div>
     </div>
@@ -327,7 +340,7 @@ SHOP = """
     <div><h3>Days 6&ndash;7</h3><p>Decide. If the afternoon is different, Subscribe &amp; Save keeps it that way for $2.33 a cup.</p></div>
   </div>
 </div></section>
-""" + COMPARE + FOUNDER + """
+""" + HOSTS + COMPARE + FOUNDER + """
 <section class="dark" style="text-align:center"><div class="wrap"><h2>Start tomorrow.</h2>""" + CTA_BLOCK + """</div></section>
 """
 
@@ -653,8 +666,98 @@ THANKS = """
       <strong>What happens next</strong>
       <ol style="margin:8px 0 0;padding-left:20px"><li>Morning 1 starts tomorrow. It takes two minutes.</li><li>Over the next two weeks you'll get a handful of short notes: the why, the how-to, the cost math.</li><li>If you want to try the cup the guide is built around, it's below. One bag is 30 mornings.</li></ol>
     </div>
-    <p><a class="btn" href="/shop.html">See the coffee</a> <a class="btn ghost" href="/">Back to the start</a></p>
+    <p><a class="btn" href="/start.html?utm_source=quiz">See the coffee</a> <a class="btn ghost" href="/">Back to the start</a></p>
   </div>
+</div></section>
+"""
+
+START = """
+<div class="wrap hero start-hero">
+  <div>
+    <p class="eyebrow">CoreJava &middot; instant performance coffee</p>
+    <h1>The 2 PM cup, solved at 7 AM.</h1>
+    <p class="lead">Natural caffeine paired with L-theanine, the calm amino acid from green tea, plus MCT powder for a creamy cup. One scoop, hot water, 30 seconds. Supports healthy appetite control, focus and energy.</p>
+    <div class="ctab left"><a class="btn" data-buy="subscribe" href="#">Subscribe &amp; Save &mdash; $69.95/mo</a><a class="btn ghost" data-buy="onetime" href="#">One bag &mdash; $79.95</a></div>
+    <div class="trust hero-trust"><span>&#10003; <span data-ship="trust">$8.95 flat US shipping</span></span><span>&#10003; Cancel anytime</span><span>&#10003; <span data-ship="damage">Made right if it arrives damaged</span></span><span>&#10003; 30 servings a bag</span></div>
+  </div>
+  <div class="frame phone vid"><video autoplay muted loop playsinline poster="/media/host_kitchen.jpg"><source src="/media/host_kitchen.mp4" type="video/mp4"></video><button class="unmute" type="button" data-unmute aria-label="Turn sound on">&#9654; Sound on</button><span class="ailabel">AI host</span></div>
+</div>
+
+<section class="alt" style="padding:40px 0"><div class="wrap">
+  <div class="grid3 callouts">
+    <div class="card"><p class="eyebrow">First ingredient</p><h3>MCT powder</h3><p>The creamy part. A cup that drinks like it has milk in it, without the milk.</p></div>
+    <div class="card"><p class="eyebrow">The pairing</p><h3>Natural caffeine + L-theanine</h3><p>Coffee-bean caffeine with the amino acid green-tea drinkers know. Energy that is smooth instead of sharp.</p></div>
+    <div class="card"><p class="eyebrow">The math</p><h3>30 servings. One scoop.</h3><p>$2.33 a morning on Subscribe &amp; Save, $2.67 one bag at a time. No machine, no grounds, no line.</p></div>
+  </div>
+</div></section>
+
+<section><div class="wrap split">
+  <div class="frame phone"><video autoplay muted loop playsinline poster="/media/product_callouts_v2.jpg"><source src="/media/product_callouts_v2.mp4" type="video/mp4"></video></div>
+  <div>
+    <p class="eyebrow">What's in it</p>
+    <h2>Seven things on the label. Nothing hidden behind a blend.</h2>
+    <p>MCT powder. Natural caffeine. L-theanine. ChromeMate&reg; chromium. Paradoxine&reg; grains of paradise. Garcinia Cambogia extract. Saffr'Activ&reg; saffron extract. The label says what it does: supports healthy appetite control, focus and energy. We quote it; we don't embellish it.</p>
+    <ul class="clean">
+      <li>Medium roast, instant. Black is fine, creamer is fine, over ice is fine.</li>
+      <li>One level scoop in 8 oz of hot water. Stir. Done.</li>
+      <li>Made by MarketPlace Global in the US, shipped from Minnesota.</li>
+    </ul>
+    <p><a class="btn ghost sm" href="/ingredients.html">Every ingredient, explained</a></p>
+  </div>
+</div></section>
+
+<section class="alt"><div class="wrap">
+  <h2 style="text-align:center">How a week with it goes</h2>
+  <div class="steps">
+    <div><h3>Days 1&ndash;2</h3><p>Swap your first cup only. Same mug, same time. Notice the afternoon.</p></div>
+    <div><h3>Days 3&ndash;5</h3><p>Most people stop reaching for the second cup here. If you still want one, make it this one.</p></div>
+    <div><h3>Days 6&ndash;7</h3><p>Decide. If the afternoon is different, Subscribe &amp; Save keeps it that way for $2.33 a cup.</p></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h2 style="text-align:center">Pick your bag</h2>
+  <p style="text-align:center;color:var(--muted);margin:0 0 30px">Same coffee either way. Subscribe &amp; Save just means a bag shows up before you run out.</p>
+  <div class="price">
+    <div class="plan">
+      <h3>One bag</h3>
+      <div class="amt">$79.95</div>
+      <p class="fine">30 servings &middot; $2.67 a cup</p>
+      <ul><li>Try it for a month</li><li>No commitment</li><li><span data-ship="long">$8.95 flat US shipping.</span></li></ul>
+      <a class="btn ghost" data-buy="onetime" href="#">Buy one bag</a>
+    </div>
+    <div class="plan best">
+      <span class="tag">Most people pick this</span>
+      <h3>Subscribe &amp; Save</h3>
+      <div class="amt">$69.95<small> / month</small></div>
+      <p class="fine">30 servings &middot; $2.33 a cup &middot; save $10 every bag</p>
+      <ul><li>A bag a month, automatically</li><li>Pause or cancel any time</li><li><span data-ship="long">$8.95 flat US shipping.</span></li></ul>
+      <a class="btn" data-buy="subscribe" href="#">Subscribe &amp; Save</a>
+    </div>
+  </div>
+  <div class="guar">
+    <div><b>Shipping</b><span data-ship="policy">Orders ship from Minnesota within about two business days, then 3&ndash;6 days in transit. US shipping is a flat $8.95 a bag.</span></div>
+    <div><b>Guarantee</b><span>MarketPlace Global, the maker, backs every customer order with a 90-day money-back guarantee on unopened product, and replaces anything that arrives damaged if you tell us within ten business days. <a href="/shipping-returns.html">The full policy</a>.</span></div>
+    <div><b>Who you're buying from</b><span>Rector &amp; Stull LLC, Independent Sales Representative of MarketPlace Global. A real inbox answers: hello@themorningupgrades.com.</span></div>
+  </div>
+</div></section>
+
+<section class="alt"><div class="wrap split">
+  <div class="frame phone"><video muted loop playsinline autoplay poster="/media/host_desk.jpg"><source src="/media/host_desk.mp4" type="video/mp4"></video><span class="ailabel">AI host</span></div>
+  <div>
+    <h2>Questions, answered plainly</h2>
+    <details><summary>Does it taste like coffee?</summary><p>Yes. Medium roast, a little smoother than drip. Black is fine; creamer is fine.</p></details>
+    <details><summary>How much caffeine is in a scoop?</summary><p>About the same as a regular cup of coffee. One scoop is the serving; most people find one is the right amount.</p></details>
+    <details><summary>What does L-theanine do?</summary><p>It's the amino acid in green tea that people pair with caffeine for a steadier feel. We quote the label on what the product supports and leave the rest to you.</p></details>
+    <details><summary>Can I cancel the subscription?</summary><p>Any time, from the link in your receipt. Pause a month, skip, or cancel. No calls, no forms.</p></details>
+    <details><summary>Is this an MLM product?</summary><p>CoreJava is made by MarketPlace Global, a direct-sales company, and we sell it as their Independent Sales Representatives. Buying a bag makes you a customer and nothing else. <a href="/share.html">Share &amp; earn</a> exists if you want it; nobody will call you.</p></details>
+  </div>
+</div></section>
+
+<section class="dark" style="text-align:center"><div class="wrap">
+  <h2>Tomorrow's first cup.</h2>
+  <p>One scoop, hot water, and an afternoon that doesn't need rescuing.</p>
+""" + CTA_BLOCK + """
 </div></section>
 """
 
@@ -666,13 +769,14 @@ PAGES = {
   "partner.html": ("Build with us — The Morning Upgrade", "Join our MarketPlace Global team and sell CoreJava with the same videos, site and email system we use. Honest numbers first.", PARTNER, "/media/ambient.jpg", False),
   "share.html": ("Share & earn — The Morning Upgrade", "Get your coffee covered by the friends who steal a cup. MarketPlace Global's referral program, explained in plain language.", SHARE, "/media/ritual.jpg", False),
   "about.html": ("About — The Morning Upgrade", "Rector & Stull LLC, Independent Sales Representatives for MarketPlace Global, and why we sell one bag of coffee.", ABOUT, "/img/flatlay.jpg", False),
-  "shipping-returns.html": ("Shipping & returns — The Morning Upgrade", "US shipping, Subscribe & Save terms, and our 14-day replacement / 30-day unopened return policy.", SHIPPING, "/img/flatlay.jpg", False),
+  "shipping-returns.html": ("Shipping & returns — The Morning Upgrade", "$8.95 flat US shipping, Subscribe & Save terms, damaged-item replacement and the 90-day money-back guarantee on unopened bags.", SHIPPING, "/img/flatlay.jpg", False),
   "privacy.html": ("Privacy — The Morning Upgrade", "What we collect, what we do with it, and how to opt out.", PRIVACY, "/img/flatlay.jpg", False),
   "terms.html": ("Terms of sale — The Morning Upgrade", "Terms for buying CoreJava from Rector & Stull LLC.", TERMS, "/img/flatlay.jpg", False),
   "order-complete.html": ("Order received — The Morning Upgrade", "Thanks for your order.", ORDER_COMPLETE, "/img/flatlay.jpg", True),
+  "start.html": ("CoreJava — The 2 PM cup, solved at 7 AM | The Morning Upgrade", "Instant performance coffee: natural caffeine + L-theanine + MCT powder. $69.95 a month or $79.95 a bag, $8.95 flat US shipping, 90-day guarantee on unopened bags.", START, "/media/host_kitchen.jpg", True),
   "thanks.html": ("Your guide is on its way — The Morning Upgrade", "Check your inbox for the 7 Mornings guide.", THANKS, "/img/desk.jpg", True),
 }
 
 for fn,(title,desc,body,og,noindex) in PAGES.items():
-    with open(os.path.join(HERE,fn),"w") as f: f.write(page(title,desc,body,og,noindex))
+    with open(os.path.join(HERE,fn),"w") as f: f.write(page(title,desc,body,og,noindex,nav=(fn!="start.html")))
     print("wrote",fn)
