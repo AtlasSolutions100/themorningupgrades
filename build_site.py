@@ -66,20 +66,15 @@ def page(title, desc, body, og_image="/img/flatlay.jpg", noindex=False, extra_he
 {extra_head}
 </head>
 <body>
-<div class="bar">Free US shipping on every order &middot; Subscribe &amp; Save: $69.95 a month, cancel anytime</div>
+<div class="bar"><span data-ship="bar">Ships to all 50 states</span> &middot; Subscribe &amp; Save: $69.95 a month, cancel anytime</div>
 {NAV}
 {body}
 {FOOTER}
-<div class="sticky"><div><b>CoreJava &middot; 30 servings</b><span>from $69.95 &middot; free shipping</span></div><a class="btn" data-buy="subscribe" href="#">Buy now</a></div>
+<div class="sticky"><div><b>CoreJava &middot; 30 servings</b><span>from $69.95 &middot; <span data-ship="short">ships to all 50 states</span></span></div><a class="btn" data-buy="subscribe" href="#">Buy now</a></div>
 </body>
 </html>
 """
 
-TRUST = """
-<div class="trust wrap">
-  <span>&#10003; Free US shipping</span><span>&#10003; Cancel anytime</span><span>&#10003; Secure checkout by Stripe</span><span>&#10003; Replaced or refunded if it arrives damaged</span>
-</div>
-"""
 BENEFITS = """
 <div class="marq"><div>
   <span>Smooth energy</span><span>Sharp focus</span><span>No 2pm slide</span><span>Tastes like coffee</span><span>Ready in 30 seconds</span><span>30 mornings a bag</span>
@@ -87,7 +82,7 @@ BENEFITS = """
 </div></div>
 """
 CTA_BLOCK = """
-<div class="ctab"><a class="btn" data-buy="subscribe" href="#">Subscribe &amp; Save &mdash; $69.95/mo</a><a class="btn ghost" data-buy="onetime" href="#">One bag &mdash; $79.95</a><p class="fine">Free US shipping &middot; cancel anytime &middot; secure checkout</p></div>
+<div class="ctab"><a class="btn" data-buy="subscribe" href="#">Subscribe &amp; Save &mdash; $69.95/mo</a><a class="btn ghost" data-buy="onetime" href="#">One bag &mdash; $79.95</a><p class="fine"><span data-ship="short">Ships to all 50 states</span> &middot; cancel anytime &middot; <span data-ship="checkout">secure checkout</span></p></div>
 """
 COMPARE = """
 <section><div class="wrap">
@@ -125,8 +120,8 @@ HOME = """
     <h1>Coffee that keeps up past lunch.</h1>
     <p class="lead">Natural caffeine paired with L-theanine, the amino acid green-tea drinkers know. Smooth energy, sharp focus, and no second cup at 2pm. Tastes like coffee because it is coffee.</p>
     <p><a class="btn" href="/shop.html">Buy CoreJava</a> &nbsp; <a class="btn ghost" href="#quiz">Take the 60-second quiz</a></p>
-    <p class="sub">$79.95 one bag &middot; $69.95 a month on Subscribe &amp; Save &middot; free US shipping</p>
-    <div class="trust hero-trust"><span>&#10003; Free US shipping</span><span>&#10003; Cancel anytime</span><span>&#10003; Secure checkout by Stripe</span><span>&#10003; Replaced or refunded if damaged</span></div>
+    <p class="sub">$79.95 one bag &middot; $69.95 a month on Subscribe &amp; Save &middot; <span data-ship="short">ships to all 50 states</span></p>
+    <div class="trust hero-trust"><span>&#10003; <span data-ship="trust">Ships to all 50 states</span></span><span>&#10003; Cancel anytime</span><span>&#10003; <span data-ship="checkout">Secure checkout</span></span><span>&#10003; <span data-ship="damage">Made right if it arrives damaged</span></span></div>
   </div>
   <div class="frame phone"><video autoplay muted loop playsinline poster="/media/hero_macro.jpg"><source src="/media/hero_macro.mp4" type="video/mp4"></video></div>
 </div>
@@ -173,7 +168,7 @@ HOME = """
       <h3>One bag</h3>
       <div class="amt">$79.95</div>
       <p class="fine">30 servings &middot; $2.67 a cup</p>
-      <ul><li>Try it for a month</li><li>No commitment</li><li><span class="ships-from">Ships from the maker directly.</span></li></ul>
+      <ul><li>Try it for a month</li><li>No commitment</li><li><span data-ship="long">Ships to all 50 states.</span></li></ul>
       <a class="btn ghost" data-buy="onetime" href="#">Buy one bag</a>
     </div>
     <div class="plan best">
@@ -181,7 +176,7 @@ HOME = """
       <h3>Subscribe &amp; Save</h3>
       <div class="amt">$69.95<small> / month</small></div>
       <p class="fine">30 servings &middot; $2.33 a cup &middot; save $10 every bag</p>
-      <ul><li>A bag a month, automatically</li><li>Pause or cancel any time</li><li><span class="ships-from">Ships from the maker directly.</span></li></ul>
+      <ul><li>A bag a month, automatically</li><li>Pause or cancel any time</li><li><span data-ship="long">Ships to all 50 states.</span></li></ul>
       <a class="btn" data-buy="subscribe" href="#">Subscribe &amp; Save</a>
     </div>
   </div>
@@ -302,7 +297,7 @@ SHOP = """
         <a class="btn ghost" data-buy="onetime" href="#" style="margin-top:12px">Buy one bag</a>
       </div>
     </div>
-    <p class="fine">Free US shipping &middot; cancel anytime &middot; secure checkout by Stripe &middot; replaced or refunded if it arrives damaged. Questions before you buy: hello@themorningupgrades.com.</p>
+    <p class="fine"><span data-ship="long">Ships to all 50 states.</span> Cancel anytime &middot; <span data-ship="checkout">secure checkout</span> &middot; <span data-ship="damage">made right if it arrives damaged</span>. Questions before you buy: hello@themorningupgrades.com.</p>
     <h3 style="margin-top:30px">Details</h3>
     <ul class="clean">
       <li><strong>Serving:</strong> 1 level scoop (about 6.8 g) in 8 fl oz hot water. 30 servings per 7.2 oz (204 g) bag.</li>
@@ -367,7 +362,7 @@ FAQ = """
   <details><summary>Who shouldn't take it?</summary><p>Children, and anyone pregnant or nursing. If you take medication or have a medical condition, ask your physician first.</p></details>
   <h2>Ordering</h2>
   <details><summary>How does Subscribe &amp; Save work?</summary><p>A bag ships every 30 days at $69.95. Pause a month, cancel, or update your card any time from the link in your receipt or at <a href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00">the subscription portal</a>. No calls.</p></details>
-  <details><summary>Where does it ship from, and how fast?</summary><p><span class="ships-from">Ships from the maker directly.</span> US addresses only for now. Tracking arrives by email.</p></details>
+  <details><summary>Where does it ship from, how fast, and what does shipping cost?</summary><p><span data-ship="policy">Right now orders are fulfilled by the maker, MarketPlace Global, and shipping is calculated at their checkout before you pay.</span> US addresses only for now. Tracking arrives by email.</p></details>
   <details><summary>Returns?</summary><p>If a bag arrives damaged or wrong, email hello@themorningupgrades.com within 14 days and we'll replace it or refund it. Full policy on the <a href="/shipping-returns.html">Shipping &amp; returns</a> page.</p></details>
   <details><summary>Who am I buying from?</summary><p>Rector &amp; Stull LLC, an independent distributor of MarketPlace Global products. MarketPlace Global makes CoreJava; we sell it.</p></details>
   <h2>The business</h2>
@@ -482,7 +477,7 @@ SHIPPING = """
   <p class="eyebrow">Policies</p>
   <h1 style="font-size:clamp(30px,4vw,46px)">Shipping &amp; returns</h1>
   <h2>Shipping</h2>
-  <p>We ship to addresses in the United States. <span class="ships-from">Ships from the maker directly.</span> Orders placed by 2 PM Central on a business day ship that day or the next. Standard shipping is included in the price. You'll get a tracking email when it leaves.</p>
+  <p>We ship to addresses in the United States. <span data-ship="policy">Right now orders are fulfilled by the maker, MarketPlace Global, and shipping is calculated at their checkout before you pay.</span> You'll get a tracking email when it leaves.</p>
   <h2>Subscribe &amp; Save</h2>
   <p>A new bag ships every 30 days and your card is charged $69.95 each time. You can pause a month or cancel from the link in any receipt, or at <a href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00">the subscription portal</a>, up to the day before your next shipment. There are no cancellation fees.</p>
   <h2>Returns and refunds</h2>
@@ -516,7 +511,7 @@ TERMS = """
   <h1 style="font-size:clamp(30px,4vw,46px)">Terms of sale</h1>
   <p>By ordering from themorningupgrades.com you agree to these terms. The seller is Rector &amp; Stull LLC, an independent distributor of MarketPlace Global products. MarketPlace Global manufactures CoreJava; we are not the manufacturer.</p>
   <h2>Orders and prices</h2>
-  <p>Prices are in US dollars and include standard US shipping. We may change prices at any time; the price you pay is the one shown at checkout. If we can't fill an order we'll refund it in full.</p>
+  <p>Prices are in US dollars. Any shipping charge is shown at checkout before you pay. We may change prices at any time; the price you pay is the one shown at checkout. If we can't fill an order we'll refund it in full.</p>
   <h2>Subscriptions</h2>
   <p>Subscribe &amp; Save renews every 30 days at the price shown until you cancel. Cancel any time from the link in your receipt, effective before the next shipment.</p>
   <h2>Use of the product</h2>

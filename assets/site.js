@@ -54,7 +54,18 @@ window.TMU = {
       }
       a.addEventListener('click', function(){ track('InitiateCheckout',{plan:kind}); });
     });
-    document.querySelectorAll('.ships-from').forEach(function(e){ e.textContent = (C.STRIPE_ONETIME||C.STRIPE_SUBSCRIBE) ? 'Ships from us within 2 business days.' : 'Ships from the maker directly.'; });
+    // Shipping / checkout copy depends on which checkout is live. Never promise free shipping in handoff mode.
+    var SELF = !!(C.STRIPE_ONETIME||C.STRIPE_SUBSCRIBE);
+    var SHIP = SELF ? {
+      bar:'Free US shipping on every order', short:'free US shipping', trust:'Free US shipping', long:'Free US shipping. Ships within 2 business days.',
+      checkout:'Secure checkout by Stripe', damage:'Replaced or refunded if it arrives damaged',
+      policy:'Standard shipping is included in the price. Orders placed by 2 PM Central on a business day ship that day or the next.'
+    } : {
+      bar:'Ships to all 50 states', short:'ships to all 50 states', trust:'Ships to all 50 states', long:'Ships to all 50 states. Shipping calculated at checkout.',
+      checkout:'Secure checkout', damage:'Made right if it arrives damaged',
+      policy:'Right now orders are fulfilled by the maker, MarketPlace Global, and shipping is calculated at their checkout before you pay.'
+    };
+    document.querySelectorAll('[data-ship]').forEach(function(e){ var k=e.getAttribute('data-ship'); if(SHIP[k]) e.textContent = SHIP[k]; });
 
     // Partner buttons
     document.querySelectorAll('[data-enroll]').forEach(function(a){
