@@ -65,11 +65,55 @@ def page(title, desc, body, og_image="/img/flatlay.jpg", noindex=False, extra_he
 {extra_head}
 </head>
 <body>
+<div class="bar">Free US shipping on every order &middot; Subscribe &amp; Save: $69.95 a month, cancel anytime</div>
 {NAV}
 {body}
 {FOOTER}
+<div class="sticky"><div><b>CoreJava &middot; 30 servings</b><span>from $69.95 &middot; free shipping</span></div><a class="btn" data-buy="subscribe" href="#">Buy now</a></div>
 </body>
 </html>
+"""
+
+TRUST = """
+<div class="trust wrap">
+  <span>&#10003; Free US shipping</span><span>&#10003; Cancel anytime</span><span>&#10003; Secure checkout by Stripe</span><span>&#10003; Replaced or refunded if it arrives damaged</span>
+</div>
+"""
+BENEFITS = """
+<div class="marq"><div>
+  <span>Smooth energy</span><span>Sharp focus</span><span>No 2pm slide</span><span>Tastes like coffee</span><span>Ready in 30 seconds</span><span>30 mornings a bag</span>
+  <span>Smooth energy</span><span>Sharp focus</span><span>No 2pm slide</span><span>Tastes like coffee</span><span>Ready in 30 seconds</span><span>30 mornings a bag</span>
+</div></div>
+"""
+CTA_BLOCK = """
+<div class="ctab"><a class="btn" data-buy="subscribe" href="#">Subscribe &amp; Save &mdash; $69.95/mo</a><a class="btn ghost" data-buy="onetime" href="#">One bag &mdash; $79.95</a><p class="fine">Free US shipping &middot; cancel anytime &middot; secure checkout</p></div>
+"""
+COMPARE = """
+<section><div class="wrap">
+  <h2 style="text-align:center">The math on a month of mornings</h2>
+  <p style="text-align:center;color:var(--muted);margin:0 0 26px">Same 30 mornings. Three ways to buy them.</p>
+  <div class="cmp">
+    <div class="cmp-h"><span></span><span>Caf&eacute; latte</span><span>Drip + second cup</span><span class="hl">CoreJava</span></div>
+    <div><span>Per morning</span><span>$5&ndash;7</span><span>$1&ndash;2, twice</span><span class="hl">$2.33&ndash;2.67</span></div>
+    <div><span>Per month</span><span>$150&ndash;210</span><span>$60&ndash;120</span><span class="hl">$69.95&ndash;79.95</span></div>
+    <div><span>Time</span><span>A line and a drive</span><span>Grind, brew, clean</span><span class="hl">30 seconds</span></div>
+    <div><span>Afternoon</span><span>The slide</span><span>The slide, then jitters</span><span class="hl">That's the point</span></div>
+    <div><span>What's in it</span><span>Caffeine, sugar, milk</span><span>Caffeine</span><span class="hl">Caffeine + L-theanine + 4 more</span></div>
+  </div>
+  <p class="fine" style="text-align:center;margin-top:14px">Caf&eacute; and drip costs are typical US prices; yours will vary. CoreJava prices are ours.</p>
+</div></section>
+"""
+FOUNDER = """
+<section class="alt"><div class="wrap split">
+  <div class="frame p45"><img src="/img/desk.jpg" alt="Laptop, mug and a bag of CoreJava on a desk" loading="lazy"></div>
+  <div>
+    <p class="eyebrow">A note from the two of us</p>
+    <h2>We're new. Here's who you're buying from.</h2>
+    <p>We're Rector &amp; Stull, two partners, one in Idaho and one in Texas, both of whom run on coffee and spend afternoons on calls. We drank CoreJava for a while before we decided to sell it. The reason we did is simple: the first cup stopped being the cup that needed a second one.</p>
+    <p>We don't have ten thousand reviews yet. We have a bag we drink every morning, a label we quote instead of embellish, and an email a real person answers. If it's not for you, say so and we'll make it right.</p>
+    <p style="font-family:Helvetica,Arial,sans-serif;font-size:14px;color:var(--muted)">&mdash; Koby &amp; the Rector &amp; Stull team &middot; hello@themorningupgrades.com</p>
+  </div>
+</div></section>
 """
 
 # ---------- HOME ----------
@@ -80,10 +124,12 @@ HOME = """
     <h1>Coffee that keeps up past lunch.</h1>
     <p class="lead">Natural caffeine paired with L-theanine, the amino acid green-tea drinkers know. Smooth energy, sharp focus, and no second cup at 2pm. Tastes like coffee because it is coffee.</p>
     <p><a class="btn" href="/shop.html">Buy CoreJava</a> &nbsp; <a class="btn ghost" href="#quiz">Take the 60-second quiz</a></p>
-    <p class="sub">$79.95 one bag &middot; $69.95 a month on Subscribe &amp; Save &middot; <span class="ships-from">Ships from the maker directly.</span></p>
+    <p class="sub">$79.95 one bag &middot; $69.95 a month on Subscribe &amp; Save &middot; free US shipping</p>
+    <div class="trust hero-trust"><span>&#10003; Free US shipping</span><span>&#10003; Cancel anytime</span><span>&#10003; Secure checkout by Stripe</span><span>&#10003; Replaced or refunded if damaged</span></div>
   </div>
   <div class="frame phone"><video autoplay muted loop playsinline poster="/media/hero_macro.jpg"><source src="/media/hero_macro.mp4" type="video/mp4"></video></div>
 </div>
+""" + BENEFITS + """
 
 <section class="alt"><div class="wrap">
   <h2>Three mornings, three problems</h2>
@@ -107,7 +153,7 @@ HOME = """
     <p><a class="btn" href="/shop.html">Buy CoreJava</a></p>
   </div>
 </div></section>
-
+""" + FOUNDER + """
 <section class="dark"><div class="wrap split">
   <div>
     <p class="eyebrow">What's in it</p>
@@ -139,7 +185,7 @@ HOME = """
     </div>
   </div>
 </div></section>
-
+""" + COMPARE + """
 <section class="alt" id="quiz"><div class="wrap">
   <h2 style="text-align:center">Not sure yet? Which morning are you?</h2>
   <p style="text-align:center;color:var(--muted);margin:0 0 26px">Three quick questions, then the free <em>7 Mornings</em> guide is yours.</p>
@@ -192,6 +238,11 @@ HOME = """
     <p><a class="btn ghost" href="/faq.html">All questions</a></p>
   </div>
   <div class="frame p45"><img src="/img/pour.jpg" alt="Hot water poured into a glass mug" loading="lazy"></div>
+</div></section>
+<section class="dark" style="text-align:center"><div class="wrap">
+  <h2>Tomorrow's first cup.</h2>
+  <p>One scoop, hot water, and an afternoon that doesn't need rescuing.</p>
+""" + CTA_BLOCK + """
 </div></section>
 
 <script>
@@ -250,7 +301,7 @@ SHOP = """
         <a class="btn ghost" data-buy="onetime" href="#" style="margin-top:12px">Buy one bag</a>
       </div>
     </div>
-    <p class="fine"><span class="ships-from">Ships from the maker directly.</span> Secure checkout. Questions before you buy: hello@themorningupgrades.com.</p>
+    <p class="fine">Free US shipping &middot; cancel anytime &middot; secure checkout by Stripe &middot; replaced or refunded if it arrives damaged. Questions before you buy: hello@themorningupgrades.com.</p>
     <h3 style="margin-top:30px">Details</h3>
     <ul class="clean">
       <li><strong>Serving:</strong> 1 level scoop (about 6.8 g) in 8 fl oz hot water. 30 servings per 7.2 oz (204 g) bag.</li>
@@ -270,6 +321,8 @@ SHOP = """
     <div><h3>Days 6&ndash;7</h3><p>Decide. If the afternoon is different, Subscribe &amp; Save keeps it that way for $2.33 a cup.</p></div>
   </div>
 </div></section>
+""" + COMPARE + FOUNDER + """
+<section class="dark" style="text-align:center"><div class="wrap"><h2>Start tomorrow.</h2>""" + CTA_BLOCK + """</div></section>
 """
 
 # ---------- INGREDIENTS ----------
@@ -296,7 +349,7 @@ ING = """
 <section><div class="wrap" style="text-align:center">
   <h2>One scoop has all six.</h2>
   <p style="color:var(--muted)">$79.95 a bag, or $69.95 a month on Subscribe &amp; Save.</p>
-  <p><a class="btn" href="/shop.html">Buy CoreJava</a></p>
+""" + CTA_BLOCK + """
 </div></section>
 """
 
