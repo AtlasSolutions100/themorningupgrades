@@ -165,6 +165,25 @@ HOSTSTRIP = """<section><div class="wrap">
   </div>
 </div></section>"""
 
+def hero_c(h1="One scoop. No 2 PM crash.", strip=("Smooth energy","Sharp focus","30 mornings a bag"), video=True):
+    striphtml = " <i>/</i> ".join(f"<span>{t}</span>" for t in strip)
+    media = ('<div class="frame phone vid device light"><video autoplay muted loop playsinline poster="/media/host_kitchen.jpg"><source src="/media/host_kitchen.mp4" type="video/mp4"></video><button class="unmute" type="button" data-unmute aria-label="Turn sound on">&#9654; Sound on</button><span class="ailabel">AI host</span></div>') if video else ''
+    return f"""
+<div class="heroC"><div class="wrap">
+  <h1 class="h1c">{h1}</h1>
+  <p class="stripc">{striphtml}</p>
+  <div class="heroC-grid">
+    <div class="heroC-left">{CALLOUTS}</div>
+    <div class="heroC-right">
+      <p class="eyebrow" style="margin-bottom:6px">CoreJava &middot; instant performance coffee</p>
+      <p class="lead" style="font-size:17px;margin:0 0 6px">Natural caffeine + L-theanine + MCT powder. One scoop, hot water, 30 seconds. Supports healthy appetite control, focus and energy.</p>
+      {picker()}
+    </div>
+  </div>
+  {trust_row(dark=False)}
+</div></div>
+"""
+
 HOSTS = """
 <section><div class="wrap">
   <p class="eyebrow" style="text-align:center">Meet the hosts</p>
@@ -180,18 +199,7 @@ HOSTS = """
 """
 # ---------- HOME ----------
 HOME = """
-<div class="darkhero"><div class="wrap hero">
-  <div>
-    <p class="eyebrow">Performance coffee &middot; one scoop &middot; 30 mornings</p>
-    <h1>Coffee that keeps up past lunch.</h1>
-    <p class="lead">Natural caffeine paired with L-theanine, the amino acid green-tea drinkers know, plus MCT powder for a creamy cup. Smooth energy, sharp focus, and no second cup at 2pm. Tastes like coffee because it is coffee.</p>
-    <div class="ctab left"><a class="btn" href="/start.html">Start the 7-day swap &rarr;</a><a class="btn ghost" href="#quiz">Take the 60-second quiz</a></div>
-    <p class="sub">$79.95 one bag &middot; $69.95 a month on Subscribe &amp; Save &middot; <span data-ship="short">$8.95 US shipping</span></p>
-    """ + trust_row(dark=True) + """
-  </div>
-  <div class="frame phone vid device"><video autoplay muted loop playsinline poster="/media/host_kitchen.jpg"><source src="/media/host_kitchen.mp4" type="video/mp4"></video><button class="unmute" type="button" data-unmute aria-label="Turn sound on">&#9654; Sound on</button><span class="ailabel">AI host</span></div>
-</div>
-<div class="wrap">""" + INGCARDS + """</div></div>
+""" + hero_c(h1="One scoop. No 2 PM crash.") + """
 """ + BENEFITS + """
 
 <section class="alt"><div class="wrap">
@@ -227,15 +235,7 @@ HOME = """
   <div class="frame phone"><video autoplay muted loop playsinline poster="/media/ingredients.jpg"><source src="/media/ingredients.mp4" type="video/mp4"></video></div>
 </div></section>
 
-<section><div class="wrap split" style="align-items:center">
-  """ + CALLOUTS + """
-  <div>
-    <p class="eyebrow">Pick your bag</p>
-    <h2>Same coffee either way.</h2>
-    <p style="color:var(--muted)">Subscribe &amp; Save just means a bag shows up before you run out, for $10 less. Pause or cancel from your receipt.</p>
-    """ + picker() + """
-  </div>
-</div></section>
+<section class="alt"><div class="wrap">""" + INGCARDS.replace("ingcards","ingcards light") + """</div></section>
 """ + COMPARE + """
 <section class="alt" id="quiz"><div class="wrap">
   <h2 style="text-align:center">Not sure yet? Which morning are you?</h2>
@@ -702,25 +702,21 @@ THANKS = """
 """
 
 START = """
-<div class="darkhero"><div class="wrap hero start-hero">
-  <div>
-    <p class="eyebrow">CoreJava &middot; instant performance coffee</p>
-    <h1>The 2 PM cup, solved at 7 AM.</h1>
-    <p class="lead">Natural caffeine paired with L-theanine, the calm amino acid from green tea, plus MCT powder for a creamy cup. One scoop, hot water, 30 seconds. Supports healthy appetite control, focus and energy.</p>
-    <div class="ctab left"><a class="btn" data-buy="subscribe" href="#">Subscribe &amp; Save &mdash; $69.95/mo &rarr;</a><a class="btn ghost" data-buy="onetime" href="#">One bag &mdash; $79.95 &rarr;</a></div>
-    """ + trust_row(dark=True) + """
-  </div>
-  <div class="frame phone vid device"><video autoplay muted loop playsinline poster="/media/host_kitchen.jpg"><source src="/media/host_kitchen.mp4" type="video/mp4"></video><button class="unmute" type="button" data-unmute aria-label="Turn sound on">&#9654; Sound on</button><span class="ailabel">AI host</span></div>
-</div>
-<div class="wrap">""" + INGCARDS + """</div></div>
+""" + hero_c() + """
+<section class="alt"><div class="wrap">""" + INGCARDS.replace("ingcards","ingcards light") + """</div></section>
 
 <section><div class="wrap split" style="align-items:center">
-  """ + CALLOUTS + """
+  <div class="frame phone vid"><video autoplay muted loop playsinline poster="/media/host_kitchen.jpg"><source src="/media/host_kitchen.mp4" type="video/mp4"></video><button class="unmute" type="button" data-unmute aria-label="Turn sound on">&#9654; Sound on</button><span class="ailabel">AI host</span></div>
   <div>
     <p class="eyebrow">One scoop. Seven things on the label.</p>
     <h2>Nothing hidden behind a blend.</h2>
     <p>MCT powder, natural caffeine, L-theanine, ChromeMate&reg; chromium, Paradoxine&reg; grains of paradise, Garcinia Cambogia and Saffr'Activ&reg; saffron extract. The label says what it does: supports healthy appetite control, focus and energy. We quote it; we don't embellish it.</p>
-    """ + picker() + """
+    <ul class="clean">
+      <li>Medium roast, instant. Black is fine, creamer is fine, over ice is fine.</li>
+      <li>One level scoop in 8 oz of hot water. Stir. Done.</li>
+      <li>Made by MarketPlace Global in the US, shipped from Minnesota.</li>
+    </ul>
+    <p><a class="btn ghost sm" href="/ingredients.html">Every ingredient, explained</a></p>
   </div>
 </div></section>
 
