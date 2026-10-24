@@ -160,15 +160,15 @@ HOSTSTRIP = """<section><div class="wrap">
   <h2 style="text-align:center">Real routine, honest hosts.</h2>
   <p style="text-align:center;color:var(--muted);max-width:60ch;margin:0 auto 26px">The people in our videos are AI presenters, and we say so on every one. They show the coffee, the scoop and the label; they don't claim results.</p>
   <div class="hoststrip">
-    <div class="frame phone vid"><video muted loop playsinline autoplay poster="/media/host_kitchen.jpg"><source src="/media/host_kitchen.mp4" type="video/mp4"></video><button class="unmute" type="button" data-unmute aria-label="Turn sound on">&#9654; Sound on</button><span class="ailabel">AI host</span></div>
-    <div class="frame phone vid"><video muted loop playsinline autoplay poster="/media/host_desk.jpg"><source src="/media/host_desk.mp4" type="video/mp4"></video><button class="unmute" type="button" data-unmute aria-label="Turn sound on">&#9654; Sound on</button><span class="ailabel">AI host</span></div>
-    <div class="frame phone vid"><video muted loop playsinline autoplay poster="/media/host_gymbag.jpg"><source src="/media/host_gymbag.mp4" type="video/mp4"></video><button class="unmute" type="button" data-unmute aria-label="Turn sound on">&#9654; Sound on</button><span class="ailabel">AI host</span></div>
+    <div class="frame phone vid"><video muted loop playsinline autoplay poster="/media/host_kitchen.jpg"><source src="/media/host_kitchen.mp4" type="video/mp4"></video><button class="unmute" type="button" data-unmute aria-label="Turn sound on">&#9654; Sound on</button></div>
+    <div class="frame phone vid"><video muted loop playsinline autoplay poster="/media/host_desk.jpg"><source src="/media/host_desk.mp4" type="video/mp4"></video><button class="unmute" type="button" data-unmute aria-label="Turn sound on">&#9654; Sound on</button></div>
+    <div class="frame phone vid"><video muted loop playsinline autoplay poster="/media/host_gymbag.jpg"><source src="/media/host_gymbag.mp4" type="video/mp4"></video><button class="unmute" type="button" data-unmute aria-label="Turn sound on">&#9654; Sound on</button></div>
   </div>
 </div></section>"""
 
 def hero_c(h1="One scoop. No 2 PM crash.", strip=("Smooth energy","Sharp focus","30 mornings a bag"), video=True):
     striphtml = " <i>/</i> ".join(f"<span>{t}</span>" for t in strip)
-    media = ('<div class="frame phone vid device light"><video autoplay muted loop playsinline poster="/media/host_kitchen.jpg"><source src="/media/host_kitchen.mp4" type="video/mp4"></video><button class="unmute" type="button" data-unmute aria-label="Turn sound on">&#9654; Sound on</button><span class="ailabel">AI host</span></div>') if video else ''
+    media = ('<div class="frame phone vid device light"><video autoplay muted loop playsinline poster="/media/host_kitchen.jpg"><source src="/media/host_kitchen.mp4" type="video/mp4"></video><button class="unmute" type="button" data-unmute aria-label="Turn sound on">&#9654; Sound on</button></div>') if video else ''
     return f"""
 <div class="heroC"><div class="wrap">
   <h1 class="h1c">{h1}</h1>
@@ -191,10 +191,10 @@ HOSTS = """
   <h2 style="text-align:center">The people in our videos are AI presenters.</h2>
   <p style="text-align:center;color:var(--muted);max-width:62ch;margin:0 auto 26px">We say so up front. They show you the coffee, the scoop and what's on the label; they don't claim results, because they haven't had any. Real answers come from a real inbox: hello@themorningupgrades.com.</p>
   <div class="hosts">
-    <div class="frame p45"><img src="/img/host_p3_marble.jpg" alt="AI host holding a bag of CoreJava at a marble kitchen counter" loading="lazy"><span class="ailabel">AI host</span></div>
-    <div class="frame p45"><img src="/img/host_p1_raglan.jpg" alt="AI host holding a bag of CoreJava in a living room" loading="lazy"><span class="ailabel">AI host</span></div>
-    <div class="frame p45"><img src="/img/host_p2_sofa.jpg" alt="AI host on a yellow sofa with a bag of CoreJava and a mug" loading="lazy"><span class="ailabel">AI host</span></div>
-    <div class="frame p45"><img src="/img/host_p4_gaze.jpg" alt="AI host on a bed with a laptop and a bag of CoreJava" loading="lazy"><span class="ailabel">AI host</span></div>
+    <div class="frame p45"><img src="/img/host_p3_marble.jpg" alt="AI host holding a bag of CoreJava at a marble kitchen counter" loading="lazy"></div>
+    <div class="frame p45"><img src="/img/host_p1_raglan.jpg" alt="AI host holding a bag of CoreJava in a living room" loading="lazy"></div>
+    <div class="frame p45"><img src="/img/host_p2_sofa.jpg" alt="AI host on a yellow sofa with a bag of CoreJava and a mug" loading="lazy"></div>
+    <div class="frame p45"><img src="/img/host_p4_gaze.jpg" alt="AI host on a bed with a laptop and a bag of CoreJava" loading="lazy"></div>
   </div>
 </div></section>
 """
@@ -280,7 +280,7 @@ HOME = """
   </div>
 </div></section>
 
-""" + HOSTSTRIP + """
+""" + """
 <section><div class="wrap split">
   <div>
     <h2>Questions, answered plainly</h2>
@@ -371,7 +371,7 @@ SHOP = """
     <div><h3>Days 6&ndash;7</h3><p>Decide. If the afternoon is different, Subscribe &amp; Save keeps it that way for $2.33 a cup.</p></div>
   </div>
 </div></section>
-""" + HOSTS + COMPARE + FOUNDER + """
+""" + COMPARE + FOUNDER + """
 <section class="dark" style="text-align:center"><div class="wrap"><h2>Start tomorrow.</h2>""" + CTA_BLOCK + """</div></section>
 """
 
@@ -425,6 +425,7 @@ FAQ = """
   <details><summary>Who am I buying from?</summary><p>Rector &amp; Stull LLC, Independent ISR of MarketPlace Global products and services. MarketPlace Global makes CoreJava; we sell it.</p></details>
   <h2>The business</h2>
   <details><summary>Is this an MLM?</summary><p>MarketPlace Global is a direct sales company that sells through Independent Sales Representatives (ISRs), and ISRs can sponsor other ISRs. We earn on the coffee we sell and on sales made by partners we introduce. If that interests you, the <a href="/partner.html">Partner page</a> explains it without the hype.</p></details>
+  <details><summary>Who are the people in your videos?</summary><p>AI presenters we make for the brand. They show the coffee, the scoop and the label; they never claim results, because they haven't used it. Real answers come from a real inbox: hello@themorningupgrades.com.</p></details>
 </div></section>
 """
 
@@ -613,6 +614,7 @@ ABOUT = """
     <p><a class="btn" href="/shop.html">Buy CoreJava</a> &nbsp; <a class="btn ghost" href="/partner.html">Partner with us</a></p>
   </div>
   <div class="frame p45"><img src="/img/bag_shadows.jpg" alt="CoreJava bag with leaf shadows"></div>
+  <p class="fine" style="margin-top:18px">The people in our videos are AI presenters we produce for the brand. They demonstrate the product; they never speak as customers or describe results.</p>
 </div></section>
 """
 
@@ -710,7 +712,7 @@ START = """
 <section class="alt"><div class="wrap">""" + INGCARDS.replace("ingcards","ingcards light") + """</div></section>
 
 <section><div class="wrap split" style="align-items:center">
-  <div class="frame phone vid"><video autoplay muted loop playsinline poster="/media/host_kitchen.jpg"><source src="/media/host_kitchen.mp4" type="video/mp4"></video><button class="unmute" type="button" data-unmute aria-label="Turn sound on">&#9654; Sound on</button><span class="ailabel">AI host</span></div>
+  <div class="frame phone vid"><video autoplay muted loop playsinline poster="/media/host_kitchen.jpg"><source src="/media/host_kitchen.mp4" type="video/mp4"></video><button class="unmute" type="button" data-unmute aria-label="Turn sound on">&#9654; Sound on</button></div>
   <div>
     <p class="eyebrow">One scoop. Seven things on the label.</p>
     <h2>Nothing hidden behind a blend.</h2>
@@ -733,7 +735,7 @@ START = """
     <div><h3>Days 6&ndash;7</h3><p>Decide. If the afternoon is different, Subscribe &amp; Save keeps it that way for $2.33 a cup.</p></div>
   </div>
 </div></section>
-""" + HOSTSTRIP + """
+""" + """
 <section class="alt"><div class="wrap">
   <div class="guar">
     <div><b>Shipping</b><span data-ship="policy">Orders ship from Minnesota within about two business days, then 3&ndash;6 days in transit. US shipping is a flat $8.95 a bag.</span></div>
