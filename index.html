@@ -16,12 +16,13 @@
 
 </head>
 <body>
-<div class="bar"><span class="isr-logo"></span>Rector &amp; Stull LLC &middot; Independent MarketPlace Global ISR &middot; <a href="https://marketplaceglobal.com/rectorandstull" rel="noopener">MarketPlace Global corporate site &rarr;</a></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="bar" role="banner"><span class="isr-logo"></span>Rector &amp; Stull LLC &middot; Independent MarketPlace Global ISR &middot; <a href="https://marketplaceglobal.com/rectorandstull" rel="noopener">MarketPlace Global corporate site &rarr;</a></header>
 
-<nav class="nav"><div class="wrap">
+<nav class="nav" aria-label="Main"><div class="wrap">
   <a class="brand" href="/"><img src="/img/mark.jpg" alt=""><b>The Morning Upgrade</b></a>
-  <button class="burger" aria-label="Menu">Menu</button>
-  <div class="menu">
+  <button class="burger" aria-label="Open menu" aria-expanded="false" aria-controls="menu">Menu</button>
+  <div class="menu" id="menu">
     <a href="/shop.html">Shop</a>
     <a href="/ingredients.html">Ingredients</a>
     <a href="/start.html">7-day swap</a>
@@ -31,6 +32,7 @@
   </div>
 </div></nav>
 
+<main id="main">
 
 
 <div class="heroC"><div class="wrap">
@@ -39,7 +41,7 @@
   <div class="heroC-grid">
     <div class="heroC-left"><div class="callouts-wrap">
   <div class="bagstage">
-    <img src="/img/hero_props.png" alt="CoreJava bag with coconut, MCT powder, coffee beans, green tea leaves and matcha" fetchpriority="high">
+    <img src="/img/hero_props.png" width="1300" height="1300" alt="CoreJava bag with coconut, MCT powder, coffee beans, green tea leaves and matcha" fetchpriority="high" decoding="async">
     <svg class="leads" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
       <path d="M24 30 L27 30 L30 65.5" /><circle cx="30.2" cy="67.5" r="1"/>
       <path d="M76 30 L73 30 L72.4 61" /><circle cx="72.3" cy="63" r="1"/>
@@ -55,14 +57,14 @@
     <div class="heroC-right">
       <p class="eyebrow" style="margin-bottom:6px">CoreJava &middot; instant performance coffee</p>
       <p class="lead" style="font-size:17px;margin:0 0 6px">Natural caffeine + L-theanine + MCT powder. One scoop, hot water, 30 seconds. Supports healthy appetite control, focus and energy.</p>
-      <div class="picker" data-picker>
+      <fieldset class="picker" data-picker><legend class="sr">Choose a plan</legend>
   <label class="opt on"><input type="radio" name="plan" value="subscribe" checked><span class="radio"></span>
     <span class="ptxt"><b>Subscribe &amp; Save</b><em>Most popular</em><span class="pp">$69.95<small>/mo &middot; $2.33 a morning</small></span><span class="pfine">A bag a month. Pause, skip or cancel from your receipt.</span></span></label>
   <label class="opt"><input type="radio" name="plan" value="onetime"><span class="radio"></span>
     <span class="ptxt"><b>One bag</b><span class="pp">$79.95<small> &middot; $2.67 a morning</small></span><span class="pfine">30 servings. No commitment.</span></span></label>
   <a class="btn big" data-buy="subscribe" data-picker-btn href="#">Add to cart &rarr;</a>
   <p class="fine" style="text-align:center;margin:12px 0 0"><span data-ship="short">$8.95 US shipping</span> &middot; 90-day guarantee on unopened bags &middot; pause or cancel anytime</p>
-</div>
+</fieldset>
     </div>
   </div>
   <div class="trusticons">
@@ -85,7 +87,7 @@
 </div></section>
 
 <section><div class="wrap split">
-  <div class="frame phone"><video autoplay muted loop playsinline poster="/media/ritual.jpg"><source src="/media/ritual.mp4" type="video/mp4"></video></div>
+  <div class="frame phone"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/ritual.jpg"><source src="/media/ritual.mp4" type="video/mp4"></video></div>
   <div>
     <p class="eyebrow">How it works</p>
     <h2>One scoop. Hot water. That's the whole ritual.</h2>
@@ -116,13 +118,13 @@
     <p>MCT powder, for a creamy cup. Natural caffeine from coffee beans. L-theanine, the amino acid in green tea. ChromeMate, a patented chromium. Paradoxine, grains of paradise extract. Garcinia Cambogia fruit extract. Saffr'Activ saffron extract. The label says what it does: supports healthy appetite control, focus and energy.</p>
     <p><a class="btn" href="/ingredients.html">See every ingredient</a></p>
   </div>
-  <div class="frame phone"><video autoplay muted loop playsinline poster="/media/ingredients.jpg"><source src="/media/ingredients.mp4" type="video/mp4"></video></div>
+  <div class="frame phone"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/ingredients.jpg"><source src="/media/ingredients.mp4" type="video/mp4"></video></div>
 </div></section>
 
 <section class="alt"><div class="wrap"><div class="ingcards light">
-  <div><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><path d="M12 4v4M4 12h4"/></svg><div><h3>MCT powder</h3><p>The creamy part. From coconut, and the first thing on the label.</p></div></div>
-  <div><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19C5 9 11 4 20 4c0 9-5 15-15 15z"/><path d="M5 19l8-8"/></svg><div><h3>Natural caffeine + L-theanine</h3><p>Coffee-bean caffeine with the amino acid in green tea. Focus without the edge.</p></div></div>
-  <div><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a6 6 0 0 0 12 0v-2H4z"/><path d="M16 12l5-6"/></svg><div><h3>30 servings. One scoop.</h3><p>Hot water, 30 seconds, no machine. A month of mornings in one bag.</p></div></div>
+  <div><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><path d="M12 4v4M4 12h4"/></svg><div><h2>MCT powder</h2><p>The creamy part. From coconut, and the first thing on the label.</p></div></div>
+  <div><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19C5 9 11 4 20 4c0 9-5 15-15 15z"/><path d="M5 19l8-8"/></svg><div><h2>Natural caffeine + L-theanine</h2><p>Coffee-bean caffeine with the amino acid in green tea. Focus without the edge.</p></div></div>
+  <div><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a6 6 0 0 0 12 0v-2H4z"/><path d="M16 12l5-6"/></svg><div><h2>30 servings. One scoop.</h2><p>Hot water, 30 seconds, no machine. A month of mornings in one bag.</p></div></div>
 </div></div></section>
 
 <section><div class="wrap">
@@ -170,8 +172,8 @@
       <div class="result"><b id="r-label">Result</b><span id="r-text"></span></div>
       <h3>Get the 7 Mornings guide</h3>
       <form id="tmu-form" novalidate>
-        <label>First name</label><input type="text" name="first_name" autocomplete="given-name">
-        <label>Email</label><input type="email" name="email" required autocomplete="email">
+        <label for="q-first">First name</label><input id="q-first" type="text" name="first_name" autocomplete="given-name">
+        <label for="q-email">Email</label><input id="q-email" type="email" name="email" required autocomplete="email">
         <input type="hidden" name="quiz_result"><input type="hidden" name="cups"><input type="hidden" name="want">
         <p style="margin:16px 0 8px"><button class="btn" type="submit">Send me the guide</button></p>
         <p class="fine">You'll get the guide right away and a short series of notes after it. Unsubscribe in one click.</p>
@@ -237,16 +239,17 @@
 })();
 </script>
 
+</main>
 
-<footer><div class="wrap">
+<footer aria-label="Footer"><div class="wrap">
   <div class="cols">
     <div>
-      <h4>The Morning Upgrade</h4>
+      <h2 class="fh">The Morning Upgrade</h2>
       <p>Coffee that keeps up past lunch. One scoop, hot water, smooth energy and sharp focus. Sold by Rector &amp; Stull LLC, Independent ISR of MarketPlace Global products and services.</p>
       <p>hello@themorningupgrades.com</p>
     </div>
     <div>
-      <h4>Shop</h4>
+      <h2 class="fh">Shop</h2>
       <a href="/shop.html">CoreJava coffee</a>
       <a href="/ingredients.html">What's in it</a>
       <a href="/faq.html">Questions</a>
@@ -254,7 +257,7 @@
       <a href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00" rel="noopener">Manage subscription</a>
     </div>
     <div>
-      <h4>Company</h4>
+      <h2 class="fh">Company</h2>
       <a href="/about.html">About us</a>
       <a href="/share.html">Share &amp; earn</a>
       <a href="/partner.html">Build with us</a>
@@ -267,6 +270,6 @@
   <p>&copy; <span class="yr"></span> Rector &amp; Stull LLC &middot; 30 N Gould St Ste R, Sheridan, WY 82801</p>
 </div></footer>
 
-<div class="sticky"><div><b>CoreJava &middot; 30 servings</b><span>from $69.95/mo &middot; $2.33 a morning</span></div><a class="btn" data-buy="subscribe" href="#">Get it</a></div>
+<aside class="sticky" aria-label="Quick buy"><div><b>CoreJava &middot; 30 servings</b><span>from $69.95/mo &middot; $2.33 a morning</span></div><a class="btn" data-buy="subscribe" href="#">Get it</a></aside>
 </body>
 </html>

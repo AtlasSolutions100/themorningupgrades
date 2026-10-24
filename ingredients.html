@@ -16,12 +16,13 @@
 
 </head>
 <body>
-<div class="bar"><span class="isr-logo"></span>Rector &amp; Stull LLC &middot; Independent MarketPlace Global ISR &middot; <a href="https://marketplaceglobal.com/rectorandstull" rel="noopener">MarketPlace Global corporate site &rarr;</a></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="bar" role="banner"><span class="isr-logo"></span>Rector &amp; Stull LLC &middot; Independent MarketPlace Global ISR &middot; <a href="https://marketplaceglobal.com/rectorandstull" rel="noopener">MarketPlace Global corporate site &rarr;</a></header>
 
-<nav class="nav"><div class="wrap">
+<nav class="nav" aria-label="Main"><div class="wrap">
   <a class="brand" href="/"><img src="/img/mark.jpg" alt=""><b>The Morning Upgrade</b></a>
-  <button class="burger" aria-label="Menu">Menu</button>
-  <div class="menu">
+  <button class="burger" aria-label="Open menu" aria-expanded="false" aria-controls="menu">Menu</button>
+  <div class="menu" id="menu">
     <a href="/shop.html">Shop</a>
     <a href="/ingredients.html">Ingredients</a>
     <a href="/start.html">7-day swap</a>
@@ -31,11 +32,12 @@
   </div>
 </div></nav>
 
+<main id="main">
 
 <section class="tight"><div class="wrap split" style="align-items:center">
   <div class="callouts-wrap">
   <div class="bagstage">
-    <img src="/img/hero_props.png" alt="CoreJava bag with coconut, MCT powder, coffee beans, green tea leaves and matcha" fetchpriority="high">
+    <img src="/img/hero_props.png" width="1300" height="1300" alt="CoreJava bag with coconut, MCT powder, coffee beans, green tea leaves and matcha" fetchpriority="high" decoding="async">
     <svg class="leads" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
       <path d="M24 30 L27 30 L30 65.5" /><circle cx="30.2" cy="67.5" r="1"/>
       <path d="M76 30 L73 30 L72.4 61" /><circle cx="72.3" cy="63" r="1"/>
@@ -54,9 +56,10 @@
     <p class="lead">We'll tell you where each one comes from. For what the blend does, the label is the authority: <em>supports healthy appetite control, focus and energy.</em> We don't go past that.</p>
   </div>
 </div></section>
-<section class="dark" style="padding-top:0"><div class="wrap">
+<section class="alt" style="padding-top:0"><div class="wrap">
+  <h2 class="sr">The seven ingredients</h2>
   <div class="split" style="margin-bottom:40px">
-    <div class="frame phone"><video autoplay muted loop playsinline poster="/media/ingredients.jpg"><source src="/media/ingredients.mp4" type="video/mp4"></video></div>
+    <div class="frame phone"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/ingredients.jpg"><source src="/media/ingredients.mp4" type="video/mp4"></video></div>
     <div class="ing" style="grid-template-columns:1fr 1fr">
       <div class="card"><b>MCT powder</b><h3>First on the label</h3><p>Medium-chain triglycerides, usually from coconut oil, in powder form. It&rsquo;s what gives the cup body and a creamy texture without adding cream.</p></div>
       <div class="card"><b>Natural caffeine</b><h3>From coffee beans</h3><p>The same caffeine you already drink, from coffee, not synthesized. About the amount in a strong cup.</p></div>
@@ -77,16 +80,17 @@
 
 </div></section>
 
+</main>
 
-<footer><div class="wrap">
+<footer aria-label="Footer"><div class="wrap">
   <div class="cols">
     <div>
-      <h4>The Morning Upgrade</h4>
+      <h2 class="fh">The Morning Upgrade</h2>
       <p>Coffee that keeps up past lunch. One scoop, hot water, smooth energy and sharp focus. Sold by Rector &amp; Stull LLC, Independent ISR of MarketPlace Global products and services.</p>
       <p>hello@themorningupgrades.com</p>
     </div>
     <div>
-      <h4>Shop</h4>
+      <h2 class="fh">Shop</h2>
       <a href="/shop.html">CoreJava coffee</a>
       <a href="/ingredients.html">What's in it</a>
       <a href="/faq.html">Questions</a>
@@ -94,7 +98,7 @@
       <a href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00" rel="noopener">Manage subscription</a>
     </div>
     <div>
-      <h4>Company</h4>
+      <h2 class="fh">Company</h2>
       <a href="/about.html">About us</a>
       <a href="/share.html">Share &amp; earn</a>
       <a href="/partner.html">Build with us</a>
@@ -107,6 +111,6 @@
   <p>&copy; <span class="yr"></span> Rector &amp; Stull LLC &middot; 30 N Gould St Ste R, Sheridan, WY 82801</p>
 </div></footer>
 
-<div class="sticky"><div><b>CoreJava &middot; 30 servings</b><span>from $69.95/mo &middot; $2.33 a morning</span></div><a class="btn" data-buy="subscribe" href="#">Get it</a></div>
+<aside class="sticky" aria-label="Quick buy"><div><b>CoreJava &middot; 30 servings</b><span>from $69.95/mo &middot; $2.33 a morning</span></div><a class="btn" data-buy="subscribe" href="#">Get it</a></aside>
 </body>
 </html>

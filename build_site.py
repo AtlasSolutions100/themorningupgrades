@@ -4,10 +4,10 @@ import os, re
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 NAV = """
-<nav class="nav"><div class="wrap">
+<nav class="nav" aria-label="Main"><div class="wrap">
   <a class="brand" href="/"><img src="/img/mark.jpg" alt=""><b>The Morning Upgrade</b></a>
-  <button class="burger" aria-label="Menu">Menu</button>
-  <div class="menu">
+  <button class="burger" aria-label="Open menu" aria-expanded="false" aria-controls="menu">Menu</button>
+  <div class="menu" id="menu">
     <a href="/shop.html">Shop</a>
     <a href="/ingredients.html">Ingredients</a>
     <a href="/start.html">7-day swap</a>
@@ -19,15 +19,15 @@ NAV = """
 """
 
 FOOTER = """
-<footer><div class="wrap">
+<footer aria-label="Footer"><div class="wrap">
   <div class="cols">
     <div>
-      <h4>The Morning Upgrade</h4>
+      <h2 class="fh">The Morning Upgrade</h2>
       <p>Coffee that keeps up past lunch. One scoop, hot water, smooth energy and sharp focus. Sold by Rector &amp; Stull LLC, Independent ISR of MarketPlace Global products and services.</p>
       <p>hello@themorningupgrades.com</p>
     </div>
     <div>
-      <h4>Shop</h4>
+      <h2 class="fh">Shop</h2>
       <a href="/shop.html">CoreJava coffee</a>
       <a href="/ingredients.html">What's in it</a>
       <a href="/faq.html">Questions</a>
@@ -35,7 +35,7 @@ FOOTER = """
       <a href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00" rel="noopener">Manage subscription</a>
     </div>
     <div>
-      <h4>Company</h4>
+      <h2 class="fh">Company</h2>
       <a href="/about.html">About us</a>
       <a href="/share.html">Share &amp; earn</a>
       <a href="/partner.html">Build with us</a>
@@ -68,11 +68,14 @@ def page(title, desc, body, og_image="/img/flatlay.jpg", noindex=False, extra_he
 {extra_head}
 </head>
 <body>
-<div class="bar"><span class="isr-logo"></span>Rector &amp; Stull LLC &middot; Independent MarketPlace Global ISR &middot; <a href="https://marketplaceglobal.com/rectorandstull" rel="noopener">MarketPlace Global corporate site &rarr;</a></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="bar" role="banner"><span class="isr-logo"></span>Rector &amp; Stull LLC &middot; Independent MarketPlace Global ISR &middot; <a href="https://marketplaceglobal.com/rectorandstull" rel="noopener">MarketPlace Global corporate site &rarr;</a></header>
 {NAV if nav else ''}
+<main id="main">
 {body}
+</main>
 {FOOTER}
-<div class="sticky"><div><b>CoreJava &middot; 30 servings</b><span>from $69.95/mo &middot; $2.33 a morning</span></div><a class="btn" data-buy="subscribe" href="#">Get it</a></div>
+<aside class="sticky" aria-label="Quick buy"><div><b>CoreJava &middot; 30 servings</b><span>from $69.95/mo &middot; $2.33 a morning</span></div><a class="btn" data-buy="subscribe" href="#">Get it</a></aside>
 </body>
 </html>
 """
@@ -132,24 +135,24 @@ def trust_row(dark=False):
 </div>"""
 
 def picker(cta="Add to cart", note=True):
-    return f"""<div class="picker" data-picker>
+    return f"""<fieldset class="picker" data-picker><legend class="sr">Choose a plan</legend>
   <label class="opt on"><input type="radio" name="plan" value="subscribe" checked><span class="radio"></span>
     <span class="ptxt"><b>Subscribe &amp; Save</b><em>Most popular</em><span class="pp">$69.95<small>/mo &middot; $2.33 a morning</small></span><span class="pfine">A bag a month. Pause, skip or cancel from your receipt.</span></span></label>
   <label class="opt"><input type="radio" name="plan" value="onetime"><span class="radio"></span>
     <span class="ptxt"><b>One bag</b><span class="pp">$79.95<small> &middot; $2.67 a morning</small></span><span class="pfine">30 servings. No commitment.</span></span></label>
   <a class="btn big" data-buy="subscribe" data-picker-btn href="#">{cta} &rarr;</a>
   {'<p class="fine" style="text-align:center;margin:12px 0 0"><span data-ship="short">$8.95 US shipping</span> &middot; 90-day guarantee on unopened bags &middot; pause or cancel anytime</p>' if note else ''}
-</div>"""
+</fieldset>"""
 
 INGCARDS = f"""<div class="ingcards">
-  <div>{ICON_COCO}<div><h3>MCT powder</h3><p>The creamy part. From coconut, and the first thing on the label.</p></div></div>
-  <div>{ICON_LEAF}<div><h3>Natural caffeine + L-theanine</h3><p>Coffee-bean caffeine with the amino acid in green tea. Focus without the edge.</p></div></div>
-  <div>{ICON_SCOOP}<div><h3>30 servings. One scoop.</h3><p>Hot water, 30 seconds, no machine. A month of mornings in one bag.</p></div></div>
+  <div>{ICON_COCO}<div><h2>MCT powder</h2><p>The creamy part. From coconut, and the first thing on the label.</p></div></div>
+  <div>{ICON_LEAF}<div><h2>Natural caffeine + L-theanine</h2><p>Coffee-bean caffeine with the amino acid in green tea. Focus without the edge.</p></div></div>
+  <div>{ICON_SCOOP}<div><h2>30 servings. One scoop.</h2><p>Hot water, 30 seconds, no machine. A month of mornings in one bag.</p></div></div>
 </div>"""
 
 CALLOUTS = """<div class="callouts-wrap">
   <div class="bagstage">
-    <img src="/img/hero_props.png" alt="CoreJava bag with coconut, MCT powder, coffee beans, green tea leaves and matcha" fetchpriority="high">
+    <img src="/img/hero_props.png" width="1300" height="1300" alt="CoreJava bag with coconut, MCT powder, coffee beans, green tea leaves and matcha" fetchpriority="high" decoding="async">
     <svg class="leads" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
       <path d="M24 30 L27 30 L30 65.5" /><circle cx="30.2" cy="67.5" r="1"/>
       <path d="M76 30 L73 30 L72.4 61" /><circle cx="72.3" cy="63" r="1"/>
@@ -167,15 +170,15 @@ HOSTSTRIP = """<section><div class="wrap">
   <h2 style="text-align:center">Real routine, honest hosts.</h2>
   <p style="text-align:center;color:var(--muted);max-width:60ch;margin:0 auto 26px">The people in our videos are AI presenters, and we say so on every one. They show the coffee, the scoop and the label; they don't claim results.</p>
   <div class="hoststrip">
-    <div class="frame phone vid"><video muted loop playsinline autoplay poster="/media/host_kitchen.jpg"><source src="/media/host_kitchen.mp4" type="video/mp4"></video><button class="unmute" type="button" data-unmute aria-label="Turn sound on">&#9654; Sound on</button></div>
-    <div class="frame phone vid"><video muted loop playsinline autoplay poster="/media/host_desk.jpg"><source src="/media/host_desk.mp4" type="video/mp4"></video><button class="unmute" type="button" data-unmute aria-label="Turn sound on">&#9654; Sound on</button></div>
-    <div class="frame phone vid"><video muted loop playsinline autoplay poster="/media/host_gymbag.jpg"><source src="/media/host_gymbag.mp4" type="video/mp4"></video><button class="unmute" type="button" data-unmute aria-label="Turn sound on">&#9654; Sound on</button></div>
+    <div class="frame phone vid"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/host_kitchen.jpg"><source src="/media/host_kitchen.mp4" type="video/mp4"></video><button class="unmute" type="button" data-unmute aria-label="Turn sound on">&#9654; Sound on</button></div>
+    <div class="frame phone vid"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/host_desk.jpg"><source src="/media/host_desk.mp4" type="video/mp4"></video><button class="unmute" type="button" data-unmute aria-label="Turn sound on">&#9654; Sound on</button></div>
+    <div class="frame phone vid"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/host_gymbag.jpg"><source src="/media/host_gymbag.mp4" type="video/mp4"></video><button class="unmute" type="button" data-unmute aria-label="Turn sound on">&#9654; Sound on</button></div>
   </div>
 </div></section>"""
 
 def hero_c(h1="One scoop. No 2 PM crash.", strip=("Smooth energy","Sharp focus","30 mornings a bag"), video=True):
     striphtml = " <i>/</i> ".join(f"<span>{t}</span>" for t in strip)
-    media = ('<div class="frame phone vid device light"><video autoplay muted loop playsinline poster="/media/host_kitchen.jpg"><source src="/media/host_kitchen.mp4" type="video/mp4"></video><button class="unmute" type="button" data-unmute aria-label="Turn sound on">&#9654; Sound on</button></div>') if video else ''
+    media = ('<div class="frame phone vid device light"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/host_kitchen.jpg"><source src="/media/host_kitchen.mp4" type="video/mp4"></video><button class="unmute" type="button" data-unmute aria-label="Turn sound on">&#9654; Sound on</button></div>') if video else ''
     return f"""
 <div class="heroC"><div class="wrap">
   <h1 class="h1c">{h1}</h1>
@@ -220,7 +223,7 @@ HOME = """
 </div></section>
 
 <section><div class="wrap split">
-  <div class="frame phone"><video autoplay muted loop playsinline poster="/media/ritual.jpg"><source src="/media/ritual.mp4" type="video/mp4"></video></div>
+  <div class="frame phone"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/ritual.jpg"><source src="/media/ritual.mp4" type="video/mp4"></video></div>
   <div>
     <p class="eyebrow">How it works</p>
     <h2>One scoop. Hot water. That's the whole ritual.</h2>
@@ -240,7 +243,7 @@ HOME = """
     <p>MCT powder, for a creamy cup. Natural caffeine from coffee beans. L-theanine, the amino acid in green tea. ChromeMate, a patented chromium. Paradoxine, grains of paradise extract. Garcinia Cambogia fruit extract. Saffr'Activ saffron extract. The label says what it does: supports healthy appetite control, focus and energy.</p>
     <p><a class="btn" href="/ingredients.html">See every ingredient</a></p>
   </div>
-  <div class="frame phone"><video autoplay muted loop playsinline poster="/media/ingredients.jpg"><source src="/media/ingredients.mp4" type="video/mp4"></video></div>
+  <div class="frame phone"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/ingredients.jpg"><source src="/media/ingredients.mp4" type="video/mp4"></video></div>
 </div></section>
 
 <section class="alt"><div class="wrap">""" + INGCARDS.replace("ingcards","ingcards light") + """</div></section>
@@ -276,8 +279,8 @@ HOME = """
       <div class="result"><b id="r-label">Result</b><span id="r-text"></span></div>
       <h3>Get the 7 Mornings guide</h3>
       <form id="tmu-form" novalidate>
-        <label>First name</label><input type="text" name="first_name" autocomplete="given-name">
-        <label>Email</label><input type="email" name="email" required autocomplete="email">
+        <label for="q-first">First name</label><input id="q-first" type="text" name="first_name" autocomplete="given-name">
+        <label for="q-email">Email</label><input id="q-email" type="email" name="email" required autocomplete="email">
         <input type="hidden" name="quiz_result"><input type="hidden" name="cups"><input type="hidden" name="want">
         <p style="margin:16px 0 8px"><button class="btn" type="submit">Send me the guide</button></p>
         <p class="fine">You'll get the guide right away and a short series of notes after it. Unsubscribe in one click.</p>
@@ -346,11 +349,11 @@ HOME = """
 SHOP = """
 <section style="padding-top:36px"><div class="wrap split" style="align-items:start">
   <div>
-    <div class="frame p45"><img src="/img/hero_breakfast.jpg" alt="CoreJava coffee bag on a breakfast table in morning light"></div>
+    <div class="frame p45"><img src="/img/hero_breakfast.jpg" alt="CoreJava coffee bag on a breakfast table in morning light" loading="lazy" decoding="async"></div>
     <div class="gallery">
-      <div class="frame" style="aspect-ratio:9/16"><video muted loop playsinline autoplay poster="/media/product_callouts_v2.jpg"><source src="/media/product_callouts_v2.mp4" type="video/mp4"></video></div>
+      <div class="frame" style="aspect-ratio:9/16"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/product_callouts_v2.jpg"><source src="/media/product_callouts_v2.mp4" type="video/mp4"></video></div>
       <div class="frame" style="aspect-ratio:9/16"><img src="/img/kitchen_pour.jpg" alt="Pouring hot water next to a CoreJava bag" loading="lazy"></div>
-      <div class="frame" style="aspect-ratio:9/16"><video muted loop playsinline autoplay poster="/media/iced.jpg"><source src="/media/iced.mp4" type="video/mp4"></video></div>
+      <div class="frame" style="aspect-ratio:9/16"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/iced.jpg"><source src="/media/iced.mp4" type="video/mp4"></video></div>
     </div>
   </div>
   <div>
@@ -359,7 +362,7 @@ SHOP = """
     <p class="lead">Medium-roast instant coffee built around natural caffeine and L-theanine, with ChromeMate, Paradoxine, Garcinia Cambogia and Saffr'Activ. Supports healthy appetite control, focus and energy. One level scoop in 8 oz of hot water.</p>
     """ + picker(note=False) + """
     <p class="fine"><span data-ship="long">Ships to all 50 states.</span> Cancel anytime &middot; <span data-ship="checkout">secure checkout</span> &middot; <span data-ship="damage">made right if it arrives damaged</span>. Questions before you buy: hello@themorningupgrades.com.</p>
-    <h3 style="margin-top:30px">Details</h3>
+    <h2 style="margin-top:30px;font-size:22px">Details</h2>
     <ul class="clean">
       <li><strong>Serving:</strong> 1 level scoop (about 6.8 g) in 8 fl oz hot water. 30 servings per 7.2 oz (204 g) bag.</li>
       <li><strong>Ingredients:</strong> MCT powder, natural caffeine, L-theanine, ChromeMate&reg; chromium, Paradoxine&reg; grains of paradise extract, Garcinia Cambogia extract, Saffr'Activ&reg; saffron extract. <a href="/ingredients.html">Full breakdown</a>.</li>
@@ -392,9 +395,10 @@ ING = """
     <p class="lead">We'll tell you where each one comes from. For what the blend does, the label is the authority: <em>supports healthy appetite control, focus and energy.</em> We don't go past that.</p>
   </div>
 </div></section>
-<section class="dark" style="padding-top:0"><div class="wrap">
+<section class="alt" style="padding-top:0"><div class="wrap">
+  <h2 class="sr">The seven ingredients</h2>
   <div class="split" style="margin-bottom:40px">
-    <div class="frame phone"><video autoplay muted loop playsinline poster="/media/ingredients.jpg"><source src="/media/ingredients.mp4" type="video/mp4"></video></div>
+    <div class="frame phone"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/ingredients.jpg"><source src="/media/ingredients.mp4" type="video/mp4"></video></div>
     <div class="ing" style="grid-template-columns:1fr 1fr">
       <div class="card"><b>MCT powder</b><h3>First on the label</h3><p>Medium-chain triglycerides, usually from coconut oil, in powder form. It&rsquo;s what gives the cup body and a creamy texture without adding cream.</p></div>
       <div class="card"><b>Natural caffeine</b><h3>From coffee beans</h3><p>The same caffeine you already drink, from coffee, not synthesized. About the amount in a strong cup.</p></div>
@@ -446,7 +450,7 @@ PARTNER = """
     <p><a class="btn" data-enroll data-fallback="Ask about joining" href="#apply">Join our team</a> &nbsp; <a class="btn ghost" href="#how">How it works</a></p>
     <p class="fine" style="margin-top:14px">Independent Sales Representative (ISR) opportunity with MarketPlace Global. Compensation is based on sales of MarketPlace Global products and on sponsoring other ISRs who sell them; no compensation is paid for recruiting. Success can be achieved only through substantial independent effort, and most participants earn little or nothing. Read the <a data-disclosure href="#">income disclosure statement</a>, the <a href="https://cdn.raveretailer.com/4450703AD7/2024/12/GSR_6751b39409eb32803571733411236.pdf" rel="noopener">Policies &amp; Procedures</a> and the <a href="https://cdn.raveretailer.com/4450703AD7/2026/09/GSR_6a99a5994071e2714841788457897.pdf" rel="noopener">Compensation Plan</a> before you decide.</p>
   </div>
-  <div class="frame phone"><video autoplay muted loop playsinline poster="/media/ambient.jpg"><source src="/media/ambient.mp4" type="video/mp4"></video></div>
+  <div class="frame phone"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/ambient.jpg"><source src="/media/ambient.mp4" type="video/mp4"></video></div>
 </div></section>
 
 <section class="alt" id="how"><div class="wrap">
@@ -487,18 +491,17 @@ PARTNER = """
     <h3>Tell us a little about you</h3>
     <p class="fine" style="margin:0 0 10px">We'll reply within one business day with the enrollment details and the current costs. No pressure, no scripts.</p>
     <form id="partner-form" novalidate>
-      <label>First name</label><input type="text" name="first_name" autocomplete="given-name">
-      <label>Email</label><input type="email" name="email" required autocomplete="email">
-      <label>Phone (optional)</label><input type="tel" name="phone" autocomplete="tel">
-      <label>Where are you starting from?</label>
-      <select name="experience">
+      <label for="q-first">First name</label><input id="q-first" type="text" name="first_name" autocomplete="given-name">
+      <label for="q-email">Email</label><input id="q-email" type="email" name="email" required autocomplete="email">
+      <label for="f-phone">Phone (optional)</label><input id="f-phone" type="tel" name="phone" autocomplete="tel">
+      <label for="f-experience">Where are you starting from?</label><select id="f-experience" name="experience">
         <option value="new">New to selling online</option>
         <option value="social">I post on social already</option>
         <option value="sales">I've done sales or direct sales before</option>
         <option value="mpg">I'm already a MarketPlace Global ISR</option>
       </select>
       <p class="fine" style="margin:6px 0 0">If you already have a MarketPlace Global ISR agreement, we can&rsquo;t enroll you under a different sponsor (MPG policy 3.6) &mdash; but we&rsquo;re happy to compare notes.</p>
-      <label>Anything you want us to know?</label><textarea name="note"></textarea>
+      <label for="f-note">Anything you want us to know?</label><textarea id="f-note" name="note"></textarea>
       <p style="margin:16px 0 8px"><button class="btn" type="submit">Send</button></p>
       <p class="fine">You'll hear from a real person at Rector &amp; Stull. We never add partner inquiries to our customer emails.</p>
       <p id="p-msg" class="fine" role="status" style="color:var(--copper2)"></p>
@@ -532,7 +535,7 @@ SHARE = """
     <p><a class="btn" href="#levels">See the three levels</a> &nbsp; <a class="btn ghost" href="#honest">What this actually is</a></p>
     <p class="fine" style="margin-top:14px">Independent Sales Representative (ISR) program of MarketPlace Global. Paid on product sales only. Most participants earn little; see the <a data-disclosure href="#">income disclosure</a>.</p>
   </div>
-  <div class="frame phone"><img src="/img/gym.jpg" alt="Woman on a yoga mat holding a CoreJava bag and a mug"></div>
+  <div class="frame phone"><img src="/img/gym.jpg" alt="Woman on a yoga mat holding a CoreJava bag and a mug" loading="lazy" decoding="async"></div>
 </div></section>
 
 <section class="alt" id="levels"><div class="wrap">
@@ -620,7 +623,7 @@ ABOUT = """
     <p>Everything on this site that earns us money says so. Every video that uses an AI-generated scene is labeled. If something's unclear, email us and a human will answer: hello@themorningupgrades.com.</p>
     <p><a class="btn" href="/shop.html">Buy CoreJava</a> &nbsp; <a class="btn ghost" href="/partner.html">Partner with us</a></p>
   </div>
-  <div class="frame p45"><img src="/img/bag_shadows.jpg" alt="CoreJava bag with leaf shadows"></div>
+  <div class="frame p45"><img src="/img/bag_shadows.jpg" alt="CoreJava bag with leaf shadows" loading="lazy" decoding="async"></div>
   <p class="fine" style="margin-top:18px">The people in our videos are AI presenters we produce for the brand. They demonstrate the product; they never speak as customers or describe results.</p>
 </div></section>
 """
@@ -701,7 +704,7 @@ ORDER_COMPLETE = """
 THANKS = """
 <section style="padding-top:36px"><div class="wrap" style="max-width:720px">
   <div class="card" style="padding:34px 30px">
-    <div class="frame" style="aspect-ratio:16/10;margin-bottom:22px;box-shadow:none"><img src="/img/desk.jpg" alt="A mug and a bag of coffee on a desk"></div>
+    <div class="frame" style="aspect-ratio:16/10;margin-bottom:22px;box-shadow:none"><img src="/img/desk.jpg" alt="A mug and a bag of coffee on a desk" loading="lazy" decoding="async"></div>
     <h1 style="font-size:clamp(30px,4vw,44px)">Your guide is on its way.</h1>
     <p>Check your inbox in the next minute or two (and the promotions tab, if you're on Gmail). If you'd rather not wait:</p>
     <p><a class="btn" href="https://d2ol7oe51mr4n9.cloudfront.net/user_3GvdxB9gfwtge4rv79iuyoXAckR/a857aef6-954a-4e8e-b256-41205db0097f.pdf" target="_blank" rel="noopener">Open the 7 Mornings guide</a></p>
@@ -719,7 +722,7 @@ START = """
 <section class="alt"><div class="wrap">""" + INGCARDS.replace("ingcards","ingcards light") + """</div></section>
 
 <section><div class="wrap split" style="align-items:center">
-  <div class="frame phone vid"><video autoplay muted loop playsinline poster="/media/host_kitchen.jpg"><source src="/media/host_kitchen.mp4" type="video/mp4"></video><button class="unmute" type="button" data-unmute aria-label="Turn sound on">&#9654; Sound on</button></div>
+  <div class="frame phone vid"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/host_kitchen.jpg"><source src="/media/host_kitchen.mp4" type="video/mp4"></video><button class="unmute" type="button" data-unmute aria-label="Turn sound on">&#9654; Sound on</button></div>
   <div>
     <p class="eyebrow">One scoop. Seven things on the label.</p>
     <h2>Nothing hidden behind a blend.</h2>

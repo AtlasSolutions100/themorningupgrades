@@ -16,12 +16,13 @@
 
 </head>
 <body>
-<div class="bar"><span class="isr-logo"></span>Rector &amp; Stull LLC &middot; Independent MarketPlace Global ISR &middot; <a href="https://marketplaceglobal.com/rectorandstull" rel="noopener">MarketPlace Global corporate site &rarr;</a></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="bar" role="banner"><span class="isr-logo"></span>Rector &amp; Stull LLC &middot; Independent MarketPlace Global ISR &middot; <a href="https://marketplaceglobal.com/rectorandstull" rel="noopener">MarketPlace Global corporate site &rarr;</a></header>
 
-<nav class="nav"><div class="wrap">
+<nav class="nav" aria-label="Main"><div class="wrap">
   <a class="brand" href="/"><img src="/img/mark.jpg" alt=""><b>The Morning Upgrade</b></a>
-  <button class="burger" aria-label="Menu">Menu</button>
-  <div class="menu">
+  <button class="burger" aria-label="Open menu" aria-expanded="false" aria-controls="menu">Menu</button>
+  <div class="menu" id="menu">
     <a href="/shop.html">Shop</a>
     <a href="/ingredients.html">Ingredients</a>
     <a href="/start.html">7-day swap</a>
@@ -31,6 +32,7 @@
   </div>
 </div></nav>
 
+<main id="main">
 
 <section style="padding-top:36px"><div class="wrap legal">
   <p class="eyebrow">FAQ</p>
@@ -51,16 +53,17 @@
   <details><summary>Who are the people in your videos?</summary><p>AI presenters we make for the brand. They show the coffee, the scoop and the label; they never claim results, because they haven't used it. Real answers come from a real inbox: hello@themorningupgrades.com.</p></details>
 </div></section>
 
+</main>
 
-<footer><div class="wrap">
+<footer aria-label="Footer"><div class="wrap">
   <div class="cols">
     <div>
-      <h4>The Morning Upgrade</h4>
+      <h2 class="fh">The Morning Upgrade</h2>
       <p>Coffee that keeps up past lunch. One scoop, hot water, smooth energy and sharp focus. Sold by Rector &amp; Stull LLC, Independent ISR of MarketPlace Global products and services.</p>
       <p>hello@themorningupgrades.com</p>
     </div>
     <div>
-      <h4>Shop</h4>
+      <h2 class="fh">Shop</h2>
       <a href="/shop.html">CoreJava coffee</a>
       <a href="/ingredients.html">What's in it</a>
       <a href="/faq.html">Questions</a>
@@ -68,7 +71,7 @@
       <a href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00" rel="noopener">Manage subscription</a>
     </div>
     <div>
-      <h4>Company</h4>
+      <h2 class="fh">Company</h2>
       <a href="/about.html">About us</a>
       <a href="/share.html">Share &amp; earn</a>
       <a href="/partner.html">Build with us</a>
@@ -81,6 +84,6 @@
   <p>&copy; <span class="yr"></span> Rector &amp; Stull LLC &middot; 30 N Gould St Ste R, Sheridan, WY 82801</p>
 </div></footer>
 
-<div class="sticky"><div><b>CoreJava &middot; 30 servings</b><span>from $69.95/mo &middot; $2.33 a morning</span></div><a class="btn" data-buy="subscribe" href="#">Get it</a></div>
+<aside class="sticky" aria-label="Quick buy"><div><b>CoreJava &middot; 30 servings</b><span>from $69.95/mo &middot; $2.33 a morning</span></div><a class="btn" data-buy="subscribe" href="#">Get it</a></aside>
 </body>
 </html>

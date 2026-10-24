@@ -16,12 +16,13 @@
 
 </head>
 <body>
-<div class="bar"><span class="isr-logo"></span>Rector &amp; Stull LLC &middot; Independent MarketPlace Global ISR &middot; <a href="https://marketplaceglobal.com/rectorandstull" rel="noopener">MarketPlace Global corporate site &rarr;</a></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="bar" role="banner"><span class="isr-logo"></span>Rector &amp; Stull LLC &middot; Independent MarketPlace Global ISR &middot; <a href="https://marketplaceglobal.com/rectorandstull" rel="noopener">MarketPlace Global corporate site &rarr;</a></header>
 
-<nav class="nav"><div class="wrap">
+<nav class="nav" aria-label="Main"><div class="wrap">
   <a class="brand" href="/"><img src="/img/mark.jpg" alt=""><b>The Morning Upgrade</b></a>
-  <button class="burger" aria-label="Menu">Menu</button>
-  <div class="menu">
+  <button class="burger" aria-label="Open menu" aria-expanded="false" aria-controls="menu">Menu</button>
+  <div class="menu" id="menu">
     <a href="/shop.html">Shop</a>
     <a href="/ingredients.html">Ingredients</a>
     <a href="/start.html">7-day swap</a>
@@ -31,6 +32,7 @@
   </div>
 </div></nav>
 
+<main id="main">
 
 <section style="padding-top:36px"><div class="wrap split">
   <div>
@@ -40,7 +42,7 @@
     <p><a class="btn" data-enroll data-fallback="Ask about joining" href="#apply">Join our team</a> &nbsp; <a class="btn ghost" href="#how">How it works</a></p>
     <p class="fine" style="margin-top:14px">Independent Sales Representative (ISR) opportunity with MarketPlace Global. Compensation is based on sales of MarketPlace Global products and on sponsoring other ISRs who sell them; no compensation is paid for recruiting. Success can be achieved only through substantial independent effort, and most participants earn little or nothing. Read the <a data-disclosure href="#">income disclosure statement</a>, the <a href="https://cdn.raveretailer.com/4450703AD7/2024/12/GSR_6751b39409eb32803571733411236.pdf" rel="noopener">Policies &amp; Procedures</a> and the <a href="https://cdn.raveretailer.com/4450703AD7/2026/09/GSR_6a99a5994071e2714841788457897.pdf" rel="noopener">Compensation Plan</a> before you decide.</p>
   </div>
-  <div class="frame phone"><video autoplay muted loop playsinline poster="/media/ambient.jpg"><source src="/media/ambient.mp4" type="video/mp4"></video></div>
+  <div class="frame phone"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/ambient.jpg"><source src="/media/ambient.mp4" type="video/mp4"></video></div>
 </div></section>
 
 <section class="alt" id="how"><div class="wrap">
@@ -81,18 +83,17 @@
     <h3>Tell us a little about you</h3>
     <p class="fine" style="margin:0 0 10px">We'll reply within one business day with the enrollment details and the current costs. No pressure, no scripts.</p>
     <form id="partner-form" novalidate>
-      <label>First name</label><input type="text" name="first_name" autocomplete="given-name">
-      <label>Email</label><input type="email" name="email" required autocomplete="email">
-      <label>Phone (optional)</label><input type="tel" name="phone" autocomplete="tel">
-      <label>Where are you starting from?</label>
-      <select name="experience">
+      <label for="q-first">First name</label><input id="q-first" type="text" name="first_name" autocomplete="given-name">
+      <label for="q-email">Email</label><input id="q-email" type="email" name="email" required autocomplete="email">
+      <label for="f-phone">Phone (optional)</label><input id="f-phone" type="tel" name="phone" autocomplete="tel">
+      <label for="f-experience">Where are you starting from?</label><select id="f-experience" name="experience">
         <option value="new">New to selling online</option>
         <option value="social">I post on social already</option>
         <option value="sales">I've done sales or direct sales before</option>
         <option value="mpg">I'm already a MarketPlace Global ISR</option>
       </select>
       <p class="fine" style="margin:6px 0 0">If you already have a MarketPlace Global ISR agreement, we can&rsquo;t enroll you under a different sponsor (MPG policy 3.6) &mdash; but we&rsquo;re happy to compare notes.</p>
-      <label>Anything you want us to know?</label><textarea name="note"></textarea>
+      <label for="f-note">Anything you want us to know?</label><textarea id="f-note" name="note"></textarea>
       <p style="margin:16px 0 8px"><button class="btn" type="submit">Send</button></p>
       <p class="fine">You'll hear from a real person at Rector &amp; Stull. We never add partner inquiries to our customer emails.</p>
       <p id="p-msg" class="fine" role="status" style="color:var(--copper2)"></p>
@@ -115,16 +116,17 @@
 })();
 </script>
 
+</main>
 
-<footer><div class="wrap">
+<footer aria-label="Footer"><div class="wrap">
   <div class="cols">
     <div>
-      <h4>The Morning Upgrade</h4>
+      <h2 class="fh">The Morning Upgrade</h2>
       <p>Coffee that keeps up past lunch. One scoop, hot water, smooth energy and sharp focus. Sold by Rector &amp; Stull LLC, Independent ISR of MarketPlace Global products and services.</p>
       <p>hello@themorningupgrades.com</p>
     </div>
     <div>
-      <h4>Shop</h4>
+      <h2 class="fh">Shop</h2>
       <a href="/shop.html">CoreJava coffee</a>
       <a href="/ingredients.html">What's in it</a>
       <a href="/faq.html">Questions</a>
@@ -132,7 +134,7 @@
       <a href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00" rel="noopener">Manage subscription</a>
     </div>
     <div>
-      <h4>Company</h4>
+      <h2 class="fh">Company</h2>
       <a href="/about.html">About us</a>
       <a href="/share.html">Share &amp; earn</a>
       <a href="/partner.html">Build with us</a>
@@ -145,6 +147,6 @@
   <p>&copy; <span class="yr"></span> Rector &amp; Stull LLC &middot; 30 N Gould St Ste R, Sheridan, WY 82801</p>
 </div></footer>
 
-<div class="sticky"><div><b>CoreJava &middot; 30 servings</b><span>from $69.95/mo &middot; $2.33 a morning</span></div><a class="btn" data-buy="subscribe" href="#">Get it</a></div>
+<aside class="sticky" aria-label="Quick buy"><div><b>CoreJava &middot; 30 servings</b><span>from $69.95/mo &middot; $2.33 a morning</span></div><a class="btn" data-buy="subscribe" href="#">Get it</a></aside>
 </body>
 </html>

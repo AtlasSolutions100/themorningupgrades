@@ -49,11 +49,15 @@ window.TMU = {
   document.addEventListener('DOMContentLoaded', function(){
     // nav
     var b=document.querySelector('.burger'), m=document.querySelector('.menu');
-    if(b&&m) b.onclick=function(){ m.classList.toggle('open'); };
+    if(b&&m) b.onclick=function(){ var open=m.classList.toggle('open'); b.setAttribute('aria-expanded', open?'true':'false'); b.setAttribute('aria-label', open?'Close menu':'Open menu'); };
     var here=location.pathname.replace(/\/index\.html$/,'/');
     document.querySelectorAll('.menu a').forEach(function(a){ var h=a.getAttribute('href'); if(h && (h===here || (h!=='/' && here.indexOf(h)===0))) a.classList.add('on'); });
     // analytics notice (dismissable, remembered per browser)
-    try{ if(C.GA4_ID && !localStorage.getItem('tmu_notice')){ var n=document.createElement('div'); n.className='notice'; n.innerHTML='We use Google Analytics and a TikTok pixel to see which pages and videos bring people here. <a href="/privacy.html">Privacy</a> <button type="button">OK</button>'; document.body.appendChild(n); n.querySelector('button').onclick=function(){ try{localStorage.setItem('tmu_notice','1')}catch(e){} n.remove(); }; } }catch(e){}
+    try{ if(C.GA4_ID && !localStorage.getItem('tmu_notice')){ var n=document.createElement('div'); n.className='notice'; n.setAttribute('role','region'); n.setAttribute('aria-label','Analytics notice'); n.innerHTML='We use Google Analytics and a TikTok pixel to see which pages and videos bring people here. <a href="/privacy.html">Privacy</a> <button type="button">OK</button>'; document.body.appendChild(n); n.querySelector('button').onclick=function(){ try{localStorage.setItem('tmu_notice','1')}catch(e){} n.remove(); }; } }catch(e){}
+    // autoplay only while in view (saves bandwidth, keeps LCP clean)
+    var vids=document.querySelectorAll('video[data-autoplay]');
+    if('IntersectionObserver' in window){ var io=new IntersectionObserver(function(es){ es.forEach(function(e){ var v=e.target; if(e.isIntersecting){ v.play().catch(function(){}); } else { v.pause(); } }); },{threshold:.25}); vids.forEach(function(v){ io.observe(v); }); }
+    else { vids.forEach(function(v){ v.setAttribute('autoplay',''); v.play().catch(function(){}); }); }
     // sound toggle on muted autoplay host videos
     document.querySelectorAll('[data-unmute]').forEach(function(b){ var v=b.parentNode.querySelector('video'); if(!v) return; b.onclick=function(){ v.muted=!v.muted; if(!v.muted){ v.currentTime=0; v.play(); } b.innerHTML = v.muted ? '&#9654; Sound on' : '&#10073;&#10073; Mute'; track('VideoSound',{on:!v.muted}); }; });
     // year
