@@ -435,7 +435,6 @@ FAQ = """
   <details><summary>Returns?</summary><p>If a bag arrives damaged or wrong, email hello@themorningupgrades.com within 14 days and we'll replace it or refund it. Full policy on the <a href="/shipping-returns.html">Shipping &amp; returns</a> page.</p></details>
   <details><summary>Who am I buying from?</summary><p>Rector &amp; Stull LLC, Independent ISR of MarketPlace Global products and services. MarketPlace Global makes CoreJava; we sell it.</p></details>
   <h2>The business</h2>
-  <details><summary>Is this an MLM?</summary><p>MarketPlace Global is a direct sales company that sells through Independent Sales Representatives (ISRs), and ISRs can sponsor other ISRs. We earn on the coffee we sell and on sales made by partners we introduce. If that interests you, the <a href="/partner.html">Partner page</a> explains it without the hype.</p></details>
   <details><summary>Who are the people in your videos?</summary><p>AI presenters we make for the brand. They show the coffee, the scoop and the label; they never claim results, because they haven't used it. Real answers come from a real inbox: hello@themorningupgrades.com.</p></details>
 </div></section>
 """
@@ -761,7 +760,6 @@ START = """
     <details><summary>How much caffeine is in a scoop?</summary><p>About the same as a regular cup of coffee. One scoop is the serving; most people find one is the right amount.</p></details>
     <details><summary>What does L-theanine do?</summary><p>It's the amino acid in green tea that people pair with caffeine for a steadier feel. We quote the label on what the product supports and leave the rest to you.</p></details>
     <details><summary>Can I cancel the subscription?</summary><p>Any time, from the link in your receipt. Pause a month, skip, or cancel. No calls, no forms.</p></details>
-    <details><summary>Is this an MLM product?</summary><p>CoreJava is made by MarketPlace Global, a direct-sales company, and we sell it as their Independent Sales Representatives. Buying a bag makes you a customer and nothing else. <a href="/share.html">Share &amp; earn</a> exists if you want it; nobody will call you.</p></details>
   </div>
   <div>""" + picker(cta="Get CoreJava") + """</div>
 </div></section>
