@@ -6,14 +6,14 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 NAV = """
 <nav class="nav"><div class="wrap">
   <a class="brand" href="/"><img src="/img/mark.jpg" alt=""><b>The Morning Upgrade</b></a>
-  <button class="burger sans" aria-label="Menu">Menu</button>
+  <button class="burger" aria-label="Menu">Menu</button>
   <div class="menu">
     <a href="/shop.html">Shop</a>
     <a href="/ingredients.html">Ingredients</a>
+    <a href="/start.html">7-day swap</a>
     <a href="/faq.html">FAQ</a>
-    <a href="/about.html">About</a>
     <a href="/share.html">Share &amp; earn</a>
-    <a class="btn sm" href="/shop.html">Buy CoreJava</a>
+    <a class="btn sm" href="/shop.html">Get CoreJava</a>
   </div>
 </div></nav>
 """
@@ -62,6 +62,7 @@ def page(title, desc, body, og_image="/img/flatlay.jpg", noindex=False, extra_he
 <meta property="og:title" content="{title}">
 <meta property="og:description" content="{desc}">
 <meta property="og:image" content="https://themorningupgrades.com{og_image}">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/site.css">
 <script src="/assets/site.js"></script>
 {extra_head}
@@ -71,7 +72,7 @@ def page(title, desc, body, og_image="/img/flatlay.jpg", noindex=False, extra_he
 {NAV if nav else ''}
 {body}
 {FOOTER}
-<div class="sticky"><div><b>CoreJava &middot; 30 servings</b><span>from $69.95 &middot; <span data-ship="short">ships to all 50 states</span></span></div><a class="btn" data-buy="subscribe" href="#">Buy now</a></div>
+<div class="sticky"><div><b>CoreJava &middot; 30 servings</b><span>from $69.95/mo &middot; <span data-ship="short">$8.95 US shipping</span></span></div><a class="btn" data-buy="subscribe" href="#">Get it</a></div>
 </body>
 </html>
 """
@@ -200,7 +201,7 @@ HOSTS = """
 # ---------- HOME ----------
 HOME = """
 """ + hero_c(h1="One scoop. No 2 PM crash.") + """
-""" + BENEFITS + """
+"""+"""
 
 <section class="alt"><div class="wrap">
   <h2>Three mornings, three problems</h2>
@@ -347,7 +348,7 @@ SHOP = """
   </div>
   <div>
     <p class="eyebrow">CoreJava &middot; performance coffee</p>
-    <h1 style="font-size:clamp(30px,4vw,44px)">CoreJava Coffee, 30 servings</h1>
+    <h1 style="font-size:clamp(34px,4.4vw,52px)">CoreJava Coffee, 30 servings.</h1>
     <p class="lead">Medium-roast instant coffee built around natural caffeine and L-theanine, with ChromeMate, Paradoxine, Garcinia Cambogia and Saffr'Activ. Supports healthy appetite control, focus and energy. One level scoop in 8 oz of hot water.</p>
     """ + picker(note=False) + """
     <p class="fine"><span data-ship="long">Ships to all 50 states.</span> Cancel anytime &middot; <span data-ship="checkout">secure checkout</span> &middot; <span data-ship="damage">made right if it arrives damaged</span>. Questions before you buy: hello@themorningupgrades.com.</p>
@@ -376,10 +377,13 @@ SHOP = """
 
 # ---------- INGREDIENTS ----------
 ING = """
-<section style="padding-top:36px"><div class="wrap">
-  <p class="eyebrow">What's in it</p>
-  <h1 style="font-size:clamp(30px,4vw,46px)">Seven ingredients, and what each one is.</h1>
-  <p class="lead">We'll tell you where each ingredient comes from. For what the blend does, the label is the authority: <em>supports healthy appetite control, focus and energy.</em> We don't go past that.</p>
+<section class="tight"><div class="wrap split" style="align-items:center">
+  """ + CALLOUTS + """
+  <div>
+    <p class="eyebrow">What's in it</p>
+    <h1 style="font-size:clamp(34px,4.4vw,56px)">Seven ingredients. Nothing hidden behind a blend.</h1>
+    <p class="lead">We'll tell you where each one comes from. For what the blend does, the label is the authority: <em>supports healthy appetite control, focus and energy.</em> We don't go past that.</p>
+  </div>
 </div></section>
 <section class="dark" style="padding-top:0"><div class="wrap">
   <div class="split" style="margin-bottom:40px">
