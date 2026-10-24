@@ -395,7 +395,7 @@ ING = """
     <p class="lead">We'll tell you where each one comes from. For what the blend does, the label is the authority: <em>supports healthy appetite control, focus and energy.</em> We don't go past that.</p>
   </div>
 </div></section>
-<section class="alt" style="padding-top:0"><div class="wrap">
+<section class="alt"><div class="wrap">
   <h2 class="sr">The seven ingredients</h2>
   <div class="ing">
     <div class="card"><b>MCT powder</b><h3>First on the label</h3><p>Medium-chain triglycerides, usually from coconut oil, in powder form. It&rsquo;s what gives the cup body and a creamy texture without adding cream.</p></div>
@@ -407,7 +407,7 @@ ING = """
     <div class="card"><b>Saffr'Activ&reg;</b><h3>Saffron extract</h3><p>A standardized extract of saffron stigmas, the same spice used in cooking.</p></div>
     <div class="card claim"><b>What the label says</b><h3>Supports healthy appetite control, focus and energy.</h3><p>MarketPlace Global&rsquo;s words, printed on the bag. That sentence is the whole claim.</p></div>
   </div>
-  <p class="fine" style="margin-top:18px">Full Supplement Facts, including amounts per serving and other ingredients, are printed on the bag. Trademarks belong to their respective ingredient suppliers.</p>
+  <p class="fine" style="margin-top:22px;text-align:center">Full Supplement Facts, including amounts per serving and other ingredients, are printed on the bag. Trademarks belong to their respective ingredient suppliers.</p>
 </div></section>
 <section><div class="wrap" style="text-align:center">
   <h2>One scoop has all seven.</h2>
