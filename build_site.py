@@ -72,7 +72,7 @@ def page(title, desc, body, og_image="/img/flatlay.jpg", noindex=False, extra_he
 {NAV if nav else ''}
 {body}
 {FOOTER}
-<div class="sticky"><div><b>CoreJava &middot; 30 servings</b><span>from $69.95/mo &middot; <span data-ship="short">$8.95 US shipping</span></span></div><a class="btn" data-buy="subscribe" href="#">Get it</a></div>
+<div class="sticky"><div><b>CoreJava &middot; 30 servings</b><span>from $69.95/mo &middot; $2.33 a morning</span></div><a class="btn" data-buy="subscribe" href="#">Get it</a></div>
 </body>
 </html>
 """
@@ -125,9 +125,10 @@ ICON_COCO = '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke=
 
 def trust_row(dark=False):
     return f"""<div class="trusticons{' on-dark' if dark else ''}">
-  <span>{ICON_TRUCK}<b data-ship="trust">$8.95 flat US shipping</b></span>
-  <span>{ICON_SHIELD}<b data-ship="damage">Made right if it arrives damaged</b></span>
-  <span>{ICON_LOOP}<b>Cancel anytime</b></span>
+  <span>{ICON_LEAF}<b>Seven ingredients, all on the label</b></span>
+  <span>{ICON_TRUCK}<b>Ships in 2 business days</b></span>
+  <span>{ICON_SHIELD}<b>90-day guarantee on unopened bags</b></span>
+  <span>{ICON_LOOP}<b>Pause or cancel anytime</b></span>
 </div>"""
 
 def picker(cta="Add to cart", note=True):
@@ -148,7 +149,7 @@ INGCARDS = f"""<div class="ingcards">
 
 CALLOUTS = """<div class="callouts-wrap">
   <div class="bagstage">
-    <img src="/img/bag.png" alt="CoreJava bag, front label" loading="lazy">
+    <img src="/img/hero_props.jpg" alt="CoreJava bag with coconut, MCT powder, coffee beans, green tea leaves and matcha" fetchpriority="high">
     <span class="chip c1"><b>MCT powder</b>the creamy part</span>
     <span class="chip c2"><b>L-theanine</b>focus without the edge</span>
     <span class="chip c3"><b>Natural caffeine</b>about one cup's worth</span>
