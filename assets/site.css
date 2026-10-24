@@ -83,7 +83,7 @@ details p{margin:10px 0 0;color:var(--muted)}
 .h1c{font-weight:800;letter-spacing:-.04em;font-size:clamp(42px,7.4vw,92px);line-height:.96;text-align:center;margin:4px 0 14px;color:var(--ink)}
 .stripc{text-align:center;font-size:13px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--copper);margin:0 0 30px}
 .stripc i{font-style:normal;opacity:.55;margin:0 10px}
-.heroC-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:40px;align-items:center}
+.heroC-grid{display:grid;grid-template-columns:1.3fr .9fr;gap:36px;align-items:center}
 .heroC .picker{margin-top:10px}
 .trusticons{display:flex;flex-wrap:wrap;gap:12px 30px;justify-content:center;margin-top:28px;padding-top:22px;border-top:1px solid var(--line);font-size:14.5px;font-weight:600;color:var(--ink2)}
 .trusticons span{display:inline-flex;align-items:center;gap:10px}
@@ -92,13 +92,15 @@ details p{margin:10px 0 0;color:var(--muted)}
 
 /* bag + callout chips */
 .callouts-wrap{display:flex;justify-content:center}
-.bagstage{position:relative;width:min(100%,560px);padding:10px 0}
-.bagstage img{display:block;width:100%;margin:0 auto}
+.bagstage{position:relative;width:100%;max-width:720px;padding:0}
+.bagstage img{display:block;width:64%;margin:0 auto;filter:drop-shadow(0 28px 34px rgba(11,15,23,.18))}
+.bagstage .leads{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.bagstage .leads path{fill:none;stroke:var(--copper);stroke-width:.35;vector-effect:non-scaling-stroke;stroke-width:1.2px}
+.bagstage .leads circle{fill:var(--copper)}
 .chip{position:absolute;background:#fff;border:1px solid var(--line);border-radius:999px;padding:10px 16px;font-size:13px;color:var(--muted);line-height:1.25;box-shadow:0 8px 24px rgba(11,15,23,.08);white-space:nowrap}
 .chip b{display:block;color:var(--ink);font-size:14px;font-weight:700}
-.chip:before{content:"";position:absolute;top:50%;width:26px;height:1px;background:var(--copper)}
-.chip.c1{left:0;top:14%}.chip.c2{right:0;top:22%}.chip.c3{left:0;top:36%}.chip.c4{right:0;top:44%}
-.chip.c1:before,.chip.c3:before{right:-26px}.chip.c2:before,.chip.c4:before{left:-26px}
+.chip{transform:translateY(-50%)}
+.chip.c1{left:0;top:30%}.chip.c2{right:0;top:30%}.chip.c3{left:0;top:88%}.chip.c4{right:0;top:92%}
 
 /* plan picker */
 .picker{background:var(--paper2);border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:var(--shadow)}
@@ -223,7 +225,7 @@ footer p{font-size:13px;color:var(--muted);line-height:1.6;margin:0 0 10px}
   .trusticons{justify-content:flex-start;gap:10px 22px;font-size:13px}
   .bagstage{padding:0 0 8px;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;gap:6px}
   .bagstage img{flex:0 0 100%;width:100%;margin:0 auto 6px}
-  .chip{position:static;display:inline-block;white-space:normal;margin:0}.chip:before{display:none}
+  .chip{position:static;display:inline-block;white-space:normal;margin:0;transform:none}.bagstage .leads{display:none}
   .hoststrip{grid-template-columns:1fr 1fr}.hoststrip .frame:last-child{display:none}
   .hosts{grid-template-columns:1fr 1fr}
   footer .cols{grid-template-columns:1fr}

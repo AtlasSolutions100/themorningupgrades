@@ -149,7 +149,13 @@ INGCARDS = f"""<div class="ingcards">
 
 CALLOUTS = """<div class="callouts-wrap">
   <div class="bagstage">
-    <img src="/img/hero_props.jpg" alt="CoreJava bag with coconut, MCT powder, coffee beans, green tea leaves and matcha" fetchpriority="high">
+    <img src="/img/hero_props.png" alt="CoreJava bag with coconut, MCT powder, coffee beans, green tea leaves and matcha" fetchpriority="high">
+    <svg class="leads" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M24 30 L27 30 L30 65.5" /><circle cx="30.2" cy="67.5" r="1"/>
+      <path d="M76 30 L73 30 L72.4 61" /><circle cx="72.3" cy="63" r="1"/>
+      <path d="M24 88 L27 88 L42 85.7" /><circle cx="43.5" cy="85.4" r="1"/>
+      <path d="M76 92 L73 92 L56.6 79.8" /><circle cx="55.4" cy="78.8" r="1"/>
+    </svg>
     <span class="chip c1"><b>MCT powder</b>the creamy part</span>
     <span class="chip c2"><b>L-theanine</b>focus without the edge</span>
     <span class="chip c3"><b>Natural caffeine</b>about one cup's worth</span>
