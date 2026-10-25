@@ -305,3 +305,14 @@ header.bar{display:block}
 .ing .card.claim h3{color:var(--copper-text)}
 @media(max-width:1024px){.ing{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:600px){.ing{grid-template-columns:1fr}.ing .card{min-height:0}.ing .card h3{min-height:0}}
+
+.bonus{background:var(--tint);border-radius:12px;padding:12px 14px;font-size:14.5px;margin:12px 0 4px}
+.guide{max-width:720px}
+.guide h2{font-size:26px;margin-top:30px}
+.guide table{width:100%;border-collapse:collapse;margin:8px 0 18px;font-size:15px}
+.guide th,.guide td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+.guide th{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.glist{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.glist a{display:block;text-decoration:none;color:var(--ink);border:1px solid var(--line);border-radius:var(--r2);padding:22px}
+.glist a:hover{border-color:var(--copper)}
+.glist h3{margin:6px 0}

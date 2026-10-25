@@ -32,6 +32,7 @@ FOOTER = """
       <a href="/ingredients.html">What's in it</a>
       <a href="/faq.html">Questions</a>
       <a href="/shipping-returns.html">Shipping &amp; returns</a>
+      <a href="/guides.html">Guides &amp; recipes</a>
       <a href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00" rel="noopener">Manage subscription</a>
     </div>
     <div>
@@ -410,6 +411,7 @@ SHOP = """
     <h1 style="font-size:clamp(34px,4.4vw,52px)">CoreJava Coffee, 30 servings.</h1>
     <p class="lead">Medium-roast instant coffee built around natural caffeine and L-theanine, with ChromeMate, Paradoxine, Garcinia Cambogia and Saffr'Activ. Supports healthy appetite control, focus and energy. One level scoop in 8 oz of hot water.</p>
     """ + picker(note=False) + """
+    <p class="bonus" data-bonus hidden><strong>Free with your first order:</strong> the Recipe Pack, 12 ways to drink it plus a 30-morning tracker (PDF).</p>
     <p class="fine"><span data-ship="long">Ships to all 50 states.</span> Cancel anytime &middot; <span data-ship="checkout">secure checkout</span> &middot; <span data-ship="damage">made right if it arrives damaged</span>. Questions before you buy: hello@themorningupgrades.com.</p>
     <h2 style="margin-top:30px;font-size:22px">Details</h2>
     <ul class="clean">
@@ -741,7 +743,13 @@ ORDER_COMPLETE = """
       <li>Notice the afternoon, not the first hour.</li>
       <li>Give it a week before you decide. Day 3 is usually where people notice.</li>
     </ul>
-    <p><a class="btn ghost" href="/">Back to the site</a></p>
+    <div class="card" style="margin-top:22px;padding:22px 22px;background:var(--tint);box-shadow:none">
+      <p class="eyebrow" style="margin-bottom:6px">Your first-order bonus</p>
+      <h3>The Recipe Pack</h3>
+      <p>Twelve ways to drink it, hot, iced and blended, plus a 30-morning tracker for the fridge.</p>
+      <p style="margin:0"><a class="btn" href="/assets/recipe-pack.pdf" download>Download the Recipe Pack (PDF)</a></p>
+    </div>
+    <p style="margin-top:22px"><a class="btn ghost" href="/">Back to the site</a></p>
   </div>
 </div></section>
 <script>track('Purchase');</script>
@@ -818,6 +826,97 @@ START = """
 </div></section>
 """
 
+
+# ---------- GUIDES (search content: no maker/brand names, no claims past the label) ----------
+def guide_page(eyebrow, h1, lede, body):
+    return f"""
+<section style="padding-top:36px"><div class="wrap guide">
+  <p class="eyebrow"><a href="/guides.html" style="text-decoration:none">Guides</a> &middot; {eyebrow}</p>
+  <h1 style="font-size:clamp(32px,4.4vw,48px)">{h1}</h1>
+  <p class="lead">{lede}</p>
+  {body}
+  <div class="card" style="margin-top:34px;padding:24px;background:var(--tint);box-shadow:none">
+    <h3>Ours, if you want to skip the blender</h3>
+    <p>An instant coffee with MCT powder, natural caffeine and L-theanine in one scoop. One level scoop in 8 oz of hot water. <a href="/ingredients.html">See every ingredient and what the label says</a>.</p>
+    <p class="bonus" data-bonus hidden><strong>Free with your first order:</strong> the Recipe Pack, 12 ways to drink it plus a 30-morning tracker.</p>
+    <p style="margin:0"><a class="btn" href="/shop.html">Shop the coffee</a></p>
+  </div>
+  <p class="fine" style="margin-top:24px">General information, not medical advice. Contains caffeine. Ask your physician before changing what you drink if you're pregnant, nursing, take medication or have a medical condition.</p>
+</div></section>
+"""
+
+G_MCT = guide_page("MCT coffee", "MCT coffee vs. butter coffee: what's the difference?",
+  "Both put fat in your morning cup. One needs a blender and a stick of butter; the other is a powder you stir in. Here's how they actually compare.",
+  """
+  <h2>What butter coffee is</h2>
+  <p>Butter coffee is brewed coffee blended with unsalted butter or ghee, and usually a spoonful of MCT oil. Blending matters: without it, the fat floats on top in a slick. Done right, you get a frothy, latte-like cup.</p>
+  <h2>What MCTs are</h2>
+  <p>MCT stands for medium-chain triglycerides: fats whose fatty-acid chains are a medium length, roughly 6 to 12 carbons. Commercial MCT oil is usually made from coconut or palm kernel oil. It's clear, nearly flavorless and stays liquid at room temperature.</p>
+  <h2>Oil vs. powder</h2>
+  <p>MCT <em>powder</em> is MCT oil that has been dried onto a carrier so it dissolves in water instead of sitting on top of it. That's the whole trick: no blender, no oily film, and it gives the cup a creamier body. Check the label of any powder for the carrier and serving size; they vary.</p>
+  <h2>Side by side</h2>
+  <table>
+    <tr><th></th><th>Butter coffee</th><th>MCT powder coffee</th></tr>
+    <tr><td>Prep</td><td>Brew, add butter and oil, blend 20&ndash;30 s</td><td>Stir a scoop into hot water</td></tr>
+    <tr><td>Equipment</td><td>Blender or frother</td><td>A spoon</td></tr>
+    <tr><td>Texture</td><td>Thick, frothy, rich</td><td>Smooth, lightly creamy</td></tr>
+    <tr><td>Travel</td><td>Hard to make away from home</td><td>Works anywhere with hot water</td></tr>
+    <tr><td>Clean-up</td><td>Blender jar, oily cup</td><td>One mug</td></tr>
+  </table>
+  <h2>Which one fits your mornings</h2>
+  <p>If you like a weekend ritual and a rich, almost dessert-like cup, butter coffee is worth the blender. If your mornings are a race, a powder that dissolves in a stir is the one you'll actually keep making. Either way, the fat content is real: read the nutrition panel and decide what fits how you eat.</p>
+  """)
+
+G_THEANINE = guide_page("L-theanine", "L-theanine and caffeine: what the pairing is (and isn't)",
+  "L-theanine shows up next to caffeine on a lot of labels. What it is, why the two get paired, and what the research does and doesn't say.",
+  """
+  <h2>What L-theanine is</h2>
+  <p>L-theanine is an amino acid found naturally in tea leaves. It's one reason a cup of tea can feel different from a cup of coffee with similar caffeine. On its own it's sold as a supplement; more often you'll see it combined with caffeine.</p>
+  <h2>Why it's paired with caffeine</h2>
+  <p>People who use the combination often describe it as smoother than caffeine alone. Researchers have looked at the pair mostly through short lab tests: reaction time, attention tasks, and how alert people say they feel.</p>
+  <h2>What the studies actually say</h2>
+  <p>A 2021 systematic review in <em>Cureus</em> (Sohail et al.) looked at five studies of caffeine and L-theanine together. Several reported faster reaction times or better scores on attention tasks with the combination. The review is also clear about the limits: the studies were very small (as few as five to twenty people), some included only men, and the authors called for more research.</p>
+  <p>So the honest summary: the pairing is popular and has some encouraging small studies behind it. It is not a guarantee of how you'll feel, and it isn't a substitute for sleep.</p>
+  <h2>How to try it sensibly</h2>
+  <ul class="clean">
+    <li>Swap, don't stack. Replace a cup of coffee rather than adding caffeine on top.</li>
+    <li>Have it in the morning. It still contains caffeine.</li>
+    <li>Judge it over a week, not a single cup. Notice your afternoon, not the first hour.</li>
+  </ul>
+  <p class="fine">Source: Sohail A, et al. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8794723/" rel="noopener" target="_blank">The Cognitive-Enhancing Outcomes of Caffeine and L-theanine: A Systematic Review</a>. Cureus. 2021;13(12):e20828.</p>
+  """)
+
+G_ICED = guide_page("Recipes", "How to make iced instant coffee without clumps (3 recipes)",
+  "Instant coffee and ice water don't mix. One small trick fixes it, then three recipes worth keeping.",
+  """
+  <h2>The trick: dissolve hot, then go cold</h2>
+  <p>Powders dissolve slowly in cold water and clump. Stir your scoop into about 2 oz of hot water first until it's fully dissolved, then pour it over ice and top up with cold water or milk. Thirty seconds, no lumps.</p>
+  <h2>1. Iced classic</h2>
+  <ul class="clean"><li>1 serving instant coffee, dissolved in 2 oz hot water</li><li>A full glass of ice</li><li>6 oz cold water</li></ul>
+  <p>Iced coffee tastes stronger than hot, so add water to taste.</p>
+  <h2>2. Iced oat vanilla</h2>
+  <ul class="clean"><li>1 serving dissolved in 2 oz hot water</li><li>Ice and 6 oz oat milk</li><li>1 drop vanilla extract</li></ul>
+  <p>One drop of vanilla. Two is a candle.</p>
+  <h2>3. Blended frapp&eacute;</h2>
+  <ul class="clean"><li>1 serving dissolved in 2 oz hot water</li><li>4 oz milk, 1 cup ice, 1 tsp honey</li></ul>
+  <p>Blend until smooth and drink it before it separates.</p>
+  <h2>A few more tips</h2>
+  <ul class="clean"><li>Make coffee ice cubes from leftover coffee so melting ice doesn't water it down.</li><li>Sweeten while the base is hot: syrup and honey mix in better before the ice.</li><li>A handheld milk frother makes cold foam from cold milk in about 20 seconds.</li></ul>
+  """)
+
+GUIDES_INDEX = """
+<section style="padding-top:36px"><div class="wrap">
+  <p class="eyebrow">Guides &amp; recipes</p>
+  <h1 style="font-size:clamp(32px,4.4vw,48px)">Better mornings, plainly explained.</h1>
+  <p class="lead">Short guides on what's in the cup and how to make it the way you like.</p>
+  <div class="glist" style="margin-top:22px">
+    <a href="/mct-coffee-vs-butter-coffee.html"><p class="eyebrow">MCT coffee</p><h3>MCT coffee vs. butter coffee</h3><p>Blender and butter, or a powder you stir in. How they compare.</p></a>
+    <a href="/l-theanine-and-caffeine.html"><p class="eyebrow">L-theanine</p><h3>L-theanine and caffeine</h3><p>What the pairing is, and what the research does and doesn't say.</p></a>
+    <a href="/iced-instant-coffee-recipes.html"><p class="eyebrow">Recipes</p><h3>Iced instant coffee without clumps</h3><p>One trick and three recipes worth keeping.</p></a>
+  </div>
+</div></section>
+"""
+
 PAGES = {
   "index.html": ("MCT Coffee with L-Theanine, One Scoop | The Morning Upgrade", "Instant coffee with MCT powder, natural caffeine and L-theanine. One scoop in hot water, 30 servings a bag. $69.95 a month or $79.95 a bag.", HOME, "/img/flatlay.jpg", False),
   "shop.html": ("Buy MCT Coffee: $69.95/mo or $79.95 a Bag | The Morning Upgrade", "Instant MCT coffee, 30 servings a bag. $79.95 for one bag or $69.95 a month on Subscribe & Save. Natural caffeine, L-theanine and four more actives.", SHOP, "/img/hero_breakfast.jpg", False),
@@ -832,6 +931,10 @@ PAGES = {
   "order-complete.html": ("Order received — The Morning Upgrade", "Thanks for your order.", ORDER_COMPLETE, "/img/flatlay.jpg", True),
   "start.html": ("The 2 PM cup, solved at 7 AM | The Morning Upgrade", "Instant performance coffee: natural caffeine + L-theanine + MCT powder. $69.95 a month or $79.95 a bag, $8.95 flat US shipping, 90-day guarantee on unopened bags.", START, "/media/host_kitchen.jpg", True),
   "thanks.html": ("Your guide is on its way — The Morning Upgrade", "Check your inbox for the 7 Mornings guide.", THANKS, "/img/desk.jpg", True),
+  "guides.html": ("Coffee Guides & Recipes | The Morning Upgrade", "Short guides on MCT coffee, L-theanine with caffeine, and iced instant coffee recipes.", GUIDES_INDEX, "/img/kitchen_pour.jpg", False),
+  "mct-coffee-vs-butter-coffee.html": ("MCT Coffee vs. Butter Coffee: What's the Difference? | The Morning Upgrade", "Butter coffee needs a blender and butter; MCT powder coffee is a scoop you stir in. What MCTs are and how the two compare on prep, texture and travel.", G_MCT, "/img/pour.jpg", False),
+  "l-theanine-and-caffeine.html": ("L-Theanine and Caffeine: What the Pairing Is (and Isn't) | The Morning Upgrade", "What L-theanine is, why it's paired with caffeine, and what a 2021 systematic review of small studies found, limits included.", G_THEANINE, "/img/desk.jpg", False),
+  "iced-instant-coffee-recipes.html": ("How to Make Iced Instant Coffee Without Clumps (3 Recipes) | The Morning Upgrade", "Dissolve hot, then go cold: the trick for smooth iced instant coffee, plus iced classic, iced oat vanilla and a blended frappé.", G_ICED, "/img/patio_iced.jpg", False),
 }
 
 for fn,(title,desc,body,og,noindex) in PAGES.items():

@@ -101,6 +101,8 @@ window.TMU = {
       policy:'Orders are fulfilled by the maker, MarketPlace Global, from Maple Grove, Minnesota, usually within two business days, then 3\u20136 days in transit. US shipping is a flat $8.95 a bag, shown at their checkout before you pay.'
     };
     document.querySelectorAll('[data-ship]').forEach(function(e){ var k=e.getAttribute('data-ship'); if(SHIP[k]) e.textContent = SHIP[k]; });
+    // First-order bonus is only promised when checkout is ours (the order page delivers it).
+    document.querySelectorAll('[data-bonus]').forEach(function(e){ e.hidden = !SELF; });
 
     // Partner buttons
     document.querySelectorAll('[data-enroll]').forEach(function(a){
