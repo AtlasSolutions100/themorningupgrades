@@ -58,9 +58,11 @@ def url_for(fn):
 def _strip(h):
     return _html.unescape(re.sub(r"<[^>]+>", "", h)).strip()
 
-# Questions left out of FAQ rich results on purpose: label-claim and presenter
-# answers stay on the page but aren't promoted as search snippets.
-FAQ_SKIP = {"What does it do?", "Who are the people in your videos?"}
+# Questions left out of FAQ rich results on purpose: the label claim, the AI
+# presenters, and the one that names the maker stay on the page but aren't
+# promoted as search snippets. Search-facing text (titles, descriptions,
+# structured data) never uses the product or company trademark names.
+FAQ_SKIP = {"What does it do?", "Who are the people in your videos?", "Who am I buying from?"}
 
 def structured_data(fn, title, desc, body, og_image):
     org = {"@type": "Organization", "@id": SITE + "/#org", "name": "The Morning Upgrade",
@@ -72,23 +74,9 @@ def structured_data(fn, title, desc, body, og_image):
     if fn == "index.html":
         graph.append({"@type": "WebSite", "@id": SITE + "/#site", "url": SITE + "/", "name": "The Morning Upgrade",
                       "publisher": {"@id": SITE + "/#org"}})
-    if fn in ("index.html", "shop.html"):
-        graph.append({"@type": "Product", "@id": SITE + "/#corejava", "name": "CoreJava Coffee",
-                      "description": "Instant performance coffee with MCT powder, natural caffeine and L-theanine. 30 servings; one scoop in 8 oz hot water.",
-                      "image": [SITE + "/img/hero_breakfast.jpg", SITE + "/img/flatlay.jpg", SITE + "/img/scoop.jpg"],
-                      "brand": {"@type": "Brand", "name": "CoreJava"},
-                      "manufacturer": {"@type": "Organization", "name": "MarketPlace Global"},
-                      "offers": [
-                          {"@type": "Offer", "name": "One bag (30 servings)", "price": "79.95", "priceCurrency": "USD",
-                           "availability": "https://schema.org/InStock", "url": SITE + "/shop.html",
-                           "seller": {"@id": SITE + "/#org"}},
-                          {"@type": "Offer", "name": "Subscribe & Save, one bag a month", "price": "69.95", "priceCurrency": "USD",
-                           "availability": "https://schema.org/InStock", "url": SITE + "/shop.html",
-                           "seller": {"@id": SITE + "/#org"},
-                           "priceSpecification": {"@type": "UnitPriceSpecification", "price": "69.95", "priceCurrency": "USD",
-                                                  "billingDuration": 1, "billingIncrement": 1, "unitCode": "MON"}}]})
     qa = re.findall(r"<details><summary>(.*?)</summary>(.*?)</details>", body, re.S)
     qa = [(_strip(q), _strip(a)) for q, a in qa if _strip(q) not in FAQ_SKIP]
+    qa = [(q, a) for q, a in qa if not re.search(r"corejava|marketplace\s*global|\bmpg\b", q + " " + a, re.I)]
     if fn == "faq.html" and qa:
         graph.append({"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": q,
                       "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in qa]})
@@ -111,7 +99,7 @@ def page(title, desc, body, og_image="/img/flatlay.jpg", noindex=False, extra_he
 <link rel="apple-touch-icon" href="/img/mark.jpg">
 {'' if noindex else f'<link rel="canonical" href="{url_for(fn)}">'}
 <meta name="theme-color" content="#1b130e">
-<meta property="og:type" content="{'product' if fn in ('index.html','shop.html') else 'website'}">
+<meta property="og:type" content="website">
 <meta property="og:site_name" content="The Morning Upgrade">
 <meta property="og:url" content="{url_for(fn)}">
 <meta property="og:title" content="{title}">
@@ -830,18 +818,18 @@ START = """
 """
 
 PAGES = {
-  "index.html": ("CoreJava Coffee: MCT Coffee with L-Theanine | The Morning Upgrade", "CoreJava instant coffee with MCT powder, natural caffeine and L-theanine. One scoop, hot water, 30 servings. $69.95 a month or $79.95 a bag.", HOME, "/img/flatlay.jpg", False),
-  "shop.html": ("Buy CoreJava Coffee: $69.95/mo or $79.95 a Bag | The Morning Upgrade", "CoreJava coffee, 30 servings. $79.95 one bag or $69.95 a month on Subscribe & Save. Natural caffeine, L-theanine and four more actives.", SHOP, "/img/hero_breakfast.jpg", False),
-  "ingredients.html": ("CoreJava Ingredients: MCT, Caffeine, L-Theanine | The Morning Upgrade", "Seven ingredients and what each one is: MCT powder, natural caffeine, L-theanine, ChromeMate, Paradoxine, Garcinia Cambogia, Saffr'Activ.", ING, "/media/ingredients.jpg", False),
-  "faq.html": ("CoreJava Coffee FAQ: Taste, Caffeine, Shipping | The Morning Upgrade", "How CoreJava tastes, how much caffeine is in a scoop, how Subscribe & Save works, shipping, returns, and who you're buying from.", FAQ, "/img/pour.jpg", False),
-  "partner.html": ("Build with us — The Morning Upgrade", "Join our MarketPlace Global team and sell CoreJava with the same videos, site and email system we use. Honest numbers first.", PARTNER, "/media/ambient.jpg", False),
-  "share.html": ("Share & earn — The Morning Upgrade", "Get your coffee covered by the friends who steal a cup. MarketPlace Global's referral program, explained in plain language.", SHARE, "/media/ritual.jpg", False),
-  "about.html": ("About — The Morning Upgrade", "Rector & Stull LLC, Independent Sales Representatives for MarketPlace Global, and why we sell one bag of coffee.", ABOUT, "/img/flatlay.jpg", False),
+  "index.html": ("MCT Coffee with L-Theanine, One Scoop | The Morning Upgrade", "Instant coffee with MCT powder, natural caffeine and L-theanine. One scoop in hot water, 30 servings a bag. $69.95 a month or $79.95 a bag.", HOME, "/img/flatlay.jpg", False),
+  "shop.html": ("Buy MCT Coffee: $69.95/mo or $79.95 a Bag | The Morning Upgrade", "Instant MCT coffee, 30 servings a bag. $79.95 for one bag or $69.95 a month on Subscribe & Save. Natural caffeine, L-theanine and four more actives.", SHOP, "/img/hero_breakfast.jpg", False),
+  "ingredients.html": ("Ingredients: MCT Powder, Caffeine, L-Theanine | The Morning Upgrade", "Seven ingredients and what each one is: MCT powder, natural caffeine, L-theanine, ChromeMate, Paradoxine, Garcinia Cambogia, Saffr'Activ.", ING, "/media/ingredients.jpg", False),
+  "faq.html": ("Coffee FAQ: Taste, Caffeine, Shipping | The Morning Upgrade", "How it tastes, how much caffeine is in a scoop, how Subscribe & Save works, shipping, returns, and who you're buying from.", FAQ, "/img/pour.jpg", False),
+  "partner.html": ("Build with us — The Morning Upgrade", "Join our team and sell the coffee with the same videos, site and email system we use. Honest numbers first.", PARTNER, "/media/ambient.jpg", False),
+  "share.html": ("Share & earn — The Morning Upgrade", "Get your coffee covered by the friends who steal a cup. The referral program, explained in plain language.", SHARE, "/media/ritual.jpg", False),
+  "about.html": ("About — The Morning Upgrade", "Who runs The Morning Upgrade, and why we sell one bag of coffee.", ABOUT, "/img/flatlay.jpg", False),
   "shipping-returns.html": ("Shipping & returns — The Morning Upgrade", "$8.95 flat US shipping, Subscribe & Save terms, damaged-item replacement and the 90-day money-back guarantee on unopened bags.", SHIPPING, "/img/flatlay.jpg", False),
   "privacy.html": ("Privacy — The Morning Upgrade", "What we collect, what we do with it, and how to opt out.", PRIVACY, "/img/flatlay.jpg", False),
-  "terms.html": ("Terms of sale — The Morning Upgrade", "Terms for buying CoreJava from Rector & Stull LLC.", TERMS, "/img/flatlay.jpg", False),
+  "terms.html": ("Terms of sale — The Morning Upgrade", "Terms of sale for orders from The Morning Upgrade.", TERMS, "/img/flatlay.jpg", False),
   "order-complete.html": ("Order received — The Morning Upgrade", "Thanks for your order.", ORDER_COMPLETE, "/img/flatlay.jpg", True),
-  "start.html": ("CoreJava — The 2 PM cup, solved at 7 AM | The Morning Upgrade", "Instant performance coffee: natural caffeine + L-theanine + MCT powder. $69.95 a month or $79.95 a bag, $8.95 flat US shipping, 90-day guarantee on unopened bags.", START, "/media/host_kitchen.jpg", True),
+  "start.html": ("The 2 PM cup, solved at 7 AM | The Morning Upgrade", "Instant performance coffee: natural caffeine + L-theanine + MCT powder. $69.95 a month or $79.95 a bag, $8.95 flat US shipping, 90-day guarantee on unopened bags.", START, "/media/host_kitchen.jpg", True),
   "thanks.html": ("Your guide is on its way — The Morning Upgrade", "Check your inbox for the 7 Mornings guide.", THANKS, "/img/desk.jpg", True),
 }
 
