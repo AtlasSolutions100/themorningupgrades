@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /order-complete.html
+Disallow: /thanks.html
+
+Sitemap: https://themorningupgrades.com/sitemap.xml

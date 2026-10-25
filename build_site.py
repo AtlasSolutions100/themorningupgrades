@@ -49,7 +49,56 @@ FOOTER = """
 </div></footer>
 """
 
-def page(title, desc, body, og_image="/img/flatlay.jpg", noindex=False, extra_head="", nav=True):
+SITE = "https://themorningupgrades.com"
+import json as _json, html as _html
+
+def url_for(fn):
+    return SITE + "/" if fn == "index.html" else f"{SITE}/{fn}"
+
+def _strip(h):
+    return _html.unescape(re.sub(r"<[^>]+>", "", h)).strip()
+
+# Questions left out of FAQ rich results on purpose: label-claim and presenter
+# answers stay on the page but aren't promoted as search snippets.
+FAQ_SKIP = {"What does it do?", "Who are the people in your videos?"}
+
+def structured_data(fn, title, desc, body, og_image):
+    org = {"@type": "Organization", "@id": SITE + "/#org", "name": "The Morning Upgrade",
+           "legalName": "Rector & Stull LLC", "url": SITE + "/", "logo": SITE + "/img/mark.jpg",
+           "email": "hello@themorningupgrades.com",
+           "address": {"@type": "PostalAddress", "streetAddress": "30 N Gould St Ste R", "addressLocality": "Sheridan",
+                       "addressRegion": "WY", "postalCode": "82801", "addressCountry": "US"}}
+    graph = [org]
+    if fn == "index.html":
+        graph.append({"@type": "WebSite", "@id": SITE + "/#site", "url": SITE + "/", "name": "The Morning Upgrade",
+                      "publisher": {"@id": SITE + "/#org"}})
+    if fn in ("index.html", "shop.html"):
+        graph.append({"@type": "Product", "@id": SITE + "/#corejava", "name": "CoreJava Coffee",
+                      "description": "Instant performance coffee with MCT powder, natural caffeine and L-theanine. 30 servings; one scoop in 8 oz hot water.",
+                      "image": [SITE + "/img/hero_breakfast.jpg", SITE + "/img/flatlay.jpg", SITE + "/img/scoop.jpg"],
+                      "brand": {"@type": "Brand", "name": "CoreJava"},
+                      "manufacturer": {"@type": "Organization", "name": "MarketPlace Global"},
+                      "offers": [
+                          {"@type": "Offer", "name": "One bag (30 servings)", "price": "79.95", "priceCurrency": "USD",
+                           "availability": "https://schema.org/InStock", "url": SITE + "/shop.html",
+                           "seller": {"@id": SITE + "/#org"}},
+                          {"@type": "Offer", "name": "Subscribe & Save, one bag a month", "price": "69.95", "priceCurrency": "USD",
+                           "availability": "https://schema.org/InStock", "url": SITE + "/shop.html",
+                           "seller": {"@id": SITE + "/#org"},
+                           "priceSpecification": {"@type": "UnitPriceSpecification", "price": "69.95", "priceCurrency": "USD",
+                                                  "billingDuration": 1, "billingIncrement": 1, "unitCode": "MON"}}]})
+    qa = re.findall(r"<details><summary>(.*?)</summary>(.*?)</details>", body, re.S)
+    qa = [(_strip(q), _strip(a)) for q, a in qa if _strip(q) not in FAQ_SKIP]
+    if fn == "faq.html" and qa:
+        graph.append({"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": q,
+                      "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in qa]})
+    if fn != "index.html":
+        graph.append({"@type": "BreadcrumbList", "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Home", "item": SITE + "/"},
+            {"@type": "ListItem", "position": 2, "name": title.split(" — ")[0].split(" | ")[0], "item": url_for(fn)}]})
+    return '<script type="application/ld+json">' + _json.dumps({"@context": "https://schema.org", "@graph": graph}, ensure_ascii=False, separators=(",", ":")) + "</script>"
+
+def page(title, desc, body, og_image="/img/flatlay.jpg", noindex=False, extra_head="", nav=True, fn="index.html"):
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -59,9 +108,20 @@ def page(title, desc, body, og_image="/img/flatlay.jpg", noindex=False, extra_he
 <meta name="description" content="{desc}">
 {'<meta name="robots" content="noindex">' if noindex else ''}
 <link rel="icon" href="/img/mark.jpg">
+<link rel="apple-touch-icon" href="/img/mark.jpg">
+{'' if noindex else f'<link rel="canonical" href="{url_for(fn)}">'}
+<meta name="theme-color" content="#1b130e">
+<meta property="og:type" content="{'product' if fn in ('index.html','shop.html') else 'website'}">
+<meta property="og:site_name" content="The Morning Upgrade">
+<meta property="og:url" content="{url_for(fn)}">
 <meta property="og:title" content="{title}">
 <meta property="og:description" content="{desc}">
 <meta property="og:image" content="https://themorningupgrades.com{og_image}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{title}">
+<meta name="twitter:description" content="{desc}">
+<meta name="twitter:image" content="https://themorningupgrades.com{og_image}">
+{'' if noindex else structured_data(fn, title, desc, body, og_image)}
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/site.css">
 <script src="/assets/site.js"></script>
@@ -770,10 +830,10 @@ START = """
 """
 
 PAGES = {
-  "index.html": ("The Morning Upgrade — Coffee that keeps up past lunch", "CoreJava performance coffee: natural caffeine + L-theanine, one scoop, hot water. $79.95 a bag or $69.95 a month. Take the 60-second quiz.", HOME, "/img/flatlay.jpg", False),
-  "shop.html": ("Buy CoreJava Coffee — The Morning Upgrade", "CoreJava coffee, 30 servings. $79.95 one bag or $69.95 a month on Subscribe & Save. Natural caffeine, L-theanine and four more actives.", SHOP, "/img/hero_breakfast.jpg", False),
-  "ingredients.html": ("What's in CoreJava — The Morning Upgrade", "Seven ingredients and what each one is: MCT powder, natural caffeine, L-theanine, ChromeMate, Paradoxine, Garcinia Cambogia, Saffr'Activ.", ING, "/media/ingredients.jpg", False),
-  "faq.html": ("FAQ — The Morning Upgrade", "Taste, caffeine, shipping, subscriptions, returns, and who you're buying from.", FAQ, "/img/pour.jpg", False),
+  "index.html": ("CoreJava Coffee: MCT Coffee with L-Theanine | The Morning Upgrade", "CoreJava instant coffee with MCT powder, natural caffeine and L-theanine. One scoop, hot water, 30 servings. $69.95 a month or $79.95 a bag.", HOME, "/img/flatlay.jpg", False),
+  "shop.html": ("Buy CoreJava Coffee: $69.95/mo or $79.95 a Bag | The Morning Upgrade", "CoreJava coffee, 30 servings. $79.95 one bag or $69.95 a month on Subscribe & Save. Natural caffeine, L-theanine and four more actives.", SHOP, "/img/hero_breakfast.jpg", False),
+  "ingredients.html": ("CoreJava Ingredients: MCT, Caffeine, L-Theanine | The Morning Upgrade", "Seven ingredients and what each one is: MCT powder, natural caffeine, L-theanine, ChromeMate, Paradoxine, Garcinia Cambogia, Saffr'Activ.", ING, "/media/ingredients.jpg", False),
+  "faq.html": ("CoreJava Coffee FAQ: Taste, Caffeine, Shipping | The Morning Upgrade", "How CoreJava tastes, how much caffeine is in a scoop, how Subscribe & Save works, shipping, returns, and who you're buying from.", FAQ, "/img/pour.jpg", False),
   "partner.html": ("Build with us — The Morning Upgrade", "Join our MarketPlace Global team and sell CoreJava with the same videos, site and email system we use. Honest numbers first.", PARTNER, "/media/ambient.jpg", False),
   "share.html": ("Share & earn — The Morning Upgrade", "Get your coffee covered by the friends who steal a cup. MarketPlace Global's referral program, explained in plain language.", SHARE, "/media/ritual.jpg", False),
   "about.html": ("About — The Morning Upgrade", "Rector & Stull LLC, Independent Sales Representatives for MarketPlace Global, and why we sell one bag of coffee.", ABOUT, "/img/flatlay.jpg", False),
@@ -786,5 +846,19 @@ PAGES = {
 }
 
 for fn,(title,desc,body,og,noindex) in PAGES.items():
-    with open(os.path.join(HERE,fn),"w") as f: f.write(page(title,desc,body,og,noindex,nav=(fn!="start.html")))
+    with open(os.path.join(HERE,fn),"w") as f: f.write(page(title,desc,body,og,noindex,nav=(fn!="start.html"),fn=fn))
     print("wrote",fn)
+
+# ---------- robots.txt + sitemap.xml ----------
+import datetime as _dt
+_today = _dt.date.today().isoformat()
+_indexable = [fn for fn,(t,d,b,og,ni) in PAGES.items() if not ni]
+_prio = {"index.html": "1.0", "shop.html": "0.9", "ingredients.html": "0.8", "faq.html": "0.7"}
+with open(os.path.join(HERE, "sitemap.xml"), "w") as f:
+    f.write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n')
+    for fn in _indexable:
+        f.write(f"  <url><loc>{url_for(fn)}</loc><lastmod>{_today}</lastmod><priority>{_prio.get(fn, '0.5')}</priority></url>\n")
+    f.write("</urlset>\n")
+with open(os.path.join(HERE, "robots.txt"), "w") as f:
+    f.write("User-agent: *\nAllow: /\nDisallow: /order-complete.html\nDisallow: /thanks.html\n\nSitemap: " + SITE + "/sitemap.xml\n")
+print("wrote sitemap.xml, robots.txt")
