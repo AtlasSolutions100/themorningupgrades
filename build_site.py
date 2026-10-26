@@ -176,22 +176,25 @@ ICON_SCOOP = '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke
 ICON_LEAF = '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19C5 9 11 4 20 4c0 9-5 15-15 15z"/><path d="M5 19l8-8"/></svg>'
 ICON_COCO = '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><path d="M12 4v4M4 12h4"/></svg>'
 
+ICON_BEAN = '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5a7 7 0 0 1 11 11 7 7 0 0 1-11-11z"/><path d="M8 16c3-1 4-4 4-8 0-1.5.5-3 1.5-4"/></svg>'
+ICON_BAG = '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10l1 4H6z"/><path d="M6 8v11a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V8"/><path d="M9 13h6"/></svg>'
+ICON_GLOBE = '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg>'
+
 def trust_row(dark=False):
-    return f"""<div class="trusticons{' on-dark' if dark else ''}">
-  <span>{ICON_LEAF}<b>Seven ingredients, all on the label</b></span>
-  <span>{ICON_TRUCK}<b>Ships in 2 business days</b></span>
-  <span>{ICON_SHIELD}<b>90-day guarantee on unopened bags</b></span>
-  <span>{ICON_LOOP}<b>Pause or cancel anytime</b></span>
+    return f"""<div class="trustbar{' on-dark' if dark else ''}">
+  <span>{ICON_TRUCK}<span><b>Ships from Minnesota</b><i>in 2 business days</i></span></span>
+  <span>{ICON_LOCK}<span><b data-ship="checkout">Secure checkout</b><i>90-day guarantee on unopened bags</i></span></span>
+  <span>{ICON_GLOBE}<span><b>Made by MarketPlace Global</b><i>sold by Rector &amp; Stull, an independent ISR</i></span></span>
 </div>"""
 
 def picker(cta="Add to cart", note=True):
     return f"""<fieldset class="picker" data-picker><legend class="sr">Choose a plan</legend>
   <label class="opt on"><input type="radio" name="plan" value="subscribe" checked><span class="radio"></span>
-    <span class="ptxt"><b>Subscribe &amp; Save</b><em>Most popular</em><span class="pp">$69.95<small>/mo &middot; $2.33 a morning</small></span><span class="pfine">A bag a month. Pause, skip or cancel from your receipt.</span></span></label>
+    <span class="ptxt"><em>Most popular</em><b>Subscribe &amp; Save</b><span class="pp">$69.95<small>/mo &middot; $2.33 a morning</small></span><span class="pfine">A bag a month. Pause, skip or cancel from your receipt.</span></span></label>
   <label class="opt"><input type="radio" name="plan" value="onetime"><span class="radio"></span>
     <span class="ptxt"><b>One bag</b><span class="pp">$79.95<small> &middot; $2.67 a morning</small></span><span class="pfine">30 servings. No commitment.</span></span></label>
-  <a class="btn big" data-buy="subscribe" data-picker-btn href="#">{cta} &rarr;</a>
-  {'<p class="fine" style="text-align:center;margin:12px 0 0"><span data-ship="short">$8.95 US shipping</span> &middot; 90-day guarantee on unopened bags &middot; pause or cancel anytime</p>' if note else ''}
+  <a class="btn big" data-buy="subscribe" data-picker-btn href="#">{cta} <span aria-hidden="true">&rarr;</span></a>
+  {'<p class="fine pnote"><span data-ship="short">$8.95 US shipping</span> &middot; 90-day guarantee on unopened bags &middot; pause or cancel anytime</p>' if note else ''}
 </fieldset>"""
 
 INGCARDS = f"""<div class="ingcards">
@@ -200,7 +203,7 @@ INGCARDS = f"""<div class="ingcards">
   <div>{ICON_SCOOP}<div><h2>30 servings. One scoop.</h2><p>Hot water, 30 seconds, no machine. A month of mornings in one bag.</p></div></div>
 </div>"""
 
-CALLOUTS = """<div class="callouts-wrap">
+CALLOUTS = f"""<div class="callouts-wrap">
   <div class="bagstage">
     <img src="/img/hero_props.png" width="1300" height="1300" alt="CoreJava bag with coconut, MCT powder, coffee beans, green tea leaves and matcha" fetchpriority="high" decoding="async">
     <svg class="leads" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
@@ -209,10 +212,10 @@ CALLOUTS = """<div class="callouts-wrap">
       <path d="M24 88 L27 88 L42 85.7" /><circle cx="43.5" cy="85.4" r="1"/>
       <path d="M76 92 L73 92 L56.6 79.8" /><circle cx="55.4" cy="78.8" r="1"/>
     </svg>
-    <span class="chip c1"><b>MCT powder</b>the creamy part</span>
-    <span class="chip c2"><b>L-theanine</b>focus without the edge</span>
-    <span class="chip c3"><b>Natural caffeine</b>about one cup's worth</span>
-    <span class="chip c4"><b>30 servings</b>one scoop a morning</span>
+    <span class="chip c1"><i>{ICON_COCO}</i><span><b>MCT powder</b>the creamy part</span></span>
+    <span class="chip c2"><i>{ICON_LEAF}</i><span><b>L-theanine</b>focus without the edge</span></span>
+    <span class="chip c3"><i>{ICON_BEAN}</i><span><b>Natural caffeine</b>about one cup's worth</span></span>
+    <span class="chip c4"><i>{ICON_BAG}</i><span><b>30 servings</b>one scoop a morning</span></span>
   </div>
 </div>"""
 
@@ -226,18 +229,16 @@ HOSTSTRIP = """<section><div class="wrap">
   </div>
 </div></section>"""
 
-def hero_c(h1="One scoop. No 2 PM crash.", strip=("Smooth energy","Sharp focus","30 mornings a bag"), video=True):
+def hero_c(h1="One scoop. No 2 PM crash.", strip=("Clean energy","Sharper focus","30 mornings a bag"), video=True):
     striphtml = " <i>/</i> ".join(f"<span>{t}</span>" for t in strip)
-    media = ('<div class="frame phone vid device light"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/host_kitchen.jpg"><source src="/media/host_kitchen.mp4" type="video/mp4"></video><button class="unmute" type="button" data-unmute aria-label="Turn sound on">&#9654; Sound on</button></div>') if video else ''
     return f"""
 <div class="heroC"><div class="wrap">
   <h1 class="h1c">{h1}</h1>
-  <p class="stripc">{striphtml}</p>
+  <p class="stripc"><span class="rule"></span>{striphtml}<span class="rule"></span></p>
   <div class="heroC-grid">
     <div class="heroC-left">{CALLOUTS}</div>
     <div class="heroC-right">
-      <p class="eyebrow" style="margin-bottom:6px">CoreJava &middot; instant performance coffee</p>
-      <p class="lead" style="font-size:17px;margin:0 0 6px">Natural caffeine + L-theanine + MCT powder. One scoop, hot water, 30 seconds. Supports healthy appetite control, focus and energy.</p>
+      <p class="sr">CoreJava instant coffee: natural caffeine, L-theanine and MCT powder. One scoop, hot water, 30 seconds. Supports healthy appetite control, focus and energy.</p>
       {picker()}
     </div>
   </div>
