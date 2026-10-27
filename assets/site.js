@@ -43,8 +43,27 @@ window.TMU = {
   if (C.ANALYTICS_DOMAIN && window.TMU_ANALYTICS_ON) {
     var s=document.createElement('script'); s.defer=true; s.setAttribute('data-domain',C.ANALYTICS_DOMAIN); s.src='https://plausible.io/js/script.outbound-links.js'; document.head.appendChild(s);
   }
+  // Creator attribution. A creator link (/c/<code>, or any page with ?ref=<code>) is remembered for
+  // REF_DAYS; the last creator link someone used wins. The code rides to Stripe as client_reference_id
+  // (cr_<code>) so tools/creator_commissions.py can pay the creator on that customer's orders for life.
+  var REF_DAYS = 60, REF_RE = /^[a-z0-9_-]{2,32}$/;
+  function readRef(){
+    try{ var r=JSON.parse(localStorage.getItem('tmu_ref')||'null'); if(r&&REF_RE.test(r.c)&&Date.now()-r.t<REF_DAYS*864e5) return r.c; }catch(e){}
+    var m=document.cookie.match(/(?:^|; )tmu_ref=([a-z0-9_-]{2,32})/); return m?m[1]:'';
+  }
+  function saveRef(c){
+    try{ localStorage.setItem('tmu_ref', JSON.stringify({c:c,t:Date.now()})); }catch(e){}
+    try{ document.cookie='tmu_ref='+c+'; max-age='+(REF_DAYS*86400)+'; path=/; SameSite=Lax'+(location.protocol==='https:'?'; Secure':''); }catch(e){}
+  }
+  var qref=''; try{ qref=(new URLSearchParams(location.search).get('ref')||'').toLowerCase(); }catch(e){}
+  if (REF_RE.test(qref)) saveRef(qref); else qref='';
+  C.REF = readRef();
+  if (C.REF && window.gtag && C.GA4_ID) gtag('set','user_properties',{creator:C.REF});
+
   var TT_MAP={InitiateCheckout:'InitiateCheckout',Lead:'CompleteRegistration',QuizComplete:'ViewContent',PartnerLead:'SubmitForm',PartnerClick:'ClickButton',Purchase:'CompletePayment'};
   window.track = function(name, props){ try{ if(window.gtag&&C.GA4_ID) gtag('event', name, props||{}); if(window.ttq&&C.TIKTOK_PIXEL&&TT_MAP[name]) ttq.track(TT_MAP[name], name==='Purchase'?{value:79.95,currency:'USD',content_type:'product',content_id:'CL805'}:(props||{})); if(window.fbq&&C.PIXEL_ID) fbq('track',name,props||{}); if(window.plausible) plausible(name,{props:props||{}}); }catch(e){} };
+
+  if (qref) track('CreatorVisit',{creator:qref});
 
   document.addEventListener('DOMContentLoaded', function(){
     // nav
@@ -77,10 +96,12 @@ window.TMU = {
       var kind=a.getAttribute('data-buy');
       var link = kind==='subscribe' ? C.STRIPE_SUBSCRIBE : C.STRIPE_ONETIME;
       if (link) {
-        a.href = link + (link.indexOf('?')>-1?'&':'?') + 'utm_source=site' + (utm?'&'+utm:'');
+        a.href = link + (link.indexOf('?')>-1?'&':'?') + 'utm_source=site' + (utm?'&'+utm:'')
+          + (C.REF ? '&client_reference_id=cr_' + C.REF : '');
         a.removeAttribute('rel'); a.removeAttribute('target');
       } else {
-        a.href = C.MPG_PRODUCT + '?utm_source=site&utm_medium=shop&utm_campaign=' + kind + (utm?'&'+utm:'');
+        a.href = C.MPG_PRODUCT + '?utm_source=site&utm_medium=shop&utm_campaign=' + kind + (utm?'&'+utm:'')
+          + (C.REF && !/(^|&)utm_content=/.test(utm) ? '&utm_content=cr_' + C.REF : '');
         a.setAttribute('rel','sponsored'); a.setAttribute('target','_blank');
       }
       a.dataset.mode = link?'stripe':'mpg';

@@ -942,6 +942,38 @@ for fn,(title,desc,body,og,noindex) in PAGES.items():
     with open(os.path.join(HERE,fn),"w") as f: f.write(page(title,desc,body,og,noindex,nav=(fn!="start.html"),fn=fn))
     print("wrote",fn)
 
+# ---------- creator links: /c/<code>/ ----------
+# One line per creator on the $100 + 15% lifetime-commission deal. The page remembers the creator
+# (site.js keeps it 60 days, last creator link wins) and sends people to /start. Codes: a-z 0-9 _ -.
+CREATORS = {
+  "kasey":   "Kasey Loraine Eastland (@kceastlanddd)",
+  "macy":    "Macy (@macyexists)",
+  "kristen": "Kristen Carmean (@_kristencarmean, via Grail)",
+  "emma":    "Emma Sturgeon (@emma_sturgeon, via Key Creative)",
+  "laura":   "Laura (@lori_ilc, via Pearpop)",
+}
+
+def creator_page(code):
+    dest = f"/start.html?ref={code}&utm_source=creator&utm_medium=influencer&utm_campaign={code}"
+    return f"""<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Morning Upgrade</title><meta name="robots" content="noindex">
+<link rel="icon" href="/img/mark.jpg"><meta property="og:title" content="The Morning Upgrade">
+<meta property="og:description" content="One scoop, hot water, 30 seconds. No machine, no pods.">
+<meta property="og:image" content="https://themorningupgrades.com/media/host_kitchen.jpg">
+<meta http-equiv="refresh" content="0; url={dest}">
+<script>location.replace({_json.dumps(dest)});</script>
+</head><body style="background:#1b130e;color:#f6efe6;font-family:system-ui,sans-serif;padding:24px">
+<p><a style="color:#f6efe6" href="{dest}">Continue to The Morning Upgrade</a></p></body></html>
+"""
+
+import re as _re
+for code in CREATORS:
+    assert _re.fullmatch(r"[a-z0-9_-]{2,32}", code), code
+    os.makedirs(os.path.join(HERE, "c", code), exist_ok=True)
+    with open(os.path.join(HERE, "c", code, "index.html"), "w") as f: f.write(creator_page(code))
+print("wrote creator links:", ", ".join(f"/c/{c}" for c in CREATORS))
+
 # ---------- robots.txt + sitemap.xml ----------
 import datetime as _dt
 _today = _dt.date.today().isoformat()
@@ -953,5 +985,5 @@ with open(os.path.join(HERE, "sitemap.xml"), "w") as f:
         f.write(f"  <url><loc>{url_for(fn)}</loc><lastmod>{_today}</lastmod><priority>{_prio.get(fn, '0.5')}</priority></url>\n")
     f.write("</urlset>\n")
 with open(os.path.join(HERE, "robots.txt"), "w") as f:
-    f.write("User-agent: *\nAllow: /\nDisallow: /order-complete.html\nDisallow: /thanks.html\n\nSitemap: " + SITE + "/sitemap.xml\n")
+    f.write("User-agent: *\nAllow: /\nDisallow: /order-complete.html\nDisallow: /thanks.html\nDisallow: /c/\n\nSitemap: " + SITE + "/sitemap.xml\n")
 print("wrote sitemap.xml, robots.txt")

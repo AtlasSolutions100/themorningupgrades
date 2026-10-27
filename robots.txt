@@ -2,5 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /order-complete.html
 Disallow: /thanks.html
+Disallow: /c/
 
 Sitemap: https://themorningupgrades.com/sitemap.xml
