@@ -17,7 +17,7 @@ window.TMU = {
   RETAIL_BONUS_PCT: 0,         // ISR Retail Customer Bonus % on referred customer orders (0 = hide the math)
   GA4_ID: "G-G79BLY9MDG",       // Google Analytics 4
   TIKTOK_PIXEL: "DBDQJRRC77U24SKT5GP0", // TikTok pixel
-  PIXEL_ID: "",                // Meta pixel
+  PIXEL_ID: "1881913686131010", // Meta pixel (dataset "TMU Website", Rector & Stull LLC portfolio)
   ANALYTICS_DOMAIN: "themorningupgrades.com"
 };
 
@@ -61,7 +61,8 @@ window.TMU = {
   if (C.REF && window.gtag && C.GA4_ID) gtag('set','user_properties',{creator:C.REF});
 
   var TT_MAP={InitiateCheckout:'InitiateCheckout',Lead:'CompleteRegistration',QuizComplete:'ViewContent',PartnerLead:'SubmitForm',PartnerClick:'ClickButton',Purchase:'CompletePayment'};
-  window.track = function(name, props){ try{ if(window.gtag&&C.GA4_ID) gtag('event', name, props||{}); if(window.ttq&&C.TIKTOK_PIXEL&&TT_MAP[name]) ttq.track(TT_MAP[name], name==='Purchase'?{value:79.95,currency:'USD',content_type:'product',content_id:'CL805'}:(props||{})); if(window.fbq&&C.PIXEL_ID) fbq('track',name,props||{}); if(window.plausible) plausible(name,{props:props||{}}); }catch(e){} };
+  var FB_STD={InitiateCheckout:1,Lead:1,Purchase:1};
+  window.track = function(name, props){ try{ if(window.gtag&&C.GA4_ID) gtag('event', name, props||{}); if(window.ttq&&C.TIKTOK_PIXEL&&TT_MAP[name]) ttq.track(TT_MAP[name], name==='Purchase'?{value:79.95,currency:'USD',content_type:'product',content_id:'CL805'}:(props||{})); if(window.fbq&&C.PIXEL_ID){ if(FB_STD[name]) fbq('track',name,name==='Purchase'?Object.assign({value:79.95,currency:'USD',content_ids:['CL805'],content_type:'product'},props||{}):(props||{})); else fbq('trackCustom',name,props||{}); } if(window.plausible) plausible(name,{props:props||{}}); }catch(e){} };
 
   if (qref) track('CreatorVisit',{creator:qref});
 
