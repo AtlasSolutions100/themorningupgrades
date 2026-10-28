@@ -17,7 +17,7 @@ window.TMU = {
   RETAIL_BONUS_PCT: 0,         // ISR Retail Customer Bonus % on referred customer orders (0 = hide the math)
   GA4_ID: "G-G79BLY9MDG",       // Google Analytics 4
   TIKTOK_PIXEL: "DBDQJRRC77U24SKT5GP0", // TikTok pixel
-  PIXEL_ID: "1881913686131010", // Meta pixel (dataset "TMU Website", Rector & Stull LLC portfolio)
+  PIXEL_ID: "28758618673764449", // Meta pixel (dataset "TMU Website", Rector & Stull LLC portfolio)
   ANALYTICS_DOMAIN: "themorningupgrades.com"
 };
 
