@@ -65,20 +65,74 @@ def _strip(h):
 # structured data) never uses the product or company trademark names.
 FAQ_SKIP = {"What does it do?", "Who are the people in your videos?", "Who am I buying from?"}
 
+# Answer-style guides: (published, modified). Guides get Article + FAQPage
+# markup from their visible questions, and og:type article.
+GUIDE_META = {
+    "what-is-mct-coffee.html": ("2026-10-28", "2026-10-28"),
+    "how-to-make-mct-instant-coffee.html": ("2026-10-28", "2026-10-28"),
+    "l-theanine-and-caffeine.html": ("2026-10-25", "2026-10-28"),
+    "mct-coffee-vs-butter-coffee.html": ("2026-10-25", "2026-10-28"),
+    "iced-instant-coffee-recipes.html": ("2026-10-25", "2026-10-25"),
+}
+
+# The one product, as the shop page states it. Named descriptively: search-facing
+# text stays free of the maker's trademarks (see note above FAQ_SKIP). No rating or
+# review markup until there are real reviews on the page.
+def product_ld():
+    ship = {"@type": "OfferShippingDetails",
+            "shippingRate": {"@type": "MonetaryAmount", "value": "8.95", "currency": "USD"},
+            "shippingDestination": {"@type": "DefinedRegion", "addressCountry": "US"},
+            "deliveryTime": {"@type": "ShippingDeliveryTime",
+                             "handlingTime": {"@type": "QuantitativeValue", "minValue": 0, "maxValue": 2, "unitCode": "DAY"},
+                             "transitTime": {"@type": "QuantitativeValue", "minValue": 3, "maxValue": 6, "unitCode": "DAY"}}}
+    returns = {"@type": "MerchantReturnPolicy", "applicableCountry": "US",
+               "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow", "merchantReturnDays": 90,
+               "returnMethod": "https://schema.org/ReturnByMail", "returnFees": "https://schema.org/ReturnShippingFees",
+               "itemCondition": "https://schema.org/NewCondition"}
+    def offer(name, price, extra=None):
+        o = {"@type": "Offer", "name": name, "price": price, "priceCurrency": "USD",
+             "availability": "https://schema.org/InStock", "itemCondition": "https://schema.org/NewCondition",
+             "url": SITE + "/shop.html", "seller": {"@id": SITE + "/#org"},
+             "shippingDetails": ship, "hasMerchantReturnPolicy": returns}
+        o.update(extra or {})
+        return o
+    return {"@type": "Product", "@id": SITE + "/shop.html#product",
+            "name": "MCT Instant Coffee with L-Theanine, 30 Servings",
+            "description": "Medium-roast instant coffee with MCT powder from coconut, natural caffeine and L-theanine. "
+                           "One level scoop (about 6.8 g) in 8 fl oz of hot water. 30 servings per 7.2 oz (204 g) bag. Contains caffeine.",
+            "image": [SITE + "/img/hero_breakfast.jpg", SITE + "/img/flatlay.jpg", SITE + "/img/scoop.jpg"],
+            "category": "Instant coffee",
+            "weight": {"@type": "QuantitativeValue", "value": 204, "unitCode": "GRM"},
+            "offers": [offer("One bag (30 servings)", "79.95"),
+                       offer("Subscribe & Save: one bag every 30 days", "69.95",
+                             {"priceSpecification": {"@type": "UnitPriceSpecification", "price": "69.95", "priceCurrency": "USD",
+                                                     "billingDuration": {"@type": "QuantitativeValue", "value": 30, "unitCode": "DAY"}}})]}
+
 def structured_data(fn, title, desc, body, og_image):
     org = {"@type": "Organization", "@id": SITE + "/#org", "name": "The Morning Upgrade",
            "legalName": "Rector & Stull LLC", "url": SITE + "/", "logo": SITE + "/img/mark.jpg",
            "email": "hello@themorningupgrades.com",
+           "sameAs": ["https://www.tiktok.com/@themorningupgrade", "https://www.instagram.com/themorningupgrade/",
+                      "https://www.youtube.com/@themorningupgrade"],
            "address": {"@type": "PostalAddress", "streetAddress": "30 N Gould St Ste R", "addressLocality": "Sheridan",
                        "addressRegion": "WY", "postalCode": "82801", "addressCountry": "US"}}
     graph = [org]
     if fn == "index.html":
         graph.append({"@type": "WebSite", "@id": SITE + "/#site", "url": SITE + "/", "name": "The Morning Upgrade",
-                      "publisher": {"@id": SITE + "/#org"}})
+                      "description": "Instant coffee with MCT powder, natural caffeine and L-theanine, plus plain-language guides.",
+                      "inLanguage": "en-US", "publisher": {"@id": SITE + "/#org"}})
+    if fn == "shop.html":
+        graph.append(product_ld())
+    if fn in GUIDE_META:
+        pub, mod = GUIDE_META[fn]
+        graph.append({"@type": "Article", "@id": url_for(fn) + "#article", "headline": title.split(" | ")[0],
+                      "description": desc, "url": url_for(fn), "mainEntityOfPage": url_for(fn),
+                      "image": SITE + og_image, "datePublished": pub, "dateModified": mod, "inLanguage": "en-US",
+                      "author": {"@id": SITE + "/#org"}, "publisher": {"@id": SITE + "/#org"}})
     qa = re.findall(r"<details><summary>(.*?)</summary>(.*?)</details>", body, re.S)
     qa = [(_strip(q), _strip(a)) for q, a in qa if _strip(q) not in FAQ_SKIP]
     qa = [(q, a) for q, a in qa if not re.search(r"corejava|marketplace\s*global|\bmpg\b", q + " " + a, re.I)]
-    if fn == "faq.html" and qa:
+    if (fn == "faq.html" or fn in GUIDE_META) and qa:
         graph.append({"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": q,
                       "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in qa]})
     if fn != "index.html":
@@ -101,8 +155,9 @@ def page(title, desc, body, og_image="/img/flatlay.jpg", noindex=False, extra_he
 {'' if noindex else f'<link rel="canonical" href="{url_for(fn)}">'}
 <meta name="theme-color" content="#1b130e">
 {'<meta name="google-site-verification" content="7jyn0E7TYq9A_Ug0PhqrwoI0ssqQj0Z9mrlBYkPK4dw"><meta name="facebook-domain-verification" content="fplr4vshxvflcgysu4cu6j0cpwtbco">' if fn == "index.html" else ''}
-<meta property="og:type" content="website">
+<meta property="og:type" content="{'article' if fn in GUIDE_META else 'website'}">
 <meta property="og:site_name" content="The Morning Upgrade">
+<meta property="og:locale" content="en_US">
 <meta property="og:url" content="{url_for(fn)}">
 <meta property="og:title" content="{title}">
 <meta property="og:description" content="{desc}">
@@ -699,13 +754,13 @@ PRIVACY = """
   <h1 style="font-size:clamp(30px,4vw,46px)">Privacy</h1>
   <p>This is the privacy policy for themorningupgrades.com, operated by Rector &amp; Stull LLC ("we"). It's written to be read.</p>
   <h2>What we collect</h2>
-  <ul><li><strong>If you take the quiz:</strong> your answers, first name and email, so we can send you the guide and the follow-up emails.</li><li><strong>If you buy:</strong> your name, shipping address, email and phone. Payment details go to Stripe; we never see your card number. To fulfil your order we create a customer account for you with MarketPlace Global, the maker, and pass them your name, address, email and phone so they can ship to you and honor their guarantee. Their <a href="https://marketplaceglobal.com/rectorandstull/privacy-policy">privacy policy</a> covers what they do with it.</li><li><strong>If you ask about partnering:</strong> what you type into the form.</li><li><strong>Automatically:</strong> Google Analytics records pages viewed, where visitors came from, and button clicks, with IP addresses anonymized. A TikTok pixel, and if we run ads there a Meta pixel, record page views and purchases so we can measure which ads work.</li></ul>
+  <ul><li><strong>If you take the quiz:</strong> your answers, first name and email, so we can send you the guide and the follow-up emails.</li><li><strong>If you buy:</strong> your name, shipping address, email and phone. Payment details go to Stripe; we never see your card number. To fulfil your order we create a customer account for you with MarketPlace Global, the maker, and pass them your name, address, email and phone so they can ship to you and honor their guarantee. Their <a href="https://marketplaceglobal.com/rectorandstull/privacy-policy">privacy policy</a> covers what they do with it.</li><li><strong>If you ask about partnering:</strong> what you type into the form.</li><li><strong>Automatically:</strong> Google Analytics records pages viewed, where visitors came from, and button clicks, with IP addresses anonymized. TikTok, Meta and Snapchat pixels record page views, sign-ups and purchases so we can measure which ads work.</li></ul>
   <h2>What we do with it</h2>
   <p>Fulfil orders, send the emails you signed up for, answer your questions, and measure which of our posts bring people here. We don't sell your data. We don't share it except with the services that make the site work: Stripe (payments), MarketPlace Global (the maker, who fulfils and ships orders), Klaviyo (email), GitHub (hosting), and analytics providers.</p>
   <h2>Your choices</h2>
   <p>Every email has an unsubscribe link. To see, correct or delete what we hold about you, email hello@themorningupgrades.com and we'll do it within 30 days.</p>
   <h2>Cookies</h2>
-  <p>Google Analytics and the TikTok pixel set measurement cookies; you can block them with the <a href="https://tools.google.com/dlpage/gaoptout" rel="noopener">Google Analytics opt-out add-on</a> or your browser settings. Stripe and Klaviyo set the ones they need to work. TikTok&rsquo;s ad choices are at tiktok.com/legal/ads-and-your-data. If a Meta pixel is active, it sets its own; you can opt out at facebook.com/ads/preferences.</p>
+  <p>Google Analytics and the TikTok pixel set measurement cookies; you can block them with the <a href="https://tools.google.com/dlpage/gaoptout" rel="noopener">Google Analytics opt-out add-on</a> or your browser settings. Stripe and Klaviyo set the ones they need to work. TikTok&rsquo;s ad choices are at tiktok.com/legal/ads-and-your-data. The Meta pixel sets its own; you can opt out at facebook.com/ads/preferences. The Snap pixel sets its own too; Snapchat&rsquo;s ad preferences are in the app under Settings &gt; Ad Preferences.</p>
   <p class="fine">Rector &amp; Stull LLC, 30 N Gould St Ste R, Sheridan, WY 82801 &middot; hello@themorningupgrades.com. Last updated October 2026.</p>
 </div></section>
 """
@@ -828,63 +883,199 @@ START = """
 
 
 # ---------- GUIDES (search content: no maker/brand names, no claims past the label) ----------
-def guide_page(eyebrow, h1, lede, body):
+# Answer-first: the lede is a direct 2-3 sentence answer to the question in the H1,
+# then specifics, a visible FAQ (also FAQPage data), sources, and related guides.
+# Keep it to label facts for the product (MCT powder from coconut, natural caffeine,
+# L-theanine, 30 servings, one scoop + hot water). No weight, appetite, metabolism
+# or health claims; general background cites reputable sources and stays descriptive.
+_MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+
+def _nice(d):
+    y, m, dd = d.split("-")
+    return f"{_MONTHS[int(m) - 1]} {int(dd)}, {y}"
+
+GUIDE_LINKS = {
+    "what-is-mct-coffee.html": "What is MCT coffee?",
+    "how-to-make-mct-instant-coffee.html": "How to make instant MCT coffee",
+    "l-theanine-and-caffeine.html": "L-theanine and caffeine: what the label means",
+    "mct-coffee-vs-butter-coffee.html": "MCT coffee vs. butter coffee",
+    "iced-instant-coffee-recipes.html": "Iced instant coffee without clumps",
+}
+
+def guide_page(eyebrow, h1, lede, body, fn=None, faq=(), sources=()):
+    updated = ""
+    if fn in GUIDE_META:
+        mod = GUIDE_META[fn][1]
+        updated = f'<p class="fine byline">Updated <time datetime="{mod}">{_nice(mod)}</time> &middot; The Morning Upgrade</p>'
+    faq_html = ""
+    if faq:
+        faq_html = '<h2 id="questions">Questions</h2>\n  ' + "\n  ".join(
+            f"<details><summary>{q}</summary><p>{a}</p></details>" for q, a in faq)
+    src_html = ""
+    if sources:
+        src_html = '<h2>Sources</h2>\n  <ol class="fine src">' + "".join(f"<li>{s}</li>" for s in sources) + "</ol>"
+    rel = [(f, t) for f, t in GUIDE_LINKS.items() if f != fn]
+    rel_html = '<h2>Related guides</h2>\n  <ul class="clean">' + "".join(f'<li><a href="/{f}">{t}</a></li>' for f, t in rel) + "</ul>"
     return f"""
-<section style="padding-top:36px"><div class="wrap guide">
+<article><section style="padding-top:36px"><div class="wrap guide">
   <p class="eyebrow"><a href="/guides.html" style="text-decoration:none">Guides</a> &middot; {eyebrow}</p>
   <h1 style="font-size:clamp(32px,4.4vw,48px)">{h1}</h1>
-  <p class="lead">{lede}</p>
+  {updated}
+  <p class="lead answer">{lede}</p>
   {body}
+  {faq_html}
+  {src_html}
   <div class="card" style="margin-top:34px;padding:24px;background:var(--tint);box-shadow:none">
-    <h3>Ours, if you want to skip the blender</h3>
-    <p>An instant coffee with MCT powder, natural caffeine and L-theanine in one scoop. One level scoop in 8 oz of hot water. <a href="/ingredients.html">See every ingredient and what the label says</a>.</p>
+    <h2 style="font-size:22px;margin:0 0 8px">Ours, if you want to skip the blender</h2>
+    <p>An instant coffee with MCT powder from coconut, natural caffeine and L-theanine in one scoop. One level scoop in 8 oz of hot water, 30 servings a bag. <a href="/ingredients.html">See every ingredient</a>.</p>
     <p class="bonus" data-bonus hidden><strong>Free with your first order:</strong> the Recipe Pack, 12 ways to drink it plus a 30-morning tracker.</p>
     <p style="margin:0"><a class="btn" href="/shop.html">Shop the coffee</a></p>
   </div>
+  {rel_html}
   <p class="fine" style="margin-top:24px">General information, not medical advice. Contains caffeine. Ask your physician before changing what you drink if you're pregnant, nursing, take medication or have a medical condition.</p>
-</div></section>
+</div></section></article>
 """
 
-G_MCT = guide_page("MCT coffee", "MCT coffee vs. butter coffee: what's the difference?",
-  "Both put fat in your morning cup. One needs a blender and a stick of butter; the other is a powder you stir in. Here's how they actually compare.",
-  """
-  <h2>What butter coffee is</h2>
-  <p>Butter coffee is brewed coffee blended with unsalted butter or ghee, and usually a spoonful of MCT oil. Blending matters: without it, the fat floats on top in a slick. Done right, you get a frothy, latte-like cup.</p>
-  <h2>What MCTs are</h2>
-  <p>MCT stands for medium-chain triglycerides: fats whose fatty-acid chains are a medium length, roughly 6 to 12 carbons. Commercial MCT oil is usually made from coconut or palm kernel oil. It's clear, nearly flavorless and stays liquid at room temperature.</p>
-  <h2>Oil vs. powder</h2>
-  <p>MCT <em>powder</em> is MCT oil that has been dried onto a carrier so it dissolves in water instead of sitting on top of it. That's the whole trick: no blender, no oily film, and it gives the cup a creamier body. Check the label of any powder for the carrier and serving size; they vary.</p>
-  <h2>Side by side</h2>
-  <table>
-    <tr><th></th><th>Butter coffee</th><th>MCT powder coffee</th></tr>
-    <tr><td>Prep</td><td>Brew, add butter and oil, blend 20&ndash;30 s</td><td>Stir a scoop into hot water</td></tr>
-    <tr><td>Equipment</td><td>Blender or frother</td><td>A spoon</td></tr>
-    <tr><td>Texture</td><td>Thick, frothy, rich</td><td>Smooth, lightly creamy</td></tr>
-    <tr><td>Travel</td><td>Hard to make away from home</td><td>Works anywhere with hot water</td></tr>
-    <tr><td>Clean-up</td><td>Blender jar, oily cup</td><td>One mug</td></tr>
-  </table>
-  <h2>Which one fits your mornings</h2>
-  <p>If you like a weekend ritual and a rich, almost dessert-like cup, butter coffee is worth the blender. If your mornings are a race, a powder that dissolves in a stir is the one you'll actually keep making. Either way, the fat content is real: read the nutrition panel and decide what fits how you eat.</p>
-  """)
+SRC_MCT = ('Jadhav HB, Annapure US. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9217113/" rel="noopener" target="_blank">'
+           'Triglycerides of medium-chain fatty acids: a concise review</a>. <em>Journal of Food Science and Technology</em>. 2023;60(8):2143&ndash;2152 (published online 2022).')
+SRC_SOHAIL = ('Sohail A, et al. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8794723/" rel="noopener" target="_blank">'
+              'The Cognitive-Enhancing Outcomes of Caffeine and L-theanine: A Systematic Review</a>. <em>Cureus</em>. 2021;13(12):e20828.')
+SRC_LI = ('Li M-Y, et al. <a href="https://www.frontiersin.org/articles/10.3389/fnut.2022.853846/full" rel="noopener" target="_blank">'
+          'L-Theanine: A Unique Functional Amino Acid in Tea (Camellia sinensis L.)</a>. <em>Frontiers in Nutrition</em>. 2022;9:853846.')
+SRC_FDA = ('U.S. Food and Drug Administration. <a href="https://www.fda.gov/consumers/consumer-updates/spilling-beans-how-much-caffeine-too-much" rel="noopener" target="_blank">'
+           'Spilling the Beans: How Much Caffeine is Too Much?</a> Consumer update, content current as of August 28, 2024.')
 
-G_THEANINE = guide_page("L-theanine", "L-theanine and caffeine: what the pairing is (and isn't)",
-  "L-theanine shows up next to caffeine on a lot of labels. What it is, why the two get paired, and what the research does and doesn't say.",
+G_WHATMCT = guide_page("MCT coffee", "What is MCT coffee?",
+  "MCT coffee is coffee with medium-chain triglycerides (MCTs) added. MCTs are a type of fat, usually made from coconut or palm kernel oil, and they come either as a clear oil you blend into brewed coffee or as a powder you stir into the cup. In the mug, the main thing you notice is texture: a smoother, creamier body without milk or cream.",
+  """
+  <h2>What &ldquo;MCT&rdquo; means</h2>
+  <p>A triglyceride is three fatty acids attached to a glycerol backbone; it's the basic shape of most fats in food. In a <em>medium-chain</em> triglyceride those fatty acids are a medium length, six to twelve carbon atoms. A 2022 review in the <em>Journal of Food Science and Technology</em> lists them as caproic (C6), caprylic (C8), capric (C10) and lauric (C12) acid. Most of the fat in everyday food has longer chains than that.</p>
+  <h2>Where MCTs come from</h2>
+  <p>Coconut oil and palm kernel oil are the richest natural sources. The same review puts coconut oil at roughly 46&ndash;54% lauric acid, 5&ndash;10% caprylic acid and 5&ndash;8% capric acid; milk fat has small amounts too. Commercial MCT products separate the medium-chain fats out of those oils, so they're more concentrated than the oil they came from. Labels often name the chain lengths a product uses, such as C8 and C10.</p>
+  <h2>MCT oil vs. MCT powder</h2>
+  <div class="tbl"><table>
+    <tr><th></th><th>MCT oil</th><th>MCT powder</th></tr>
+    <tr><td>What it is</td><td>The fats as a clear, nearly flavorless liquid</td><td>MCT oil dried onto a carrier so it disperses in water</td></tr>
+    <tr><td>How you use it</td><td>Blend or froth into brewed coffee</td><td>Stir into hot water or coffee</td></tr>
+    <tr><td>Without a blender</td><td>Floats on top as an oily film</td><td>Dissolves with a spoon</td></tr>
+    <tr><td>In the cup</td><td>Rich, frothy if blended</td><td>Smooth, lightly creamy</td></tr>
+  </table></div>
+  <p>Powders differ in what the carrier is and how much MCT a serving holds, so read the label of any powder you compare.</p>
+  <h2>What's in ours</h2>
+  <p>Ours is an instant MCT coffee: MCT powder from coconut is the first ingredient on the label, alongside natural caffeine and L-theanine, the amino acid found in tea leaves. One level scoop (about 6.8 g) in 8 fl oz of hot water makes a cup, and a bag holds 30 servings. <a href="/ingredients.html">Every ingredient is listed here</a>, and <a href="/how-to-make-mct-instant-coffee.html">here's how to make it</a>.</p>
+  <h2>What MCT coffee isn't</h2>
+  <p>It isn't butter coffee, though the two get mixed up: butter coffee is brewed coffee blended with butter or ghee, usually with MCT oil as well (<a href="/mct-coffee-vs-butter-coffee.html">how they compare</a>). And it's still coffee. It has whatever caffeine the coffee has, so count it the same way. MCTs are a fat, so the nutrition or Supplement Facts panel is the place to see what a serving adds.</p>
+  """,
+  fn="what-is-mct-coffee.html",
+  faq=[
+    ("Is MCT coffee the same as butter coffee?", "No. Butter coffee is brewed coffee blended with butter or ghee and usually MCT oil. MCT coffee has MCT oil or powder added and no butter. Butter coffee needs a blender; MCT powder coffee only needs a spoon."),
+    ("Is MCT oil the same as coconut oil?", "No. MCT oil is made from coconut or palm kernel oil but keeps only the medium-chain fats, so it stays liquid and has almost no taste. Coconut oil is mostly lauric acid, tastes of coconut and turns solid in a cool kitchen."),
+    ("Do I need a blender to make MCT coffee?", "Only with MCT oil, which otherwise floats on top. MCT powder is made to dissolve in hot water, so a spoon is enough."),
+    ("Does MCT coffee have caffeine?", "Yes, unless it's made with decaf. Ours contains natural caffeine, about the same as a strong cup of coffee; the exact amount is on the Supplement Facts panel."),
+    ("Can I make MCT coffee iced?", "Yes. Dissolve the powder in about 2 oz of hot water first, then pour it over ice and top up with cold water or milk. Cold water alone leaves clumps."),
+  ],
+  sources=[SRC_MCT])
+
+G_HOWTO = guide_page("How-to", "How to make instant MCT coffee (one scoop, 30 seconds)",
+  "Put one level scoop (about 6.8 g) in a mug, pour in 8 fl oz of hot water, and stir until no grains are left, about 15 seconds. That's one serving. Drink it black, add creamer, or dissolve it in a little hot water and pour it over ice.",
+  """
+  <h2>Step by step</h2>
+  <ol class="howto">
+    <li><strong>Scoop.</strong> One level scoop, leveled off against the edge of the bag. That's about 6.8 g, the serving size on the label.</li>
+    <li><strong>Add hot water.</strong> 8 fl oz (one standard mug) from a kettle or hot-water tap. Hot water dissolves the powder completely; lukewarm water leaves grains.</li>
+    <li><strong>Stir.</strong> About 15 seconds, until the surface is smooth.</li>
+    <li><strong>Adjust.</strong> Add creamer, milk or sweetener if you like. It's a medium roast and works black.</li>
+  </ol>
+  <h2>Getting the strength right</h2>
+  <p>Change the water, not the scoop. A little less water makes a bolder cup and a little more makes it milder. One scoop is the serving: a second scoop doubles the caffeine as well as the flavor.</p>
+  <h2>Three ways to drink it</h2>
+  <div class="tbl"><table>
+    <tr><th>Style</th><th>How</th></tr>
+    <tr><td>Hot</td><td>1 scoop + 8 fl oz hot water, stir.</td></tr>
+    <tr><td>Iced</td><td>Dissolve 1 scoop in 2 fl oz hot water, pour over a full glass of ice, top with 6 fl oz cold water or milk. <a href="/iced-instant-coffee-recipes.html">Three iced recipes</a>.</td></tr>
+    <tr><td>Latte-style</td><td>Dissolve 1 scoop in 2 fl oz hot water, then top with 6 fl oz steamed or frothed milk.</td></tr>
+  </table></div>
+  <h2>Habits that help</h2>
+  <ul class="clean">
+    <li>Have it in the morning. It contains caffeine.</li>
+    <li>One scoop a day means a 30-serving bag is a month of mornings.</li>
+    <li>Close the bag after each scoop and keep it somewhere dry; moisture makes any powder clump.</li>
+  </ul>
+  """,
+  fn="how-to-make-mct-instant-coffee.html",
+  faq=[
+    ("Can I make it with cold water?", "Not directly; powders dissolve slowly in cold water and clump. Stir the scoop into about 2 oz of hot water first, then add ice and cold water."),
+    ("Can I use milk instead of water?", "Yes. Heat the milk first, or dissolve the scoop in a splash of hot water and then add the milk, hot or cold."),
+    ("How much caffeine is in a scoop?", "About the same as a strong cup of coffee. The exact amount is on the Supplement Facts panel on the bag."),
+    ("Do I need a machine or a blender?", "No. A mug, hot water and a spoon. The MCT is already in powder form, so nothing needs blending."),
+    ("How long does a bag last?", "A bag has 30 servings, so one scoop a day lasts 30 days."),
+  ])
+
+G_THEANINE = guide_page("L-theanine", "L-theanine and caffeine: what the pairing is, and what the label means",
+  "L-theanine is an amino acid found naturally in tea leaves, and it's often added alongside caffeine because many people describe the combination as smoother than caffeine alone. On a label, &ldquo;caffeine + L-theanine&rdquo; means each serving contains both; the Supplement Facts panel says how much. The research on the pairing is real but small, so treat it as something to try, not a promise.",
   """
   <h2>What L-theanine is</h2>
-  <p>L-theanine is an amino acid found naturally in tea leaves. It's one reason a cup of tea can feel different from a cup of coffee with similar caffeine. On its own it's sold as a supplement; more often you'll see it combined with caffeine.</p>
+  <p>L-theanine is an amino acid that occurs naturally in tea leaves. It's one reason a cup of tea can feel different from a cup of coffee with similar caffeine. A 2022 review in <em>Frontiers in Nutrition</em> reported average contents of about 6.6 mg per gram in green tea, 6.3 in white, 6.1 in oolong and 5.1 in black tea across 37 varieties. On its own it's sold as a supplement; more often you'll see it next to caffeine.</p>
   <h2>Why it's paired with caffeine</h2>
   <p>People who use the combination often describe it as smoother than caffeine alone. Researchers have looked at the pair mostly through short lab tests: reaction time, attention tasks, and how alert people say they feel.</p>
   <h2>What the studies actually say</h2>
   <p>A 2021 systematic review in <em>Cureus</em> (Sohail et al.) looked at five studies of caffeine and L-theanine together. Several reported faster reaction times or better scores on attention tasks with the combination. The review is also clear about the limits: the studies were very small (as few as five to twenty people), some included only men, and the authors called for more research.</p>
   <p>So the honest summary: the pairing is popular and has some encouraging small studies behind it. It is not a guarantee of how you'll feel, and it isn't a substitute for sleep.</p>
+  <h2>Reading a &ldquo;caffeine + L-theanine&rdquo; label</h2>
+  <ul class="clean">
+    <li><strong>&ldquo;Natural caffeine&rdquo;</strong> means caffeine from a plant source, such as coffee beans, rather than made in a lab. It's the same molecule either way; the word tells you where it came from.</li>
+    <li><strong>Amounts are per serving.</strong> The Supplement Facts panel lists them for one serving (on ours, one level scoop). If ingredients are grouped in a blend, you may see only the blend's total weight.</li>
+    <li><strong>The FDA line.</strong> &ldquo;These statements have not been evaluated by the Food and Drug Administration&rdquo; appears on dietary supplements whose labels describe what the product supports. It means what it says: the FDA hasn't reviewed that wording.</li>
+    <li><strong>&ldquo;Contains caffeine.&rdquo;</strong> L-theanine doesn't reduce the caffeine in a serving, so count it like any coffee.</li>
+  </ul>
+  <h2>Counting your caffeine</h2>
+  <p>For most healthy adults, the FDA cites 400 mg a day as an amount not generally associated with negative effects, and lists a 12 oz cup of brewed coffee at roughly 113&ndash;247 mg. Sensitivity varies from person to person.</p>
   <h2>How to try it sensibly</h2>
   <ul class="clean">
     <li>Swap, don't stack. Replace a cup of coffee rather than adding caffeine on top.</li>
     <li>Have it in the morning. It still contains caffeine.</li>
     <li>Judge it over a week, not a single cup. Notice your afternoon, not the first hour.</li>
   </ul>
-  <p class="fine">Source: Sohail A, et al. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8794723/" rel="noopener" target="_blank">The Cognitive-Enhancing Outcomes of Caffeine and L-theanine: A Systematic Review</a>. Cureus. 2021;13(12):e20828.</p>
-  """)
+  """,
+  fn="l-theanine-and-caffeine.html",
+  faq=[
+    ("Does L-theanine cancel out caffeine?", "No. Adding L-theanine doesn't lower the amount of caffeine in a serving. Count it the same as any other coffee."),
+    ("Where does L-theanine come from?", "It occurs naturally in tea leaves. When it's listed as an ingredient, the product contains it as an added ingredient; the label shows how much per serving."),
+    ("How much L-theanine is in a cup of tea?", "It varies with the tea, how much leaf you use and how long it steeps. A 2022 review averaged roughly 5 to 7 mg per gram of dry tea across 37 varieties."),
+    ("Can I drink a caffeine + L-theanine coffee in the afternoon?", "It still contains caffeine. If caffeine late in the day affects your sleep, keep it to the morning."),
+    ("What does &ldquo;natural caffeine&rdquo; mean on a label?", "Caffeine that comes from a plant, such as coffee beans, rather than being made synthetically. The molecule is the same; the term describes the source."),
+  ],
+  sources=[SRC_SOHAIL, SRC_LI, SRC_FDA])
+
+G_MCT = guide_page("MCT coffee", "MCT coffee vs. butter coffee: what's the difference?",
+  "Butter coffee is brewed coffee blended with butter or ghee, usually plus MCT oil; MCT coffee is coffee with MCT oil or MCT powder added and no butter. Butter coffee needs a blender and comes out thick and frothy. MCT powder coffee is stirred with a spoon and comes out smooth and lightly creamy.",
+  """
+  <h2>What butter coffee is</h2>
+  <p>Butter coffee is brewed coffee blended with unsalted butter or ghee, and usually a spoonful of MCT oil. Blending matters: without it, the fat floats on top in a slick. Done right, you get a frothy, latte-like cup.</p>
+  <h2>What MCTs are</h2>
+  <p>MCT stands for medium-chain triglycerides: fats whose fatty-acid chains are a medium length, roughly 6 to 12 carbons. Commercial MCT oil is usually made from coconut or palm kernel oil. It's clear, nearly flavorless and stays liquid at room temperature. <a href="/what-is-mct-coffee.html">More on what MCT coffee is</a>.</p>
+  <h2>Oil vs. powder</h2>
+  <p>MCT <em>powder</em> is MCT oil that has been dried onto a carrier so it dissolves in water instead of sitting on top of it. That's the whole trick: no blender, no oily film, and it gives the cup a creamier body. Check the label of any powder for the carrier and serving size; they vary.</p>
+  <h2>Side by side</h2>
+  <div class="tbl"><table>
+    <tr><th></th><th>Butter coffee</th><th>MCT powder coffee</th></tr>
+    <tr><td>Prep</td><td>Brew, add butter and oil, blend 20&ndash;30 s</td><td>Stir a scoop into hot water</td></tr>
+    <tr><td>Equipment</td><td>Blender or frother</td><td>A spoon</td></tr>
+    <tr><td>Texture</td><td>Thick, frothy, rich</td><td>Smooth, lightly creamy</td></tr>
+    <tr><td>Travel</td><td>Hard to make away from home</td><td>Works anywhere with hot water</td></tr>
+    <tr><td>Clean-up</td><td>Blender jar, oily cup</td><td>One mug</td></tr>
+  </table></div>
+  <h2>Which one fits your mornings</h2>
+  <p>If you like a weekend ritual and a rich, almost dessert-like cup, butter coffee is worth the blender. If your mornings are a race, a powder that dissolves in a stir is the one you'll actually keep making. Either way, the fat content is real: read the nutrition panel and decide what fits how you eat.</p>
+  """,
+  fn="mct-coffee-vs-butter-coffee.html",
+  faq=[
+    ("Can I use coconut oil instead of MCT oil in butter coffee?", "Yes. Coconut oil works but tastes of coconut and turns solid when it cools, so blend it well and drink it warm."),
+    ("Do I need a blender for MCT powder?", "No. MCT powder is made to dissolve in hot water; a spoon is enough."),
+    ("Which one has more fat?", "Usually butter coffee, since it combines butter and oil. Compare the nutrition panels of what you actually use."),
+    ("Can either one be made iced?", "MCT powder can: dissolve it in a little hot water, then add ice. Butter coffee is best hot; the butter firms up in a cold drink."),
+  ],
+  sources=[SRC_MCT])
 
 G_ICED = guide_page("Recipes", "How to make iced instant coffee without clumps (3 recipes)",
   "Instant coffee and ice water don't mix. One small trick fixes it, then three recipes worth keeping.",
@@ -902,17 +1093,20 @@ G_ICED = guide_page("Recipes", "How to make iced instant coffee without clumps (
   <p>Blend until smooth and drink it before it separates.</p>
   <h2>A few more tips</h2>
   <ul class="clean"><li>Make coffee ice cubes from leftover coffee so melting ice doesn't water it down.</li><li>Sweeten while the base is hot: syrup and honey mix in better before the ice.</li><li>A handheld milk frother makes cold foam from cold milk in about 20 seconds.</li></ul>
-  """)
+  """,
+  fn="iced-instant-coffee-recipes.html")
 
 GUIDES_INDEX = """
 <section style="padding-top:36px"><div class="wrap">
   <p class="eyebrow">Guides &amp; recipes</p>
   <h1 style="font-size:clamp(32px,4.4vw,48px)">Better mornings, plainly explained.</h1>
-  <p class="lead">Short guides on what's in the cup and how to make it the way you like.</p>
+  <p class="lead">Short guides on what's in the cup and how to make it the way you like. Each one starts with the answer.</p>
   <div class="glist" style="margin-top:22px">
-    <a href="/mct-coffee-vs-butter-coffee.html"><p class="eyebrow">MCT coffee</p><h3>MCT coffee vs. butter coffee</h3><p>Blender and butter, or a powder you stir in. How they compare.</p></a>
-    <a href="/l-theanine-and-caffeine.html"><p class="eyebrow">L-theanine</p><h3>L-theanine and caffeine</h3><p>What the pairing is, and what the research does and doesn't say.</p></a>
-    <a href="/iced-instant-coffee-recipes.html"><p class="eyebrow">Recipes</p><h3>Iced instant coffee without clumps</h3><p>One trick and three recipes worth keeping.</p></a>
+    <a href="/what-is-mct-coffee.html"><p class="eyebrow">MCT coffee</p><h2 style="font-size:21px;margin:6px 0">What is MCT coffee?</h2><p>What MCTs are, where they come from, and how oil and powder differ.</p></a>
+    <a href="/how-to-make-mct-instant-coffee.html"><p class="eyebrow">How-to</p><h2 style="font-size:21px;margin:6px 0">How to make instant MCT coffee</h2><p>One scoop, hot water, 30 seconds. Plus iced and latte-style.</p></a>
+    <a href="/l-theanine-and-caffeine.html"><p class="eyebrow">L-theanine</p><h2 style="font-size:21px;margin:6px 0">L-theanine and caffeine</h2><p>What the pairing is, how to read the label, and what the research does and doesn't say.</p></a>
+    <a href="/mct-coffee-vs-butter-coffee.html"><p class="eyebrow">MCT coffee</p><h2 style="font-size:21px;margin:6px 0">MCT coffee vs. butter coffee</h2><p>Blender and butter, or a powder you stir in. How they compare.</p></a>
+    <a href="/iced-instant-coffee-recipes.html"><p class="eyebrow">Recipes</p><h2 style="font-size:21px;margin:6px 0">Iced instant coffee without clumps</h2><p>One trick and three recipes worth keeping.</p></a>
   </div>
 </div></section>
 """
@@ -924,21 +1118,28 @@ PAGES = {
   "faq.html": ("Coffee FAQ: Taste, Caffeine, Shipping | The Morning Upgrade", "How it tastes, how much caffeine is in a scoop, how Subscribe & Save works, shipping, returns, and who you're buying from.", FAQ, "/img/pour.jpg", False),
   "partner.html": ("Build with us — The Morning Upgrade", "Join our team and sell the coffee with the same videos, site and email system we use. Honest numbers first.", PARTNER, "/media/ambient.jpg", False),
   "share.html": ("Share & earn — The Morning Upgrade", "Get your coffee covered by the friends who steal a cup. The referral program, explained in plain language.", SHARE, "/media/ritual.jpg", False),
-  "about.html": ("About — The Morning Upgrade", "Who runs The Morning Upgrade, and why we sell one bag of coffee.", ABOUT, "/img/flatlay.jpg", False),
+  "about.html": ("About — The Morning Upgrade", "The Morning Upgrade is run by Rector & Stull LLC, two partners in Idaho and Texas who sell one instant MCT coffee and say plainly what is in it.", ABOUT, "/img/flatlay.jpg", False),
   "shipping-returns.html": ("Shipping & returns — The Morning Upgrade", "$8.95 flat US shipping, Subscribe & Save terms, damaged-item replacement and the 90-day money-back guarantee on unopened bags.", SHIPPING, "/img/flatlay.jpg", False),
   "privacy.html": ("Privacy — The Morning Upgrade", "What we collect, what we do with it, and how to opt out.", PRIVACY, "/img/flatlay.jpg", False),
-  "terms.html": ("Terms of sale — The Morning Upgrade", "Terms of sale for orders from The Morning Upgrade.", TERMS, "/img/flatlay.jpg", False),
+  "terms.html": ("Terms of sale — The Morning Upgrade", "Terms of sale for The Morning Upgrade: prices, Subscribe & Save renewals, use of the product, returns and liability.", TERMS, "/img/flatlay.jpg", False),
   "order-complete.html": ("Order received — The Morning Upgrade", "Thanks for your order.", ORDER_COMPLETE, "/img/flatlay.jpg", True),
   "start.html": ("The 2 PM cup, solved at 7 AM | The Morning Upgrade", "Instant performance coffee: natural caffeine + L-theanine + MCT powder. $69.95 a month or $79.95 a bag, $8.95 flat US shipping, 90-day guarantee on unopened bags.", START, "/media/host_kitchen.jpg", True),
   "thanks.html": ("Your guide is on its way — The Morning Upgrade", "Check your inbox for the 7 Mornings guide.", THANKS, "/img/desk.jpg", True),
-  "guides.html": ("Coffee Guides & Recipes | The Morning Upgrade", "Short guides on MCT coffee, L-theanine with caffeine, and iced instant coffee recipes.", GUIDES_INDEX, "/img/kitchen_pour.jpg", False),
-  "mct-coffee-vs-butter-coffee.html": ("MCT Coffee vs. Butter Coffee: What's the Difference? | The Morning Upgrade", "Butter coffee needs a blender and butter; MCT powder coffee is a scoop you stir in. What MCTs are and how the two compare on prep, texture and travel.", G_MCT, "/img/pour.jpg", False),
-  "l-theanine-and-caffeine.html": ("L-Theanine and Caffeine: What the Pairing Is (and Isn't) | The Morning Upgrade", "What L-theanine is, why it's paired with caffeine, and what a 2021 systematic review of small studies found, limits included.", G_THEANINE, "/img/desk.jpg", False),
-  "iced-instant-coffee-recipes.html": ("How to Make Iced Instant Coffee Without Clumps (3 Recipes) | The Morning Upgrade", "Dissolve hot, then go cold: the trick for smooth iced instant coffee, plus iced classic, iced oat vanilla and a blended frappé.", G_ICED, "/img/patio_iced.jpg", False),
+  "guides.html": ("Coffee Guides & Recipes | The Morning Upgrade", "Answer-first guides: what MCT coffee is, how to make instant MCT coffee, L-theanine with caffeine, MCT vs. butter coffee, and iced instant coffee recipes.", GUIDES_INDEX, "/img/kitchen_pour.jpg", False),
+  "what-is-mct-coffee.html": ("What Is MCT Coffee? MCT Oil vs. Powder, Explained | The Morning Upgrade", "MCT coffee is coffee with medium-chain triglycerides added, as an oil you blend in or a powder you stir in. What MCTs are and how oil and powder differ.", G_WHATMCT, "/img/scoop.jpg", False),
+  "how-to-make-mct-instant-coffee.html": ("How to Make Instant MCT Coffee: One Scoop, Hot Water | The Morning Upgrade", "One level scoop in 8 fl oz of hot water, stirred until dissolved. Step by step, plus iced and latte-style versions and how to adjust the strength.", G_HOWTO, "/img/kitchen_pour.jpg", False),
+  "mct-coffee-vs-butter-coffee.html": ("MCT Coffee vs. Butter Coffee: What's the Difference? | The Morning Upgrade", "Butter coffee is coffee blended with butter and usually MCT oil; MCT coffee adds MCT oil or powder, no butter. How prep, texture and travel compare.", G_MCT, "/img/pour.jpg", False),
+  "l-theanine-and-caffeine.html": ("L-Theanine and Caffeine: What the Label Means | The Morning Upgrade", "L-theanine is the amino acid in tea leaves, often paired with caffeine. What the pairing is, how to read the label, and what small studies found.", G_THEANINE, "/img/desk.jpg", False),
+  "iced-instant-coffee-recipes.html": ("Iced Instant Coffee Without Clumps: 3 Recipes | The Morning Upgrade", "Dissolve hot, then go cold: the trick for smooth iced instant coffee, plus iced classic, iced oat vanilla and a blended frappé.", G_ICED, "/img/patio_iced.jpg", False),
 }
 
+_changed = set()   # pages whose HTML changed in this build: their sitemap lastmod moves to today
 for fn,(title,desc,body,og,noindex) in PAGES.items():
-    with open(os.path.join(HERE,fn),"w") as f: f.write(page(title,desc,body,og,noindex,nav=(fn!="start.html"),fn=fn))
+    html_out = page(title,desc,body,og,noindex,nav=(fn!="start.html"),fn=fn)
+    _path = os.path.join(HERE,fn)
+    if not os.path.exists(_path) or open(_path).read() != html_out:
+        _changed.add(fn)
+    with open(_path,"w") as f: f.write(html_out)
     print("wrote",fn)
 
 # ---------- creator links: /c/<code>/ ----------
@@ -973,16 +1174,71 @@ for code in CREATORS:
     with open(os.path.join(HERE, "c", code, "index.html"), "w") as f: f.write(creator_page(code))
 print("wrote creator links:", ", ".join(f"/c/{c}" for c in CREATORS))
 
-# ---------- robots.txt + sitemap.xml ----------
+# ---------- robots.txt + sitemap.xml + llms.txt ----------
 import datetime as _dt
 _today = _dt.date.today().isoformat()
 _indexable = [fn for fn,(t,d,b,og,ni) in PAGES.items() if not ni]
 _prio = {"index.html": "1.0", "shop.html": "0.9", "ingredients.html": "0.8", "faq.html": "0.7"}
+_prio.update({fn: "0.6" for fn in GUIDE_META})
+_old_lastmod = {}
+if os.path.exists(os.path.join(HERE, "sitemap.xml")):
+    for loc, lm in re.findall(r"<loc>(.*?)</loc><lastmod>(.*?)</lastmod>", open(os.path.join(HERE, "sitemap.xml")).read()):
+        _old_lastmod[loc] = lm
 with open(os.path.join(HERE, "sitemap.xml"), "w") as f:
     f.write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n')
     for fn in _indexable:
-        f.write(f"  <url><loc>{url_for(fn)}</loc><lastmod>{_today}</lastmod><priority>{_prio.get(fn, '0.5')}</priority></url>\n")
+        lm = _today if fn in _changed else _old_lastmod.get(url_for(fn), _today)
+        f.write(f"  <url><loc>{url_for(fn)}</loc><lastmod>{lm}</lastmod><priority>{_prio.get(fn, '0.5')}</priority></url>\n")
     f.write("</urlset>\n")
+
+# Search and AI crawlers are welcome everywhere public. A crawler that matches a named
+# group ignores the * group, so the named group repeats the same rules.
+AI_CRAWLERS = ["GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "Claude-SearchBot", "Claude-User",
+               "PerplexityBot", "Perplexity-User", "Google-Extended", "Googlebot", "Bingbot", "Applebot",
+               "Applebot-Extended", "DuckAssistBot"]
+_rules = "Allow: /\nDisallow: /order-complete.html\nDisallow: /thanks.html\nDisallow: /c/\n"
 with open(os.path.join(HERE, "robots.txt"), "w") as f:
-    f.write("User-agent: *\nAllow: /\nDisallow: /order-complete.html\nDisallow: /thanks.html\nDisallow: /c/\n\nSitemap: " + SITE + "/sitemap.xml\n")
-print("wrote sitemap.xml, robots.txt")
+    f.write("# Search engines and AI assistants may crawl and cite every public page.\n")
+    f.write("".join(f"User-agent: {a}\n" for a in AI_CRAWLERS) + _rules + "\n")
+    f.write("User-agent: *\n" + _rules + "\nSitemap: " + SITE + "/sitemap.xml\n")
+
+# llms.txt (llmstxt.org): plain facts for AI assistants. Same rules as the rest of the
+# search-facing text: label facts only, no maker trademarks, no claims past the label.
+def _llm_link(fn):
+    t, d = PAGES[fn][0], PAGES[fn][1]
+    return f"- [{_html.unescape(t.split(' | ')[0].split(' — ')[0])}]({url_for(fn)}): {_html.unescape(d)}"
+LLMS = f"""# The Morning Upgrade
+
+> The Morning Upgrade (themorningupgrades.com) sells one product in the United States: a medium-roast instant coffee made with MCT powder from coconut, natural caffeine and L-theanine. One level scoop in 8 fl oz of hot water makes a cup, and a bag holds 30 servings. The site is run by Rector & Stull LLC, an independent sales representative (ISR) for the manufacturer; Rector & Stull is not the manufacturer.
+
+Facts as stated on the site (updated {_today}):
+
+- Price: $79.95 for one bag (30 servings), or $69.95 a month with Subscribe & Save (one bag every 30 days; pause, skip or cancel anytime from the receipt link).
+- Serving: one level scoop, about 6.8 g, in 8 fl oz of hot water. 30 servings per 7.2 oz (204 g) bag. Medium roast; works black, with creamer or over ice.
+- Shipping: US addresses only, flat $8.95 per bag. Orders ship from Minnesota within about two business days, then 3-6 days in transit.
+- Returns: the maker's 90-day money-back guarantee on unopened bags; damaged or incorrect items are replaced if reported within 30 days of delivery.
+- Contains caffeine. For adults; not for children or anyone pregnant or nursing. Ask a physician first if you take medication or have a medical condition.
+- Product copy quotes the label rather than adding claims of its own. The guides are general information, not medical advice.
+- People shown in the site's videos are AI presenters, and the site says so.
+- Contact: hello@themorningupgrades.com. Rector & Stull LLC, 30 N Gould St Ste R, Sheridan, WY 82801.
+
+## Product
+
+{_llm_link("shop.html")}
+{_llm_link("ingredients.html")}
+{_llm_link("faq.html")}
+{_llm_link("shipping-returns.html")}
+
+## Guides
+
+{chr(10).join(_llm_link(fn) for fn in GUIDE_LINKS)}
+
+## Company
+
+{_llm_link("about.html")}
+{_llm_link("terms.html")}
+{_llm_link("privacy.html")}
+"""
+with open(os.path.join(HERE, "llms.txt"), "w") as f:
+    f.write(LLMS)
+print("wrote sitemap.xml, robots.txt, llms.txt")
