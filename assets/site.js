@@ -18,6 +18,7 @@ window.TMU = {
   GA4_ID: "G-G79BLY9MDG",       // Google Analytics 4
   TIKTOK_PIXEL: "DBDQJRRC77U24SKT5GP0", // TikTok pixel
   PIXEL_ID: "28758618673764449", // Meta pixel (dataset "TMU Website", Rector & Stull LLC portfolio)
+  SNAP_PIXEL: "ed6288c4-136e-418b-9d3d-5f3cb47998d4", // Snap pixel ("Rector & Stull Pixel")
   ANALYTICS_DOMAIN: "themorningupgrades.com"
 };
 
@@ -38,6 +39,11 @@ window.TMU = {
   if (C.PIXEL_ID) {
     !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
     fbq('init', C.PIXEL_ID); fbq('track','PageView');
+  }
+  // Snap pixel
+  if (C.SNAP_PIXEL) {
+    (function(e,t,n){if(e.snaptr)return;var a=e.snaptr=function(){a.handleRequest?a.handleRequest.apply(a,arguments):a.queue.push(arguments)};a.queue=[];var s='script',r=t.createElement(s);r.async=!0;r.src=n;var u=t.getElementsByTagName(s)[0];u.parentNode.insertBefore(r,u);})(window,document,'https://sc-static.net/scevent.min.js');
+    snaptr('init', C.SNAP_PIXEL, {}); snaptr('track','PAGE_VIEW');
   }
   // Plausible (privacy-safe, no cookie banner). Loads only once the domain is registered at plausible.io.
   if (C.ANALYTICS_DOMAIN && window.TMU_ANALYTICS_ON) {
@@ -71,7 +77,8 @@ window.TMU = {
 
   var TT_MAP={InitiateCheckout:'InitiateCheckout',Lead:'CompleteRegistration',QuizComplete:'ViewContent',PartnerLead:'SubmitForm',PartnerClick:'ClickButton',Purchase:'CompletePayment'};
   var FB_STD={InitiateCheckout:1,Lead:1,Purchase:1};
-  window.track = function(name, props){ try{ if(window.gtag&&C.GA4_ID) gtag('event', name, props||{}); if(window.ttq&&C.TIKTOK_PIXEL&&TT_MAP[name]) ttq.track(TT_MAP[name], name==='Purchase'?{value:79.95,currency:'USD',content_type:'product',content_id:'CL805'}:(props||{})); if(window.fbq&&C.PIXEL_ID){ if(FB_STD[name]) fbq('track',name,name==='Purchase'?Object.assign({value:79.95,currency:'USD',content_ids:['CL805'],content_type:'product'},props||{}):(props||{})); else fbq('trackCustom',name,props||{}); } if(window.plausible) plausible(name,{props:props||{}}); }catch(e){} };
+  var SNAP_MAP={InitiateCheckout:'START_CHECKOUT',Lead:'SIGN_UP',QuizComplete:'VIEW_CONTENT',PartnerLead:'SIGN_UP',Purchase:'PURCHASE'};
+  window.track = function(name, props){ try{ if(window.gtag&&C.GA4_ID) gtag('event', name, props||{}); if(window.ttq&&C.TIKTOK_PIXEL&&TT_MAP[name]) ttq.track(TT_MAP[name], name==='Purchase'?{value:79.95,currency:'USD',content_type:'product',content_id:'CL805'}:(props||{})); if(window.fbq&&C.PIXEL_ID){ if(FB_STD[name]) fbq('track',name,name==='Purchase'?Object.assign({value:79.95,currency:'USD',content_ids:['CL805'],content_type:'product'},props||{}):(props||{})); else fbq('trackCustom',name,props||{}); } if(window.snaptr&&C.SNAP_PIXEL&&SNAP_MAP[name]) snaptr('track',SNAP_MAP[name],name==='Purchase'?{price:79.95,currency:'USD',item_ids:['CL805'],number_items:1}:{}); if(window.plausible) plausible(name,{props:props||{}}); }catch(e){} };
 
   if (qref) track('CreatorVisit',{creator:qref});
 
