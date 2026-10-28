@@ -19,6 +19,8 @@ window.TMU = {
   TIKTOK_PIXEL: "DBDQJRRC77U24SKT5GP0", // TikTok pixel
   PIXEL_ID: "28758618673764449", // Meta pixel (dataset "TMU Website", Rector & Stull LLC portfolio)
   SNAP_PIXEL: "ed6288c4-136e-418b-9d3d-5f3cb47998d4", // Snap pixel ("Rector & Stull Pixel")
+  GOOGLE_ADS_ID: "AW-18543041154",               // Google Ads account "Rector & Stull" (shared with Crowdcut)
+  GOOGLE_PURCHASE: "AW-18543041154/9DvuCJSurq0dEIK1gYpF", // conversion action "TMU Purchase"
   ANALYTICS_DOMAIN: "themorningupgrades.com"
 };
 
@@ -29,6 +31,12 @@ window.TMU = {
     var g=document.createElement('script'); g.async=true; g.src='https://www.googletagmanager.com/gtag/js?id='+C.GA4_ID; document.head.appendChild(g);
     window.dataLayer = window.dataLayer || []; window.gtag = function(){ dataLayer.push(arguments); };
     gtag('js', new Date()); gtag('config', C.GA4_ID, { anonymize_ip: true });
+  }
+  // Google Ads (same gtag.js; loads it if GA4 is off)
+  if (C.GOOGLE_ADS_ID) {
+    if (!window.gtag) { var ga=document.createElement('script'); ga.async=true; ga.src='https://www.googletagmanager.com/gtag/js?id='+C.GOOGLE_ADS_ID; document.head.appendChild(ga);
+      window.dataLayer = window.dataLayer || []; window.gtag = function(){ dataLayer.push(arguments); }; gtag('js', new Date()); }
+    gtag('config', C.GOOGLE_ADS_ID);
   }
   // TikTok pixel
   if (C.TIKTOK_PIXEL) {
@@ -78,7 +86,7 @@ window.TMU = {
   var TT_MAP={InitiateCheckout:'InitiateCheckout',Lead:'CompleteRegistration',QuizComplete:'ViewContent',PartnerLead:'SubmitForm',PartnerClick:'ClickButton',Purchase:'CompletePayment'};
   var FB_STD={InitiateCheckout:1,Lead:1,Purchase:1};
   var SNAP_MAP={InitiateCheckout:'START_CHECKOUT',Lead:'SIGN_UP',QuizComplete:'VIEW_CONTENT',PartnerLead:'SIGN_UP',Purchase:'PURCHASE'};
-  window.track = function(name, props){ try{ if(window.gtag&&C.GA4_ID) gtag('event', name, props||{}); if(window.ttq&&C.TIKTOK_PIXEL&&TT_MAP[name]) ttq.track(TT_MAP[name], name==='Purchase'?{value:79.95,currency:'USD',content_type:'product',content_id:'CL805'}:(props||{})); if(window.fbq&&C.PIXEL_ID){ if(FB_STD[name]) fbq('track',name,name==='Purchase'?Object.assign({value:79.95,currency:'USD',content_ids:['CL805'],content_type:'product'},props||{}):(props||{})); else fbq('trackCustom',name,props||{}); } if(window.snaptr&&C.SNAP_PIXEL&&SNAP_MAP[name]) snaptr('track',SNAP_MAP[name],name==='Purchase'?{price:79.95,currency:'USD',item_ids:['CL805'],number_items:1}:{}); if(window.plausible) plausible(name,{props:props||{}}); }catch(e){} };
+  window.track = function(name, props){ try{ if(window.gtag&&C.GA4_ID) gtag('event', name, props||{}); if(window.ttq&&C.TIKTOK_PIXEL&&TT_MAP[name]) ttq.track(TT_MAP[name], name==='Purchase'?{value:79.95,currency:'USD',content_type:'product',content_id:'CL805'}:(props||{})); if(window.fbq&&C.PIXEL_ID){ if(FB_STD[name]) fbq('track',name,name==='Purchase'?Object.assign({value:79.95,currency:'USD',content_ids:['CL805'],content_type:'product'},props||{}):(props||{})); else fbq('trackCustom',name,props||{}); } if(window.gtag&&C.GOOGLE_PURCHASE&&name==='Purchase') gtag('event','conversion',{send_to:C.GOOGLE_PURCHASE,value:79.95,currency:'USD',transaction_id:(props&&props.order)||(new URLSearchParams(location.search).get('session_id')||'')}); if(window.snaptr&&C.SNAP_PIXEL&&SNAP_MAP[name]) snaptr('track',SNAP_MAP[name],name==='Purchase'?{price:79.95,currency:'USD',item_ids:['CL805'],number_items:1}:{}); if(window.plausible) plausible(name,{props:props||{}}); }catch(e){} };
 
   if (qref) track('CreatorVisit',{creator:qref});
 
