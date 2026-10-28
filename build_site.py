@@ -100,7 +100,7 @@ def page(title, desc, body, og_image="/img/flatlay.jpg", noindex=False, extra_he
 <link rel="apple-touch-icon" href="/img/mark.jpg">
 {'' if noindex else f'<link rel="canonical" href="{url_for(fn)}">'}
 <meta name="theme-color" content="#1b130e">
-{'<meta name="google-site-verification" content="7jyn0E7TYq9A_Ug0PhqrwoI0ssqQj0Z9mrlBYkPK4dw">' if fn == "index.html" else ''}
+{'<meta name="google-site-verification" content="7jyn0E7TYq9A_Ug0PhqrwoI0ssqQj0Z9mrlBYkPK4dw"><meta name="facebook-domain-verification" content="fplr4vshxvflcgysu4cu6j0cpwtbco">' if fn == "index.html" else ''}
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="The Morning Upgrade">
 <meta property="og:url" content="{url_for(fn)}">
