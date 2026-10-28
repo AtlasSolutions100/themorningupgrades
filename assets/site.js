@@ -59,6 +59,15 @@ window.TMU = {
   if (REF_RE.test(qref)) saveRef(qref); else qref='';
   C.REF = readRef();
   if (C.REF && window.gtag && C.GA4_ID) gtag('set','user_properties',{creator:C.REF});
+  // Ad attribution for orders without a creator: the first paid-ad visit's utm tags are remembered for
+  // 30 days and ride to Stripe as client_reference_id ut__<source>__<campaign>__<content> (R&S HQ reads it).
+  function clean(v){ return String(v||'').toLowerCase().replace(/[^a-z0-9_-]/g,'-').replace(/_+/g,'_').slice(0,40); }
+  try{
+    var q=new URLSearchParams(location.search), us=q.get('utm_source');
+    if (us && /^(paid|cpc|paid_social)$/i.test(q.get('utm_medium')||'') && !localStorage.getItem('tmu_ut')) localStorage.setItem('tmu_ut', JSON.stringify({s:clean(us),c:clean(q.get('utm_campaign')),n:clean(q.get('utm_content')),t:Date.now()}));
+    var ut=JSON.parse(localStorage.getItem('tmu_ut')||'null');
+    if (ut && Date.now()-ut.t<30*864e5) C.UT='ut__'+ut.s+'__'+ut.c+'__'+ut.n;
+  }catch(e){}
 
   var TT_MAP={InitiateCheckout:'InitiateCheckout',Lead:'CompleteRegistration',QuizComplete:'ViewContent',PartnerLead:'SubmitForm',PartnerClick:'ClickButton',Purchase:'CompletePayment'};
   var FB_STD={InitiateCheckout:1,Lead:1,Purchase:1};
@@ -98,7 +107,7 @@ window.TMU = {
       var link = kind==='subscribe' ? C.STRIPE_SUBSCRIBE : C.STRIPE_ONETIME;
       if (link) {
         a.href = link + (link.indexOf('?')>-1?'&':'?') + 'utm_source=site' + (utm?'&'+utm:'')
-          + (C.REF ? '&client_reference_id=cr_' + C.REF : '');
+          + (C.REF ? '&client_reference_id=cr_' + C.REF : (C.UT ? '&client_reference_id=' + C.UT : ''));
         a.removeAttribute('rel'); a.removeAttribute('target');
       } else {
         a.href = C.MPG_PRODUCT + '?utm_source=site&utm_medium=shop&utm_campaign=' + kind + (utm?'&'+utm:'')
