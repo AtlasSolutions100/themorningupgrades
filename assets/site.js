@@ -2,8 +2,8 @@
    Fill the CONFIG values as accounts come online. Empty Stripe links = "handoff" mode (Buy sends to the MPG product page). */
 window.TMU = {
   // Stripe Payment Links (create in Stripe Dashboard → Payment Links). Leave "" until they exist.
-  STRIPE_ONETIME: "",          // one bag, $79.95, ships from us
-  STRIPE_SUBSCRIBE: "",        // one bag a month, $69.95, ships from us
+  STRIPE_ONETIME: "https://buy.stripe.com/3cIbJ3fEv6XIbtk8iw4wM00",          // one bag, $79.95, ships from us
+  STRIPE_SUBSCRIBE: "https://buy.stripe.com/8x228t3VN2Hsapg56k4wM01",        // one bag a month, $69.95, ships from us
   // MarketPlace Global replicated product page (handoff fallback while Stripe is empty)
   MPG_PRODUCT: "https://marketplaceglobal.com/rectorandstull/product/coffee/mpgxtreme-1-bag-corejava-coffee-skucl805-us-id194",
   // Partner side
@@ -72,7 +72,7 @@ window.TMU = {
     var here=location.pathname.replace(/\/index\.html$/,'/');
     document.querySelectorAll('.menu a').forEach(function(a){ var h=a.getAttribute('href'); if(h && (h===here || (h!=='/' && here.indexOf(h)===0))) a.classList.add('on'); });
     // analytics notice (dismissable, remembered per browser)
-    try{ if(C.GA4_ID && !localStorage.getItem('tmu_notice')){ var n=document.createElement('div'); n.className='notice'; n.setAttribute('role','region'); n.setAttribute('aria-label','Analytics notice'); n.innerHTML='We use Google Analytics and a TikTok pixel to see which pages and videos bring people here. <a href="/privacy.html">Privacy</a> <button type="button">OK</button>'; document.body.appendChild(n); n.querySelector('button').onclick=function(){ try{localStorage.setItem('tmu_notice','1')}catch(e){} n.remove(); }; } }catch(e){}
+    try{ if(C.GA4_ID && !localStorage.getItem('tmu_notice')){ var n=document.createElement('div'); n.className='notice'; n.setAttribute('role','region'); n.setAttribute('aria-label','Analytics notice'); n.innerHTML='We use Google Analytics and a TikTok pixel to see which pages and videos bring people here. <a href="/privacy.html">Privacy</a> <button type="button">OK</button>'; document.body.appendChild(n); var done=function(){ try{localStorage.setItem('tmu_notice','1')}catch(e){} n.remove(); window.removeEventListener('scroll',onScroll); }; var onScroll=function(){ if(window.scrollY>window.innerHeight*0.6) done(); }; n.querySelector('button').onclick=done; window.addEventListener('scroll',onScroll,{passive:true}); } }catch(e){}
     // autoplay only while in view (saves bandwidth, keeps LCP clean)
     var vids=document.querySelectorAll('video[data-autoplay]');
     if('IntersectionObserver' in window){ var io=new IntersectionObserver(function(es){ es.forEach(function(e){ var v=e.target; if(e.isIntersecting){ v.play().catch(function(){}); } else { v.pause(); } }); },{threshold:.25}); vids.forEach(function(v){ io.observe(v); }); }

@@ -119,7 +119,6 @@ def page(title, desc, body, og_image="/img/flatlay.jpg", noindex=False, extra_he
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
-<header class="bar" role="banner"><span class="isr-logo"></span>Rector &amp; Stull LLC &middot; Independent MarketPlace Global ISR &middot; <a href="https://marketplaceglobal.com/rectorandstull" rel="noopener">MarketPlace Global corporate site &rarr;</a></header>
 {NAV if nav else ''}
 <main id="main">
 {body}
