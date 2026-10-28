@@ -312,6 +312,11 @@ header.bar{display:block}
 .guide table{width:100%;border-collapse:collapse;margin:8px 0 18px;font-size:15px}
 .guide th,.guide td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
 .guide th{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.guide .answer{background:var(--tint);border-left:3px solid var(--copper);border-radius:0 12px 12px 0;padding:16px 20px;font-size:18px;line-height:1.55;color:var(--ink2);max-width:none;margin:18px 0 8px}
+.guide .byline{margin:0 0 6px}
+.guide ol.howto{padding-left:22px;margin:0 0 18px}.guide ol.howto li{margin-bottom:10px}
+.guide .src{padding-left:20px}.guide .src li{margin-bottom:6px}
+.guide .tbl{overflow-x:auto}
 .glist{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
 .glist a{display:block;text-decoration:none;color:var(--ink);border:1px solid var(--line);border-radius:var(--r2);padding:22px}
 .glist a:hover{border-color:var(--copper)}
