@@ -7,7 +7,7 @@ window.TMU = {
   // MarketPlace Global replicated product page (handoff fallback while Stripe is empty)
   MPG_PRODUCT: "https://marketplaceglobal.com/rectorandstull/product/coffee/mpgxtreme-1-bag-corejava-coffee-skucl805-us-id194",
   // Partner side
-  ENROLL_URL: "https://marketplaceglobal.com/rectorandstull/isr-instructions-coffee",
+  ENROLL_URL: "https://marketplaceglobal.com/rectorandstull/join-the-place",
   INCOME_DISCLOSURE_URL: "https://marketplaceglobal.com/rectorandstull/income-disclaimer",
   // Lists
   KLAVIYO_COMPANY: "Ucdz59",
