@@ -295,7 +295,7 @@ def hero_c(h1="One scoop. No 2 PM crash.", strip=("Clean energy","Sharper focus"
   <div class="heroC-grid">
     <div class="heroC-left">{CALLOUTS}</div>
     <div class="heroC-right">
-      <p class="sr">CoreJava instant coffee: natural caffeine, L-theanine and MCT powder. One scoop, hot water, 30 seconds. Supports healthy appetite control, focus and energy.</p>
+      <p class="sr">CoreJava instant coffee: natural caffeine, L-theanine and MCT powder. One scoop, hot water, 30 seconds. Made for a focused, steady morning.</p>
       {picker()}
     </div>
   </div>
@@ -348,7 +348,7 @@ HOME = """
   <div>
     <p class="eyebrow">What's in it</p>
     <h2>Seven things, one scoop.</h2>
-    <p>MCT powder, for a creamy cup. Natural caffeine from coffee beans. L-theanine, the amino acid in green tea. ChromeMate, a patented chromium. Paradoxine, grains of paradise extract. Garcinia Cambogia fruit extract. Saffr'Activ saffron extract. The label says what it does: supports healthy appetite control, focus and energy.</p>
+    <p>MCT powder, for a creamy cup. Natural caffeine from coffee beans. L-theanine, the amino acid in green tea. ChromeMate, a patented chromium. Paradoxine, grains of paradise extract. Garcinia Cambogia fruit extract. Saffr'Activ saffron extract. One scoop, hot water, and you've got your morning cup.</p>
     <p><a class="btn" href="/ingredients.html">See every ingredient</a></p>
   </div>
   <div class="frame phone"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/ingredients.jpg"><source src="/media/ingredients.mp4" type="video/mp4"></video></div>
@@ -467,7 +467,7 @@ SHOP = """
   <div>
     <p class="eyebrow">CoreJava &middot; performance coffee</p>
     <h1 style="font-size:clamp(34px,4.4vw,52px)">CoreJava Coffee, 30 servings.</h1>
-    <p class="lead">Medium-roast instant coffee built around natural caffeine and L-theanine, with ChromeMate, Paradoxine, Garcinia Cambogia and Saffr'Activ. Supports healthy appetite control, focus and energy. One level scoop in 8 oz of hot water.</p>
+    <p class="lead">Medium-roast instant coffee built around natural caffeine and L-theanine, with ChromeMate, Paradoxine, Garcinia Cambogia and Saffr'Activ. Made for focus and steady energy. One level scoop in 8 oz of hot water.</p>
     """ + picker(note=False) + """
     <p class="bonus" data-bonus hidden><strong>Free with your first order:</strong> the Recipe Pack, 12 ways to drink it plus a 30-morning tracker (PDF).</p>
     <p class="fine"><span data-ship="long">Ships to all 50 states.</span> Cancel anytime &middot; <span data-ship="checkout">secure checkout</span> &middot; <span data-ship="damage">made right if it arrives damaged</span>. Questions before you buy: hello@themorningupgrades.com.</p>
@@ -501,7 +501,7 @@ ING = """
   <div>
     <p class="eyebrow">What's in it</p>
     <h1 style="font-size:clamp(34px,4.4vw,56px)">Seven ingredients. Nothing hidden behind a blend.</h1>
-    <p class="lead">We'll tell you where each one comes from. For what the blend does, the label is the authority: <em>supports healthy appetite control, focus and energy.</em> We don't go past that.</p>
+    <p class="lead">We'll tell you where each one comes from. We describe the cup by what's in it: natural caffeine for energy, L-theanine alongside it, MCT powder for a creamy texture. We don't make health claims beyond the label.</p>
   </div>
 </div></section>
 <section class="alt"><div class="wrap">
@@ -514,7 +514,7 @@ ING = """
     <div class="card"><b>Paradoxine&reg;</b><h3>Grains of paradise extract</h3><p>A standardized extract of <em>Aframomum melegueta</em>, a West African seed in the ginger family.</p></div>
     <div class="card"><b>Garcinia Cambogia</b><h3>Fruit extract</h3><p>Extract of the rind of a small tropical fruit, standardized for hydroxycitric acid.</p></div>
     <div class="card"><b>Saffr'Activ&reg;</b><h3>Saffron extract</h3><p>A standardized extract of saffron stigmas, the same spice used in cooking.</p></div>
-    <div class="card claim"><b>What the label says</b><h3>Supports healthy appetite control, focus and energy.</h3><p>MarketPlace Global&rsquo;s words, printed on the bag. That sentence is the whole claim.</p></div>
+    <div class="card claim"><b>What we say about it</b><h3>Natural caffeine and L-theanine for focus and steady energy.</h3><p>That's the whole pitch. It's a dietary supplement, not a medicine, and we don't claim more than what's in the bag.</p></div>
   </div>
   <p class="fine" style="margin-top:22px;text-align:center">Full Supplement Facts, including amounts per serving and other ingredients, are printed on the bag. Trademarks belong to their respective ingredient suppliers.</p>
 </div></section>
@@ -534,7 +534,7 @@ FAQ = """
   <details><summary>Does it taste like coffee?</summary><p>Yes. Medium roast, a little smoother than drip. Black is fine; creamer is fine; over ice is fine.</p></details>
   <details><summary>How much caffeine is in a serving?</summary><p>About the same as a strong cup of coffee. The exact amount is on the Supplement Facts panel on the bag. It contains caffeine, so skip it late in the day if you're sensitive.</p></details>
   <details><summary>Is it one cup or two?</summary><p>One scoop is the serving. Most people find one is the right amount.</p></details>
-  <details><summary>What does it do?</summary><p>The label says: supports healthy appetite control, focus and energy. We stick to that. It's a dietary supplement, not a medicine, and it hasn't been evaluated by the FDA.</p></details>
+  <details><summary>What does it do?</summary><p>It's instant coffee with natural caffeine, L-theanine and MCT powder, made for focus and steady energy. It's a dietary supplement, not a medicine, and it hasn't been evaluated by the FDA.</p></details>
   <details><summary>Who shouldn't take it?</summary><p>Children, and anyone pregnant or nursing. If you take medication or have a medical condition, ask your physician first.</p></details>
   <h2>Ordering</h2>
   <details><summary>How does Subscribe &amp; Save work?</summary><p>A bag ships every 30 days at $69.95. Pause a month, cancel, or update your card any time from the link in your receipt or at <a href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00">the subscription portal</a>. No calls.</p></details>
@@ -838,7 +838,7 @@ START = """
   <div>
     <p class="eyebrow">One scoop. Seven things on the label.</p>
     <h2>Nothing hidden behind a blend.</h2>
-    <p>MCT powder, natural caffeine, L-theanine, ChromeMate&reg; chromium, Paradoxine&reg; grains of paradise, Garcinia Cambogia and Saffr'Activ&reg; saffron extract. The label says what it does: supports healthy appetite control, focus and energy. We quote it; we don't embellish it.</p>
+    <p>MCT powder, natural caffeine, L-theanine, ChromeMate&reg; chromium, Paradoxine&reg; grains of paradise, Garcinia Cambogia and Saffr'Activ&reg; saffron extract. We describe it by what's in it and don't make health claims beyond the label.</p>
     <ul class="clean">
       <li>Medium roast, instant. Black is fine, creamer is fine, over ice is fine.</li>
       <li>One level scoop in 8 oz of hot water. Stir. Done.</li>
