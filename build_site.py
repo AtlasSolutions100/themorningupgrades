@@ -52,6 +52,14 @@ FOOTER = """
 """
 
 SITE = "https://themorningupgrades.com"
+IMG_ALT = {"flatlay-right": "A cup of black coffee, a coffee scoop, sunglasses and keys on a stone table",
+           "kitchen-pour-top": "Pouring hot water from a kettle into a mug",
+           "scoop-top": "A scoop of instant coffee over an open bag",
+           "desk-top": "Laptop, mug and a bag of coffee on a desk",
+           "breakfast-top": "A bag of coffee on a sunlit breakfast table",
+           "pour-top": "Pouring hot water into a glass mug of coffee",
+           "patio-left": "Iced coffee on a sunny patio"}
+
 # Supplement Facts panel (D4): drop a legible photo of the real panel into img/ (for example
 # img/facts-panel.jpg), put its path here and rebuild. It shows on /ingredients and /shop as a
 # plain photo with no commentary. Empty = hidden.
@@ -119,11 +127,19 @@ FAQ_SKIP = {"What does it do?", "Who are the people in your videos?", "Who am I 
 # Answer-style guides: (published, modified). Guides get Article + FAQPage
 # markup from their visible questions, and og:type article.
 GUIDE_META = {
-    "what-is-mct-coffee.html": ("2026-10-28", "2026-10-28"),
+    "what-is-mct-coffee.html": ("2026-10-28", "2026-10-29"),
     "how-to-make-mct-instant-coffee.html": ("2026-10-28", "2026-10-28"),
-    "l-theanine-and-caffeine.html": ("2026-10-25", "2026-10-28"),
+    "l-theanine-and-caffeine.html": ("2026-10-25", "2026-10-29"),
     "mct-coffee-vs-butter-coffee.html": ("2026-10-25", "2026-10-28"),
-    "iced-instant-coffee-recipes.html": ("2026-10-25", "2026-10-25"),
+    "iced-instant-coffee-recipes.html": ("2026-10-25", "2026-10-29"),
+    "how-much-caffeine-in-instant-coffee.html": ("2026-10-29", "2026-10-29"),
+    "how-to-make-instant-coffee-taste-better.html": ("2026-10-29", "2026-10-29"),
+    "does-instant-coffee-go-bad.html": ("2026-10-29", "2026-10-29"),
+    "instant-coffee-for-travel-camping-dorm.html": ("2026-10-29", "2026-10-29"),
+    "what-is-mct-powder.html": ("2026-10-29", "2026-10-29"),
+    "natural-caffeine-vs-synthetic.html": ("2026-10-29", "2026-10-29"),
+    "caffeine-and-l-theanine-ratio.html": ("2026-10-29", "2026-10-29"),
+    "instant-coffee-vs-drip-cost-per-cup.html": ("2026-10-29", "2026-10-29"),
 }
 
 # The one product, as the shop page states it. Named descriptively: search-facing
@@ -1038,9 +1054,34 @@ GUIDE_LINKS = {
     "l-theanine-and-caffeine.html": "L-theanine and caffeine: what the label means",
     "mct-coffee-vs-butter-coffee.html": "MCT coffee vs. butter coffee",
     "iced-instant-coffee-recipes.html": "Iced instant coffee without clumps",
+    "how-much-caffeine-in-instant-coffee.html": "How much caffeine is in instant coffee?",
+    "how-to-make-instant-coffee-taste-better.html": "How to make instant coffee taste better",
+    "does-instant-coffee-go-bad.html": "Does instant coffee go bad?",
+    "instant-coffee-for-travel-camping-dorm.html": "Instant coffee for travel, camping and dorms",
+    "what-is-mct-powder.html": "What is MCT powder?",
+    "natural-caffeine-vs-synthetic.html": "Natural vs. synthetic caffeine",
+    "caffeine-and-l-theanine-ratio.html": "Caffeine and L-theanine ratio",
+    "instant-coffee-vs-drip-cost-per-cup.html": "Instant vs. drip: cost per cup",
+}
+# One-line blurbs for the guides index cards: (eyebrow, blurb)
+GUIDE_BLURBS = {
+    "what-is-mct-coffee.html": ("MCT coffee", "What MCTs are, where they come from, and how oil and powder differ."),
+    "how-to-make-mct-instant-coffee.html": ("How-to", "One scoop, hot water, 30 seconds. Plus iced and latte-style."),
+    "l-theanine-and-caffeine.html": ("L-theanine", "What the pairing is, how to read the label, and what the research does and doesn't say."),
+    "mct-coffee-vs-butter-coffee.html": ("MCT coffee", "Blender and butter, or a powder you stir in. How they compare."),
+    "iced-instant-coffee-recipes.html": ("Recipes", "One trick and three recipes worth keeping."),
+    "how-much-caffeine-in-instant-coffee.html": ("Caffeine", "USDA numbers for instant vs. brewed, and what changes them."),
+    "how-to-make-instant-coffee-taste-better.html": ("How-to", "Water, ratio, a paste first, and three fixes for bitterness."),
+    "does-instant-coffee-go-bad.html": ("Storage", "Stale vs. spoiled, what the date means, and how to store it."),
+    "instant-coffee-for-travel-camping-dorm.html": ("How-to", "What to pack and where to find hot water."),
+    "what-is-mct-powder.html": ("MCT", "MCT oil dried onto a carrier: what's in it and how it compares."),
+    "natural-caffeine-vs-synthetic.html": ("Caffeine", "Same molecule, different source. What the label tells you."),
+    "caffeine-and-l-theanine-ratio.html": ("L-theanine", "The doses small studies used, and how to read a label's ratio."),
+    "instant-coffee-vs-drip-cost-per-cup.html": ("Cost", "The formula, a calculator, and the extras people forget."),
 }
 
-def guide_page(eyebrow, h1, lede, body, fn=None, faq=(), sources=()):
+
+def guide_page(eyebrow, h1, lede, body, fn=None, faq=(), sources=(), img=None):
     updated = ""
     if fn in GUIDE_META:
         mod = GUIDE_META[fn][1]
@@ -1052,7 +1093,8 @@ def guide_page(eyebrow, h1, lede, body, fn=None, faq=(), sources=()):
     src_html = ""
     if sources:
         src_html = '<h2>Sources</h2>\n  <ol class="fine src">' + "".join(f"<li>{s}</li>" for s in sources) + "</ol>"
-    rel = [(f, t) for f, t in GUIDE_LINKS.items() if f != fn]
+    rel = [(f, t) for f, t in GUIDE_LINKS.items() if f != fn][:7]
+    img_html = f'<div class="frame gphoto">{pic(img, IMG_ALT.get(img, "Coffee photo"), sizes="(max-width: 760px) 100vw, 720px")}</div>' if img else ""
     rel_html = '<h2>Related guides</h2>\n  <ul class="clean">' + "".join(f'<li><a href="/{f}">{t}</a></li>' for f, t in rel) + "</ul>"
     return f"""
 <article><section style="padding-top:36px"><div class="wrap guide">
@@ -1060,6 +1102,7 @@ def guide_page(eyebrow, h1, lede, body, fn=None, faq=(), sources=()):
   <h1 style="font-size:clamp(32px,4.4vw,48px)">{h1}</h1>
   {updated}
   <p class="lead answer">{lede}</p>
+  {img_html}
   {body}
   {faq_html}
   {src_html}
@@ -1069,6 +1112,7 @@ def guide_page(eyebrow, h1, lede, body, fn=None, faq=(), sources=()):
     <p class="bonus" data-bonus hidden><strong>Free with your first order:</strong> the Recipe Pack, 12 ways to drink it plus a 30-morning tracker.</p>
     <p style="margin:0"><a class="btn" href="/shop.html">Shop the coffee</a></p>
   </div>
+  <div style="margin-top:28px">{capture("guide", heading="Get the 7 Mornings guide")}</div>
   {rel_html}
   <p class="fine" style="margin-top:24px">General information, not medical advice. Contains caffeine. Ask your physician before changing what you drink if you're pregnant, nursing, take medication or have a medical condition.</p>
 </div></section></article>
@@ -1084,7 +1128,7 @@ SRC_FDA = ('U.S. Food and Drug Administration. <a href="https://www.fda.gov/cons
            'Spilling the Beans: How Much Caffeine is Too Much?</a> Consumer update, content current as of August 28, 2024.')
 
 G_WHATMCT = guide_page("MCT coffee", "What is MCT coffee?",
-  "MCT coffee is coffee with medium-chain triglycerides (MCTs) added. MCTs are a type of fat, usually made from coconut or palm kernel oil, and they come either as a clear oil you blend into brewed coffee or as a powder you stir into the cup. In the mug, the main thing you notice is texture: a smoother, creamier body without milk or cream.",
+  "MCT coffee is coffee with medium-chain triglycerides (MCTs) added. MCTs are a type of fat, usually made from coconut or palm kernel oil, and they come either as a clear oil you blend into brewed coffee or as a powder you stir into the cup. You notice it as texture: a smoother, creamier body without milk or cream.",
   """
   <h2>What &ldquo;MCT&rdquo; means</h2>
   <p>A triglyceride is three fatty acids attached to a glycerol backbone; it's the basic shape of most fats in food. In a <em>medium-chain</em> triglyceride those fatty acids are a medium length, six to twelve carbon atoms. A 2022 review in the <em>Journal of Food Science and Technology</em> lists them as caproic (C6), caprylic (C8), capric (C10) and lauric (C12) acid. Most of the fat in everyday food has longer chains than that.</p>
@@ -1150,7 +1194,7 @@ G_HOWTO = guide_page("How-to", "How to make instant MCT coffee (one scoop, 30 se
   ])
 
 G_THEANINE = guide_page("L-theanine", "L-theanine and caffeine: what the pairing is, and what the label means",
-  "L-theanine is an amino acid found naturally in tea leaves, and it's often added alongside caffeine because many people describe the combination as smoother than caffeine alone. On a label, &ldquo;caffeine + L-theanine&rdquo; means each serving contains both; the Supplement Facts panel says how much. The research on the pairing is real but small, so treat it as something to try, not a promise.",
+  "L-theanine is an amino acid found naturally in tea leaves, and it's often added alongside caffeine because many people describe the combination as smoother than caffeine alone. On a label, &ldquo;caffeine + L-theanine&rdquo; means each serving contains both; the Supplement Facts panel says how much. The research is real but small: something to try, not a promise.",
   """
   <h2>What L-theanine is</h2>
   <p>L-theanine is an amino acid that occurs naturally in tea leaves. It's one reason a cup of tea can feel different from a cup of coffee with similar caffeine. A 2022 review in <em>Frontiers in Nutrition</em> reported average contents of about 6.6 mg per gram in green tea, 6.3 in white, 6.1 in oolong and 5.1 in black tea across 37 varieties. On its own it's sold as a supplement; more often you'll see it next to caffeine.</p>
@@ -1235,6 +1279,299 @@ G_ICED = guide_page("Recipes", "How to make iced instant coffee without clumps (
   <ul class="clean"><li>Make coffee ice cubes from leftover coffee so melting ice doesn't water it down.</li><li>Sweeten while the base is hot: syrup and honey mix in better before the ice.</li><li>A handheld milk frother makes cold foam from cold milk in about 20 seconds.</li></ul>
   """,
   fn="iced-instant-coffee-recipes.html")
+
+# ---------- Cluster A: instant coffee and caffeine basics (Phase 6) ----------
+SRC_USDA_INST = ('U.S. Department of Agriculture, FoodData Central. <a href="https://fdc.nal.usda.gov/food-details/174130/nutrients" rel="noopener" target="_blank">'
+                 'Beverages, coffee, instant, regular, prepared with water</a> (FDC ID 174130, SR Legacy): caffeine 26 mg per 100 g.')
+SRC_USDA_BREW = ('U.S. Department of Agriculture, FoodData Central. <a href="https://fdc.nal.usda.gov/food-details/171890/nutrients" rel="noopener" target="_blank">'
+                 'Beverages, coffee, brewed, prepared with tap water</a> (FDC ID 171890, SR Legacy): caffeine 40 mg per 100 g.')
+SRC_USDA_POWDER = ('U.S. Department of Agriculture, FoodData Central. <a href="https://fdc.nal.usda.gov/food-details/171893/nutrients" rel="noopener" target="_blank">'
+                   'Beverages, coffee, instant, regular, powder</a> (FDC ID 171893, SR Legacy): caffeine 3,142 mg per 100 g; 1 tsp listed as 1 g.')
+
+G_CAF_INSTANT = guide_page("Caffeine", "How much caffeine is in instant coffee?",
+  "USDA data puts a cup of instant coffee made with water at about 26 mg of caffeine per 100 g, roughly 62 mg in an 8 fl oz cup, versus about 95 mg brewed. The real number depends mostly on how much powder you use, so the label's serving is the figure that counts.",
+  """
+  <h2>The numbers, side by side</h2>
+  <div class="tbl"><table>
+    <tr><th>Drink (USDA FoodData Central)</th><th>Caffeine per 100 g</th><th>About per 8 fl oz cup</th></tr>
+    <tr><td>Instant coffee, prepared with water</td><td>26 mg</td><td>~62 mg</td></tr>
+    <tr><td>Brewed coffee, prepared with tap water</td><td>40 mg</td><td>~95 mg</td></tr>
+    <tr><td>Instant coffee powder, dry</td><td>3,142 mg</td><td>~31 mg per level teaspoon (1 g)</td></tr>
+  </table></div>
+  <p>The per-cup column multiplies USDA's per-100 g values by the mass of an 8 fl oz cup (about 237 g). USDA's own serving for prepared instant coffee is 6 fl oz, which works out to roughly 47 mg.</p>
+  <h2>Why instant usually has less</h2>
+  <p>Instant coffee is brewed coffee that has been dried to a powder. A cup made from it contains whatever caffeine is in the amount of powder you stir in. The usual one-teaspoon cup uses less coffee than a typical drip cup, which is why the average comes out lower. Use two teaspoons and you're in brewed-coffee territory.</p>
+  <h2>What changes the number</h2>
+  <ul class="clean">
+    <li><strong>How much powder.</strong> The single biggest factor. Caffeine scales with the scoop, not the water.</li>
+    <li><strong>The beans.</strong> Robusta beans carry more caffeine than arabica, and many instant coffees use some robusta.</li>
+    <li><strong>Added caffeine.</strong> Some instant coffees and blends add caffeine or caffeine-containing ingredients. Then the label, not the averages above, is the only reliable figure.</li>
+    <li><strong>Decaf.</strong> Decaffeinated instant still contains a few milligrams per cup.</li>
+  </ul>
+  <h2>How it fits a day</h2>
+  <p>For most healthy adults, the FDA cites 400 mg a day as an amount not generally associated with negative effects, and lists a 12 fl oz cup of regular brewed coffee at roughly 113&ndash;247 mg. Sensitivity varies, and pregnancy, medication and some conditions change the picture; ask your physician if that's you.</p>
+  <h2>What about ours?</h2>
+  <p>Ours is an instant coffee with natural caffeine, L-theanine and MCT powder from coconut. A serving is one level scoop in 8 fl oz of hot water and has about as much caffeine as a strong cup of coffee; the exact amount per serving is on the Supplement Facts panel. Count it like any other coffee. <a href="/ingredients.html">Every ingredient is listed here</a>.</p>
+  """,
+  fn="how-much-caffeine-in-instant-coffee.html", img="flatlay-right",
+  faq=[
+    ("Does instant coffee have less caffeine than brewed?", "Usually, per cup, because a typical instant cup uses less coffee. USDA's averages are about 62 mg for an 8 fl oz instant cup and about 95 mg for brewed. More powder means more caffeine."),
+    ("How much caffeine is in a teaspoon of instant coffee?", "USDA lists dry instant coffee powder at 3,142 mg per 100 g and a teaspoon at 1 g, so roughly 31 mg per level teaspoon. Heaped teaspoons hold more."),
+    ("Is decaf instant coffee caffeine-free?", "No. Decaffeination removes most caffeine but not all, so a cup still contains a small amount."),
+    ("Does adding milk reduce the caffeine?", "No. Milk dilutes the taste, not the amount of caffeine in the cup."),
+    ("How do I know the caffeine in a functional instant coffee?", "Read the Supplement Facts or Nutrition Facts panel. Products with added caffeine list it; averages for plain instant coffee don't apply to them."),
+  ],
+  sources=[SRC_USDA_INST, SRC_USDA_BREW, SRC_USDA_POWDER, SRC_FDA])
+
+G_TASTE = guide_page("How-to", "How to make instant coffee taste better",
+  "Use water just off the boil rather than at a rolling boil, measure the powder instead of guessing, and dissolve it in a splash of water before topping up. Then adjust one thing at a time: a little less water for body, a pinch of salt for bitterness, milk or creamer for roundness, and keep the jar sealed and dry.",
+  """
+  <h2>1. Water: hot, not furious</h2>
+  <p>Instant coffee dissolves in any hot water, but many people find water a minute off the boil tastes rounder than water poured at a rolling boil. Try both side by side once. Lukewarm water is the one to avoid: the powder dissolves slowly and leaves grains.</p>
+  <h2>2. Measure the powder</h2>
+  <p>Most "instant tastes bad" complaints are a ratio problem. Too little powder tastes thin and sour; too much tastes harsh. Start with the serving size on the jar or bag in 8 fl oz of water, then change the water, not the scoop, until it tastes right. Less water makes a bolder cup without adding more coffee or caffeine.</p>
+  <h2>3. Make a paste first</h2>
+  <p>Put the powder in the mug, add a tablespoon of water, and stir it into a smooth paste before pouring the rest. It dissolves completely and the texture is smoother. This is the same trick that keeps <a href="/iced-instant-coffee-recipes.html">iced instant coffee</a> from clumping.</p>
+  <h2>4. Fix bitterness without sugar</h2>
+  <ul class="clean">
+    <li><strong>A tiny pinch of salt</strong> tames bitterness. You shouldn't taste the salt.</li>
+    <li><strong>Milk or creamer</strong> rounds out the edges; frothed milk makes it feel like a <a href="/instant-coffee-latte.html">latte</a>.</li>
+    <li><strong>Cinnamon or cocoa</strong> adds aroma; see <a href="/cinnamon-instant-coffee.html">cinnamon coffee</a> and the <a href="/instant-coffee-mocha.html">mocha</a>.</li>
+  </ul>
+  <h2>5. Keep the jar dry</h2>
+  <p>Instant coffee pulls moisture from the air. A damp spoon or an open lid turns it into a sticky lump and dulls the flavor. Close it after every scoop and use a dry spoon. More in <a href="/does-instant-coffee-go-bad.html">does instant coffee go bad?</a></p>
+  <h2>6. Try it cold</h2>
+  <p>Some instant coffees taste better iced than hot, because cold mutes the harsher notes. Dissolve the powder in a little hot water, pour over ice and top with cold water or milk.</p>
+  """,
+  fn="how-to-make-instant-coffee-taste-better.html", img="kitchen-pour-top",
+  faq=[
+    ("Should I use boiling water for instant coffee?", "Hot water just off the boil works well. Many people find a rolling boil tastes harsher; lukewarm water leaves grains. Try both and keep what you prefer."),
+    ("Why does my instant coffee taste sour?", "Usually too much water for the amount of powder. Use the label's serving and a little less water."),
+    ("Does a pinch of salt really help?", "A very small pinch can soften bitterness. If you can taste the salt, it's too much."),
+    ("Can I make instant coffee with milk instead of water?", "Yes. Dissolve the powder in a splash of hot water first, then add hot or cold milk."),
+  ])
+
+G_SHELF = guide_page("Storage", "Does instant coffee go bad?",
+  "Instant coffee is a dry powder, so it doesn't spoil the way fresh food does, but it does go stale and it can be ruined by moisture. Sealed and dry, it keeps its flavor well past opening; once damp, it clumps and loses aroma, and any sign of mold means throw it out.",
+  """
+  <h2>Stale vs. spoiled</h2>
+  <p>Two different things happen to old instant coffee. <strong>Stale</strong> is the slow one: aroma fades and the cup tastes flat. It's safe, just less pleasant. <strong>Spoiled</strong> needs moisture: once water gets in, the powder cakes, and in a damp container mold can grow. Stale is a taste problem; mold is a throw-it-out problem.</p>
+  <h2>What the date on the jar means</h2>
+  <p>On most packaged foods, a "best by" or "best if used by" date is the maker's estimate of peak quality, not a safety cut-off. A sealed, dry jar past that date usually just tastes a little flatter. For supplements and functional coffees, follow the date on the label.</p>
+  <h2>Signs it's past its best</h2>
+  <ul class="clean">
+    <li><strong>Little smell</strong> when you open it. Flavor follows aroma.</li>
+    <li><strong>Hard clumps</strong> or a solid cake: moisture got in. If it's dry and smells normal, you can break it up and use it, but it won't taste its best.</li>
+    <li><strong>Fuzzy spots, a musty or sour smell, or discoloration:</strong> discard it.</li>
+  </ul>
+  <h2>How to store it</h2>
+  <ul class="clean">
+    <li>Close the lid or reseal the bag after every scoop.</li>
+    <li>Use a dry spoon. A wet spoon is the most common way water gets in.</li>
+    <li>Keep it in a cupboard away from the kettle, stove and dishwasher steam.</li>
+    <li>Skip the fridge: opening a cold container in a warm kitchen draws condensation into it.</li>
+  </ul>
+  <h2>Clumped powder: still usable?</h2>
+  <p>If the clumps are dry, smell like coffee and show no spots, break them up with a spoon or dissolve them in hot water; they'll dissolve, just more slowly. If you're unsure, throw it out. A month's bag is cheaper than a stomach ache.</p>
+  <h2>Ours</h2>
+  <p>Ours comes in a resealable bag with 30 servings, one scoop a morning, so a bag is used within a month. Press the air out and close the zip after each scoop. <a href="/how-to-make-mct-instant-coffee.html">How to make it</a>.</p>
+  """,
+  fn="does-instant-coffee-go-bad.html", img="scoop-top",
+  faq=[
+    ("Can old instant coffee make you sick?", "Dry, sealed instant coffee that's just old usually only tastes flat. Moisture is what makes it unsafe: discard any powder with mold, a musty smell or discoloration."),
+    ("Should I keep instant coffee in the freezer?", "It isn't necessary, and opening a cold container lets condensation in. A dry cupboard is better for a jar you use daily."),
+    ("Why did my instant coffee turn into a solid block?", "It absorbed moisture, from humid air, a damp spoon or a loose lid. Dry blocks can be broken up; damp or spotted ones should be thrown out."),
+    ("How long does an opened bag last?", "Sealed and dry, it keeps good flavor for weeks to months. A 30-serving bag used daily is finished in a month."),
+  ])
+
+G_TRAVEL = guide_page("How-to", "Instant coffee for travel, camping and dorms",
+  "Instant coffee is the easiest good cup away from a kitchen: all you need is hot water and something to stir with. Pack pre-measured servings in a small airtight container, bring a collapsible cup or insulated mug, and use a kettle, stove, campsite pot or the hot-water tap where it's allowed.",
+  """
+  <h2>What to pack</h2>
+  <ul class="clean">
+    <li><strong>The coffee</strong>, pre-measured: one serving per small zip bag or a pill organizer with one serving per compartment. Faster than scooping in a tent or a hotel room.</li>
+    <li><strong>A cup that holds heat:</strong> an insulated travel mug or a collapsible silicone cup.</li>
+    <li><strong>A spoon or a stick</strong>, or shake it in a lidded bottle once the water has cooled a little.</li>
+    <li><strong>Extras:</strong> shelf-stable creamer cups or powdered milk, sugar packets, a pinch of cinnamon.</li>
+  </ul>
+  <h2>Getting hot water</h2>
+  <div class="tbl"><table>
+    <tr><th>Where</th><th>Hot water</th></tr>
+    <tr><td>Hotel</td><td>Room kettle or coffee maker run with water only; breakfast-bar hot water.</td></tr>
+    <tr><td>Dorm</td><td>An electric kettle if your hall allows one; otherwise the dining hall or a shared kitchen.</td></tr>
+    <tr><td>Camping</td><td>A pot or kettle on the camp stove. Let it stop boiling before pouring into a plastic cup.</td></tr>
+    <tr><td>Office</td><td>The hot-water tap or kettle; many water coolers have a hot side.</td></tr>
+    <tr><td>Flights</td><td>Ask the crew for hot water; bring your own cup.</td></tr>
+  </table></div>
+  <h2>No hot water at all?</h2>
+  <p>Instant coffee does dissolve in cold water, just slowly. Shake it hard in a sealed bottle with cold water for a minute, or let it sit for a few minutes and shake again. It's a different drink, closer to a quick cold brew, but it works on a trail.</p>
+  <h2>Flying with it</h2>
+  <p>Dry coffee powder is fine in checked bags. For carry-on, powders are generally allowed in the US, but large amounts may be pulled for extra screening; keep it in a clear bag and check your airline and the TSA's current rules before you go.</p>
+  <h2>Why a dorm runs on it</h2>
+  <p>No machine to store, no grounds to clean, no pods to buy. A bag of 30 servings fits in a desk drawer and a kettle does the rest. <a href="/iced-instant-coffee-recipe.html">Iced</a> works too, with ice from the dining hall.</p>
+  <h2>Ours on the road</h2>
+  <p>Ours is one level scoop in 8 fl oz of hot water, with the MCT powder already in it, so there's no oil or blender to pack. It contains caffeine; count it like your usual cup. <a href="/shop.html">See the coffee</a>.</p>
+  """,
+  fn="instant-coffee-for-travel-camping-dorm.html", img="desk-top",
+  faq=[
+    ("Can you make instant coffee with cold water?", "Yes, slowly. Shake it hard in a sealed bottle and give it a few minutes. Hot water is faster and dissolves it completely."),
+    ("Can I bring instant coffee on a plane?", "Dry coffee is fine in checked bags. In carry-on, powders are generally allowed in the US but may get extra screening; check the TSA's current rules."),
+    ("What's the best way to carry single servings?", "Small zip bags or a pill organizer with one serving per compartment, so you never measure on the move."),
+    ("Is a hotel coffee maker safe to use for hot water?", "Run it once with water only to rinse it, then use the second batch."),
+  ])
+
+G_MCTPOWDER = guide_page("MCT", "What is MCT powder? MCT powder vs. MCT oil",
+  "MCT powder is MCT oil, the medium-chain fats separated from coconut or palm kernel oil, dried onto a carrier such as acacia fiber, tapioca starch or a milk protein so it becomes a dry powder that stirs into drinks. You get the same kind of fats as the oil, in a form that dissolves in water instead of floating.",
+  """
+  <h2>What's in a powder</h2>
+  <p>Two parts: the MCT oil and the carrier. The oil supplies the medium-chain triglycerides (fatty acids six to twelve carbons long, usually labeled C8 and C10). The carrier is what turns a liquid fat into a free-flowing powder. Manufacturers typically spray-dry an emulsion of the oil with the carrier, leaving tiny droplets of oil coated in the carrier.</p>
+  <h2>Common carriers</h2>
+  <div class="tbl"><table>
+    <tr><th>Carrier</th><th>What it is</th><th>Worth knowing</th></tr>
+    <tr><td>Acacia gum (gum arabic)</td><td>A plant fiber from the acacia tree</td><td>Plant-based; listed as a fiber</td></tr>
+    <tr><td>Tapioca or corn maltodextrin</td><td>A starch-derived powder</td><td>Plant-based; a carbohydrate</td></tr>
+    <tr><td>Sodium caseinate or milk powder</td><td>Milk protein</td><td>Contains milk; check if you avoid dairy</td></tr>
+  </table></div>
+  <p>The label lists the carrier, so that's where to look if dairy, starch or fiber matters to you.</p>
+  <h2>Powder vs. oil</h2>
+  <div class="tbl"><table>
+    <tr><th></th><th>MCT oil</th><th>MCT powder</th></tr>
+    <tr><td>Form</td><td>Clear liquid</td><td>Dry powder</td></tr>
+    <tr><td>In coffee</td><td>Floats unless blended</td><td>Stirs in with a spoon</td></tr>
+    <tr><td>MCT per gram</td><td>All of it is MCT</td><td>Less: part of each gram is carrier</td></tr>
+    <tr><td>Travel</td><td>Can leak</td><td>Packs like any powder</td></tr>
+    <tr><td>Texture</td><td>Rich, oily if not blended</td><td>Smooth, lightly creamy</td></tr>
+  </table></div>
+  <h2>Reading a powder label</h2>
+  <ul class="clean">
+    <li>Check how much of a serving is MCT and how much is carrier; labels and serving sizes differ.</li>
+    <li>Look for the chain lengths (C8, C10) if the maker lists them.</li>
+    <li>Check the carrier against anything you avoid, such as milk.</li>
+    <li>It's a fat: the panel shows what a serving adds.</li>
+  </ul>
+  <h2>MCT powder in coffee</h2>
+  <p>Stirred into hot coffee, MCT powder gives a creamier body without milk, which is why it shows up in instant coffees. More on that in <a href="/what-is-mct-coffee.html">what is MCT coffee?</a> and <a href="/mct-coffee-vs-butter-coffee.html">MCT coffee vs. butter coffee</a>. In ours, MCT powder from coconut is the first ingredient, alongside natural caffeine and L-theanine. <a href="/ingredients.html">See every ingredient</a>.</p>
+  """,
+  fn="what-is-mct-powder.html", img="breakfast-top",
+  faq=[
+    ("Is MCT powder the same as MCT oil?", "It contains MCT oil, dried onto a carrier. Gram for gram it has less MCT than the oil, because part of the powder is the carrier."),
+    ("What is MCT powder made from?", "MCT oil, usually from coconut or palm kernel oil, plus a carrier such as acacia gum, tapioca maltodextrin or a milk protein."),
+    ("Is MCT powder dairy-free?", "Only if its carrier is. Powders made with sodium caseinate or milk powder contain milk; the label says which carrier is used."),
+    ("Do I need a blender for MCT powder?", "No. It's made to disperse in water and stirs into hot coffee with a spoon."),
+    ("Does MCT powder have caffeine?", "Not on its own. A coffee that contains MCT powder has whatever caffeine the coffee has."),
+  ],
+  sources=[SRC_MCT])
+
+G_NATCAF = guide_page("Caffeine", "Natural caffeine vs. synthetic caffeine: what's the difference?",
+  "Natural and synthetic caffeine are the same molecule, C8H10N4O2, and your body handles them the same way. The difference is where it comes from: natural caffeine is extracted from plants such as coffee beans, tea leaves or guarana, while synthetic caffeine is made in a factory. The word on a label tells you the source, not the strength.",
+  """
+  <h2>Same molecule, different origin</h2>
+  <p>Caffeine is caffeine. Pure caffeine from a coffee bean and pure caffeine made by chemical synthesis have the same structure and the same effect per milligram. What differs is the supply chain and what comes along with it: a cup of coffee or tea delivers caffeine together with everything else in the plant, while an isolated ingredient delivers caffeine alone.</p>
+  <h2>Where natural caffeine comes from</h2>
+  <ul class="clean">
+    <li><strong>Coffee beans</strong> (including green, unroasted coffee extract)</li>
+    <li><strong>Tea leaves</strong> (black, green, matcha)</li>
+    <li><strong>Guarana</strong>, yerba mat&eacute;, cacao and kola nut</li>
+  </ul>
+  <p>"Natural caffeine from coffee" or "from green coffee beans" on a label names the plant it was taken from.</p>
+  <h2>Why synthetic caffeine is common</h2>
+  <p>Synthetic caffeine is inexpensive and consistent, so many soft drinks and energy products use it. Labels often just say "caffeine". Neither kind is safer per milligram; the amount is what matters.</p>
+  <h2>What to look for on a label</h2>
+  <ul class="clean">
+    <li><strong>The amount per serving.</strong> This is the number to compare across products.</li>
+    <li><strong>The source</strong>, if the maker names it.</li>
+    <li><strong>Every caffeine-containing ingredient.</strong> Guarana, green coffee extract, yerba mat&eacute; and tea extracts all add caffeine, sometimes on top of plain caffeine.</li>
+  </ul>
+  <h2>How much is a lot?</h2>
+  <p>For most healthy adults, the FDA cites 400 mg a day as an amount not generally associated with negative effects. It also warns that pure and highly concentrated caffeine products can be dangerous, because a tiny amount of powder can hold a very large dose. Count every source across the day: coffee, tea, soda, chocolate and supplements.</p>
+  <h2>Ours</h2>
+  <p>Ours lists natural caffeine, alongside L-theanine and MCT powder from coconut. One level scoop is a serving, about as much caffeine as a strong cup of coffee; the exact amount is on the Supplement Facts panel. <a href="/l-theanine-and-caffeine.html">Why L-theanine is paired with caffeine</a>.</p>
+  """,
+  fn="natural-caffeine-vs-synthetic.html", img="pour-top",
+  faq=[
+    ("Is natural caffeine better than synthetic?", "They're the same molecule and act the same way per milligram. 'Natural' describes the source, not the strength or safety."),
+    ("Does natural caffeine wear off differently?", "Caffeine is caffeine once it's in your body. How a drink feels can differ because of what else is in it and how fast you drink it."),
+    ("How can I tell if caffeine is synthetic?", "Labels that name a plant source (coffee, tea, guarana) indicate natural caffeine. A plain 'caffeine' listing doesn't say either way."),
+    ("Does guarana have caffeine?", "Yes. Guarana seeds are a natural source of caffeine, so a product with guarana has more caffeine than its 'caffeine' line alone suggests."),
+  ],
+  sources=[SRC_FDA])
+
+G_RATIO = guide_page("L-theanine", "Caffeine and L-theanine ratio: what the studies used",
+  "In the studies summarized by a 2021 systematic review, the combinations were 160 mg of caffeine with 200 mg of L-theanine and 150 mg of caffeine with 250 mg of L-theanine: about 1.25 to 1.7 parts L-theanine per part caffeine. The studies were small: these are what was tested, not a recommended dose.",
+  """
+  <h2>The doses in the review</h2>
+  <p>A 2021 systematic review in <em>Cureus</em> (Sohail et al.) summarized five studies of caffeine and L-theanine. The ones that gave both as measured single doses used:</p>
+  <div class="tbl"><table>
+    <tr><th>Study</th><th>Caffeine</th><th>L-theanine</th><th>People</th></tr>
+    <tr><td>Kahathuduwa et al., 2017</td><td>160 mg</td><td>200 mg</td><td>20 healthy adult men</td></tr>
+    <tr><td>Kahathuduwa et al., 2018</td><td>160 mg</td><td>200 mg</td><td>9 healthy adult men</td></tr>
+    <tr><td>Haskell et al., 2008</td><td>150 mg</td><td>250 mg</td><td>small group of adults</td></tr>
+  </table></div>
+  <p>The review notes the 200 mg L-theanine dose in the 2017 study was about what you'd get from eight cups of black tea. The other two studies in the review looked at children with ADHD (five boys) and at daily matcha capsules, so they don't give a simple coffee-style ratio.</p>
+  <h2>What the ratio means on a label</h2>
+  <p>To find a product's ratio, divide the L-theanine milligrams by the caffeine milligrams on the Supplement Facts panel. A product with 100 mg of L-theanine and 100 mg of caffeine is 1:1; one with 200 mg and 100 mg is 2:1. If ingredients sit inside a proprietary blend, the label may show only the blend's total, and you can't work out the ratio.</p>
+  <h2>What the studies don't tell you</h2>
+  <ul class="clean">
+    <li>They were tiny, and several included only men.</li>
+    <li>They measured short-term lab tasks (reaction time, attention tests), not everyday life.</li>
+    <li>They don't establish a "best" ratio. Nobody compared many ratios head to head.</li>
+  </ul>
+  <p>So the honest answer is: these are the amounts researchers have tested, and that's all they are. This page is not dosing advice; the label's serving is the amount to use.</p>
+  <h2>Counting caffeine</h2>
+  <p>L-theanine doesn't reduce caffeine. For most healthy adults the FDA cites 400 mg of caffeine a day as an amount not generally associated with negative effects, and sensitivity varies. Ask a physician first if you're pregnant, nursing, take medication or have a medical condition.</p>
+  <h2>Ours</h2>
+  <p>Ours lists natural caffeine and L-theanine together with MCT powder from coconut; the amounts per scoop are on the Supplement Facts panel. More background in <a href="/l-theanine-and-caffeine.html">L-theanine and caffeine: reading the label</a>.</p>
+  """,
+  fn="caffeine-and-l-theanine-ratio.html", img="desk-top",
+  faq=[
+    ("What is the best caffeine to L-theanine ratio?", "No study has established one. The combinations in a 2021 review were 160 mg caffeine with 200 mg L-theanine, and 150 mg caffeine with 250 mg L-theanine."),
+    ("Is 1:2 caffeine to L-theanine common?", "It's a ratio you'll see on product labels. The studies summarized in the 2021 review used about 1:1.25 to 1:1.7."),
+    ("How do I work out the ratio of a product?", "Divide the L-theanine milligrams by the caffeine milligrams on the label. A proprietary blend may hide the individual amounts."),
+    ("Does L-theanine cancel out caffeine?", "No. It doesn't lower the amount of caffeine in a serving; count it like any other coffee."),
+  ],
+  sources=[SRC_SOHAIL, SRC_FDA])
+
+G_COST = guide_page("Cost", "Instant coffee vs. drip coffee: cost per cup",
+  "Cost per cup is the price of the coffee divided by the number of cups it makes. Do that for each option and add the extras you'd actually use: filters, pods, milk, a café detour. Plain instant coffee is usually the cheapest per cup; a café latte the most expensive; drip at home sits in between, depending on the beans.",
+  """
+  <h2>The formula</h2>
+  <p><strong>Cost per cup = price paid &divide; cups it makes.</strong> For instant coffee and pods, the label tells you the servings. For ground coffee, divide the grams in the bag by the grams you use per cup (many people use around 10&ndash;15 g for an 8 fl oz cup; weigh yours once to know).</p>
+  <h2>Work out your own</h2>
+  <div class="calc card" style="padding:20px">
+    <label for="c-price">Price you pay ($)</label><input id="c-price" type="number" min="0" step="0.01" inputmode="decimal" value="69.95">
+    <label for="c-cups">Cups it makes</label><input id="c-cups" type="number" min="1" step="1" inputmode="numeric" value="30">
+    <label for="c-day">Cups a day</label><input id="c-day" type="number" min="0" step="0.5" inputmode="decimal" value="1">
+    <p class="calc-out" role="status" aria-live="polite" style="margin:14px 0 0"></p>
+    <p class="fine" style="margin:8px 0 0">Prefilled with our Subscribe &amp; Save price ($69.95 for 30 servings) before shipping and tax. Change the numbers to compare anything.</p>
+  </div>
+  <script>
+  (function(){
+    var p=document.getElementById('c-price'), c=document.getElementById('c-cups'), d=document.getElementById('c-day'), o=document.querySelector('.calc-out');
+    function f(){ var pr=parseFloat(p.value)||0, cu=parseFloat(c.value)||0, da=parseFloat(d.value)||0;
+      if(!cu){ o.textContent='Enter how many cups it makes.'; return; }
+      var per=pr/cu; o.innerHTML='<b>$'+per.toFixed(2)+' a cup</b> &middot; about $'+(per*da*30).toFixed(2)+' for 30 days at '+da+' a day'; }
+    [p,c,d].forEach(function(e){ e.addEventListener('input',f); }); f();
+  })();
+  </script>
+  <h2>Don't forget the extras</h2>
+  <ul class="clean">
+    <li><strong>Drip:</strong> filters, the machine, descaling, and the second pot you pour away.</li>
+    <li><strong>Pods:</strong> the machine, and a per-pod price that's fixed by the brand.</li>
+    <li><strong>Caf&eacute;:</strong> tips, the drive, and the time in line.</li>
+    <li><strong>Any of them:</strong> milk, creamer and sugar.</li>
+  </ul>
+  <h2>Shipping and subscriptions</h2>
+  <p>If you buy online, add shipping to the price before you divide, and compare one-time and subscription prices on the same basis. Ours is $69.95 a month on Subscribe &amp; Save or $79.95 for one bag, 30 servings either way, plus shipping and tax at checkout.</p>
+  <h2>Cost isn't the only number</h2>
+  <p>A cheaper cup you don't enjoy isn't a saving. Time matters too: instant takes about 30 seconds and no clean-up. Pick the cup you'll actually make. <a href="/how-to-make-instant-coffee-taste-better.html">How to make instant coffee taste better</a>.</p>
+  """,
+  fn="instant-coffee-vs-drip-cost-per-cup.html", img="kitchen-pour-top",
+  faq=[
+    ("How do I calculate cost per cup of coffee?", "Divide what you paid by the number of cups it makes. For ground coffee, cups = the bag's grams divided by the grams you use per cup."),
+    ("Is instant coffee cheaper than brewing?", "Plain instant coffee usually costs less per cup than ground coffee or pods. Specialty and functional instant coffees can cost more, so run the numbers."),
+    ("Should I include shipping in cost per cup?", "Yes, if you pay it. Add it to the price before dividing."),
+    ("How many grams of ground coffee per cup?", "Many people use around 10 to 15 g for an 8 fl oz cup. Weigh your usual scoop once to get your own number."),
+  ])
 
 # ---------- RECIPES (programmatic: one dict per drink -> page + Recipe schema) ----------
 # Search intent here is generic ("iced instant coffee recipe"), so every recipe works with any
@@ -1500,18 +1837,15 @@ RECIPES_INDEX = """
 </div></section>
 """
 
+def _guide_cards():
+    return "".join(f'\n    <a href="/{f}"><p class="eyebrow">{GUIDE_BLURBS[f][0]}</p><h2 style="font-size:21px;margin:6px 0">{t}</h2><p>{GUIDE_BLURBS[f][1]}</p></a>' for f, t in GUIDE_LINKS.items())
+
 GUIDES_INDEX = """
 <section style="padding-top:36px"><div class="wrap">
   <p class="eyebrow">Guides &amp; recipes</p>
   <h1 style="font-size:clamp(32px,4.4vw,48px)">Better mornings, plainly explained.</h1>
   <p class="lead">Short guides on what's in the cup and how to make it the way you like. Each one starts with the answer.</p>
-  <div class="glist" style="margin-top:22px">
-    <a href="/what-is-mct-coffee.html"><p class="eyebrow">MCT coffee</p><h2 style="font-size:21px;margin:6px 0">What is MCT coffee?</h2><p>What MCTs are, where they come from, and how oil and powder differ.</p></a>
-    <a href="/how-to-make-mct-instant-coffee.html"><p class="eyebrow">How-to</p><h2 style="font-size:21px;margin:6px 0">How to make instant MCT coffee</h2><p>One scoop, hot water, 30 seconds. Plus iced and latte-style.</p></a>
-    <a href="/l-theanine-and-caffeine.html"><p class="eyebrow">L-theanine</p><h2 style="font-size:21px;margin:6px 0">L-theanine and caffeine</h2><p>What the pairing is, how to read the label, and what the research does and doesn't say.</p></a>
-    <a href="/mct-coffee-vs-butter-coffee.html"><p class="eyebrow">MCT coffee</p><h2 style="font-size:21px;margin:6px 0">MCT coffee vs. butter coffee</h2><p>Blender and butter, or a powder you stir in. How they compare.</p></a>
-    <a href="/iced-instant-coffee-recipes.html"><p class="eyebrow">Recipes</p><h2 style="font-size:21px;margin:6px 0">Iced instant coffee without clumps</h2><p>One trick and three recipes worth keeping.</p></a>
-  </div>
+  <div class="glist" style="margin-top:22px">""" + _guide_cards() + """</div>
   <h2 style="margin-top:34px">Recipes</h2>
   <p>Twelve drinks made with instant coffee, hot, iced and blended. <a href="/recipes.html">All recipes &rarr;</a></p>
   <ul class="clean rlist">""" + "".join(f'<li><a href="/{r["slug"]}.html">{r["name"]}</a></li>' for r in RECIPES) + """</ul>
@@ -1555,6 +1889,14 @@ PAGES = {
   "mct-coffee-vs-butter-coffee.html": ("MCT Coffee vs. Butter Coffee, Compared | Morning Upgrade", "Butter coffee is coffee blended with butter and usually MCT oil; MCT coffee adds MCT oil or powder, no butter. How prep, texture and travel compare.", G_MCT, og_img("pour-top"), False),
   "l-theanine-and-caffeine.html": ("L-Theanine and Caffeine: Reading the Label | Morning Upgrade", "L-theanine is the amino acid in tea leaves, often paired with caffeine. What the pairing is, how to read the label, and what small studies found.", G_THEANINE, og_img("desk-top"), False),
   "iced-instant-coffee-recipes.html": ("Iced Instant Coffee, No Clumps: 3 Recipes | Morning Upgrade", "Dissolve hot, then go cold: the trick for smooth iced instant coffee, plus iced classic, iced oat vanilla and a blended frappé.", G_ICED, og_img("patio-left"), False),
+  "how-much-caffeine-in-instant-coffee.html": ("How Much Caffeine Is in Instant Coffee? | Morning Upgrade", "USDA data: about 62 mg in an 8 fl oz cup of instant coffee vs. about 95 mg brewed. What changes the number, and how to read a label.", G_CAF_INSTANT, og_img("flatlay-right"), False),
+  "how-to-make-instant-coffee-taste-better.html": ("How to Make Instant Coffee Taste Better | Morning Upgrade", "Six fixes for better instant coffee: water just off the boil, the right ratio, a paste first, a pinch of salt, milk, and keeping the jar dry.", G_TASTE, og_img("kitchen-pour-top"), False),
+  "does-instant-coffee-go-bad.html": ("Does Instant Coffee Go Bad? Storage Tips | Morning Upgrade", "Instant coffee goes stale rather than spoiling, but moisture can ruin it. What the date means, signs it's past its best, and how to store it.", G_SHELF, og_img("scoop-top"), False),
+  "instant-coffee-for-travel-camping-dorm.html": ("Instant Coffee for Travel, Camping & Dorms | Morning Upgrade", "How to make good instant coffee away from a kitchen: what to pack, where to find hot water, cold-water backup and flying with coffee powder.", G_TRAVEL, og_img("desk-top"), False),
+  "what-is-mct-powder.html": ("What Is MCT Powder? Powder vs. MCT Oil | Morning Upgrade", "MCT powder is MCT oil dried onto a carrier like acacia fiber, tapioca or milk protein. What's in it, how it compares to oil, and what to check.", G_MCTPOWDER, og_img("breakfast-top"), False),
+  "natural-caffeine-vs-synthetic.html": ("Natural vs. Synthetic Caffeine Explained | Morning Upgrade", "Natural and synthetic caffeine are the same molecule; the label word tells you the source. Where each comes from and what to check on a label.", G_NATCAF, og_img("pour-top"), False),
+  "caffeine-and-l-theanine-ratio.html": ("Caffeine and L-Theanine Ratio in Studies | Morning Upgrade", "The caffeine and L-theanine doses small studies used, how to work out a product's ratio from its label, and what the research can't tell you.", G_RATIO, og_img("desk-top"), False),
+  "instant-coffee-vs-drip-cost-per-cup.html": ("Instant vs. Drip Coffee: Cost per Cup | Morning Upgrade", "How to work out cost per cup for instant, drip, pods and café coffee, with a calculator and the extras people forget to count.", G_COST, og_img("kitchen-pour-top"), False),
 }
 
 # Sticky bar: checkout on the buy pages; a link to the shop on guides and the 404; none after a

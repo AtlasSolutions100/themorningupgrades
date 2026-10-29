@@ -125,12 +125,47 @@ def recipe_tests(b, base):
         check(len(_h.unescape(re.search(r"<title>(.*?)</title>", h).group(1))) <= 60, f"{fn}: title <= 60 chars")
 
 
+def guide_tests(b, base):
+    import os, re, html as _h
+    root = os.path.join(os.path.dirname(__file__), "..")
+    src = open(os.path.join(root, "build_site.py")).read()
+    block = src[src.index("GUIDE_META = {"):]
+    guides = re.findall(r'"([a-z0-9-]+\.html)":', block[:block.index("\n}\n")])
+    idx = open(os.path.join(root, "guides.html")).read()
+    check(len(guides) >= 13, f"{len(guides)} guides")
+    for fn in guides:
+        h = open(os.path.join(root, fn)).read()
+        t = _h.unescape(re.search(r"<title>(.*?)</title>", h).group(1))
+        d = _h.unescape(re.search(r'<meta name="description" content="(.*?)"', h).group(1))
+        lede = _h.unescape(re.sub("<[^>]+>", "", re.search(r'<p class="lead answer">(.*?)</p>', h, re.S).group(1)))
+        check(len(t) <= 60 and len(d) <= 155, f"{fn}: title {len(t)} <= 60, description {len(d)} <= 155")
+        if fn in ("iced-instant-coffee-recipes.html",):
+            continue
+        check(len(lede.split()) <= 62, f"{fn}: answer lede {len(lede.split())} words")
+        check(f'href="/{fn}"' in idx, f"{fn}: on the guides index")
+        check('href="/shop.html"' in h and ('data-capture="guide"' in h), f"{fn}: links the shop and has the guide capture")
+    new = ["how-much-caffeine-in-instant-coffee.html", "how-to-make-instant-coffee-taste-better.html", "does-instant-coffee-go-bad.html",
+           "instant-coffee-for-travel-camping-dorm.html", "what-is-mct-powder.html", "natural-caffeine-vs-synthetic.html",
+           "caffeine-and-l-theanine-ratio.html", "instant-coffee-vs-drip-cost-per-cup.html"]
+    for fn in new:
+        h = open(os.path.join(root, fn)).read()
+        n = h.count("<details><summary>")
+        check(4 <= n <= 5 and 'class="frame gphoto"' in h and "benefit" not in h.lower(), f"{fn}: {n} FAQs, a photo, no 'benefits' framing")
+    ctx = context(b, base); pg = ctx.new_page()
+    pg.goto(base + "/instant-coffee-vs-drip-cost-per-cup.html")
+    check("$2.33 a cup" in pg.locator(".calc-out").inner_text(), "cost calculator shows $2.33 a cup for 69.95 / 30")
+    pg.fill("#c-price", "12"); pg.fill("#c-cups", "60")
+    check("$0.20 a cup" in pg.locator(".calc-out").inner_text(), "cost calculator recalculates ($12 / 60 = $0.20)")
+    ctx.close()
+
+
 def main():
     with serve() as base, sync_playwright() as p:
         b = p.chromium.launch()
         start_tests(b, base)
         ia_tests(b, base)
         recipe_tests(b, base)
+        guide_tests(b, base)
         b.close()
     print(f"\n{len(FAIL)} failure(s)")
     return 1 if FAIL else 0

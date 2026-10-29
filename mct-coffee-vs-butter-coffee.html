@@ -51,6 +51,7 @@
   <p class="fine byline">By <a href="/about.html#koby" rel="author">Koby Stull</a> &middot; Updated <time datetime="2026-10-28">October 28, 2026</time></p>
   <p class="lead answer">Butter coffee is brewed coffee blended with butter or ghee, usually plus MCT oil; MCT coffee is coffee with MCT oil or MCT powder added and no butter. Butter coffee needs a blender and comes out thick and frothy. MCT powder coffee is stirred with a spoon and comes out smooth and lightly creamy.</p>
   
+  
   <h2>What butter coffee is</h2>
   <p>Butter coffee is brewed coffee blended with unsalted butter or ghee, and usually a spoonful of MCT oil. Blending matters: without it, the fat floats on top in a slick. Done right, you get a frothy, latte-like cup.</p>
   <h2>What MCTs are</h2>
@@ -82,8 +83,30 @@
     <p class="bonus" data-bonus hidden><strong>Free with your first order:</strong> the Recipe Pack, 12 ways to drink it plus a 30-morning tracker.</p>
     <p style="margin:0"><a class="btn" href="/shop.html">Shop the coffee</a></p>
   </div>
+  <div style="margin-top:28px"><div class="capture" id="cap-guide">
+  <h2>Get the 7 Mornings guide</h2>
+  <p>Seven short emails on how to swap one cup for a week, with the recipe pack. Unsubscribe in one click.</p>
+  <form novalidate data-capture="guide">
+    <label for="cap-guide-email" class="sr">Email</label>
+    <div class="caprow"><input id="cap-guide-email" type="email" name="email" required autocomplete="email" placeholder="you@example.com"><button class="btn" type="submit">Send me the guide</button></div>
+    <p class="fine" role="status" data-capmsg></p>
+  </form>
+</div>
+<script>
+(function(){
+  var f=document.querySelector('[data-capture="guide"]'), msg=f.querySelector('[data-capmsg]'), q=new URLSearchParams(location.search);
+  f.addEventListener('submit',function(e){
+    e.preventDefault();
+    var email=f.email.value.trim(); if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){msg.textContent='Check the email address.';return;}
+    var btn=f.querySelector('button'); btn.disabled=true; msg.textContent='Sending\u2026';
+    klaviyoSubscribe(TMU.KLAVIYO_LIST_QUIZ, email, '', {lead_magnet:'7 Mornings guide',source:'guide',quiz_result:'none',utm_source:q.get('utm_source')||'',utm_medium:q.get('utm_medium')||'',utm_campaign:q.get('utm_campaign')||'',utm_content:q.get('utm_content')||''}, 'themorningupgrades.com guide')
+    .then(function(r){ if(r.status===202){ track('Lead',{source:'guide'}); location.href='/thanks.html?r=guide'; } else { throw new Error(r.status); } })
+    .catch(function(){ msg.textContent='Something went wrong. Try again in a moment.'; btn.disabled=false; });
+  });
+})();
+</script></div>
   <h2>Related guides</h2>
-  <ul class="clean"><li><a href="/what-is-mct-coffee.html">What is MCT coffee?</a></li><li><a href="/how-to-make-mct-instant-coffee.html">How to make instant MCT coffee</a></li><li><a href="/l-theanine-and-caffeine.html">L-theanine and caffeine: what the label means</a></li><li><a href="/iced-instant-coffee-recipes.html">Iced instant coffee without clumps</a></li></ul>
+  <ul class="clean"><li><a href="/what-is-mct-coffee.html">What is MCT coffee?</a></li><li><a href="/how-to-make-mct-instant-coffee.html">How to make instant MCT coffee</a></li><li><a href="/l-theanine-and-caffeine.html">L-theanine and caffeine: what the label means</a></li><li><a href="/iced-instant-coffee-recipes.html">Iced instant coffee without clumps</a></li><li><a href="/how-much-caffeine-in-instant-coffee.html">How much caffeine is in instant coffee?</a></li><li><a href="/how-to-make-instant-coffee-taste-better.html">How to make instant coffee taste better</a></li><li><a href="/does-instant-coffee-go-bad.html">Does instant coffee go bad?</a></li></ul>
   <p class="fine" style="margin-top:24px">General information, not medical advice. Contains caffeine. Ask your physician before changing what you drink if you're pregnant, nursing, take medication or have a medical condition.</p>
 </div></section></article>
 
