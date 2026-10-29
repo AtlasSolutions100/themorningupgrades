@@ -810,7 +810,7 @@ ORDER_COMPLETE = """
     <p style="margin-top:22px"><a class="btn ghost" href="/">Back to the site</a></p>
   </div>
 </div></section>
-<script>track('Purchase');</script>
+<script>tmuPurchase();</script>
 """
 
 THANKS = """
