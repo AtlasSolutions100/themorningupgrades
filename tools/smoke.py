@@ -78,11 +78,12 @@ def main(argv):
                 for bt in r["btns"]:
                     fails.append(f"{key}: button contrast {bt['ratio']}:1 < 4.5 ({bt['text']!r})")
                 # sticky bar follows the picker
-                if CHECK_STICKY and label == "mobile" and pg.locator("[data-picker]").count() and pg.locator(".sticky a[data-buy]").count():
+                if CHECK_STICKY and label == "mobile" and pg.locator("[data-picker]:visible").count() and pg.locator(".sticky a[data-buy]").count():
+                    pk = pg.locator("[data-picker]:visible").first
                     for plan in ("onetime", "subscribe"):
-                        pg.locator(f"[data-picker] input[value={plan}]").first.locator("xpath=..").click()
+                        pk.locator(f"input[value={plan}]").locator("xpath=..").click()
                         got = pg.locator(".sticky a[data-buy]").get_attribute("data-buy")
-                        btn = pg.locator("[data-picker] [data-picker-btn]").first.get_attribute("data-buy")
+                        btn = pk.locator("[data-picker-btn]").get_attribute("data-buy")
                         if got != plan or btn != plan:
                             fails.append(f"{key}: picked {plan}, picker button={btn}, sticky={got}")
                 if shots:
