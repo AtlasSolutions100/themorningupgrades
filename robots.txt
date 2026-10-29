@@ -1,23 +1,4 @@
 # Search engines and AI assistants may crawl and cite every public page.
-User-agent: GPTBot
-User-agent: OAI-SearchBot
-User-agent: ChatGPT-User
-User-agent: ClaudeBot
-User-agent: Claude-SearchBot
-User-agent: Claude-User
-User-agent: PerplexityBot
-User-agent: Perplexity-User
-User-agent: Google-Extended
-User-agent: Googlebot
-User-agent: Bingbot
-User-agent: Applebot
-User-agent: Applebot-Extended
-User-agent: DuckAssistBot
-Allow: /
-Disallow: /order-complete.html
-Disallow: /thanks.html
-Disallow: /c/
-
 User-agent: *
 Allow: /
 Disallow: /order-complete.html
