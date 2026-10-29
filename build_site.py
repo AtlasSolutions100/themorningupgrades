@@ -31,7 +31,8 @@ FOOTER = """
       <a href="/ingredients.html">What's in it</a>
       <a href="/faq.html">Questions</a>
       <a href="/shipping-returns.html">Shipping &amp; returns</a>
-      <a href="/guides.html">Guides &amp; recipes</a>
+      <a href="/guides.html">Guides</a>
+      <a href="/recipes.html">Recipes</a>
       <a href="/start.html">The 7-day swap</a>
       <a href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00" rel="noopener">Manage subscription</a>
     </div>
@@ -195,16 +196,23 @@ def structured_data(fn, title, desc, body, og_image):
     qa = re.findall(r"<details><summary>(.*?)</summary>(.*?)</details>", body, re.S)
     qa = [(_strip(q), _strip(a)) for q, a in qa if _strip(q) not in FAQ_SKIP]
     qa = [(q, a) for q, a in qa if not re.search(r"corejava|marketplace\s*global|\bmpg\b", q + " " + a, re.I)]
-    if (fn == "faq.html" or fn in GUIDE_META) and qa:
+    if (fn == "faq.html" or fn in GUIDE_META or fn in RECIPE_BY) and qa:
         graph.append({"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": q,
                       "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in qa]})
     if fn == "about.html":
+        graph.append(person_ld())
+    if fn in RECIPE_BY:
+        graph.append(recipe_ld(RECIPE_BY[fn]))
         graph.append(person_ld())
     if fn != "index.html":
         crumbs = [("Home", SITE + "/")]
         if fn in GUIDE_META:
             crumbs.append(("Guides", url_for("guides.html")))
-        crumbs.append((title.split(" — ")[0].split(" | ")[0], url_for(fn)))
+        if fn in RECIPE_BY:
+            crumbs.append(("Recipes", url_for("recipes.html")))
+            crumbs.append((RECIPE_BY[fn]["name"], url_for(fn)))
+        else:
+            crumbs.append((title.split(" — ")[0].split(" | ")[0], url_for(fn)))
         graph.append({"@type": "BreadcrumbList", "itemListElement": [
             {"@type": "ListItem", "position": i + 1, "name": n, "item": u} for i, (n, u) in enumerate(crumbs)]})
     return '<script type="application/ld+json">' + _json.dumps({"@context": "https://schema.org", "@graph": graph}, ensure_ascii=False, separators=(",", ":")) + "</script>"
@@ -232,7 +240,7 @@ def page(title, desc, body, og_image="/img/opt/breakfast-og-1200.jpg", noindex=F
 {'' if noindex else f'<link rel="canonical" href="{url_for(fn)}">'}
 <meta name="theme-color" content="#1b130e">
 {'<meta name="google-site-verification" content="7jyn0E7TYq9A_Ug0PhqrwoI0ssqQj0Z9mrlBYkPK4dw"><meta name="facebook-domain-verification" content="fplr4vshxvflcgysu4cu6j0cpwtbco">' if fn == "index.html" else ''}{f'<meta name="msvalidate.01" content="{BING_VERIFICATION}">' if fn == "index.html" and BING_VERIFICATION else ''}
-<meta property="og:type" content="{'article' if fn in GUIDE_META else 'website'}">
+<meta property="og:type" content="{'article' if fn in GUIDE_META or fn in RECIPE_BY else 'website'}">
 <meta property="og:site_name" content="The Morning Upgrade">
 <meta property="og:locale" content="en_US">
 <meta property="og:url" content="{url_for(fn)}">
@@ -1222,9 +1230,275 @@ G_ICED = guide_page("Recipes", "How to make iced instant coffee without clumps (
   <ul class="clean"><li>1 serving dissolved in 2 oz hot water</li><li>4 oz milk, 1 cup ice, 1 tsp honey</li></ul>
   <p>Blend until smooth and drink it before it separates.</p>
   <h2>A few more tips</h2>
+  <h2>More iced recipes</h2>
+  <ul class="clean"><li><a href="/iced-instant-coffee-recipe.html">Iced instant coffee, step by step</a></li><li><a href="/iced-oat-milk-vanilla-coffee.html">Iced oat milk vanilla coffee</a></li><li><a href="/instant-coffee-frappe.html">Instant coffee frapp&eacute;</a></li><li><a href="/instant-coffee-cold-foam.html">Cold foam</a></li><li><a href="/coffee-ice-cubes.html">Coffee ice cubes</a></li><li><a href="/dalgona-whipped-coffee.html">Dalgona whipped coffee</a></li></ul>
   <ul class="clean"><li>Make coffee ice cubes from leftover coffee so melting ice doesn't water it down.</li><li>Sweeten while the base is hot: syrup and honey mix in better before the ice.</li><li>A handheld milk frother makes cold foam from cold milk in about 20 seconds.</li></ul>
   """,
   fn="iced-instant-coffee-recipes.html")
+
+# ---------- RECIPES (programmatic: one dict per drink -> page + Recipe schema) ----------
+# Search intent here is generic ("iced instant coffee recipe"), so every recipe works with any
+# instant coffee and says so. One serving = one level scoop of ours or the serving on your jar.
+# No claims: recipes describe taste, texture and method only. Contains caffeine on every page.
+RECIPE_DATE = "2026-10-29"
+SERVING = "1 serving instant coffee (one level scoop of ours, or the serving size on your jar)"
+
+RECIPES = [
+  {"slug": "iced-instant-coffee-recipe", "name": "Iced instant coffee", "short": "Iced classic", "img": "patio-left", "iced": True,
+   "title": "Iced Instant Coffee Recipe (No Clumps) | Morning Upgrade",
+   "desc": "Iced instant coffee in two minutes: dissolve the coffee in a little hot water first, then pour over ice and top up. No clumps, no machine.",
+   "lede": "Stir one serving of instant coffee into 2 fl oz of hot water until it's fully dissolved, pour it over a glass full of ice, and top up with 6 fl oz of cold water or milk. Dissolving hot first is the whole trick: instant coffee clumps in cold water.",
+   "prep": 2, "total": 2, "yield": "1 glass (about 12 fl oz)",
+   "ingredients": [SERVING, "2 fl oz hot water (just off the boil is fine)", "1 tall glass of ice", "6 fl oz cold water or cold milk", "Sweetener to taste (optional)"],
+   "steps": ["Put the instant coffee in a mug or measuring cup and pour in the hot water.",
+             "Stir for about 15 seconds, until no grains are left. If you sweeten, add the sweetener now, while it's hot, so it dissolves.",
+             "Fill a tall glass with ice and pour the coffee base over it.",
+             "Top up with cold water for a black iced coffee, or cold milk for a creamier one. Stir once and taste."],
+   "tips": ["Iced coffee tastes stronger than hot because the cold dulls sweetness, so add an extra splash of water if it's too bold.",
+            "Use big cubes if you have them; they melt slower and water the drink down less.",
+            "Make the base the night before and keep it in a jar in the fridge for a two-second morning pour."],
+   "faq": [("Why does instant coffee clump in cold water?", "The granules dissolve slowly in cold water and the outer layer gets sticky before the inside dissolves, so it forms lumps. Dissolving in a little hot water first avoids that."),
+           ("Can I make it with cold brew concentrate instead?", "Yes, but that's a different drink. This recipe is for when all you have is instant coffee and two minutes.")]},
+  {"slug": "iced-oat-milk-vanilla-coffee", "name": "Iced oat milk vanilla coffee", "short": "Iced oat vanilla", "img": "patio-left", "iced": True,
+   "title": "Iced Oat Milk Vanilla Coffee (Instant) | Morning Upgrade",
+   "desc": "An iced vanilla oat milk coffee made with instant coffee: a hot coffee base, ice, cold oat milk and one drop of vanilla. Ready in three minutes.",
+   "lede": "Dissolve one serving of instant coffee and a teaspoon of sugar or maple syrup in 2 fl oz of hot water, add a single drop of vanilla extract, pour it over ice and top with 6 fl oz of cold oat milk. It tastes like a café vanilla latte without the syrup pump.",
+   "prep": 3, "total": 3, "yield": "1 glass (about 12 fl oz)",
+   "ingredients": [SERVING, "2 fl oz hot water", "1 tsp sugar or maple syrup (optional)", "1 drop vanilla extract", "1 glass of ice", "6 fl oz cold oat milk (barista-style oat milk is creamiest)"],
+   "steps": ["Stir the instant coffee and the sweetener into the hot water until both are dissolved.",
+             "Add one drop of vanilla extract and stir. One drop is plenty; vanilla extract is strong.",
+             "Fill a glass with ice and pour the coffee base over it.",
+             "Pour in the cold oat milk slowly so it marbles, then stir before you drink it."],
+   "tips": ["Vanilla extract is alcohol-based and potent; measure it as a drop from the cap, not a splash from the bottle.",
+            "Barista oat milks are made to hold texture with coffee; regular oat milk works but is thinner.",
+            "Swap the vanilla for a pinch of cinnamon in the hot base for a cinnamon oat latte."],
+   "faq": [("Will oat milk curdle in coffee?", "Cold oat milk poured over an iced, already-diluted coffee base rarely separates. Curdling is more likely when cold plant milk hits very hot, acidic coffee."),
+           ("Can I use vanilla syrup instead of extract?", "Yes. Use about 2 teaspoons of syrup and skip the sugar.")]},
+  {"slug": "instant-coffee-frappe", "name": "Instant coffee frappé", "short": "Blended frappé", "img": "patio-left", "iced": True,
+   "title": "Instant Coffee Frappé Recipe (3 Minutes) | Morning Upgrade",
+   "desc": "A blended coffee frappé with instant coffee, milk, ice and a little honey: how to get it thick and how to keep it from separating.",
+   "lede": "Dissolve one serving of instant coffee in 2 fl oz of hot water, then blend it with 4 fl oz of cold milk, a cup of ice and a teaspoon of honey until smooth and thick, about 30 seconds. Drink it right away; blended ice drinks start separating within minutes.",
+   "prep": 3, "total": 3, "yield": "1 glass (about 12 fl oz)",
+   "ingredients": [SERVING, "2 fl oz hot water", "4 fl oz cold milk (any kind)", "1 cup ice", "1 tsp honey or sugar"],
+   "steps": ["Dissolve the instant coffee and the honey in the hot water.",
+             "Add the coffee base, cold milk and ice to a blender.",
+             "Blend on high for 20 to 30 seconds, until the ice is fully crushed and the drink is thick.",
+             "Pour into a chilled glass and drink straight away."],
+   "tips": ["For a thicker frappé, freeze the milk in an ice tray the night before and use those cubes instead of plain ice.",
+            "Half a frozen banana makes it thick and sweet without extra sugar.",
+            "If your blender struggles, add the liquid first and the ice last.",
+            "For a mocha frapp\u00e9, add a teaspoon of cocoa powder to the hot coffee base before blending."],
+   "faq": [("Why does my frappé separate?", "Blended ice and liquid separate as the ice melts. Frozen milk cubes or a little banana keep it together longer."),
+           ("Is a frappé the same as a frappuccino?", "Frappuccino is a coffee-chain trademark for its blended drinks. A frappé is the general name for a blended or shaken iced coffee.")]},
+  {"slug": "instant-coffee-latte", "name": "Instant coffee latte", "short": "Latte-style", "img": "pour-top", "iced": False,
+   "title": "How to Make a Latte with Instant Coffee | Morning Upgrade",
+   "desc": "A latte with instant coffee: a strong instant coffee base topped with steamed or frothed milk. Stovetop, microwave and handheld-frother methods.",
+   "lede": "Dissolve one serving of instant coffee in 2 fl oz of hot water to make a strong base, then top it with 6 fl oz of hot milk you've frothed until it's foamy. A jar, a whisk or a handheld frother all work; you don't need an espresso machine.",
+   "prep": 2, "total": 4, "yield": "1 mug (about 8 fl oz)",
+   "ingredients": [SERVING, "2 fl oz hot water", "6 fl oz milk (whole milk foams most easily; oat and soy work too)", "Sweetener to taste (optional)"],
+   "steps": ["Heat the milk until it steams and small bubbles form at the edge: about 60 to 90 seconds in the microwave, or a few minutes in a small pan. Don't let it boil.",
+             "Froth the hot milk: use a handheld frother for 20 seconds, whisk it hard in the pan, or shake it in a lidded jar half full.",
+             "Dissolve the instant coffee in the hot water in your mug.",
+             "Pour the milk in, holding back the foam with a spoon, then spoon the foam on top."],
+   "tips": ["Milk tastes sweetest at drinking-hot, not boiling; scorched milk tastes flat.",
+            "For a flat white, use less milk (4 fl oz) and only a thin layer of foam.",
+            "Shaking hot milk in a jar works, but leave room in the jar and hold the lid with a towel."],
+   "faq": [("Can I make a latte without a frother?", "Yes. Shake the hot milk in a lidded jar for 30 seconds or whisk it hard in the pan. The foam is a little bigger-bubbled than a steam wand's, but it works."),
+           ("What's the difference between a latte and a cappuccino?", "Mostly the milk: a latte has more milk and a thin foam layer; a cappuccino has less milk and a thicker cap of foam.")]},
+  {"slug": "instant-coffee-mocha", "name": "Mocha with instant coffee", "short": "Mocha", "img": "flatlay-right", "iced": False,
+   "title": "Mocha with Instant Coffee: Hot or Iced | Morning Upgrade",
+   "desc": "A mocha made with instant coffee and cocoa powder: dissolve both in a little hot water, then add hot or cold milk. Hot and iced versions.",
+   "lede": "Whisk one serving of instant coffee, 2 teaspoons of unsweetened cocoa powder and 2 teaspoons of sugar into 2 fl oz of hot water until smooth, then add 6 fl oz of hot milk for a hot mocha, or pour it over ice and cold milk for an iced one.",
+   "prep": 3, "total": 4, "yield": "1 mug (about 8 fl oz)",
+   "ingredients": [SERVING, "2 tsp unsweetened cocoa powder", "2 tsp sugar (or to taste)", "2 fl oz hot water", "6 fl oz milk, hot or cold", "A pinch of salt (optional)"],
+   "steps": ["Put the instant coffee, cocoa, sugar and salt in the mug.",
+             "Add the hot water a little at a time, whisking or stirring into a smooth paste before adding the rest. Cocoa lumps if you add all the water at once.",
+             "For hot: pour in hot milk and stir. For iced: pour the base over a glass of ice and top with cold milk.",
+             "Taste and add more sugar if you like it sweeter; cocoa powder is bitter on its own."],
+   "tips": ["A tiny pinch of salt makes chocolate taste more chocolatey.",
+            "Swap cocoa and sugar for 2 tablespoons of hot-chocolate mix if that's what you have.",
+            "Cocoa contains a small amount of caffeine of its own, so count a mocha as at least a full cup of coffee."],
+   "faq": [("Can I use chocolate syrup instead of cocoa?", "Yes. Use about 1 tablespoon of chocolate syrup and skip the sugar."),
+           ("Why is my mocha gritty?", "Cocoa powder needs a smooth paste with a little hot liquid before the rest goes in. Stirring it straight into a full mug of milk leaves grit.")]},
+  {"slug": "cinnamon-instant-coffee", "name": "Cinnamon instant coffee", "short": "Cinnamon", "img": "desk-top", "iced": False,
+   "title": "Cinnamon Instant Coffee (No Grit) | Morning Upgrade",
+   "desc": "How to add cinnamon to instant coffee without a gritty cup: bloom it in the hot water, sweeten while hot, or use a cinnamon stick. Hot and iced.",
+   "lede": "Stir a quarter teaspoon of ground cinnamon into the hot water first, then add one serving of instant coffee and the rest of the water; let it sit a minute and the cinnamon settles instead of floating as grit. Or steep a cinnamon stick in the hot water for two minutes and skip the powder entirely.",
+   "prep": 3, "total": 4, "yield": "1 mug (about 8 fl oz)",
+   "ingredients": [SERVING, "8 fl oz hot water", "1/4 tsp ground cinnamon, or 1 cinnamon stick", "1 tsp brown sugar or honey (optional)", "Milk or creamer (optional)"],
+   "steps": ["Put the ground cinnamon and the sweetener in the mug and add a splash of the hot water. Stir into a paste.",
+             "Add the instant coffee and the rest of the hot water, and stir until dissolved.",
+             "Let it sit for a minute so any undissolved cinnamon settles to the bottom.",
+             "Add milk or creamer if you like. Leave the last sip in the mug; that's where the sediment is."],
+   "tips": ["Ground cinnamon doesn't dissolve in water, so some sediment is normal. A cinnamon stick avoids it.",
+            "Mixing cinnamon with the sweetener first helps it disperse.",
+            "For iced: make the cinnamon base hot, then pour over ice and add cold milk.",
+            "Ceylon cinnamon tastes softer and sweeter; the common cassia kind is spicier. Either works here."],
+   "faq": [("Why doesn't cinnamon dissolve in coffee?", "Ground cinnamon is bark, not a soluble powder. It disperses but never dissolves, so it settles or floats."),
+           ("Can I use cinnamon syrup?", "Yes. Use about 2 teaspoons and skip the sugar.")]},
+  {"slug": "instant-coffee-protein-shake", "name": "Instant coffee protein shake", "short": "Protein shake", "img": "scoop-top", "iced": True,
+   "title": "Coffee Protein Shake with Instant Coffee | Morning Upgrade",
+   "desc": "A blended coffee protein shake with instant coffee, milk, ice and a scoop of protein powder. How to keep it smooth and how to make it without a blender.",
+   "lede": "Dissolve one serving of instant coffee in 2 fl oz of hot water, then blend it with 6 fl oz of cold milk, one scoop of vanilla or chocolate protein powder and a handful of ice for 20 seconds. No blender? Shake the cooled coffee base, milk and powder hard in a shaker bottle.",
+   "prep": 3, "total": 3, "yield": "1 shake (about 12 fl oz)",
+   "ingredients": [SERVING, "2 fl oz hot water", "6 fl oz cold milk (any kind)", "1 scoop protein powder (vanilla or chocolate; use the scoop in your tub)", "A handful of ice"],
+   "steps": ["Dissolve the instant coffee in the hot water.",
+             "Add the cold milk to the blender first, then the protein powder, then the coffee base and the ice. Liquid first stops powder sticking to the bottom.",
+             "Blend for about 20 seconds until smooth.",
+             "Pour and drink. If it's too thick, add a splash of milk and blend for two seconds."],
+   "tips": ["In a shaker bottle, let the coffee base cool for a minute first; hot liquid builds pressure in a sealed bottle.",
+            "Unflavored powder tastes better with a teaspoon of honey or a few drops of vanilla.",
+            "Read the protein powder's label too: some contain caffeine or other active ingredients of their own."],
+   "faq": [("Can I put protein powder straight into hot coffee?", "Many protein powders clump or turn stringy in very hot liquid. Blend or shake them with cold milk and add the coffee base to that."),
+           ("Does this work with plant-based protein?", "Yes. Plant proteins are often thicker, so add an extra splash of milk.")]},
+  {"slug": "coffee-ice-cubes", "name": "Coffee ice cubes", "short": "Coffee ice cubes", "img": "patio-left", "iced": True,
+   "title": "Coffee Ice Cubes from Instant Coffee | Morning Upgrade",
+   "desc": "Coffee ice cubes keep iced coffee from going watery. How to make them from instant coffee, how long they keep, and three ways to use them.",
+   "lede": "Dissolve instant coffee in hot water at normal drinking strength, let it cool, pour it into an ice-cube tray and freeze it for about four hours. Use the cubes in iced coffee so melting ice adds coffee instead of water.",
+   "prep": 5, "total": 245, "yield": "about 12 cubes (one 8 fl oz cup of coffee)",
+   "ingredients": [SERVING, "8 fl oz hot water", "An ice-cube tray"],
+   "steps": ["Make a normal cup: dissolve the instant coffee in the hot water.",
+             "Let it cool to room temperature, about 20 minutes, so it doesn't warp the tray or warm the freezer.",
+             "Pour it into the tray and freeze for about four hours, until solid.",
+             "Pop the cubes into a freezer bag. Use them within a couple of weeks; they pick up freezer smells after that."],
+   "tips": ["Freeze milk-coffee cubes for an iced latte that gets creamier as it melts.",
+            "Put three cubes in a glass of cold milk for a slow-melting iced latte.",
+            "Every cube is coffee, so the caffeine counts: a tray made from one cup is one cup's worth.",
+            "Silicone trays release frozen coffee more easily than rigid plastic ones; twist, then press from below.",
+            "Label the bag with the date so you use the oldest cubes first."],
+   "faq": [("Do coffee ice cubes need to be strong coffee?", "Normal strength works: as they melt they add coffee, so the drink holds its strength instead of thinning out."),
+           ("Can I make them from leftover brewed coffee?", "Yes. Any coffee you'd drink works; leftover morning coffee is the classic use.")]},
+  {"slug": "instant-coffee-affogato", "name": "Instant coffee affogato", "short": "Affogato", "img": "flatlay-right", "iced": False,
+   "title": "Affogato with Instant Coffee | Morning Upgrade",
+   "desc": "An affogato with instant coffee: a strong, small instant coffee poured hot over a scoop of vanilla ice cream. Two ingredients, two minutes.",
+   "lede": "Dissolve one serving of instant coffee in just 2 fl oz of very hot water to make a short, strong shot, then pour it over a scoop of vanilla ice cream in a small glass and eat it straight away with a spoon.",
+   "prep": 2, "total": 2, "yield": "1 small dessert",
+   "ingredients": [SERVING, "2 fl oz very hot water", "1 scoop vanilla ice cream (or gelato)", "Shaved dark chocolate (optional)"],
+   "steps": ["Put a scoop of ice cream in a small glass or cup. Chill the glass first if you have time.",
+             "Dissolve the instant coffee in the very hot water. Keep it short; the small volume is what makes it taste like espresso.",
+             "Pour the hot coffee over the ice cream at the table.",
+             "Add a little shaved chocolate if you like and eat it while it's half melted."],
+   "tips": ["Gelato is denser than ice cream and melts slower, so it holds up to the hot coffee better.",
+            "Try it with chocolate or salted caramel ice cream.",
+            "It's a dessert with a full serving of coffee in it, so it carries the same caffeine as your morning cup.",
+            "Serve it in a small, wide glass so the coffee pools around the scoop instead of sinking straight under it.",
+            "For a crunchy finish, add a crumbled amaretti or shortbread cookie on top."],
+   "faq": [("What does affogato mean?", "It's Italian for 'drowned': ice cream drowned in coffee. It's traditionally made with espresso."),
+           ("Can I make it dairy-free?", "Yes. Use a dairy-free vanilla ice cream; coconut- and oat-based ones both work.")]},
+  {"slug": "dalgona-whipped-coffee", "name": "Dalgona whipped coffee", "short": "Whipped (dalgona)", "img": "scoop-top", "iced": True,
+   "title": "Dalgona Whipped Coffee with Instant Coffee | Morning Upgrade",
+   "desc": "Dalgona whipped coffee: instant coffee, sugar and hot water whipped into a thick foam over milk. The ratio, the whisking time and a serving note.",
+   "lede": "Whisk equal parts plain instant coffee, sugar and hot water (2 tablespoons each) for 3 to 5 minutes by hand, or about 2 minutes with a hand mixer, until it's thick, pale and holds a peak, then spoon it over a glass of iced or warm milk.",
+   "prep": 5, "total": 6, "yield": "1 glass",
+   "ingredients": ["2 tbsp plain instant coffee", "2 tbsp granulated sugar", "2 tbsp hot water", "8 fl oz milk, cold over ice or warm", "Ice (optional)"],
+   "steps": ["Put the instant coffee, sugar and hot water in a bowl.",
+             "Whisk hard, or use a hand mixer, until the mixture turns from dark and runny to pale caramel and thick enough to hold a peak.",
+             "Fill a glass with ice and milk, or warm milk for a hot version.",
+             "Spoon the whipped coffee on top and stir it in as you drink."],
+   "tips": ["Granulated sugar is what makes the foam stable; sugar-free versions whip looser and collapse sooner.",
+            "A hand mixer saves your wrist: about two minutes on high.",
+            "Check the serving size: the classic ratio uses more instant coffee than a normal cup. Use plain instant coffee for it, and don't scale up a coffee with added caffeine or other ingredients beyond its label serving."],
+   "faq": [("Why won't my dalgona coffee whip?", "Usually not enough whisking, too much water, or no sugar. Keep the equal ratio and keep going; it takes longer by hand than people expect."),
+           ("Can I make it with a coffee that has added ingredients?", "Stick to the label serving for any coffee with added caffeine or other ingredients. The classic dalgona ratio is built for plain instant coffee.")]},
+  {"slug": "pumpkin-spice-instant-coffee", "name": "Pumpkin spice instant coffee", "short": "Pumpkin spice", "img": "desk-top", "iced": False,
+   "title": "Pumpkin Spice Coffee with Instant Coffee | Morning Upgrade",
+   "desc": "A pumpkin spice latte at home with instant coffee: pumpkin purée, pumpkin pie spice, a little sugar and hot milk. Hot or iced, no syrup needed.",
+   "lede": "Warm 6 fl oz of milk with 1 tablespoon of pumpkin purée, a quarter teaspoon of pumpkin pie spice and 2 teaspoons of sugar, whisk until smooth, then pour it over one serving of instant coffee dissolved in 2 fl oz of hot water.",
+   "prep": 3, "total": 5, "yield": "1 mug (about 8 fl oz)",
+   "ingredients": [SERVING, "2 fl oz hot water", "6 fl oz milk", "1 tbsp canned pumpkin purée (not pie filling)", "1/4 tsp pumpkin pie spice", "2 tsp sugar or maple syrup", "A drop of vanilla (optional)"],
+   "steps": ["Whisk the milk, pumpkin, spice and sugar in a small pan over medium heat, or in a microwave-safe jug, until hot and smooth. Don't let it boil.",
+             "Dissolve the instant coffee in the hot water in your mug.",
+             "Pour the pumpkin milk over the coffee and stir. Add the vanilla if using.",
+             "Froth the top with a whisk or handheld frother if you want a café-style foam."],
+   "tips": ["No pumpkin pie spice? Use a pinch each of cinnamon, ginger, nutmeg and clove.",
+            "Freeze leftover purée in tablespoon portions in an ice-cube tray.",
+            "For iced: whisk the pumpkin, spice and sugar into cold milk, pour over ice and add the dissolved coffee."],
+   "faq": [("Is pumpkin pie filling the same as pumpkin purée?", "No. Pie filling is already sweetened and spiced; if you use it, skip the sugar and spice."),
+           ("Why is my pumpkin coffee grainy?", "Pumpkin purée has fiber that doesn't dissolve. Whisk it into the milk while heating, or blend it, for a smoother drink.")]},
+  {"slug": "instant-coffee-cold-foam", "name": "Instant coffee cold foam", "short": "Cold foam", "img": "pour-top", "iced": True,
+   "title": "Coffee Cold Foam with Instant Coffee | Morning Upgrade",
+   "desc": "Café-style cold foam at home: froth cold skim milk with a little sugar for 20 seconds and spoon it over iced instant coffee. Plain or vanilla.",
+   "lede": "Froth 3 fl oz of cold skim or 2% milk with a teaspoon of sugar using a handheld frother for about 20 seconds until it's thick and glossy, then spoon it over a glass of iced instant coffee. Skim milk makes the stiffest cold foam; whole milk makes a softer, richer one.",
+   "prep": 3, "total": 3, "yield": "1 glass",
+   "ingredients": [SERVING, "2 fl oz hot water", "1 glass of ice and 4 fl oz cold water", "3 fl oz cold skim or 2% milk", "1 tsp sugar or 1 tsp vanilla syrup"],
+   "steps": ["Make an iced coffee: dissolve the instant coffee in the hot water, pour it over ice, and top with the cold water.",
+             "Put the cold milk and sugar in a tall glass or jar.",
+             "Froth with a handheld frother, held just below the surface, for about 20 seconds until thick.",
+             "Spoon the foam over the iced coffee. It floats for several minutes."],
+   "tips": ["The milk must be fridge-cold; warm milk won't hold a cold foam.",
+            "No frother? Shake the milk and sugar hard in a lidded jar for a minute.",
+            "Plant milks foam less; barista-style versions work best."],
+   "faq": [("Why skim milk for cold foam?", "Milk proteins build the foam and fat weighs it down, so lower-fat milk whips stiffer when cold."),
+           ("Can I put coffee in the foam?", "Yes: dissolve a pinch of instant coffee in a teaspoon of hot water, let it cool, and froth it with the milk. Count it as part of your coffee.")]},
+]
+RECIPE_BY = {r["slug"] + ".html": r for r in RECIPES}
+
+def _iso_min(m):
+    return f"PT{m // 60}H{m % 60}M" if m >= 60 else f"PT{m}M"
+
+def _mins(m):
+    return f"{m // 60} hr {m % 60} min" if m >= 60 else f"{m} min"
+
+def recipe_ld(r):
+    fn = r["slug"] + ".html"
+    return {"@type": "Recipe", "@id": url_for(fn) + "#recipe", "name": r["name"], "description": _html.unescape(r["desc"]),
+            "image": [SITE + og_img(r["img"])], "author": {"@id": SITE + "/about.html#koby"},
+            "datePublished": RECIPE_DATE, "recipeCategory": "Drink", "recipeCuisine": "American",
+            "keywords": ", ".join([r["name"].lower(), "instant coffee", "iced coffee" if r["iced"] else "hot coffee"]),
+            "prepTime": _iso_min(r["prep"]), "totalTime": _iso_min(r["total"]), "recipeYield": r["yield"],
+            "recipeIngredient": [_html.unescape(i) for i in r["ingredients"]],
+            "recipeInstructions": [{"@type": "HowToStep", "position": i + 1, "text": _html.unescape(t)} for i, t in enumerate(r["steps"])]}
+
+def recipe_words(r):
+    text = " ".join([r["lede"]] + r["ingredients"] + r["steps"] + r["tips"] + [q + " " + a for q, a in r["faq"]])
+    return len(re.findall(r"[A-Za-z0-9']+", _html.unescape(text)))
+
+def recipe_page(r):
+    fn = r["slug"] + ".html"
+    others = [x for x in RECIPES if x is not r]
+    same = [x for x in others if x["iced"] == r["iced"]][:3]
+    rel = same + [x for x in others if x not in same][: max(0, 4 - len(same))]
+    return f"""
+<article><section style="padding-top:36px"><div class="wrap guide recipe">
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> <span aria-hidden="true">&rsaquo;</span> <a href="/recipes.html">Recipes</a> <span aria-hidden="true">&rsaquo;</span> <span aria-current="page">{r["short"]}</span></nav>
+  <h1 style="font-size:clamp(32px,4.4vw,48px)">{r["name"]}</h1>
+  <p class="fine byline">By <a href="/about.html#koby" rel="author">{AUTHOR["name"]}</a> &middot; <time datetime="{RECIPE_DATE}">{_nice(RECIPE_DATE)}</time></p>
+  <p class="lead answer">{r["lede"]}</p>
+  <ul class="rmeta"><li><b>Prep</b> {_mins(r["prep"])}</li><li><b>Total</b> {_mins(r["total"])}</li><li><b>Makes</b> {r["yield"]}</li></ul>
+  <div class="frame rphoto">{pic(r["img"], "Coffee photo from our kitchen shoot (not a photo of this exact recipe)", sizes="(max-width: 760px) 100vw, 720px")}</div>
+  <h2>Ingredients</h2>
+  <ul class="clean">{"".join(f"<li>{i}</li>" for i in r["ingredients"])}</ul>
+  <h2>Steps</h2>
+  <ol class="howto">{"".join(f"<li>{s}</li>" for s in r["steps"])}</ol>
+  <h2>Tips</h2>
+  <ul class="clean">{"".join(f"<li>{t}</li>" for t in r["tips"])}</ul>
+  <h2 id="questions">Questions</h2>
+  {"".join(f"<details><summary>{q}</summary><p>{a}</p></details>" for q, a in r["faq"])}
+  <p class="fine" style="margin-top:18px"><strong>Contains caffeine.</strong> Works with any instant coffee; one serving is the amount on your jar or bag. Ours dissolves with a spoon: one level scoop.</p>
+  <div class="card" style="margin-top:28px;padding:24px;background:var(--tint);box-shadow:none">
+    <h2 style="font-size:22px;margin:0 0 8px">The instant coffee we use</h2>
+    <p>Medium-roast instant coffee with MCT powder from coconut, natural caffeine and L-theanine. One level scoop in hot water, 30 servings a bag. <a href="/ingredients.html">See every ingredient</a>.</p>
+    <p style="margin:0"><a class="btn" href="/shop.html">See the coffee</a></p>
+  </div>
+  <h2>More recipes</h2>
+  <ul class="clean">{"".join(f'<li><a href="/{x["slug"]}.html">{x["name"]}</a></li>' for x in rel)}</ul>
+  <p><a href="/recipes.html">All recipes</a> &middot; <a href="/iced-instant-coffee-recipes.html">The no-clump trick for iced instant coffee</a></p>
+  <p class="fine" style="margin-top:24px">General information, not medical advice. Contains caffeine. Ask your physician before changing what you drink if you're pregnant, nursing, take medication or have a medical condition.</p>
+</div></section></article>
+"""
+
+RECIPES_INDEX = """
+<section style="padding-top:36px"><div class="wrap">
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> <span aria-hidden="true">&rsaquo;</span> <span aria-current="page">Recipes</span></nav>
+  <h1 style="font-size:clamp(32px,4.4vw,48px)">Instant coffee recipes</h1>
+  <p class="lead">Twelve drinks you can make with any instant coffee and a spoon, a jar or a blender. Each one starts with the answer, then the steps.</p>
+  <h2 style="margin-top:30px">Iced and blended</h2>
+  <div class="glist">""" + "".join(f'<a href="/{r["slug"]}.html"><p class="eyebrow">{r["short"]}</p><h3>{r["name"]}</h3><p>{_html.unescape(r["desc"]).split(". ")[0]}.</p></a>' for r in RECIPES if r["iced"]) + """</div>
+  <h2 style="margin-top:30px">Hot</h2>
+  <div class="glist">""" + "".join(f'<a href="/{r["slug"]}.html"><p class="eyebrow">{r["short"]}</p><h3>{r["name"]}</h3><p>{_html.unescape(r["desc"]).split(". ")[0]}.</p></a>' for r in RECIPES if not r["iced"]) + """</div>
+  <p class="fine" style="margin-top:22px">Every recipe contains caffeine. One serving of instant coffee means the serving on your jar or bag.</p>
+</div></section>
+"""
 
 GUIDES_INDEX = """
 <section style="padding-top:36px"><div class="wrap">
@@ -1238,6 +1512,9 @@ GUIDES_INDEX = """
     <a href="/mct-coffee-vs-butter-coffee.html"><p class="eyebrow">MCT coffee</p><h2 style="font-size:21px;margin:6px 0">MCT coffee vs. butter coffee</h2><p>Blender and butter, or a powder you stir in. How they compare.</p></a>
     <a href="/iced-instant-coffee-recipes.html"><p class="eyebrow">Recipes</p><h2 style="font-size:21px;margin:6px 0">Iced instant coffee without clumps</h2><p>One trick and three recipes worth keeping.</p></a>
   </div>
+  <h2 style="margin-top:34px">Recipes</h2>
+  <p>Twelve drinks made with instant coffee, hot, iced and blended. <a href="/recipes.html">All recipes &rarr;</a></p>
+  <ul class="clean rlist">""" + "".join(f'<li><a href="/{r["slug"]}.html">{r["name"]}</a></li>' for r in RECIPES) + """</ul>
 </div></section>
 """
 
@@ -1288,6 +1565,13 @@ STICKY.update({"order-complete.html": None, "thanks.html": None})
 # LCP image preloads
 PRELOAD = {fn: preload("breakfast-top", "(max-width: 860px) 100vw, 560px") for fn in ("index.html", "start.html", "ingredients.html")}
 
+PAGES["recipes.html"] = ("Instant Coffee Recipes: Iced, Hot &amp; Blended | Morning Upgrade",
+    "Twelve drinks made with instant coffee: iced coffee, frapp\u00e9, latte, mocha, cold foam, dalgona, affogato and more. Steps, times and tips for each.",
+    RECIPES_INDEX, og_img("patio-left"), False)
+for _r in RECIPES:
+    PAGES[_r["slug"] + ".html"] = (_r["title"], _r["desc"], recipe_page(_r), og_img(_r["img"]), False)
+STICKY.update({fn: "shop" for fn in list(RECIPE_BY) + ["recipes.html"]})
+
 _changed = set()   # pages whose HTML changed in this build: their sitemap lastmod moves to today
 for fn,(title,desc,body,og,noindex) in PAGES.items():
     html_out = page(title,desc,body,og,noindex,nav=("mini" if fn == "start.html" else True),fn=fn,sticky=STICKY.get(fn, "buy"),extra_head=PRELOAD.get(fn, ""))
@@ -1335,6 +1619,7 @@ _today = _dt.date.today().isoformat()
 _indexable = [fn for fn,(t,d,b,og,ni) in PAGES.items() if not ni]
 _prio = {"index.html": "1.0", "shop.html": "0.9", "ingredients.html": "0.8", "faq.html": "0.7"}
 _prio.update({fn: "0.6" for fn in GUIDE_META})
+_prio.update({fn: "0.5" for fn in RECIPE_BY})
 _old_lastmod = {}
 if os.path.exists(os.path.join(HERE, "sitemap.xml")):
     for loc, lm in re.findall(r"<loc>(.*?)</loc><lastmod>(.*?)</lastmod>", open(os.path.join(HERE, "sitemap.xml")).read()):
@@ -1383,6 +1668,11 @@ Facts as stated on the site (updated {_today}):
 ## Guides
 
 {chr(10).join(_llm_link(fn) for fn in GUIDE_LINKS)}
+
+## Recipes
+
+{_llm_link("recipes.html")}
+{chr(10).join(_llm_link(fn) for fn in RECIPE_BY)}
 
 ## Company
 
