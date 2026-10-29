@@ -442,6 +442,12 @@ img{height:auto}
 
 /* hero: the product cutout inside <picture>; the img stays the layout box (grid item on phones) */
 .bagstage>picture{display:contents}
+/* ingredients page: same stage outside the hero; on phones the chips sit two-up under the image */
+@media(max-width:860px){
+  section.tight .bagstage{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0}
+  section.tight .bagstage img{grid-column:1/-1;width:62%;margin:0 auto 6px}
+  section.tight .bagstage .chip{position:static;transform:none;white-space:normal;margin:0;padding:8px 12px 8px 8px;border-radius:16px;box-shadow:none}
+}
 
 .facts{max-width:520px;margin:26px auto 0;text-align:center}
 .facts img{width:100%;height:auto;border:1px solid var(--line);border-radius:12px;background:#fff}
