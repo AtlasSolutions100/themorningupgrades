@@ -468,3 +468,7 @@ section .bagstage.photo .chip{position:absolute}
 .result .r-line{display:block;margin-top:8px}
 .result a.r-line{font-weight:600}
 .quiz .qpick .picker{margin-top:8px}
+
+/* order page: SMS consent */
+.smsform label.consent{display:flex;gap:10px;align-items:flex-start;font-weight:400;color:var(--muted);font-size:13.5px;line-height:1.5;margin-top:14px}
+.smsform label.consent input{margin-top:3px;flex:none;width:18px;height:18px}
