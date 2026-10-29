@@ -159,6 +159,31 @@ def guide_tests(b, base):
     ctx.close()
 
 
+def quiz_tests(b, base):
+    for path, want, plan in [("/quiz.html", "simple", "subscribe"), ("/", "focus", "onetime")]:
+        sent = []
+        ctx = context(b, base, klaviyo=sent); pg = ctx.new_page()
+        pg.goto(base + path)
+        pg.click('#quiz .q[data-q="1"] .opt[data-v="jitters"]')
+        pg.click('#quiz .q[data-q="2"] .opt[data-v="2"]')
+        pg.click(f'#quiz .q[data-q="3"] .opt[data-v="{want}"]')
+        check(pg.locator("#r-label").text_content() == "Sharp, not shaky", f"{path}: result uses Q1")
+        check("first one only" in pg.locator("#r-cups").text_content(), f"{path}: result uses Q2")
+        check(pg.locator("#r-guide").get_attribute("href") == "/l-theanine-and-caffeine.html", f"{path}: result links the matching guide")
+        checked = pg.locator("#quiz .qpick input:checked").get_attribute("value")
+        btn = pg.locator("#quiz .qpick [data-picker-btn]").get_attribute("data-buy")
+        check(checked == plan and btn == plan, f"{path}: Q3={want} preselects {plan} in a working picker ({checked}/{btn})")
+        steps = pg.evaluate("() => (window.dataLayer||[]).map(a=>Array.from(a)).filter(x=>x[0]==='event'&&x[1]==='QuizStep').map(x=>x[2].step)")
+        check(steps == [1, 2, 3, 4], f"{path}: QuizStep events 1-4 ({steps})")
+        pg.fill("#q-email", "test@example.com")
+        pg.click("#tmu-form button[type=submit]")
+        pg.wait_for_selector("#tmu-done:not([hidden])")
+        check(pg.locator("#tmu-done a").get_attribute("href").endswith(".pdf"), f"{path}: after submit the guide link shows in the result step")
+        props = sent[0]["data"]["attributes"]["profile"]["data"]["attributes"]["properties"] if sent else {}
+        check(props.get("quiz_result") == "jitters" and props.get("cups") == "2" and props.get("want") == want, f"{path}: Klaviyo gets all three answers")
+        ctx.close()
+
+
 def main():
     with serve() as base, sync_playwright() as p:
         b = p.chromium.launch()
@@ -166,6 +191,7 @@ def main():
         ia_tests(b, base)
         recipe_tests(b, base)
         guide_tests(b, base)
+        quiz_tests(b, base)
         b.close()
     print(f"\n{len(FAIL)} failure(s)")
     return 1 if FAIL else 0

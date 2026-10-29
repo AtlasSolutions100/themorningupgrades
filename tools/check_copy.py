@@ -48,6 +48,8 @@ ALLOW = (
     r"assets/ads/[\w./-]+",                                         # ad file paths
     r'data-v="(crash|jitters)"',                                    # quiz answer keys (Klaviyo values)
     r"\b(crash|jitters):\s*\[",                                     # quiz result map keys
+    r'"(crash|jitters)":\s*\[',                                    # same keys as JSON
+    r'\("(crash|jitters)",',                                        # same keys in the QUIZ table
     r"results\.crash",
     r"most participants earn little|most people earn little",       # required income disclosure
 )
@@ -150,7 +152,7 @@ def selftest():
     ok = True
     must_pass = ['"weight":{"@type":"QuantitativeValue","value":204}', "Net Wt 7.2 oz (204 g)", "net weight 204 g",
                  "MCTs are a type of fat, usually made from coconut", "assets/ads/tmu_flatlay_4x5.jpg",
-                 "a dietary supplement", 'data-v="crash"', "Most participants earn little",
+                 "a dietary supplement", 'data-v="crash"', '{"crash": ["The 2 PM slide"', '[("crash", "Early afternoon', "Most participants earn little",
                  "A 2022 review in the journal", "the fat content is real: read the nutrition panel"]
     must_fail = ["supports weight loss", "Weight control coffee", "healthy appetite control", "boosts metabolism",
                  "fat burning", "burns fat", "slimming", "Most popular", "No 2 PM crash", "the jitters",

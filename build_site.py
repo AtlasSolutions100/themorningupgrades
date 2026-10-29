@@ -398,6 +398,99 @@ def hero_c(h1="One scoop. Steady energy, sharp focus.", strip=("Steady energy","
 </div></div>
 """
 
+GUIDE_PDF = "https://d2ol7oe51mr4n9.cloudfront.net/user_3GvdxB9gfwtge4rv79iuyoXAckR/a857aef6-954a-4e8e-b256-41205db0097f.pdf"
+
+# Quiz v2: all three answers shape the result. Q1 picks the headline and the guide to read,
+# Q2 the swap line, Q3 the plan (simple -> Subscribe & Save, otherwise try one bag).
+# The answer keys (data-v values) are stored in Klaviyo as quiz_result/cups/want: keep them stable.
+QUIZ = {
+  "q1": ("When does your energy actually drop off?", [("crash", "Early afternoon. 2pm is a wall."), ("jitters", "It doesn't drop so much as spike. I get wired, then flat."),
+         ("parent", "By the time the kids are back it's gone."), ("desk", "Mid-morning, right when the real work starts.")]),
+  "q2": ("How many cups does it take to get through a day?", [("1", "One, and I'm hanging on."), ("2", "Two. The second one is damage control."), ("3", "Three or more. I've stopped counting.")]),
+  "q3": ("What would you want from a better cup?", [("focus", "Focus that lasts into the afternoon."), ("smooth", "Energy without the shaky edge."), ("simple", "Something simple I'll actually stick with.")]),
+  "results": {
+    "crash": ["The 2 PM slide", "Your first cup does its work early and the afternoon is on its own. The guide starts with the one-cup swap.", "/how-to-make-mct-instant-coffee.html", "How to make it in 30 seconds"],
+    "jitters": ["Sharp, not shaky", "More coffee isn’t the only option. Day 1 of the guide explains why caffeine and L-theanine are paired.", "/l-theanine-and-caffeine.html", "L-theanine and caffeine, explained"],
+    "parent": ["The 3pm pickup", "Your day has a second shift. The guide starts with a cup that takes 30 seconds, so the morning has room for everything else.", "/instant-coffee-for-travel-camping-dorm.html", "Coffee anywhere there’s hot water"],
+    "desk": ["Mid-morning fade", "The slump arrives before lunch. The guide starts with when you drink the first cup.", "/how-much-caffeine-in-instant-coffee.html", "How much caffeine is in a cup"],
+  },
+  "cups": {"1": "One cup a day: make it this one for a week.", "2": "Two cups: swap the first one only and leave the second as it is.", "3": "Three or more: swap the first cup only and count the rest the same as always."},
+  "plan": {"simple": ["subscribe", "Subscribe & Save fits “simple”: a bag arrives every 30 days, $10 less than a single bag, and you can pause or cancel from the receipt."],
+           "other": ["onetime", "Try one bag first: 30 servings, no commitment. Decide after a week."]},
+}
+
+def quiz_section(source, heading="Not sure yet? Which morning are you?", h1=False):
+    """The quiz block (home and /quiz). source tags the Klaviyo signup and the analytics events."""
+    def q(n, data):
+        title, opts = data
+        return (f'<div class="q{" on" if n == 1 else ""}" data-q="{n}"><div class="prog">Question {n} of 3</div><h3>{title}</h3>'
+                + "".join(f'<button class="opt" type="button" data-v="{v}">{t}</button>' for v, t in opts) + "</div>")
+    htag = "h1" if h1 else "h2"
+    return f"""
+<section class="alt" id="quiz"><div class="wrap">
+  <{htag} style="text-align:center{';font-size:clamp(30px,4vw,44px)' if h1 else ''}">{heading}</{htag}>
+  <p style="text-align:center;color:var(--muted);margin:0 0 26px">Three quick questions, a straight answer, and the free <em>7 Mornings</em> guide if you want it.</p>
+  <div class="quiz" data-source="{source}">
+    {q(1, QUIZ["q1"])}
+    {q(2, QUIZ["q2"])}
+    {q(3, QUIZ["q3"])}
+    <div class="q" data-q="4">
+      <div class="prog">Your result</div>
+      <div class="result"><b id="r-label">Result</b><span id="r-text"></span><span id="r-cups" class="r-line"></span><a id="r-guide" class="r-line" href="/guides.html">Read the guide</a></div>
+      <h3>Our suggestion</h3>
+      <p id="r-plan" class="fine" style="font-size:15px;color:var(--ink2)"></p>
+      <div class="qpick">""" + picker() + """</div>
+      <h3 style="margin-top:22px">Get the 7 Mornings guide</h3>
+      <form id="tmu-form" novalidate>
+        <label for="q-first">First name</label><input id="q-first" type="text" name="first_name" autocomplete="given-name">
+        <label for="q-email">Email</label><input id="q-email" type="email" name="email" required autocomplete="email">
+        <input type="hidden" name="quiz_result"><input type="hidden" name="cups"><input type="hidden" name="want">
+        <p style="margin:16px 0 8px"><button class="btn" type="submit">Send me the guide</button></p>
+        <p class="fine">Seven short emails on how to swap one cup for a week, with the recipe pack. Unsubscribe in one click.</p>
+        <p id="tmu-msg" class="fine" role="status" style="color:var(--copper2)"></p>
+      </form>
+      <p id="tmu-done" class="bonus" hidden>Sent. Check your inbox in a minute, or <a href=\"""" + GUIDE_PDF + """\" target="_blank" rel="noopener">open the 7 Mornings guide now</a>.</p>
+    </div>
+  </div>
+</div></section>
+<script>
+(function(){
+  var Q=""" + _json.dumps({k: QUIZ[k] for k in ("results", "cups", "plan")}, ensure_ascii=False) + """;
+  var box=document.querySelector('.quiz[data-source]'), src=box.getAttribute('data-source');
+  var ans={}, f=document.getElementById('tmu-form'), msg=document.getElementById('tmu-msg');
+  function step(n){ try{ if(window.gtag) gtag('event','QuizStep',{step:n,source:src}); }catch(e){} }
+  function show(n){ box.querySelectorAll('.q').forEach(function(q){ q.classList.toggle('on', q.dataset.q==String(n)); });
+    document.getElementById('quiz').scrollIntoView({behavior:'smooth',block:'start'}); step(n); }
+  step(1);
+  box.querySelectorAll('.q[data-q="1"] .opt').forEach(function(b){ b.onclick=function(){ ans.quiz_result=b.dataset.v; show(2); }; });
+  box.querySelectorAll('.q[data-q="2"] .opt').forEach(function(b){ b.onclick=function(){ ans.cups=b.dataset.v; show(3); }; });
+  box.querySelectorAll('.q[data-q="3"] .opt').forEach(function(b){ b.onclick=function(){ ans.want=b.dataset.v;
+    var r=Q.results[ans.quiz_result]||Q.results.crash, p=Q.plan[ans.want==='simple'?'simple':'other'];
+    document.getElementById('r-label').textContent=r[0]; document.getElementById('r-text').textContent=r[1];
+    document.getElementById('r-cups').textContent=Q.cups[ans.cups]||'';
+    var g=document.getElementById('r-guide'); g.href=r[2]; g.textContent=r[3]+' \\u2192';
+    document.getElementById('r-plan').textContent=p[1];
+    var radio=box.querySelector('.qpick input[value="'+p[0]+'"]'); if(radio){ radio.checked=true; radio.dispatchEvent(new Event('change',{bubbles:true})); }
+    f.quiz_result.value=ans.quiz_result; f.cups.value=ans.cups; f.want.value=ans.want;
+    show(4); track('QuizComplete',{result:ans.quiz_result,plan:p[0],source:src}); }; });
+  var q=new URLSearchParams(location.search);
+  f.addEventListener('submit',function(e){
+    e.preventDefault();
+    var email=f.email.value.trim(); if(!/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(email)){msg.textContent='Check the email address.';return;}
+    var btn=f.querySelector('button'); btn.disabled=true; msg.textContent='Sending\\u2026';
+    klaviyoSubscribe(TMU.KLAVIYO_LIST_QUIZ, email, f.first_name.value.trim(), {quiz_result:f.quiz_result.value||'none',cups:f.cups.value,want:f.want.value,lead_magnet:'7 Mornings guide',source:src,utm_source:q.get('utm_source')||'',utm_medium:q.get('utm_medium')||'',utm_campaign:q.get('utm_campaign')||'',utm_content:q.get('utm_content')||''}, 'themorningupgrades.com quiz')
+    .then(function(r){ if(r.status===202){ track('Lead',{source:src}); f.hidden=true; document.getElementById('tmu-done').hidden=false; } else { throw new Error(r.status); } })
+    .catch(function(){ msg.textContent='Something went wrong. Try again in a moment.'; btn.disabled=false; });
+  });
+})();
+</script>
+"""
+
+QUIZ_PAGE = """
+""" + quiz_section("quiz-page", heading="Which morning are you?", h1=True) + """
+<section class="tight"><div class="wrap">""" + trust_row() + """</div></section>
+"""
+
 # ---------- HOME ----------
 HOME = """
 """ + hero_c() + """
@@ -438,48 +531,7 @@ HOME = """
 
 <section class="alt"><div class="wrap">""" + INGCARDS.replace("ingcards","ingcards light") + """</div></section>
 """ + COMPARE + """
-<section class="alt" id="quiz"><div class="wrap">
-  <h2 style="text-align:center">Not sure yet? Which morning are you?</h2>
-  <p style="text-align:center;color:var(--muted);margin:0 0 26px">Three quick questions, then the free <em>7 Mornings</em> guide is yours.</p>
-  <div class="quiz">
-    <div class="q on" data-q="1">
-      <div class="prog">Question 1 of 3</div>
-      <h3>When does your energy actually drop off?</h3>
-      <button class="opt" data-v="crash">Early afternoon. 2pm is a wall.</button>
-      <button class="opt" data-v="jitters">It doesn't drop so much as spike. I get wired, then flat.</button>
-      <button class="opt" data-v="parent">By the time the kids are back it's gone.</button>
-      <button class="opt" data-v="desk">Mid-morning, right when the real work starts.</button>
-    </div>
-    <div class="q" data-q="2">
-      <div class="prog">Question 2 of 3</div>
-      <h3>How many cups does it take to get through a day?</h3>
-      <button class="opt" data-v="1">One, and I'm hanging on.</button>
-      <button class="opt" data-v="2">Two. The second one is damage control.</button>
-      <button class="opt" data-v="3">Three or more. I've stopped counting.</button>
-    </div>
-    <div class="q" data-q="3">
-      <div class="prog">Question 3 of 3</div>
-      <h3>What would you want from a better cup?</h3>
-      <button class="opt" data-v="focus">Focus that lasts into the afternoon.</button>
-      <button class="opt" data-v="smooth">Energy without the shaky edge.</button>
-      <button class="opt" data-v="simple">Something simple I'll actually stick with.</button>
-    </div>
-    <div class="q" data-q="4">
-      <div class="prog">Your result</div>
-      <div class="result"><b id="r-label">Result</b><span id="r-text"></span></div>
-      <h3>Get the 7 Mornings guide</h3>
-      <form id="tmu-form" novalidate>
-        <label for="q-first">First name</label><input id="q-first" type="text" name="first_name" autocomplete="given-name">
-        <label for="q-email">Email</label><input id="q-email" type="email" name="email" required autocomplete="email">
-        <input type="hidden" name="quiz_result"><input type="hidden" name="cups"><input type="hidden" name="want">
-        <p style="margin:16px 0 8px"><button class="btn" type="submit">Send me the guide</button></p>
-        <p class="fine">You'll get the guide right away and a short series of notes after it. Unsubscribe in one click.</p>
-        <p id="tmu-msg" class="fine" role="status" style="color:var(--copper2)"></p>
-      </form>
-    </div>
-  </div>
-</div></section>
-
+""" + quiz_section("home") + """
 """ + """
 <section><div class="wrap">
   <p class="eyebrow" style="text-align:center">Read before you buy</p>
@@ -517,32 +569,6 @@ HOME = """
 """ + CTA_BLOCK + """
 </div></section>
 
-<script>
-(function(){
-  var ans={}, f=document.getElementById('tmu-form'), msg=document.getElementById('tmu-msg');
-  var results={
-    crash:['The 2 PM slide','Your first cup does its work early and the afternoon is on its own. The guide starts with the one-cup swap.'],
-    jitters:['Sharp, not shaky','More coffee isn\\u2019t the only option. Day 1 of the guide explains why caffeine and L-theanine are paired.'],
-    parent:['The 3pm pickup','Your day has a second shift. The guide is built around one cup that\\u2019s still working when it starts.'],
-    desk:['Mid-morning fade','The slump arrives before lunch. The guide starts with when you drink the first cup.']
-  };
-  function show(n){document.querySelectorAll('.q').forEach(function(q){q.classList.toggle('on',q.dataset.q==String(n))});document.getElementById('quiz').scrollIntoView({behavior:'smooth',block:'start'});}
-  document.querySelectorAll('.q[data-q="1"] .opt').forEach(function(b){b.onclick=function(){ans.quiz_result=b.dataset.v;show(2)}});
-  document.querySelectorAll('.q[data-q="2"] .opt').forEach(function(b){b.onclick=function(){ans.cups=b.dataset.v;show(3)}});
-  document.querySelectorAll('.q[data-q="3"] .opt').forEach(function(b){b.onclick=function(){ans.want=b.dataset.v;
-    var r=results[ans.quiz_result]||results.crash; document.getElementById('r-label').textContent=r[0]; document.getElementById('r-text').textContent=r[1];
-    f.quiz_result.value=ans.quiz_result; f.cups.value=ans.cups; f.want.value=ans.want; show(4); track('QuizComplete',{result:ans.quiz_result});}});
-  var q=new URLSearchParams(location.search);
-  f.addEventListener('submit',function(e){
-    e.preventDefault();
-    var email=f.email.value.trim(); if(!/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(email)){msg.textContent='Check the email address.';return;}
-    var btn=f.querySelector('button'); btn.disabled=true; msg.textContent='Sending\\u2026';
-    klaviyoSubscribe(TMU.KLAVIYO_LIST_QUIZ, email, f.first_name.value.trim(), {quiz_result:f.quiz_result.value||'none',cups:f.cups.value,want:f.want.value,lead_magnet:'7 Mornings guide',utm_source:q.get('utm_source')||'',utm_medium:q.get('utm_medium')||'',utm_campaign:q.get('utm_campaign')||'',utm_content:q.get('utm_content')||''}, 'themorningupgrades.com quiz')
-    .then(function(r){ if(r.status===202){ track('Lead'); location.href='/thanks.html?r='+encodeURIComponent(f.quiz_result.value||''); } else { throw new Error(r.status); } })
-    .catch(function(){ msg.textContent='Something went wrong. Try again in a moment.'; btn.disabled=false; });
-  });
-})();
-</script>
 """
 
 # ---------- SHOP ----------
@@ -1907,6 +1933,8 @@ STICKY.update({"order-complete.html": None, "thanks.html": None})
 # LCP image preloads
 PRELOAD = {fn: preload("breakfast-top", "(max-width: 860px) 100vw, 560px") for fn in ("index.html", "start.html", "ingredients.html")}
 
+PAGES["quiz.html"] = ("Which Morning Are You? A 3-Question Quiz | Morning Upgrade",
+    "Three quick questions about your coffee mornings, a straight answer, our suggestion, and the free 7 Mornings guide.", QUIZ_PAGE, og_img("breakfast-og"), True)
 PAGES["recipes.html"] = ("Instant Coffee Recipes: Iced, Hot &amp; Blended | Morning Upgrade",
     "Twelve drinks made with instant coffee: iced coffee, frapp\u00e9, latte, mocha, cold foam, dalgona, affogato and more. Steps, times and tips for each.",
     RECIPES_INDEX, og_img("patio-left"), False)
@@ -1916,7 +1944,7 @@ STICKY.update({fn: "shop" for fn in list(RECIPE_BY) + ["recipes.html"]})
 
 _changed = set()   # pages whose HTML changed in this build: their sitemap lastmod moves to today
 for fn,(title,desc,body,og,noindex) in PAGES.items():
-    html_out = page(title,desc,body,og,noindex,nav=("mini" if fn == "start.html" else True),fn=fn,sticky=STICKY.get(fn, "buy"),extra_head=PRELOAD.get(fn, ""))
+    html_out = page(title,desc,body,og,noindex,nav=("mini" if fn in ("start.html", "quiz.html") else True),fn=fn,sticky=STICKY.get(fn, "buy"),extra_head=PRELOAD.get(fn, ""))
     _path = os.path.join(HERE,fn)
     if not os.path.exists(_path) or open(_path).read() != html_out:
         _changed.add(fn)
