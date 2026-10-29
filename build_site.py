@@ -186,7 +186,7 @@ def page(title, desc, body, og_image="/img/flatlay.jpg", noindex=False, extra_he
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
-{NAV if nav else ''}
+{NAV if nav is True else (MINI_NAV if nav == 'mini' else '')}
 <main id="main">
 {body}
 </main>
@@ -291,12 +291,19 @@ CALLOUTS = f"""<div class="callouts-wrap">
   </div>
 </div>"""
 
-def hero_c(h1="One scoop. Steady energy, sharp focus.", strip=("Steady energy","Sharp focus","30 mornings a bag"), video=True):
+def hero_c(h1="One scoop. Steady energy, sharp focus.", strip=("Steady energy","Sharp focus","30 mornings a bag"), video=True, variants=False):
     striphtml = " <i>/</i> ".join(f"<span>{t}</span>" for t in strip)
+    pick = ""
+    if variants:
+        pick = ("<script>(function(){var V=" + _json.dumps({k: [h, list(st)] for k, (h, st) in LANDING_VARIANTS.items()}, ensure_ascii=False)
+                + ";var c='';try{c=(new URLSearchParams(location.search).get('utm_content')||'').toLowerCase().split(/[_\\-.]/)[0];}catch(e){}"
+                + "var v=V[c];if(!v)return;var h=document.getElementById('lp-h1'),st=document.getElementById('lp-strip');h.textContent=v[0];"
+                + "st.querySelectorAll('span:not(.rule)').forEach(function(e,i){if(v[1][i])e.textContent=v[1][i];});"
+                + "document.documentElement.setAttribute('data-variant',c);})();</script>")
     return f"""
 <div class="heroC"><div class="wrap">
-  <h1 class="h1c">{h1}</h1>
-  <p class="stripc"><span class="rule"></span>{striphtml}<span class="rule"></span></p>
+  <h1 class="h1c{' lp' if variants else ''}" id="lp-h1">{h1}</h1>
+  <p class="stripc" id="lp-strip"><span class="rule"></span>{striphtml}<span class="rule"></span></p>{pick}
   <div class="heroC-grid">
     <div class="heroC-left">{CALLOUTS}</div>
     <div class="heroC-right">
@@ -396,7 +403,7 @@ HOME = """
     <h2>Questions, answered plainly</h2>
     <details><summary>Does it taste like coffee?</summary><p>Yes. Medium roast, a little smoother than drip. Black is fine; creamer is fine.</p></details>
     <details><summary>Is it one cup or two?</summary><p>One scoop is the serving on the label.</p></details>
-    <details><summary>What if I drink coffee all day?</summary><p>Swap the first cup only for a week. That's the cup that sets the curve for the rest of the day.</p></details>
+    <details><summary>What if I drink coffee all day?</summary><p>Swap the first cup only for a week, and keep everything else the same.</p></details>
     <details><summary>Can I cancel the subscription?</summary><p>Any time. Use the link in your receipt, or <a href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00">manage your subscription here</a>: pause a month, cancel, or update your card. No calls, no forms.</p></details>
     <p><a class="btn ghost" href="/faq.html">All questions</a></p>
   </div>
@@ -821,9 +828,61 @@ THANKS = """
 </div></section>
 """
 
+# /start is the landing page for ads and creator links (noindex). The headline matches the ad:
+# utm_content's first word (ritual_a -> "ritual") picks a variant; anything else gets the default.
+# Every variant is label wording or plain facts, no results.
+LANDING_VARIANTS = {
+    "default": ("One scoop. Steady energy, sharp focus.", ("Steady energy", "Sharp focus", "30 mornings a bag")),
+    "ritual":  ("One scoop. Hot water. That's it.", ("30 seconds", "No machine", "30 mornings a bag")),
+    "swap":    ("Swap one cup for a week.", ("One scoop", "Hot water", "Seven mornings")),
+    "label":   ("Seven things on the label. One scoop.", ("MCT powder", "Natural caffeine", "L-theanine")),
+    "cost":    ("$2.33 a morning. One scoop.", ("Subscribe & Save", "$69.95/mo", "30 servings")),
+}
+
+MINI_NAV = """
+<header class="nav mini" aria-label="The Morning Upgrade"><div class="wrap">
+  <a class="brand" href="/"><img src="/img/mark.jpg" alt="" width="30" height="30"><b>The Morning Upgrade</b></a>
+  <a class="minilink" href="/faq.html">Questions</a>
+</div></header>
+"""
+
+GUAR = """<div class="guar">
+    <div><b>Shipping</b><span data-ship="policy">Orders ship from Minnesota within about two business days, then 3&ndash;6 days in transit. US shipping is a flat $8.95 a bag.</span></div>
+    <div><b>Guarantee</b><span>MarketPlace Global, the maker, backs every customer order with a 90-day money-back guarantee on unopened product in resalable condition (original shipping isn't refunded). Anything that arrives damaged or incorrect is replaced if you tell us within 30 days of delivery. We handle the return for you. <a href="/shipping-returns.html">The full policy</a>.</span></div>
+    <div><b>Who you're buying from</b><span>Rector &amp; Stull LLC, Independent Sales Representative of MarketPlace Global. A real inbox answers: hello@themorningupgrades.com.</span></div>
+  </div>"""
+
+def capture(source, heading="Not ready to order? Get the 7 Mornings guide.", note="Seven short emails on how to swap one cup for a week, with the recipe pack. Unsubscribe in one click."):
+    """Email-only capture for the 7 Mornings guide (Klaviyo quiz list), used on /start and guides."""
+    fid = f"cap-{source}"
+    return f"""<div class="capture" id="{fid}">
+  <h2>{heading}</h2>
+  <p>{note}</p>
+  <form novalidate data-capture="{source}">
+    <label for="{fid}-email" class="sr">Email</label>
+    <div class="caprow"><input id="{fid}-email" type="email" name="email" required autocomplete="email" placeholder="you@example.com"><button class="btn" type="submit">Send me the guide</button></div>
+    <p class="fine" role="status" data-capmsg></p>
+  </form>
+</div>
+<script>
+(function(){{
+  var f=document.querySelector('[data-capture="{source}"]'), msg=f.querySelector('[data-capmsg]'), q=new URLSearchParams(location.search);
+  f.addEventListener('submit',function(e){{
+    e.preventDefault();
+    var email=f.email.value.trim(); if(!/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(email)){{msg.textContent='Check the email address.';return;}}
+    var btn=f.querySelector('button'); btn.disabled=true; msg.textContent='Sending\\u2026';
+    klaviyoSubscribe(TMU.KLAVIYO_LIST_QUIZ, email, '', {{lead_magnet:'7 Mornings guide',source:'{source}',quiz_result:'none',utm_source:q.get('utm_source')||'',utm_medium:q.get('utm_medium')||'',utm_campaign:q.get('utm_campaign')||'',utm_content:q.get('utm_content')||''}}, 'themorningupgrades.com {source}')
+    .then(function(r){{ if(r.status===202){{ track('Lead',{{source:'{source}'}}); location.href='/thanks.html?r={source}'; }} else {{ throw new Error(r.status); }} }})
+    .catch(function(){{ msg.textContent='Something went wrong. Try again in a moment.'; btn.disabled=false; }});
+  }});
+}})();
+</script>"""
+
 START = """
-""" + hero_c() + """
-<section class="alt"><div class="wrap">""" + INGCARDS.replace("ingcards","ingcards light") + """</div></section>
+""" + hero_c(variants=True) + """
+<section class="tight alt"><div class="wrap">
+  """ + GUAR + """
+</div></section>
 
 <section><div class="wrap split" style="align-items:center">
   <div class="frame phone vid"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/host_kitchen.jpg"><source src="/media/host_kitchen.mp4" type="video/mp4"></video><button class="unmute" type="button" data-unmute aria-label="Turn sound on">&#9654; Sound on</button></div>
@@ -849,22 +908,18 @@ START = """
     <div><h3>Days 6&ndash;7</h3><p>Decide. If you like the cup, Subscribe &amp; Save keeps it coming for $2.33 a morning.</p></div>
   </div>
 </div></section>
-""" + """
-<section class="alt"><div class="wrap">
-  <div class="guar">
-    <div><b>Shipping</b><span data-ship="policy">Orders ship from Minnesota within about two business days, then 3&ndash;6 days in transit. US shipping is a flat $8.95 a bag.</span></div>
-    <div><b>Guarantee</b><span>MarketPlace Global, the maker, backs every customer order with a 90-day money-back guarantee on unopened product in resalable condition (original shipping isn't refunded). Anything that arrives damaged or incorrect is replaced if you tell us within 30 days of delivery. We handle the return for you. <a href="/shipping-returns.html">The full policy</a>.</span></div>
-    <div><b>Who you're buying from</b><span>Rector &amp; Stull LLC, Independent Sales Representative of MarketPlace Global. A real inbox answers: hello@themorningupgrades.com.</span></div>
-  </div>
-</div></section>
 
-<section><div class="wrap split">
+<section><div class="wrap" style="max-width:760px">""" + capture("start") + """</div></section>
+
+<section class="alt"><div class="wrap split">
   <div>
     <h2>Questions, answered plainly</h2>
     <details><summary>Does it taste like coffee?</summary><p>Yes. Medium roast, a little smoother than drip. Black is fine; creamer is fine.</p></details>
     <details><summary>How much caffeine is in a scoop?</summary><p>About the same as a regular cup of coffee. One scoop is the serving on the label.</p></details>
-    <details><summary>What does L-theanine do?</summary><p>It's the amino acid in green tea that people pair with caffeine for a steadier feel. We quote the label on what the product supports and leave the rest to you.</p></details>
+    <details><summary>Is it one cup or two?</summary><p>One scoop is the serving on the label.</p></details>
+    <details><summary>What if I drink coffee all day?</summary><p>Swap the first cup only for a week, and keep everything else the same.</p></details>
     <details><summary>Can I cancel the subscription?</summary><p>Any time, from the link in your receipt. Pause a month, skip, or cancel. No calls, no forms.</p></details>
+    <details><summary>Who ships it, and who answers?</summary><p>MarketPlace Global, the maker, ships from Maple Grove, Minnesota, usually within two business days. You're buying from Rector &amp; Stull LLC, an independent sales representative, and a real person answers hello@themorningupgrades.com. <a href="/shipping-returns.html">Shipping &amp; returns</a>.</p></details>
   </div>
   <div>""" + picker() + """</div>
 </div></section>
@@ -1135,7 +1190,7 @@ PAGES = {
   "privacy.html": ("Privacy — The Morning Upgrade", "What we collect, what we do with it, and how to opt out.", PRIVACY, "/img/flatlay.jpg", False),
   "terms.html": ("Terms of sale — The Morning Upgrade", "Terms of sale for The Morning Upgrade: prices, Subscribe & Save renewals, use of the product, returns and liability.", TERMS, "/img/flatlay.jpg", False),
   "order-complete.html": ("Order received — The Morning Upgrade", "Thanks for your order.", ORDER_COMPLETE, "/img/flatlay.jpg", True),
-  "start.html": ("The 2 PM cup, solved at 7 AM | The Morning Upgrade", "Instant performance coffee: natural caffeine + L-theanine + MCT powder. $69.95 a month or $79.95 a bag, $8.95 flat US shipping, 90-day guarantee on unopened bags.", START, "/media/host_kitchen.jpg", True),
+  "start.html": ("One Scoop, Steady Energy | The Morning Upgrade", "Instant coffee with natural caffeine, L-theanine and MCT powder. $69.95 a month or $79.95 a bag, $8.95 flat US shipping, 90-day guarantee on unopened bags.", START, "/media/host_kitchen.jpg", True),
   "thanks.html": ("Your guide is on its way — The Morning Upgrade", "Check your inbox for the 7 Mornings guide.", THANKS, "/img/desk.jpg", True),
   "guides.html": ("Coffee Guides & Recipes | The Morning Upgrade", "Answer-first guides: what MCT coffee is, how to make instant MCT coffee, L-theanine with caffeine, MCT vs. butter coffee, and iced instant coffee recipes.", GUIDES_INDEX, "/img/kitchen_pour.jpg", False),
   "what-is-mct-coffee.html": ("What Is MCT Coffee? MCT Oil vs. Powder, Explained | The Morning Upgrade", "MCT coffee is coffee with medium-chain triglycerides added, as an oil you blend in or a powder you stir in. What MCTs are and how oil and powder differ.", G_WHATMCT, "/img/scoop.jpg", False),
@@ -1152,7 +1207,7 @@ STICKY.update({"order-complete.html": None, "thanks.html": None})
 
 _changed = set()   # pages whose HTML changed in this build: their sitemap lastmod moves to today
 for fn,(title,desc,body,og,noindex) in PAGES.items():
-    html_out = page(title,desc,body,og,noindex,nav=(fn!="start.html"),fn=fn,sticky=STICKY.get(fn, "buy"))
+    html_out = page(title,desc,body,og,noindex,nav=("mini" if fn == "start.html" else True),fn=fn,sticky=STICKY.get(fn, "buy"))
     _path = os.path.join(HERE,fn)
     if not os.path.exists(_path) or open(_path).read() != html_out:
         _changed.add(fn)
