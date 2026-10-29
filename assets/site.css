@@ -417,3 +417,20 @@ footer a{padding:6px 0;margin-bottom:2px;line-height:20px}
 .caprow input{flex:1 1 220px;min-width:0}
 .caprow .btn{flex:0 0 auto}
 @media(max-width:480px){.caprow .btn{width:100%}}
+
+/* shop: photo left, buy + details right; on phones the buy block comes first */
+.shopgrid{display:grid;grid-template-columns:1fr 1fr;grid-template-areas:"media buy" "media details";gap:0 48px;align-items:start}
+.shop-media{grid-area:media}.shop-buy{grid-area:buy}.shop-details{grid-area:details}
+@media(max-width:860px){
+  .shopgrid{grid-template-columns:1fr;grid-template-areas:"buy" "media" "details";gap:0}
+  .shop-media{margin-top:26px}
+  .shop-media>.frame.p45{max-height:55vh;aspect-ratio:auto;height:55vh}
+}
+/* breadcrumbs */
+.crumbs{font-size:13px;color:var(--muted);margin:0 0 12px}
+.crumbs a{color:var(--copper-text);text-decoration:none;font-weight:600}
+.crumbs a:hover{text-decoration:underline}
+.crumbs span[aria-hidden]{margin:0 6px;opacity:.6}
+.ingcards p a{white-space:nowrap}
+.glist h3{font-size:20px}
+.glist p:not(.eyebrow){color:var(--muted);margin:0}

@@ -74,10 +74,39 @@ def start_tests(b, base):
     ctx.close()
 
 
+def ia_tests(b, base):
+    import re, os
+    src = open(os.path.join(os.path.dirname(__file__), "..", "build_site.py")).read()
+    block = src[src.index("GUIDE_LINKS = {"):]
+    guides = re.findall(r'"([a-z0-9-]+\.html)":', block[:block.index("\n}\n")])
+    ctx = context(b, base, w=1440, h=900); pg = ctx.new_page()
+    pg.goto(base + "/")
+    nav = [a.strip() for a in pg.locator("nav.nav .menu a").all_text_contents()]
+    check(nav == ["Shop", "Ingredients", "Guides", "FAQ", "Get CoreJava"], f"top nav is Shop/Ingredients/Guides/FAQ/Get CoreJava ({nav})")
+    home_links = set(pg.eval_on_selector_all("a[href]", "els => els.map(e => e.getAttribute('href'))"))
+    pg.goto(base + "/guides.html")
+    idx_links = set(pg.eval_on_selector_all("main a[href]", "els => els.map(e => e.getAttribute('href'))"))
+    for g in guides:
+        two = ("/" + g) in home_links or ("/guides.html" in home_links and ("/" + g) in idx_links)
+        check(two, f"{g} reachable in <=2 clicks from home")
+    for g in guides:
+        pg.goto(base + "/" + g)
+        crumbs = pg.locator("nav.crumbs a").all_text_contents()
+        check(crumbs == ["Home", "Guides"], f"{g} shows Home > Guides breadcrumbs")
+        check(pg.locator(".byline a[rel=author]").count() == 1, f"{g} has a named author byline")
+    ctx.close()
+    ctx = context(b, base); pg = ctx.new_page()
+    pg.goto(base + "/shop.html")
+    y = pg.evaluate("() => document.querySelector('[data-picker-btn]').getBoundingClientRect().top + scrollY")
+    check(y < 2 * 844, f"/shop first checkout button within 2 screens at 390px (top {int(y)}px)")
+    ctx.close()
+
+
 def main():
     with serve() as base, sync_playwright() as p:
         b = p.chromium.launch()
         start_tests(b, base)
+        ia_tests(b, base)
         b.close()
     print(f"\n{len(FAIL)} failure(s)")
     return 1 if FAIL else 0
