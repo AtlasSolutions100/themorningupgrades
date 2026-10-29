@@ -23,7 +23,7 @@ FOOTER = """
   <div class="cols">
     <div>
       <h2 class="fh">The Morning Upgrade</h2>
-      <p>Coffee that keeps up past lunch. One scoop, hot water, smooth energy and sharp focus. Sold by Rector &amp; Stull LLC, Independent ISR of MarketPlace Global products and services.</p>
+      <p>Instant coffee with MCT powder, natural caffeine and L-theanine. One scoop, hot water, 30 servings a bag. Sold by Rector &amp; Stull LLC, Independent ISR of MarketPlace Global products and services.</p>
       <p>hello@themorningupgrades.com</p>
     </div>
     <div>
@@ -79,8 +79,8 @@ GUIDE_META = {
 }
 
 # The one product, as the shop page states it. Named descriptively: search-facing
-# text stays free of the maker's trademarks (see note above FAQ_SKIP). No rating or
-# review markup until there are real reviews on the page.
+# text stays free of the maker's trademarks (see note above FAQ_SKIP). No rating markup
+# until the page shows real, attributable customer feedback.
 def product_ld():
     ship = {"@type": "OfferShippingDetails",
             "shippingRate": {"@type": "MonetaryAmount", "value": "8.95", "currency": "USD"},
@@ -205,10 +205,9 @@ COMPARE = """
     <div><span>Per morning</span><span>$5&ndash;7</span><span>$1&ndash;2, twice</span><span class="hl">$2.33&ndash;2.67</span></div>
     <div><span>Per month</span><span>$150&ndash;210</span><span>$60&ndash;120</span><span class="hl">$69.95&ndash;79.95</span></div>
     <div><span>Time</span><span>A line and a drive</span><span>Grind, brew, clean</span><span class="hl">30 seconds</span></div>
-    <div><span>Afternoon</span><span>The slide</span><span>The slide, then jitters</span><span class="hl">That's the point</span></div>
     <div><span>What's in it</span><span>Caffeine, sugar, milk</span><span>Caffeine</span><span class="hl">Caffeine + L-theanine + 5 more</span></div>
   </div>
-  <p class="fine" style="text-align:center;margin-top:14px">Caf&eacute; and drip costs are typical US prices; yours will vary. CoreJava prices are ours.</p>
+  <p class="fine" style="text-align:center;margin-top:14px">Caf&eacute; and drip costs are typical US prices; yours will vary. CoreJava prices are ours, before shipping and tax.</p>
 </div></section>
 """
 FOUNDER = """
@@ -217,8 +216,8 @@ FOUNDER = """
   <div>
     <p class="eyebrow">A note from the two of us</p>
     <h2>We're new. Here's who you're buying from.</h2>
-    <p>We're Rector &amp; Stull, two partners, one in Idaho and one in Texas, both of whom run on coffee and spend afternoons on calls. We drank CoreJava for a while before we decided to sell it. The reason we did is simple: the first cup stopped being the cup that needed a second one.</p>
-    <p>We don't have ten thousand reviews yet. We have a bag we drink every morning, a label we quote instead of embellish, and an email a real person answers. If it's not for you, say so and we'll make it right.</p>
+    <p>We're Rector &amp; Stull, two partners, one in Idaho and one in Texas, both of whom run on coffee and spend afternoons on calls. We drank CoreJava for a while before we decided to sell it. The reason is simple: it's the cup we kept making.</p>
+    <p>We're new, so there's no wall of star ratings here yet. We have a bag we drink every morning, a label we quote instead of embellish, and an email a real person answers. If it's not for you, say so and we'll make it right.</p>
     <p style="font-family:Helvetica,Arial,sans-serif;font-size:14px;color:var(--muted)">&mdash; Koby &amp; the Rector &amp; Stull team &middot; hello@themorningupgrades.com</p>
   </div>
 </div></section>
@@ -247,7 +246,7 @@ def trust_row(dark=False):
 def picker(cta="Add to cart", note=True):
     return f"""<fieldset class="picker" data-picker><legend class="sr">Choose a plan</legend>
   <label class="opt on"><input type="radio" name="plan" value="subscribe" checked><span class="radio"></span>
-    <span class="ptxt"><em>Most popular</em><b>Subscribe &amp; Save</b><span class="pp">$69.95<small>/mo &middot; $2.33 a morning</small></span><span class="pfine">A bag a month. Pause, skip or cancel from your receipt.</span></span></label>
+    <span class="ptxt"><em>Best value &middot; $10 off every bag</em><b>Subscribe &amp; Save</b><span class="pp">$69.95<small>/mo &middot; $2.33 a morning</small></span><span class="pfine">A bag a month. Pause, skip or cancel from your receipt.</span></span></label>
   <label class="opt"><input type="radio" name="plan" value="onetime"><span class="radio"></span>
     <span class="ptxt"><b>One bag</b><span class="pp">$79.95<small> &middot; $2.67 a morning</small></span><span class="pfine">30 servings. No commitment.</span></span></label>
   <a class="btn big" data-buy="subscribe" data-picker-btn href="#">{cta} <span aria-hidden="true">&rarr;</span></a>
@@ -286,7 +285,7 @@ HOSTSTRIP = """<section><div class="wrap">
   </div>
 </div></section>"""
 
-def hero_c(h1="One scoop. No 2 PM crash.", strip=("Clean energy","Sharper focus","30 mornings a bag"), video=True):
+def hero_c(h1="One scoop. Steady energy, sharp focus.", strip=("Steady energy","Sharp focus","30 mornings a bag"), video=True):
     striphtml = " <i>/</i> ".join(f"<span>{t}</span>" for t in strip)
     return f"""
 <div class="heroC"><div class="wrap">
@@ -318,15 +317,15 @@ HOSTS = """
 """
 # ---------- HOME ----------
 HOME = """
-""" + hero_c(h1="One scoop. No 2 PM crash.") + """
+""" + hero_c() + """
 """+"""
 
 <section class="alt"><div class="wrap">
   <h2>Three mornings, three problems</h2>
   <div class="grid3">
     <div class="card"><h3>The 2pm slide</h3><p>A big cup hits fast and leaves fast. By the afternoon meeting your focus has gone home without you.</p></div>
-    <div class="card"><h3>The second-cup jitters</h3><p>So you pour another, and now your hands are busy and your sleep is worse. Tomorrow starts tired.</p></div>
-    <div class="card"><h3>The $6 habit</h3><p>A latte on the way in, a cold brew after lunch. Two stops, two lines, and the same slump either way.</p></div>
+    <div class="card"><h3>The second-cup habit</h3><p>So you pour another, then another. The coffee is running the schedule instead of the other way round.</p></div>
+    <div class="card"><h3>The $6 habit</h3><p>A latte on the way in, a cold brew after lunch. Two stops, two lines, twelve dollars.</p></div>
   </div>
 </div></section>
 
@@ -403,7 +402,7 @@ HOME = """
   <div>
     <h2>Questions, answered plainly</h2>
     <details><summary>Does it taste like coffee?</summary><p>Yes. Medium roast, a little smoother than drip. Black is fine; creamer is fine.</p></details>
-    <details><summary>Is it one cup or two?</summary><p>One scoop is the serving. Most people find one is the right amount.</p></details>
+    <details><summary>Is it one cup or two?</summary><p>One scoop is the serving on the label.</p></details>
     <details><summary>What if I drink coffee all day?</summary><p>Swap the first cup only for a week. That's the cup that sets the curve for the rest of the day.</p></details>
     <details><summary>Can I cancel the subscription?</summary><p>Any time. Use the link in your receipt, or <a href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00">manage your subscription here</a>: pause a month, cancel, or update your card. No calls, no forms.</p></details>
     <p><a class="btn ghost" href="/faq.html">All questions</a></p>
@@ -421,7 +420,7 @@ HOME = """
 </div></section>
 <section class="dark" style="text-align:center"><div class="wrap">
   <h2>Tomorrow's first cup.</h2>
-  <p>One scoop, hot water, and an afternoon that doesn't need rescuing.</p>
+  <p>One scoop, hot water, thirty seconds. Thirty mornings a bag.</p>
 """ + CTA_BLOCK + """
 </div></section>
 
@@ -429,10 +428,10 @@ HOME = """
 (function(){
   var ans={}, f=document.getElementById('tmu-form'), msg=document.getElementById('tmu-msg');
   var results={
-    crash:['The 2pm crash','Your first cup sets a curve that peaks early and slides into the afternoon. The guide starts with the one change that flattens it.'],
-    jitters:['Sharp, not shaky','You don\\u2019t need more caffeine; you need a steadier kind. Day 1 of the guide is about the pairing that makes the difference.'],
+    crash:['The 2 PM slide','Your first cup does its work early and the afternoon is on its own. The guide starts with the one-cup swap.'],
+    jitters:['Sharp, not shaky','More coffee isn\\u2019t the only option. Day 1 of the guide explains why caffeine and L-theanine are paired.'],
     parent:['The 3pm pickup','Your day has a second shift. The guide is built around one cup that\\u2019s still working when it starts.'],
-    desk:['Mid-morning fade','The slump arrives before lunch, which usually means the cup is doing too much too fast. The guide fixes the timing first.']
+    desk:['Mid-morning fade','The slump arrives before lunch. The guide starts with when you drink the first cup.']
   };
   function show(n){document.querySelectorAll('.q').forEach(function(q){q.classList.toggle('on',q.dataset.q==String(n))});document.getElementById('quiz').scrollIntoView({behavior:'smooth',block:'start'});}
   document.querySelectorAll('.q[data-q="1"] .opt').forEach(function(b){b.onclick=function(){ans.quiz_result=b.dataset.v;show(2)}});
@@ -486,8 +485,8 @@ SHOP = """
   <h2>How a week with it goes</h2>
   <div class="steps">
     <div><h3>Days 1&ndash;2</h3><p>Swap your first cup only. Same mug, same time. Notice the afternoon.</p></div>
-    <div><h3>Days 3&ndash;5</h3><p>Most people stop reaching for the second cup here. If you still want one, make it this one.</p></div>
-    <div><h3>Days 6&ndash;7</h3><p>Decide. If the afternoon is different, Subscribe &amp; Save keeps it that way for $2.33 a cup.</p></div>
+    <div><h3>Days 3&ndash;5</h3><p>Notice whether you still want a second cup. Write it down.</p></div>
+    <div><h3>Days 6&ndash;7</h3><p>Decide. If you like the cup, Subscribe &amp; Save keeps it coming for $2.33 a morning.</p></div>
   </div>
 </div></section>
 """ + COMPARE + FOUNDER + """
@@ -533,7 +532,7 @@ FAQ = """
   <h2>The coffee</h2>
   <details><summary>Does it taste like coffee?</summary><p>Yes. Medium roast, a little smoother than drip. Black is fine; creamer is fine; over ice is fine.</p></details>
   <details><summary>How much caffeine is in a serving?</summary><p>About the same as a strong cup of coffee. The exact amount is on the Supplement Facts panel on the bag. It contains caffeine, so skip it late in the day if you're sensitive.</p></details>
-  <details><summary>Is it one cup or two?</summary><p>One scoop is the serving. Most people find one is the right amount.</p></details>
+  <details><summary>Is it one cup or two?</summary><p>One scoop is the serving on the label.</p></details>
   <details><summary>What does it do?</summary><p>It's instant coffee with natural caffeine, L-theanine and MCT powder, made for focus and steady energy. It's a dietary supplement, not a medicine, and it hasn't been evaluated by the FDA.</p></details>
   <details><summary>Who shouldn't take it?</summary><p>Children, and anyone pregnant or nursing. If you take medication or have a medical condition, ask your physician first.</p></details>
   <h2>Ordering</h2>
@@ -651,7 +650,7 @@ SHARE = """
       <span class="num">1</span>
       <h3>Sip</h3>
       <p class="tag2">Just drink it</p>
-      <p>One bag, or Subscribe &amp; Save. Enjoy your mornings. That&rsquo;s it; most people stay right here and that&rsquo;s the point.</p>
+      <p>One bag, or Subscribe &amp; Save. Enjoy your mornings. That&rsquo;s it; you can stay right here, and that&rsquo;s fine.</p>
       <a class="btn ghost sm" href="/shop.html">Get the coffee</a>
     </div>
     <div class="lvl best">
@@ -686,7 +685,7 @@ SHARE = """
       <li><strong>It&rsquo;s MarketPlace Global&rsquo;s Independent Sales Representative program.</strong> MPG is the direct-sales company that makes CoreJava. We&rsquo;re ISRs too; if you join through us, we&rsquo;re your sponsor and the people on the weekly call.</li>
       <li><strong>It costs money to start.</strong> The CoreJava Starter Kit is $179.90 (two bags plus two 6-day experience packs) and the Builder Kit is $229.90 (three of each). Both include the $29.95 annual membership. Plus shipping and tax.</li>
       <li><strong>You earn on product sales, not on signing people up.</strong> A Retail Customer Bonus every time someone you referred orders, and a Fast Start Bonus if someone you introduce enrolls with a kit. MPG pays weekly.</li>
-      <li><strong>To stay eligible for team commissions you keep 50 QV a month,</strong> which is roughly one bag of your own or one customer order. Most people in the Share level do this by drinking the coffee they were already buying.</li>
+      <li><strong>To stay eligible for team commissions you keep 50 QV a month,</strong> which is roughly one bag of your own or one customer order. In the Share level you can do this by drinking the coffee you were already buying.</li>
       <li><strong>Most participants earn little.</strong> MPG&rsquo;s own disclosure projects average annual gross revenue of roughly $500 to $2,000 before expenses, which can exceed what you earn. Read it: <a data-disclosure href="#">income disclosure statement</a>. Also read the <a href="https://cdn.raveretailer.com/4450703AD7/2024/12/GSR_6751b39409eb32803571733411236.pdf" rel="noopener">Policies &amp; Procedures</a> and <a href="https://cdn.raveretailer.com/4450703AD7/2026/09/GSR_6a99a5994071e2714841788457897.pdf" rel="noopener">Compensation Plan</a>.</li>
       <li><strong>You can stop whenever.</strong> Don&rsquo;t renew the membership and it lapses. 30-day money-back on unopened product bought as an ISR.</li>
     </ul>
@@ -799,7 +798,7 @@ ORDER_COMPLETE = """
     <ul class="clean">
       <li>Morning 1: swap your <em>first</em> cup only. One level scoop, 8 oz hot water, stir.</li>
       <li>Notice the afternoon, not the first hour.</li>
-      <li>Give it a week before you decide. Day 3 is usually where people notice.</li>
+      <li>Give it the full week before you decide.</li>
     </ul>
     <div class="card" style="margin-top:22px;padding:22px 22px;background:var(--tint);box-shadow:none">
       <p class="eyebrow" style="margin-bottom:6px">Your first-order bonus</p>
@@ -854,7 +853,7 @@ START = """
   <div class="steps">
     <div><h3>Days 1&ndash;2</h3><p>Swap your first cup only. Same mug, same time. Change nothing else.</p></div>
     <div><h3>Days 3&ndash;5</h3><p>Pay attention around 2 PM. Are you reaching for the second cup, or not? Write it down.</p></div>
-    <div><h3>Days 6&ndash;7</h3><p>Decide. If the afternoon is different, Subscribe &amp; Save keeps it that way for $2.33 a cup.</p></div>
+    <div><h3>Days 6&ndash;7</h3><p>Decide. If you like the cup, Subscribe &amp; Save keeps it coming for $2.33 a morning.</p></div>
   </div>
 </div></section>
 """ + """
@@ -870,7 +869,7 @@ START = """
   <div>
     <h2>Questions, answered plainly</h2>
     <details><summary>Does it taste like coffee?</summary><p>Yes. Medium roast, a little smoother than drip. Black is fine; creamer is fine.</p></details>
-    <details><summary>How much caffeine is in a scoop?</summary><p>About the same as a regular cup of coffee. One scoop is the serving; most people find one is the right amount.</p></details>
+    <details><summary>How much caffeine is in a scoop?</summary><p>About the same as a regular cup of coffee. One scoop is the serving on the label.</p></details>
     <details><summary>What does L-theanine do?</summary><p>It's the amino acid in green tea that people pair with caffeine for a steadier feel. We quote the label on what the product supports and leave the rest to you.</p></details>
     <details><summary>Can I cancel the subscription?</summary><p>Any time, from the link in your receipt. Pause a month, skip, or cancel. No calls, no forms.</p></details>
   </div>
@@ -879,7 +878,7 @@ START = """
 
 <section class="dark" style="text-align:center"><div class="wrap">
   <h2>Tomorrow's first cup.</h2>
-  <p>One scoop, hot water, and an afternoon that doesn't need rescuing.</p>
+  <p>One scoop, hot water, thirty seconds. Thirty mornings a bag.</p>
 """ + CTA_BLOCK + """
 </div></section>
 """
@@ -889,8 +888,8 @@ START = """
 # Answer-first: the lede is a direct 2-3 sentence answer to the question in the H1,
 # then specifics, a visible FAQ (also FAQPage data), sources, and related guides.
 # Keep it to label facts for the product (MCT powder from coconut, natural caffeine,
-# L-theanine, 30 servings, one scoop + hot water). No weight, appetite, metabolism
-# or health claims; general background cites reputable sources and stays descriptive.
+# L-theanine, 30 servings, one scoop + hot water). No health claims and nothing past the
+# label (tools/check_copy.py enforces the word list); background cites sources and stays descriptive.
 _MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
 def _nice(d):
@@ -1027,7 +1026,7 @@ G_THEANINE = guide_page("L-theanine", "L-theanine and caffeine: what the pairing
   <h2>Reading a &ldquo;caffeine + L-theanine&rdquo; label</h2>
   <ul class="clean">
     <li><strong>&ldquo;Natural caffeine&rdquo;</strong> means caffeine from a plant source, such as coffee beans, rather than made in a lab. It's the same molecule either way; the word tells you where it came from.</li>
-    <li><strong>Amounts are per serving.</strong> The Supplement Facts panel lists them for one serving (on ours, one level scoop). If ingredients are grouped in a blend, you may see only the blend's total weight.</li>
+    <li><strong>Amounts are per serving.</strong> The Supplement Facts panel lists them for one serving (on ours, one level scoop). If ingredients are grouped in a blend, you may see only the blend's total amount.</li>
     <li><strong>The FDA line.</strong> &ldquo;These statements have not been evaluated by the Food and Drug Administration&rdquo; appears on dietary supplements whose labels describe what the product supports. It means what it says: the FDA hasn't reviewed that wording.</li>
     <li><strong>&ldquo;Contains caffeine.&rdquo;</strong> L-theanine doesn't reduce the caffeine in a serving, so count it like any coffee.</li>
   </ul>
