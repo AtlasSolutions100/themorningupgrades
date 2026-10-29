@@ -102,11 +102,35 @@ def ia_tests(b, base):
     ctx.close()
 
 
+def recipe_tests(b, base):
+    import os, re, glob, html as _h
+    root = os.path.join(os.path.dirname(__file__), "..")
+    src = open(os.path.join(root, "build_site.py")).read()
+    ns = {}
+    exec("import re\nimport html as _html\n" + src[src.index("RECIPE_DATE ="):src.index("RECIPE_BY =")], ns)
+    R = ns["RECIPES"]
+    check(len(R) >= 10, f"{len(R)} recipe pages (>= 10)")
+    idx = open(os.path.join(root, "recipes.html")).read()
+    for r in R:
+        fn = r["slug"] + ".html"
+        h = open(os.path.join(root, fn)).read()
+        words = len(re.findall(r"[A-Za-z0-9']+", _h.unescape(" ".join([r["lede"]] + r["ingredients"] + r["steps"] + r["tips"] + [q + " " + a for q, a in r["faq"]]))))
+        check(words >= 250, f"{fn}: {words} words of recipe-specific text")
+        ld = [json.loads(j) for j in re.findall(r'<script type="application/ld\+json">(.*?)</script>', h, re.S)]
+        rec = [g for d in ld for g in d["@graph"] if g["@type"] == "Recipe"]
+        ok = rec and all(rec[0].get(k) for k in ("name", "image", "recipeIngredient", "recipeInstructions", "prepTime", "totalTime", "recipeYield", "author"))
+        check(bool(ok), f"{fn}: Recipe schema with the required fields")
+        check(f'href="/{fn}"' in idx and 'href="/recipes.html"' in h, f"{fn}: linked from /recipes and links back")
+        check("Contains caffeine" in h and "any instant coffee" in h, f"{fn}: caffeine + any-instant-coffee lines")
+        check(len(_h.unescape(re.search(r"<title>(.*?)</title>", h).group(1))) <= 60, f"{fn}: title <= 60 chars")
+
+
 def main():
     with serve() as base, sync_playwright() as p:
         b = p.chromium.launch()
         start_tests(b, base)
         ia_tests(b, base)
+        recipe_tests(b, base)
         b.close()
     print(f"\n{len(FAIL)} failure(s)")
     return 1 if FAIL else 0

@@ -457,3 +457,9 @@ section .bagstage.photo .chip{position:absolute}
 
 .facts{max-width:520px;margin:26px auto 0;text-align:center}
 .facts img{width:100%;height:auto;border:1px solid var(--line);border-radius:12px;background:#fff}
+
+/* recipes */
+.rmeta{list-style:none;display:flex;flex-wrap:wrap;gap:8px 22px;padding:0;margin:6px 0 18px;font-size:15px;color:var(--muted)}
+.rmeta b{color:var(--ink);margin-right:4px}
+.recipe .rphoto{aspect-ratio:16/10;margin:4px 0 8px;box-shadow:none}
+.rlist{columns:2;column-gap:28px}@media(max-width:600px){.rlist{columns:1}}
