@@ -10,9 +10,8 @@ NAV = """
   <div class="menu" id="menu">
     <a href="/shop.html">Shop</a>
     <a href="/ingredients.html">Ingredients</a>
-    <a href="/start.html">7-day swap</a>
+    <a href="/guides.html">Guides</a>
     <a href="/faq.html">FAQ</a>
-    <a href="/share.html">Share &amp; earn</a>
     <a class="btn sm" href="/shop.html">Get CoreJava</a>
   </div>
 </div></nav>
@@ -33,6 +32,7 @@ FOOTER = """
       <a href="/faq.html">Questions</a>
       <a href="/shipping-returns.html">Shipping &amp; returns</a>
       <a href="/guides.html">Guides &amp; recipes</a>
+      <a href="/start.html">The 7-day swap</a>
       <a href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00" rel="noopener">Manage subscription</a>
     </div>
     <div>
@@ -111,6 +111,17 @@ def product_ld():
                              {"priceSpecification": {"@type": "UnitPriceSpecification", "price": "69.95", "priceCurrency": "USD",
                                                      "billingDuration": {"@type": "QuantitativeValue", "value": 30, "unitCode": "DAY"}}})]}
 
+# Named author (D7). Facts only; keep in sync with the About page.
+AUTHOR = {"name": "Koby Stull", "city": "Dallas", "region": "TX",
+          "bio": "Koby Stull is a partner in Rector &amp; Stull LLC and runs The Morning Upgrade&rsquo;s website and guides from Dallas, Texas. His background is in sales leadership and software development. He writes the guides from the label and published sources, and he isn&rsquo;t a doctor or dietitian, so nothing here is medical advice."}
+
+def person_ld():
+    return {"@type": "Person", "@id": SITE + "/about.html#koby", "name": AUTHOR["name"],
+            "jobTitle": "Partner, Rector & Stull LLC", "worksFor": {"@id": SITE + "/#org"},
+            "url": SITE + "/about.html#koby",
+            "address": {"@type": "PostalAddress", "addressLocality": AUTHOR["city"], "addressRegion": AUTHOR["region"], "addressCountry": "US"},
+            "description": _html.unescape(re.sub(r"<[^>]+>", "", AUTHOR["bio"]))}
+
 def structured_data(fn, title, desc, body, og_image):
     org = {"@type": "Organization", "@id": SITE + "/#org", "name": "The Morning Upgrade",
            "legalName": "Rector & Stull LLC", "url": SITE + "/", "logo": SITE + "/img/mark.jpg",
@@ -131,17 +142,23 @@ def structured_data(fn, title, desc, body, og_image):
         graph.append({"@type": "Article", "@id": url_for(fn) + "#article", "headline": title.split(" | ")[0],
                       "description": desc, "url": url_for(fn), "mainEntityOfPage": url_for(fn),
                       "image": SITE + og_image, "datePublished": pub, "dateModified": mod, "inLanguage": "en-US",
-                      "author": {"@id": SITE + "/#org"}, "publisher": {"@id": SITE + "/#org"}})
+                      "author": {"@id": SITE + "/about.html#koby"}, "publisher": {"@id": SITE + "/#org"}})
+        graph.append(person_ld())
     qa = re.findall(r"<details><summary>(.*?)</summary>(.*?)</details>", body, re.S)
     qa = [(_strip(q), _strip(a)) for q, a in qa if _strip(q) not in FAQ_SKIP]
     qa = [(q, a) for q, a in qa if not re.search(r"corejava|marketplace\s*global|\bmpg\b", q + " " + a, re.I)]
     if (fn == "faq.html" or fn in GUIDE_META) and qa:
         graph.append({"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": q,
                       "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in qa]})
+    if fn == "about.html":
+        graph.append(person_ld())
     if fn != "index.html":
+        crumbs = [("Home", SITE + "/")]
+        if fn in GUIDE_META:
+            crumbs.append(("Guides", url_for("guides.html")))
+        crumbs.append((title.split(" — ")[0].split(" | ")[0], url_for(fn)))
         graph.append({"@type": "BreadcrumbList", "itemListElement": [
-            {"@type": "ListItem", "position": 1, "name": "Home", "item": SITE + "/"},
-            {"@type": "ListItem", "position": 2, "name": title.split(" — ")[0].split(" | ")[0], "item": url_for(fn)}]})
+            {"@type": "ListItem", "position": i + 1, "name": n, "item": u} for i, (n, u) in enumerate(crumbs)]})
     return '<script type="application/ld+json">' + _json.dumps({"@context": "https://schema.org", "@graph": graph}, ensure_ascii=False, separators=(",", ":")) + "</script>"
 
 def sticky_bar(mode):
@@ -227,7 +244,7 @@ FOUNDER = """
     <h2>We're new. Here's who you're buying from.</h2>
     <p>We're Rector &amp; Stull, two partners, one in Idaho and one in Texas, both of whom run on coffee and spend afternoons on calls. We drank CoreJava for a while before we decided to sell it. The reason is simple: it's the cup we kept making.</p>
     <p>We're new, so there's no wall of star ratings here yet. We have a bag we drink every morning, a label we quote instead of embellish, and an email a real person answers. If it's not for you, say so and we'll make it right.</p>
-    <p style="font-family:Helvetica,Arial,sans-serif;font-size:14px;color:var(--muted)">&mdash; Koby &amp; the Rector &amp; Stull team &middot; hello@themorningupgrades.com</p>
+    <p style="font-size:14px;color:var(--muted)">&mdash; <a href="/about.html#koby">Koby Stull</a>, Dallas, Texas, for Rector &amp; Stull &middot; hello@themorningupgrades.com</p>
   </div>
 </div></section>
 """
@@ -270,9 +287,9 @@ def picker(note=True):
 </fieldset>"""
 
 INGCARDS = f"""<div class="ingcards">
-  <div>{ICON_COCO}<div><h2>MCT powder</h2><p>The creamy part. From coconut, and the first thing on the label.</p></div></div>
-  <div>{ICON_LEAF}<div><h2>Natural caffeine + L-theanine</h2><p>Coffee-bean caffeine with the amino acid in green tea. Focus without the edge.</p></div></div>
-  <div>{ICON_SCOOP}<div><h2>30 servings. One scoop.</h2><p>Hot water, 30 seconds, no machine. A month of mornings in one bag.</p></div></div>
+  <div>{ICON_COCO}<div><h2>MCT powder</h2><p>The creamy part. From coconut, and the first thing on the label. <a href="/what-is-mct-coffee.html">What MCT coffee is</a>.</p></div></div>
+  <div>{ICON_LEAF}<div><h2>Natural caffeine + L-theanine</h2><p>Coffee-bean caffeine with the amino acid in green tea. <a href="/l-theanine-and-caffeine.html">Why they&rsquo;re paired</a>.</p></div></div>
+  <div>{ICON_SCOOP}<div><h2>30 servings. One scoop.</h2><p>Hot water, 30 seconds, no machine. A month of mornings in one bag. <a href="/how-to-make-mct-instant-coffee.html">How to make it</a>.</p></div></div>
 </div>"""
 
 CALLOUTS = f"""<div class="callouts-wrap">
@@ -398,7 +415,17 @@ HOME = """
 </div></section>
 
 """ + """
-<section><div class="wrap split">
+<section><div class="wrap">
+  <p class="eyebrow" style="text-align:center">Read before you buy</p>
+  <h2 style="text-align:center">Plain answers to the three questions people search</h2>
+  <div class="glist" style="margin-top:22px">
+    <a href="/what-is-mct-coffee.html"><p class="eyebrow">MCT coffee</p><h3>What is MCT coffee?</h3><p>What MCTs are, where they come from, and how oil and powder differ.</p></a>
+    <a href="/l-theanine-and-caffeine.html"><p class="eyebrow">L-theanine</p><h3>L-theanine and caffeine</h3><p>What the pairing is, how to read the label, and what the small studies say.</p></a>
+    <a href="/how-to-make-mct-instant-coffee.html"><p class="eyebrow">How-to</p><h3>How to make instant MCT coffee</h3><p>One scoop, hot water, 30 seconds. Plus iced and latte-style.</p></a>
+  </div>
+  <p style="text-align:center;margin-top:18px"><a href="/guides.html">All guides &amp; recipes &rarr;</a></p>
+</div></section>
+<section class="alt"><div class="wrap split">
   <div>
     <h2>Questions, answered plainly</h2>
     <details><summary>Does it taste like coffee?</summary><p>Yes. Medium roast, a little smoother than drip. Black is fine; creamer is fine.</p></details>
@@ -409,7 +436,7 @@ HOME = """
   </div>
   <div class="frame p45"><img src="/img/patio_iced.jpg" alt="Iced CoreJava on a sunny patio" loading="lazy"></div>
 </div></section>
-<section class="alt"><div class="wrap split">
+<section><div class="wrap split">
   <div>
     <p class="eyebrow">Share &amp; earn</p>
     <h2>Your coffee, paid for by the friends who steal a cup.</h2>
@@ -454,8 +481,8 @@ HOME = """
 
 # ---------- SHOP ----------
 SHOP = """
-<section style="padding-top:36px"><div class="wrap split" style="align-items:start">
-  <div>
+<section style="padding-top:36px"><div class="wrap shopgrid">
+  <div class="shop-media">
     <div class="frame p45"><img src="/img/hero_breakfast.jpg" alt="CoreJava coffee bag on a breakfast table in morning light" loading="lazy" decoding="async"></div>
     <div class="gallery">
       <div class="frame" style="aspect-ratio:9/16"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/product_callouts_v2.jpg"><source src="/media/product_callouts_v2.mp4" type="video/mp4"></video></div>
@@ -463,13 +490,15 @@ SHOP = """
       <div class="frame" style="aspect-ratio:9/16"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/iced.jpg"><source src="/media/iced.mp4" type="video/mp4"></video></div>
     </div>
   </div>
-  <div>
+  <div class="shop-buy">
     <p class="eyebrow">CoreJava &middot; performance coffee</p>
     <h1 style="font-size:clamp(34px,4.4vw,52px)">CoreJava Coffee, 30 servings.</h1>
     <p class="lead">Medium-roast instant coffee built around natural caffeine and L-theanine, with ChromeMate, Paradoxine, Garcinia Cambogia and Saffr'Activ. Made for focus and steady energy. One level scoop in 8 oz of hot water.</p>
     """ + picker() + """
     <p class="bonus" data-bonus hidden><strong>Free with your first order:</strong> the Recipe Pack, 12 ways to drink it plus a 30-morning tracker (PDF).</p>
     <p class="fine"><span data-ship="long">Ships to all 50 states.</span> Cancel anytime &middot; <span data-ship="checkout">secure checkout</span> &middot; <span data-ship="damage">made right if it arrives damaged</span>. Questions before you buy: hello@themorningupgrades.com.</p>
+  </div>
+  <div class="shop-details">
     <h2 style="margin-top:30px;font-size:22px">Details</h2>
     <ul class="clean">
       <li><strong>Serving:</strong> 1 level scoop (about 6.8 g) in 8 fl oz hot water. 30 servings per 7.2 oz (204 g) bag.</li>
@@ -506,9 +535,9 @@ ING = """
 <section class="alt"><div class="wrap">
   <h2 class="sr">The seven ingredients</h2>
   <div class="ing">
-    <div class="card"><b>MCT powder</b><h3>First on the label</h3><p>Medium-chain triglycerides, usually from coconut oil, in powder form. It&rsquo;s what gives the cup body and a creamy texture without adding cream.</p></div>
+    <div class="card"><b>MCT powder</b><h3>First on the label</h3><p>Medium-chain triglycerides, usually from coconut oil, in powder form. It&rsquo;s what gives the cup body and a creamy texture without adding cream. <a href="/what-is-mct-coffee.html">More on MCT coffee</a>.</p></div>
     <div class="card"><b>Natural caffeine</b><h3>From coffee beans</h3><p>The same caffeine you already drink, from coffee, not synthesized. About the amount in a strong cup.</p></div>
-    <div class="card"><b>L-theanine</b><h3>The amino acid in green tea</h3><p>Found naturally in tea leaves. Commonly paired with caffeine; many people describe the pairing as smoother than coffee alone.</p></div>
+    <div class="card"><b>L-theanine</b><h3>The amino acid in green tea</h3><p>Found naturally in tea leaves. Commonly paired with caffeine; many people describe the pairing as smoother than coffee alone. <a href="/l-theanine-and-caffeine.html">What the research says</a>.</p></div>
     <div class="card"><b>ChromeMate&reg;</b><h3>A patented chromium</h3><p>A branded form of the mineral chromium, bound to niacin. Chromium is an essential trace mineral.</p></div>
     <div class="card"><b>Paradoxine&reg;</b><h3>Grains of paradise extract</h3><p>A standardized extract of <em>Aframomum melegueta</em>, a West African seed in the ginger family.</p></div>
     <div class="card"><b>Garcinia Cambogia</b><h3>Fruit extract</h3><p>Extract of the rind of a small tropical fruit, standardized for hydroxycitric acid.</p></div>
@@ -730,6 +759,12 @@ ABOUT = """
   </div>
   <div class="frame p45"><img src="/img/bag_shadows.jpg" alt="CoreJava bag with leaf shadows" loading="lazy" decoding="async"></div>
   <p class="fine" style="margin-top:18px">The people in our videos are AI presenters we produce for the brand. They demonstrate the product; they never speak as customers or describe results.</p>
+</div></section>
+<section class="alt" id="koby"><div class="wrap" style="max-width:760px">
+  <p class="eyebrow">Who writes this site</p>
+  <h2>""" + AUTHOR["name"] + """</h2>
+  <p>""" + AUTHOR["bio"] + """</p>
+  <p>Questions, corrections or a guide you&rsquo;d like to see: hello@themorningupgrades.com.</p>
 </div></section>
 """
 
@@ -956,7 +991,7 @@ def guide_page(eyebrow, h1, lede, body, fn=None, faq=(), sources=()):
     updated = ""
     if fn in GUIDE_META:
         mod = GUIDE_META[fn][1]
-        updated = f'<p class="fine byline">Updated <time datetime="{mod}">{_nice(mod)}</time> &middot; The Morning Upgrade</p>'
+        updated = f'<p class="fine byline">By <a href="/about.html#koby" rel="author">{AUTHOR["name"]}</a> &middot; Updated <time datetime="{mod}">{_nice(mod)}</time></p>'
     faq_html = ""
     if faq:
         faq_html = '<h2 id="questions">Questions</h2>\n  ' + "\n  ".join(
@@ -968,7 +1003,7 @@ def guide_page(eyebrow, h1, lede, body, fn=None, faq=(), sources=()):
     rel_html = '<h2>Related guides</h2>\n  <ul class="clean">' + "".join(f'<li><a href="/{f}">{t}</a></li>' for f, t in rel) + "</ul>"
     return f"""
 <article><section style="padding-top:36px"><div class="wrap guide">
-  <p class="eyebrow"><a href="/guides.html" style="text-decoration:none">Guides</a> &middot; {eyebrow}</p>
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> <span aria-hidden="true">&rsaquo;</span> <a href="/guides.html">Guides</a> <span aria-hidden="true">&rsaquo;</span> <span aria-current="page">{eyebrow}</span></nav>
   <h1 style="font-size:clamp(32px,4.4vw,48px)">{h1}</h1>
   {updated}
   <p class="lead answer">{lede}</p>
