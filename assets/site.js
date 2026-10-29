@@ -78,15 +78,53 @@ window.TMU = {
   function clean(v){ return String(v||'').toLowerCase().replace(/[^a-z0-9_-]/g,'-').replace(/_+/g,'_').slice(0,40); }
   try{
     var q=new URLSearchParams(location.search), us=q.get('utm_source');
-    if (us && /^(paid|cpc|paid_social)$/i.test(q.get('utm_medium')||'') && !localStorage.getItem('tmu_ut')) localStorage.setItem('tmu_ut', JSON.stringify({s:clean(us),c:clean(q.get('utm_campaign')),n:clean(q.get('utm_content')),t:Date.now()}));
+    if (us && /^(paid|cpc|ppc|paid_social|paid-social|paidsocial|social_paid)$/i.test(q.get('utm_medium')||'') && !localStorage.getItem('tmu_ut')) localStorage.setItem('tmu_ut', JSON.stringify({s:clean(us),c:clean(q.get('utm_campaign')),n:clean(q.get('utm_content')),t:Date.now()}));
     var ut=JSON.parse(localStorage.getItem('tmu_ut')||'null');
     if (ut && Date.now()-ut.t<30*864e5) C.UT='ut__'+ut.s+'__'+ut.c+'__'+ut.n;
   }catch(e){}
 
-  var TT_MAP={InitiateCheckout:'InitiateCheckout',Lead:'CompleteRegistration',QuizComplete:'ViewContent',PartnerLead:'SubmitForm',PartnerClick:'ClickButton',Purchase:'CompletePayment'};
-  var FB_STD={InitiateCheckout:1,Lead:1,Purchase:1};
-  var SNAP_MAP={InitiateCheckout:'START_CHECKOUT',Lead:'SIGN_UP',QuizComplete:'VIEW_CONTENT',PartnerLead:'SIGN_UP',Purchase:'PURCHASE'};
-  window.track = function(name, props){ try{ if(window.gtag&&C.GA4_ID) gtag('event', name, props||{}); if(window.ttq&&C.TIKTOK_PIXEL&&TT_MAP[name]) ttq.track(TT_MAP[name], name==='Purchase'?{value:79.95,currency:'USD',content_type:'product',content_id:'CL805'}:(props||{})); if(window.fbq&&C.PIXEL_ID){ if(FB_STD[name]) fbq('track',name,name==='Purchase'?Object.assign({value:79.95,currency:'USD',content_ids:['CL805'],content_type:'product'},props||{}):(props||{})); else fbq('trackCustom',name,props||{}); } if(window.gtag&&C.GOOGLE_PURCHASE&&name==='Purchase') gtag('event','conversion',{send_to:C.GOOGLE_PURCHASE,value:79.95,currency:'USD',transaction_id:(props&&props.order)||(new URLSearchParams(location.search).get('session_id')||'')}); if(window.snaptr&&C.SNAP_PIXEL&&SNAP_MAP[name]) snaptr('track',SNAP_MAP[name],name==='Purchase'?{price:79.95,currency:'USD',item_ids:['CL805'],number_items:1}:{}); if(window.plausible) plausible(name,{props:props||{}}); }catch(e){} };
+  var TT_MAP={InitiateCheckout:'InitiateCheckout',ViewContent:'ViewContent',Lead:'CompleteRegistration',QuizComplete:'ViewContent',PartnerLead:'SubmitForm',PartnerClick:'ClickButton',Purchase:'CompletePayment'};
+  var FB_STD={InitiateCheckout:1,ViewContent:1,Lead:1,Purchase:1};
+  var SNAP_MAP={InitiateCheckout:'START_CHECKOUT',ViewContent:'VIEW_CONTENT',Lead:'SIGN_UP',QuizComplete:'VIEW_CONTENT',PartnerLead:'SIGN_UP',Purchase:'PURCHASE'};
+  var GA_SKIP={ViewContent:1};   // GA4 already has page_view; ViewContent is for the ad pixels
+  // Plan prices (coffee subtotal, before shipping and tax). Purchase/InitiateCheckout values use these.
+  var PRICE={subscribe:69.95,onetime:79.95}, SKU='CL805';
+  C.PRICE=PRICE;
+  window.track = function(name, props){ try{
+    props=props||{};
+    var isP=name==='Purchase', val=(typeof props.value==='number')?props.value:PRICE.subscribe, eid=props.transaction_id||'';
+    if(window.gtag&&C.GA4_ID&&!GA_SKIP[name]) gtag('event', name, props);
+    if(window.ttq&&C.TIKTOK_PIXEL&&TT_MAP[name]) ttq.track(TT_MAP[name], (isP||name==='ViewContent'||name==='InitiateCheckout')?{value:val,currency:'USD',content_type:'product',content_id:SKU}:props, eid?{event_id:eid}:undefined);
+    if(window.fbq&&C.PIXEL_ID){ if(FB_STD[name]) fbq('track',name,(isP||name==='ViewContent'||name==='InitiateCheckout')?Object.assign({},props,{value:val,currency:'USD',content_ids:[SKU],content_type:'product'}):props, eid?{eventID:eid}:undefined); else fbq('trackCustom',name,props); }
+    if(window.gtag&&C.GOOGLE_PURCHASE&&isP) gtag('event','conversion',{send_to:C.GOOGLE_PURCHASE,value:val,currency:'USD',transaction_id:eid});
+    if(window.snaptr&&C.SNAP_PIXEL&&SNAP_MAP[name]) snaptr('track',SNAP_MAP[name],(isP||name==='ViewContent'||name==='InitiateCheckout')?Object.assign({price:val,currency:'USD',item_ids:[SKU],number_items:1},eid?{transaction_id:eid}:{}):{});
+    if(window.plausible) plausible(name,{props:props});
+  }catch(e){} };
+
+  // Which plan was bought. Order of trust: ?plan= on the Stripe redirect, then the last Buy button
+  // this browser clicked (tmu_plan), then Subscribe & Save.
+  C.plan = function(){
+    var p=''; try{ p=(new URLSearchParams(location.search).get('plan')||'').toLowerCase(); }catch(e){}
+    if(!PRICE[p]){ try{ p=localStorage.getItem('tmu_plan')||''; }catch(e){ p=''; } }
+    return PRICE[p]?p:'subscribe';
+  };
+  // Purchase: once per Stripe Checkout Session. transaction_id/event id = session_id, so a refresh,
+  // a bookmark or a second tab never counts twice, and a server-side event can dedupe against it later.
+  window.tmuPurchase = function(){ try{
+    var sid=new URLSearchParams(location.search).get('session_id')||'';
+    if(!/^cs_[A-Za-z0-9_]{6,200}$/.test(sid)) return false;      // not a Stripe redirect: no purchase
+    var key='tmu_purchased', done=[]; try{ done=JSON.parse(localStorage.getItem(key)||'[]'); }catch(e){ done=[]; }
+    if(done.indexOf(sid)>-1) return false;
+    var plan=C.plan(), value=PRICE[plan];
+    try{ done.push(sid); localStorage.setItem(key, JSON.stringify(done.slice(-20))); }catch(e){}
+    track('Purchase',{value:value,currency:'USD',transaction_id:sid,plan:plan});
+    if(window.gtag&&C.GA4_ID) gtag('event','purchase',{transaction_id:sid,value:value,currency:'USD',
+      items:[{item_id:SKU,item_name:'MCT Instant Coffee with L-Theanine, 30 Servings',item_variant:plan,price:value,quantity:1}]});
+    return true;
+  }catch(e){ return false; } };
+
+  // ViewContent on the product pages, for TikTok / Meta / Snap optimisation.
+  if (/^\/(index\.html|shop\.html|start\.html)?$/.test(location.pathname)) track('ViewContent',{value:PRICE.subscribe,currency:'USD'});
 
   if (qref) track('CreatorVisit',{creator:qref});
 
@@ -133,7 +171,7 @@ window.TMU = {
     }
     document.querySelectorAll('[data-buy]').forEach(function(a){
       wire(a);
-      a.addEventListener('click', function(){ track('InitiateCheckout',{plan:a.getAttribute('data-buy'), mode:a.dataset.mode}); });
+      a.addEventListener('click', function(){ var k=a.getAttribute('data-buy'); try{ localStorage.setItem('tmu_plan', k); }catch(e){} track('InitiateCheckout',{plan:k, mode:a.dataset.mode, value:PRICE[k]||PRICE.subscribe, currency:'USD'}); });
     });
     // Shipping / checkout copy depends on which checkout is live. Never promise free shipping in handoff mode.
     var SELF = !!(C.STRIPE_ONETIME||C.STRIPE_SUBSCRIBE);
