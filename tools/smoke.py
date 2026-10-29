@@ -21,7 +21,7 @@ import urllib.request
 from playwright.sync_api import sync_playwright
 from testlib import ROOT, serve, block_third_party
 
-CHECK_STICKY = False   # turned on with the sticky-bar sync (Phase 1)
+CHECK_STICKY = True
 WIDTHS = {"mobile": (390, 844), "desktop": (1440, 900)}
 
 PAGE_JS = r"""() => {

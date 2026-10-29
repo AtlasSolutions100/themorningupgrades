@@ -144,7 +144,16 @@ def structured_data(fn, title, desc, body, og_image):
             {"@type": "ListItem", "position": 2, "name": title.split(" — ")[0].split(" | ")[0], "item": url_for(fn)}]})
     return '<script type="application/ld+json">' + _json.dumps({"@context": "https://schema.org", "@graph": graph}, ensure_ascii=False, separators=(",", ":")) + "</script>"
 
-def page(title, desc, body, og_image="/img/flatlay.jpg", noindex=False, extra_head="", nav=True, fn="index.html"):
+def sticky_bar(mode):
+    """buy = checkout for the picked plan (follows the picker); shop = a plain link to the shop
+    page (guides, 404: a searcher shouldn't land in Stripe for a product they haven't seen)."""
+    if mode == "buy":
+        return f'<aside class="sticky" aria-label="Quick buy"><div><b>CoreJava &middot; 30 servings</b><span data-sticky-price>{PLAN_STICKY["subscribe"]}</span></div><a class="btn" data-buy="subscribe" href="#">Checkout</a></aside>'
+    if mode == "shop":
+        return '<aside class="sticky" aria-label="See the coffee"><div><b>Our instant MCT coffee</b><span>30 servings &middot; from $69.95/mo</span></div><a class="btn" href="/shop.html">See the coffee &rarr;</a></aside>'
+    return ""
+
+def page(title, desc, body, og_image="/img/flatlay.jpg", noindex=False, extra_head="", nav=True, fn="index.html", sticky="buy"):
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -182,7 +191,7 @@ def page(title, desc, body, og_image="/img/flatlay.jpg", noindex=False, extra_he
 {body}
 </main>
 {FOOTER}
-<aside class="sticky" aria-label="Quick buy"><div><b>CoreJava &middot; 30 servings</b><span>from $69.95/mo &middot; $2.33 a morning</span></div><a class="btn" data-buy="subscribe" href="#">Get it</a></aside>
+{sticky_bar(sticky)}
 </body>
 </html>
 """
@@ -243,14 +252,21 @@ def trust_row(dark=False):
   <span>{ICON_GLOBE}<span><b>Made by MarketPlace Global</b><i>sold by Rector &amp; Stull, an independent ISR</i></span></span>
 </div>"""
 
-def picker(cta="Add to cart", note=True):
+_PICKERS = [0]
+PLAN_CTA = {"subscribe": "Checkout &mdash; $69.95/mo", "onetime": "Checkout &mdash; $79.95"}
+PLAN_STICKY = {"subscribe": "$69.95/mo &middot; $2.33 a morning", "onetime": "$79.95 one bag &middot; $2.67 a morning"}
+SHIP_NOTE = "+ shipping &amp; tax at checkout"
+
+def picker(note=True):
+    _PICKERS[0] += 1
+    name = f"plan{_PICKERS[0]}"
     return f"""<fieldset class="picker" data-picker><legend class="sr">Choose a plan</legend>
-  <label class="opt on"><input type="radio" name="plan" value="subscribe" checked><span class="radio"></span>
-    <span class="ptxt"><em>Best value &middot; $10 off every bag</em><b>Subscribe &amp; Save</b><span class="pp">$69.95<small>/mo &middot; $2.33 a morning</small></span><span class="pfine">A bag a month. Pause, skip or cancel from your receipt.</span></span></label>
-  <label class="opt"><input type="radio" name="plan" value="onetime"><span class="radio"></span>
+  <label class="opt on"><input type="radio" name="{name}" value="subscribe" checked data-cta="{_html.unescape(PLAN_CTA['subscribe'])}" data-sticky="{_html.unescape(PLAN_STICKY['subscribe'])}"><span class="radio"></span>
+    <span class="ptxt"><em>Best value &middot; $10 off every bag</em><b>Subscribe &amp; Save</b><span class="pp">$69.95<small>/mo &middot; $2.33 a morning</small></span><span class="pfine">A bag every 30 days. Pause, skip or cancel from your receipt.</span></span></label>
+  <label class="opt"><input type="radio" name="{name}" value="onetime" data-cta="{_html.unescape(PLAN_CTA['onetime'])}" data-sticky="{_html.unescape(PLAN_STICKY['onetime'])}"><span class="radio"></span>
     <span class="ptxt"><b>One bag</b><span class="pp">$79.95<small> &middot; $2.67 a morning</small></span><span class="pfine">30 servings. No commitment.</span></span></label>
-  <a class="btn big" data-buy="subscribe" data-picker-btn href="#">{cta} <span aria-hidden="true">&rarr;</span></a>
-  {'<p class="fine pnote"><span data-ship="short">$8.95 US shipping</span> &middot; 90-day guarantee on unopened bags &middot; pause or cancel anytime</p>' if note else ''}
+  <a class="btn big" data-buy="subscribe" data-picker-btn href="#"><span data-cta>{PLAN_CTA['subscribe']}</span> <span aria-hidden="true">&rarr;</span></a>
+  {f'<p class="fine pnote">{SHIP_NOTE} &middot; 90-day guarantee on unopened bags &middot; pause or cancel anytime</p>' if note else ''}
 </fieldset>"""
 
 INGCARDS = f"""<div class="ingcards">
@@ -275,16 +291,6 @@ CALLOUTS = f"""<div class="callouts-wrap">
   </div>
 </div>"""
 
-HOSTSTRIP = """<section><div class="wrap">
-  <h2 style="text-align:center">Real routine, honest hosts.</h2>
-  <p style="text-align:center;color:var(--muted);max-width:60ch;margin:0 auto 26px">The people in our videos are AI presenters, and we say so on every one. They show the coffee, the scoop and the label; they don't claim results.</p>
-  <div class="hoststrip">
-    <div class="frame phone vid"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/host_kitchen.jpg"><source src="/media/host_kitchen.mp4" type="video/mp4"></video><button class="unmute" type="button" data-unmute aria-label="Turn sound on">&#9654; Sound on</button></div>
-    <div class="frame phone vid"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/host_desk.jpg"><source src="/media/host_desk.mp4" type="video/mp4"></video><button class="unmute" type="button" data-unmute aria-label="Turn sound on">&#9654; Sound on</button></div>
-    <div class="frame phone vid"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/host_gymbag.jpg"><source src="/media/host_gymbag.mp4" type="video/mp4"></video><button class="unmute" type="button" data-unmute aria-label="Turn sound on">&#9654; Sound on</button></div>
-  </div>
-</div></section>"""
-
 def hero_c(h1="One scoop. Steady energy, sharp focus.", strip=("Steady energy","Sharp focus","30 mornings a bag"), video=True):
     striphtml = " <i>/</i> ".join(f"<span>{t}</span>" for t in strip)
     return f"""
@@ -302,19 +308,6 @@ def hero_c(h1="One scoop. Steady energy, sharp focus.", strip=("Steady energy","
 </div></div>
 """
 
-HOSTS = """
-<section><div class="wrap">
-  <p class="eyebrow" style="text-align:center">Meet the hosts</p>
-  <h2 style="text-align:center">The people in our videos are AI presenters.</h2>
-  <p style="text-align:center;color:var(--muted);max-width:62ch;margin:0 auto 26px">We say so up front. They show you the coffee, the scoop and what's on the label; they don't claim results, because they haven't had any. Real answers come from a real inbox: hello@themorningupgrades.com.</p>
-  <div class="hosts">
-    <div class="frame p45"><img src="/img/host_p3_marble.jpg" alt="AI host holding a bag of CoreJava at a marble kitchen counter" loading="lazy"></div>
-    <div class="frame p45"><img src="/img/host_p1_raglan.jpg" alt="AI host holding a bag of CoreJava in a living room" loading="lazy"></div>
-    <div class="frame p45"><img src="/img/host_p2_sofa.jpg" alt="AI host on a yellow sofa with a bag of CoreJava and a mug" loading="lazy"></div>
-    <div class="frame p45"><img src="/img/host_p4_gaze.jpg" alt="AI host on a bed with a laptop and a bag of CoreJava" loading="lazy"></div>
-  </div>
-</div></section>
-"""
 # ---------- HOME ----------
 HOME = """
 """ + hero_c() + """
@@ -467,7 +460,7 @@ SHOP = """
     <p class="eyebrow">CoreJava &middot; performance coffee</p>
     <h1 style="font-size:clamp(34px,4.4vw,52px)">CoreJava Coffee, 30 servings.</h1>
     <p class="lead">Medium-roast instant coffee built around natural caffeine and L-theanine, with ChromeMate, Paradoxine, Garcinia Cambogia and Saffr'Activ. Made for focus and steady energy. One level scoop in 8 oz of hot water.</p>
-    """ + picker(note=False) + """
+    """ + picker() + """
     <p class="bonus" data-bonus hidden><strong>Free with your first order:</strong> the Recipe Pack, 12 ways to drink it plus a 30-morning tracker (PDF).</p>
     <p class="fine"><span data-ship="long">Ships to all 50 states.</span> Cancel anytime &middot; <span data-ship="checkout">secure checkout</span> &middot; <span data-ship="damage">made right if it arrives damaged</span>. Questions before you buy: hello@themorningupgrades.com.</p>
     <h2 style="margin-top:30px;font-size:22px">Details</h2>
@@ -536,12 +529,12 @@ FAQ = """
   <details><summary>What does it do?</summary><p>It's instant coffee with natural caffeine, L-theanine and MCT powder, made for focus and steady energy. It's a dietary supplement, not a medicine, and it hasn't been evaluated by the FDA.</p></details>
   <details><summary>Who shouldn't take it?</summary><p>Children, and anyone pregnant or nursing. If you take medication or have a medical condition, ask your physician first.</p></details>
   <h2>Ordering</h2>
-  <details><summary>How does Subscribe &amp; Save work?</summary><p>A bag ships every 30 days at $69.95. Pause a month, cancel, or update your card any time from the link in your receipt or at <a href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00">the subscription portal</a>. No calls.</p></details>
-  <details><summary>Where does it ship from, how fast, and what does shipping cost?</summary><p><span data-ship="policy">Right now orders are fulfilled by the maker, MarketPlace Global, and shipping is calculated at their checkout before you pay.</span> US addresses only for now. Tracking arrives by email.</p></details>
-  <details><summary>Returns?</summary><p>If a bag arrives damaged or wrong, email hello@themorningupgrades.com within 14 days and we'll replace it or refund it. Full policy on the <a href="/shipping-returns.html">Shipping &amp; returns</a> page.</p></details>
+  <details><summary>How does Subscribe &amp; Save work?</summary><p>A bag ships every 30 days at $69.95, $10 less than a single bag, plus shipping and tax. Pause a month, cancel, or update your card any time from the link in your receipt or at <a href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00">the subscription portal</a>. No calls.</p></details>
+  <details><summary>Where does it ship from, how fast, and what does shipping cost?</summary><p><span data-ship="policy">Orders are fulfilled by the maker, MarketPlace Global, from Maple Grove, Minnesota, usually within two business days, then 3&ndash;6 days in transit. US shipping is a flat $8.95 a bag.</span> US addresses only for now. Tracking arrives by email.</p></details>
+  <details><summary>Returns?</summary><p>If a bag arrives damaged or wrong, email hello@themorningupgrades.com within 30 days of delivery and we'll replace it or refund it. Unopened bags are covered by a 90-day money-back guarantee. Full policy on the <a href="/shipping-returns.html">Shipping &amp; returns</a> page.</p></details>
   <details><summary>Who am I buying from?</summary><p>Rector &amp; Stull LLC, Independent ISR of MarketPlace Global products and services. MarketPlace Global makes CoreJava; we sell it.</p></details>
   <h2>The business</h2>
-  <details><summary>Who are the people in your videos?</summary><p>AI presenters we make for the brand. They show the coffee, the scoop and the label; they never claim results, because they haven't used it. Real answers come from a real inbox: hello@themorningupgrades.com.</p></details>
+  <details><summary>Who are the people in your videos?</summary><p>AI presenters we make for the brand. We say so here and in the platform AI labels. They show the coffee, the scoop and the label; they never claim results, because they haven't used it. Real answers come from a real inbox: hello@themorningupgrades.com.</p></details>
 </div></section>
 """
 
@@ -725,7 +718,7 @@ ABOUT = """
     <h1 style="font-size:clamp(30px,4vw,46px)">Two people, one bag of coffee, and a website that says what it is.</h1>
     <p class="lead">Rector &amp; Stull LLC is a small company run by two partners, one in Idaho and one in Texas. We're Independent Sales Representatives (ISRs) for MarketPlace Global, and CoreJava is the product we drink ourselves, which is why it's the one we sell.</p>
     <p>We started The Morning Upgrade because most coffee marketing is either a lifestyle fantasy or a wall of supplement jargon. We wanted a page that tells you what's in the bag, what it costs per cup, and how to find out in a week whether it's for you.</p>
-    <p>Everything on this site that earns us money says so. Every video that uses an AI-generated scene is labeled. If something's unclear, email us and a human will answer: hello@themorningupgrades.com.</p>
+    <p>Everything on this site that earns us money says so. The people in our videos are AI presenters; we say so here and in the platform AI labels. If something's unclear, email us and a human will answer: hello@themorningupgrades.com.</p>
     <p><a class="btn" href="/shop.html">Buy CoreJava</a> &nbsp; <a class="btn ghost" href="/partner.html">Partner with us</a></p>
   </div>
   <div class="frame p45"><img src="/img/bag_shadows.jpg" alt="CoreJava bag with leaf shadows" loading="lazy" decoding="async"></div>
@@ -873,7 +866,7 @@ START = """
     <details><summary>What does L-theanine do?</summary><p>It's the amino acid in green tea that people pair with caffeine for a steadier feel. We quote the label on what the product supports and leave the rest to you.</p></details>
     <details><summary>Can I cancel the subscription?</summary><p>Any time, from the link in your receipt. Pause a month, skip, or cancel. No calls, no forms.</p></details>
   </div>
-  <div>""" + picker(cta="Get CoreJava") + """</div>
+  <div>""" + picker() + """</div>
 </div></section>
 
 <section class="dark" style="text-align:center"><div class="wrap">
@@ -1113,7 +1106,24 @@ GUIDES_INDEX = """
 </div></section>
 """
 
+NOT_FOUND = """
+<section style="padding-top:48px"><div class="wrap" style="max-width:720px">
+  <p class="eyebrow">Page not found</p>
+  <h1 style="font-size:clamp(30px,4vw,44px)">That page isn&rsquo;t here.</h1>
+  <p class="lead">The link may be old or have a typo. Here&rsquo;s where most things live:</p>
+  <ul class="clean">
+    <li><a href="/shop.html">The coffee</a>: instant coffee with MCT powder, natural caffeine and L-theanine, 30 servings a bag.</li>
+    <li><a href="/ingredients.html">Every ingredient</a>, from the label.</li>
+    <li><a href="/guides.html">Guides &amp; recipes</a>: MCT coffee, L-theanine, iced instant coffee.</li>
+    <li><a href="/faq.html">Questions</a>: taste, caffeine, shipping, returns.</li>
+  </ul>
+  <p><a class="btn" href="/shop.html">See the coffee</a> &nbsp; <a class="btn ghost" href="/">Home</a></p>
+  <p class="fine">Still stuck? hello@themorningupgrades.com</p>
+</div></section>
+"""
+
 PAGES = {
+  "404.html": ("Page not found — The Morning Upgrade", "That page isn't here. Try the shop, the ingredients, the guides or the FAQ.", NOT_FOUND, "/img/flatlay.jpg", True),
   "index.html": ("MCT Coffee with L-Theanine, One Scoop | The Morning Upgrade", "Instant coffee with MCT powder, natural caffeine and L-theanine. One scoop in hot water, 30 servings a bag. $69.95 a month or $79.95 a bag.", HOME, "/img/flatlay.jpg", False),
   "shop.html": ("Buy MCT Coffee: $69.95/mo or $79.95 a Bag | The Morning Upgrade", "Instant MCT coffee, 30 servings a bag. $79.95 for one bag or $69.95 a month on Subscribe & Save. Natural caffeine, L-theanine and four more actives.", SHOP, "/img/hero_breakfast.jpg", False),
   "ingredients.html": ("Ingredients: MCT Powder, Caffeine, L-Theanine | The Morning Upgrade", "Seven ingredients and what each one is: MCT powder, natural caffeine, L-theanine, ChromeMate, Paradoxine, Garcinia Cambogia, Saffr'Activ.", ING, "/media/ingredients.jpg", False),
@@ -1135,9 +1145,14 @@ PAGES = {
   "iced-instant-coffee-recipes.html": ("Iced Instant Coffee Without Clumps: 3 Recipes | The Morning Upgrade", "Dissolve hot, then go cold: the trick for smooth iced instant coffee, plus iced classic, iced oat vanilla and a blended frappé.", G_ICED, "/img/patio_iced.jpg", False),
 }
 
+# Sticky bar: checkout on the buy pages; a link to the shop on guides and the 404; none after a
+# purchase or sign-up.
+STICKY = {fn: "shop" for fn in list(GUIDE_META) + ["guides.html", "404.html", "about.html", "privacy.html", "terms.html"]}
+STICKY.update({"order-complete.html": None, "thanks.html": None})
+
 _changed = set()   # pages whose HTML changed in this build: their sitemap lastmod moves to today
 for fn,(title,desc,body,og,noindex) in PAGES.items():
-    html_out = page(title,desc,body,og,noindex,nav=(fn!="start.html"),fn=fn)
+    html_out = page(title,desc,body,og,noindex,nav=(fn!="start.html"),fn=fn,sticky=STICKY.get(fn, "buy"))
     _path = os.path.join(HERE,fn)
     if not os.path.exists(_path) or open(_path).read() != html_out:
         _changed.add(fn)
@@ -1145,7 +1160,7 @@ for fn,(title,desc,body,og,noindex) in PAGES.items():
     print("wrote",fn)
 
 # ---------- creator links: /c/<code>/ ----------
-# One line per creator on the $100 + 15% lifetime-commission deal. The page remembers the creator
+# One line per creator with a deal (new offers: 15% of the coffee subtotal for 12 months; see README). The page remembers the creator
 # (site.js keeps it 60 days, last creator link wins) and sends people to /start. Codes: a-z 0-9 _ -.
 CREATORS = {
   "kasey":   "Kasey Loraine Eastland (@kceastlanddd)",
