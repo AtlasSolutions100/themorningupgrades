@@ -1,0 +1,100 @@
+{
+ "breakfast-og": {
+  "h": 630,
+  "src": "hero_breakfast.jpg",
+  "w": 1200,
+  "widths": [
+   480,
+   800,
+   1200
+  ]
+ },
+ "breakfast-top": {
+  "h": 932,
+  "src": "hero_breakfast.jpg",
+  "w": 1200,
+  "widths": [
+   480,
+   800,
+   1200
+  ]
+ },
+ "desk-top": {
+  "h": 1478,
+  "src": "desk.jpg",
+  "w": 1200,
+  "widths": [
+   480,
+   800,
+   1200
+  ]
+ },
+ "flatlay-right": {
+  "h": 1200,
+  "src": "flatlay.jpg",
+  "w": 636,
+  "widths": [
+   480,
+   636
+  ]
+ },
+ "gym-face": {
+  "h": 1116,
+  "src": "gym.jpg",
+  "w": 672,
+  "widths": [
+   480,
+   672
+  ]
+ },
+ "kitchen-pour-top": {
+  "h": 1312,
+  "src": "kitchen_pour.jpg",
+  "w": 1200,
+  "widths": [
+   480,
+   800,
+   1200
+  ]
+ },
+ "patio-left": {
+  "h": 1038,
+  "src": "patio_iced.jpg",
+  "w": 830,
+  "widths": [
+   480,
+   800,
+   830
+  ]
+ },
+ "pour-top": {
+  "h": 1298,
+  "src": "pour.jpg",
+  "w": 1200,
+  "widths": [
+   480,
+   800,
+   1200
+  ]
+ },
+ "scoop-top": {
+  "h": 1408,
+  "src": "scoop.jpg",
+  "w": 1200,
+  "widths": [
+   480,
+   800,
+   1200
+  ]
+ },
+ "shadows-top": {
+  "h": 995,
+  "src": "bag_shadows.jpg",
+  "w": 1200,
+  "widths": [
+   480,
+   800,
+   1200
+  ]
+ }
+}

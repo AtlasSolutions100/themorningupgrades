@@ -5,7 +5,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 
 NAV = """
 <nav class="nav" aria-label="Main"><div class="wrap">
-  <a class="brand" href="/"><img src="/img/mark.jpg" alt=""><b>The Morning Upgrade</b></a>
+  <a class="brand" href="/"><img src="/img/mark.jpg" alt="" width="30" height="30"><b>The Morning Upgrade</b></a>
   <button class="burger" aria-label="Open menu" aria-expanded="false" aria-controls="menu">Menu</button>
   <div class="menu" id="menu">
     <a href="/shop.html">Shop</a>
@@ -51,6 +51,53 @@ FOOTER = """
 """
 
 SITE = "https://themorningupgrades.com"
+# Supplement Facts panel (D4): drop a legible photo of the real panel into img/ (for example
+# img/facts-panel.jpg), put its path here and rebuild. It shows on /ingredients and /shop as a
+# plain photo with no commentary. Empty = hidden.
+FACTS_PANEL_IMG = ""
+FACTS_PANEL_SIZE = (1200, 1600)   # width, height of that photo
+
+def facts_panel():
+    if not FACTS_PANEL_IMG:
+        return ""
+    w, h = FACTS_PANEL_SIZE
+    return (f'<figure class="facts"><img src="{FACTS_PANEL_IMG}" width="{w}" height="{h}" loading="lazy" decoding="async" '
+            f'alt="Supplement Facts panel from the bag: serving size, amounts per serving, other ingredients and allergen statement">'
+            f'<figcaption class="fine">The Supplement Facts panel, photographed from the bag.</figcaption></figure>')
+
+# Paste the brand's Facebook Page URL here to add it to Organization sameAs. Empty = left out.
+FACEBOOK_PAGE = ""
+
+# Label-safe crops in img/opt/ (tools/images.py writes them and this manifest).
+_MANIFEST = _json_load = None
+def _manifest():
+    global _MANIFEST
+    if _MANIFEST is None:
+        import json
+        with open(os.path.join(HERE, "img", "opt", "manifest.json")) as f:
+            _MANIFEST = json.load(f)
+    return _MANIFEST
+
+def pic(name, alt, sizes="(max-width: 860px) 100vw, 50vw", eager=False):
+    """<picture> with WebP + JPEG srcsets, intrinsic width/height (no layout shift), lazy unless eager."""
+    m = _manifest()[name]
+    ws = m["widths"]
+    webp = ", ".join(f"/img/opt/{name}-{w}.webp {w}w" for w in ws)
+    jpg = ", ".join(f"/img/opt/{name}-{w}.jpg {w}w" for w in ws)
+    fallback = f"/img/opt/{name}-{800 if 800 in ws else ws[-1]}.jpg"
+    load = 'fetchpriority="high" decoding="async"' if eager else 'loading="lazy" decoding="async"'
+    return (f'<picture><source type="image/webp" srcset="{webp}" sizes="{sizes}">'
+            f'<img src="{fallback}" srcset="{jpg}" sizes="{sizes}" width="{m["w"]}" height="{m["h"]}" alt="{alt}" {load}></picture>')
+
+def preload(name, sizes="(max-width: 860px) 100vw, 50vw"):
+    ws = _manifest()[name]["widths"]
+    webp = ", ".join(f"/img/opt/{name}-{w}.webp {w}w" for w in ws)
+    return f'<link rel="preload" as="image" type="image/webp" imagesrcset="{webp}" imagesizes="{sizes}" fetchpriority="high">'
+
+def og_img(name):
+    """Share image: the largest JPEG of a label-safe crop."""
+    return f"/img/opt/{name}-{_manifest()[name]['widths'][-1]}.jpg"
+
 # Bing Webmaster Tools: paste the content="..." value of its msvalidate.01 meta tag here and
 # rebuild. Empty = no tag. (Bing can also import the site from Google Search Console.)
 BING_VERIFICATION = ""
@@ -103,7 +150,8 @@ def product_ld():
             "name": "MCT Instant Coffee with L-Theanine, 30 Servings",
             "description": "Medium-roast instant coffee with MCT powder from coconut, natural caffeine and L-theanine. "
                            "One level scoop (about 6.8 g) in 8 fl oz of hot water. 30 servings per 7.2 oz (204 g) bag. Contains caffeine.",
-            "image": [SITE + "/img/hero_breakfast.jpg", SITE + "/img/flatlay.jpg", SITE + "/img/scoop.jpg"],
+            "image": [SITE + og_img("breakfast-top"), SITE + og_img("shadows-top"), SITE + og_img("flatlay-right")],
+            "sku": "CL805",
             "category": "Instant coffee",
             "weight": {"@type": "QuantitativeValue", "value": 204, "unitCode": "GRM"},
             "offers": [offer("One bag (30 servings)", "79.95"),
@@ -127,7 +175,7 @@ def structured_data(fn, title, desc, body, og_image):
            "legalName": "Rector & Stull LLC", "url": SITE + "/", "logo": SITE + "/img/mark.jpg",
            "email": "hello@themorningupgrades.com",
            "sameAs": ["https://www.tiktok.com/@themorningupgrade", "https://www.instagram.com/themorningupgrade/",
-                      "https://www.youtube.com/@themorningupgrade"],
+                      "https://www.youtube.com/@themorningupgrade"] + ([FACEBOOK_PAGE] if FACEBOOK_PAGE else []),
            "address": {"@type": "PostalAddress", "streetAddress": "30 N Gould St Ste R", "addressLocality": "Sheridan",
                        "addressRegion": "WY", "postalCode": "82801", "addressCountry": "US"}}
     graph = [org]
@@ -135,7 +183,7 @@ def structured_data(fn, title, desc, body, og_image):
         graph.append({"@type": "WebSite", "@id": SITE + "/#site", "url": SITE + "/", "name": "The Morning Upgrade",
                       "description": "Instant coffee with MCT powder, natural caffeine and L-theanine, plus plain-language guides.",
                       "inLanguage": "en-US", "publisher": {"@id": SITE + "/#org"}})
-    if fn == "shop.html":
+    if fn in ("shop.html", "index.html"):
         graph.append(product_ld())
     if fn in GUIDE_META:
         pub, mod = GUIDE_META[fn]
@@ -170,7 +218,7 @@ def sticky_bar(mode):
         return '<aside class="sticky" aria-label="See the coffee"><div><b>Our instant MCT coffee</b><span>30 servings &middot; from $69.95/mo</span></div><a class="btn" href="/shop.html">See the coffee &rarr;</a></aside>'
     return ""
 
-def page(title, desc, body, og_image="/img/flatlay.jpg", noindex=False, extra_head="", nav=True, fn="index.html", sticky="buy"):
+def page(title, desc, body, og_image="/img/opt/breakfast-og-1200.jpg", noindex=False, extra_head="", nav=True, fn="index.html", sticky="buy"):
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -196,7 +244,7 @@ def page(title, desc, body, og_image="/img/flatlay.jpg", noindex=False, extra_he
 <meta name="twitter:description" content="{desc}">
 <meta name="twitter:image" content="https://themorningupgrades.com{og_image}">
 {'' if noindex else structured_data(fn, title, desc, body, og_image)}
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/site.css">
 <script src="/assets/site.js"></script>
 {extra_head}
@@ -238,7 +286,7 @@ COMPARE = """
 """
 FOUNDER = """
 <section class="alt"><div class="wrap split">
-  <div class="frame p45"><img src="/img/desk.jpg" alt="Laptop, mug and a bag of CoreJava on a desk" loading="lazy"></div>
+  <div class="frame p45">""" + pic("desk-top", "Laptop, mug and a bag of CoreJava on a desk") + """</div>
   <div>
     <p class="eyebrow">A note from the two of us</p>
     <h2>We're new. Here's who you're buying from.</h2>
@@ -293,16 +341,10 @@ INGCARDS = f"""<div class="ingcards">
 </div>"""
 
 CALLOUTS = f"""<div class="callouts-wrap">
-  <div class="bagstage">
-    <img src="/img/hero_props.png" width="1300" height="1300" alt="CoreJava bag with coconut, MCT powder, coffee beans, green tea leaves and matcha" fetchpriority="high" decoding="async">
-    <svg class="leads" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-      <path d="M24 30 L27 30 L30 65.5" /><circle cx="30.2" cy="67.5" r="1"/>
-      <path d="M76 30 L73 30 L72.4 61" /><circle cx="72.3" cy="63" r="1"/>
-      <path d="M24 88 L27 88 L42 85.7" /><circle cx="43.5" cy="85.4" r="1"/>
-      <path d="M76 92 L73 92 L56.6 79.8" /><circle cx="55.4" cy="78.8" r="1"/>
-    </svg>
+  <div class="bagstage photo">
+    <div class="frame herophoto">""" + pic("breakfast-top", "CoreJava instant coffee bag on a sunlit breakfast table", sizes="(max-width: 860px) 100vw, 560px", eager=True) + f"""</div>
     <span class="chip c1"><i>{ICON_COCO}</i><span><b>MCT powder</b>the creamy part</span></span>
-    <span class="chip c2"><i>{ICON_LEAF}</i><span><b>L-theanine</b>focus without the edge</span></span>
+    <span class="chip c2"><i>{ICON_LEAF}</i><span><b>L-theanine</b>paired with caffeine</span></span>
     <span class="chip c3"><i>{ICON_BEAN}</i><span><b>Natural caffeine</b>about one cup's worth</span></span>
     <span class="chip c4"><i>{ICON_BAG}</i><span><b>30 servings</b>one scoop a morning</span></span>
   </div>
@@ -434,7 +476,7 @@ HOME = """
     <details><summary>Can I cancel the subscription?</summary><p>Any time. Use the link in your receipt, or <a href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00">manage your subscription here</a>: pause a month, cancel, or update your card. No calls, no forms.</p></details>
     <p><a class="btn ghost" href="/faq.html">All questions</a></p>
   </div>
-  <div class="frame p45"><img src="/img/patio_iced.jpg" alt="Iced CoreJava on a sunny patio" loading="lazy"></div>
+  <div class="frame p45">""" + pic("patio-left", "Iced coffee on a sunny patio") + """</div>
 </div></section>
 <section><div class="wrap split">
   <div>
@@ -443,7 +485,7 @@ HOME = """
     <p>Tell people about it anyway? MarketPlace Global pays a bonus on every order a friend places through your link. Three levels, explained without the hype.</p>
     <p><a class="btn ghost" href="/share.html">How it works</a></p>
   </div>
-  <div class="frame p45"><img src="/img/scoop.jpg" alt="A scoop of CoreJava" loading="lazy"></div>
+  <div class="frame p45">""" + pic("scoop-top", "A scoop of CoreJava over the bag") + """</div>
 </div></section>
 <section class="dark" style="text-align:center"><div class="wrap">
   <h2>Tomorrow's first cup.</h2>
@@ -482,21 +524,22 @@ HOME = """
 # ---------- SHOP ----------
 SHOP = """
 <section style="padding-top:36px"><div class="wrap shopgrid">
-  <div class="shop-media">
-    <div class="frame p45"><img src="/img/hero_breakfast.jpg" alt="CoreJava coffee bag on a breakfast table in morning light" loading="lazy" decoding="async"></div>
-    <div class="gallery">
-      <div class="frame" style="aspect-ratio:9/16"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/product_callouts_v2.jpg"><source src="/media/product_callouts_v2.mp4" type="video/mp4"></video></div>
-      <div class="frame" style="aspect-ratio:9/16"><img src="/img/kitchen_pour.jpg" alt="Pouring hot water next to a CoreJava bag" loading="lazy"></div>
-      <div class="frame" style="aspect-ratio:9/16"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/iced.jpg"><source src="/media/iced.mp4" type="video/mp4"></video></div>
-    </div>
-  </div>
+  <!-- buy block first in the DOM: phones show it first and nothing shifts while the page streams in -->
   <div class="shop-buy">
-    <p class="eyebrow">CoreJava &middot; performance coffee</p>
-    <h1 style="font-size:clamp(34px,4.4vw,52px)">CoreJava Coffee, 30 servings.</h1>
+    <p class="eyebrow">CoreJava &middot; made by MarketPlace Global</p>
+    <h1 style="font-size:clamp(32px,4vw,48px)">MCT Instant Coffee with L-Theanine, 30 Servings</h1>
     <p class="lead">Medium-roast instant coffee built around natural caffeine and L-theanine, with ChromeMate, Paradoxine, Garcinia Cambogia and Saffr'Activ. Made for focus and steady energy. One level scoop in 8 oz of hot water.</p>
     """ + picker() + """
     <p class="bonus" data-bonus hidden><strong>Free with your first order:</strong> the Recipe Pack, 12 ways to drink it plus a 30-morning tracker (PDF).</p>
     <p class="fine"><span data-ship="long">Ships to all 50 states.</span> Cancel anytime &middot; <span data-ship="checkout">secure checkout</span> &middot; <span data-ship="damage">made right if it arrives damaged</span>. Questions before you buy: hello@themorningupgrades.com.</p>
+  </div>
+  <div class="shop-media">
+    <div class="frame p45">""" + pic("shadows-top", "CoreJava coffee bag with leaf shadows in morning light", eager=True) + """</div>
+    <div class="gallery">
+      <div class="frame" style="aspect-ratio:9/16"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/product_callouts_v2.jpg"><source src="/media/product_callouts_v2.mp4" type="video/mp4"></video></div>
+      <div class="frame" style="aspect-ratio:9/16">""" + pic("kitchen-pour-top", "Pouring hot water next to a CoreJava bag", sizes="(max-width: 860px) 33vw, 180px") + """</div>
+      <div class="frame" style="aspect-ratio:9/16"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/iced.jpg"><source src="/media/iced.mp4" type="video/mp4"></video></div>
+    </div>
   </div>
   <div class="shop-details">
     <h2 style="margin-top:30px;font-size:22px">Details</h2>
@@ -507,6 +550,7 @@ SHOP = """
       <li><strong>Who it's for:</strong> adults who drink coffee daily and want a steadier morning. Not for children, or if you're pregnant or nursing. Contains caffeine.</li>
       <li><strong>Made by:</strong> MarketPlace Global. Sold by Rector &amp; Stull LLC, Independent MarketPlace Global ISR.</li>
     </ul>
+    """ + facts_panel() + """
   </div>
 </div></section>
 
@@ -545,6 +589,7 @@ ING = """
     <div class="card claim"><b>What we say about it</b><h3>Natural caffeine and L-theanine for focus and steady energy.</h3><p>That's the whole pitch. It's a dietary supplement, not a medicine, and we don't claim more than what's in the bag.</p></div>
   </div>
   <p class="fine" style="margin-top:22px;text-align:center">Full Supplement Facts, including amounts per serving and other ingredients, are printed on the bag. Trademarks belong to their respective ingredient suppliers.</p>
+  """ + facts_panel() + """
 </div></section>
 <section><div class="wrap" style="text-align:center">
   <h2>One scoop has all seven.</h2>
@@ -597,7 +642,7 @@ PARTNER = """
 </div></section>
 
 <section><div class="wrap split">
-  <div class="frame p45"><img src="/img/desk.jpg" alt="Laptop, mug and coffee bag on a desk" loading="lazy"></div>
+  <div class="frame p45">""" + pic("desk-top", "Laptop, mug and coffee bag on a desk") + """</div>
   <div>
     <h2>Who this is for</h2>
     <ul class="clean">
@@ -669,7 +714,7 @@ SHARE = """
     <p><a class="btn" href="#levels">See the three levels</a> &nbsp; <a class="btn ghost" href="#honest">What this actually is</a></p>
     <p class="fine" style="margin-top:14px">Independent Sales Representative (ISR) program of MarketPlace Global. Paid on product sales only. Most participants earn little; see the <a data-disclosure href="#">income disclosure</a>.</p>
   </div>
-  <div class="frame phone"><img src="/img/gym.jpg" alt="Woman on a yoga mat holding a CoreJava bag and a mug" loading="lazy" decoding="async"></div>
+  <div class="frame phone">""" + pic("gym-face", "Woman on a yoga mat holding a mug of coffee", sizes="(max-width: 860px) 300px, 360px") + """</div>
 </div></section>
 
 <section class="alt" id="levels"><div class="wrap">
@@ -724,7 +769,7 @@ SHARE = """
 </div></section>
 
 <section class="alt"><div class="wrap split">
-  <div class="frame p45"><img src="/img/desk.jpg" alt="Laptop, mug and a bag of CoreJava on a desk" loading="lazy"></div>
+  <div class="frame p45">""" + pic("desk-top", "Laptop, mug and a bag of CoreJava on a desk") + """</div>
   <div>
     <h2>Questions people ask before they share</h2>
     <details><summary>Do I have to recruit anyone?</summary><p>No. The Share level is customers only: friends who buy coffee. Nobody is paid for recruiting at any level; compensation is on product sales.</p></details>
@@ -757,7 +802,7 @@ ABOUT = """
     <p>Everything on this site that earns us money says so. The people in our videos are AI presenters; we say so here and in the platform AI labels. If something's unclear, email us and a human will answer: hello@themorningupgrades.com.</p>
     <p><a class="btn" href="/shop.html">Buy CoreJava</a> &nbsp; <a class="btn ghost" href="/partner.html">Partner with us</a></p>
   </div>
-  <div class="frame p45"><img src="/img/bag_shadows.jpg" alt="CoreJava bag with leaf shadows" loading="lazy" decoding="async"></div>
+  <div class="frame p45">""" + pic("pour-top", "Pouring hot water next to a bag of CoreJava") + """</div>
   <p class="fine" style="margin-top:18px">The people in our videos are AI presenters we produce for the brand. They demonstrate the product; they never speak as customers or describe results.</p>
 </div></section>
 <section class="alt" id="koby"><div class="wrap" style="max-width:760px">
@@ -850,7 +895,7 @@ ORDER_COMPLETE = """
 THANKS = """
 <section style="padding-top:36px"><div class="wrap" style="max-width:720px">
   <div class="card" style="padding:34px 30px">
-    <div class="frame" style="aspect-ratio:16/10;margin-bottom:22px;box-shadow:none"><img src="/img/desk.jpg" alt="A mug and a bag of coffee on a desk" loading="lazy" decoding="async"></div>
+    <div class="frame" style="aspect-ratio:16/10;margin-bottom:22px;box-shadow:none">""" + pic("desk-top", "A mug and a bag of coffee on a desk", sizes="(max-width: 760px) 100vw, 660px") + """</div>
     <h1 style="font-size:clamp(30px,4vw,44px)">Your guide is on its way.</h1>
     <p>Check your inbox in the next minute or two (and the promotions tab, if you're on Gmail). If you'd rather not wait:</p>
     <p><a class="btn" href="https://d2ol7oe51mr4n9.cloudfront.net/user_3GvdxB9gfwtge4rv79iuyoXAckR/a857aef6-954a-4e8e-b256-41205db0097f.pdf" target="_blank" rel="noopener">Open the 7 Mornings guide</a></p>
@@ -1213,26 +1258,26 @@ NOT_FOUND = """
 """
 
 PAGES = {
-  "404.html": ("Page not found — The Morning Upgrade", "That page isn't here. Try the shop, the ingredients, the guides or the FAQ.", NOT_FOUND, "/img/flatlay.jpg", True),
-  "index.html": ("MCT Coffee with L-Theanine, One Scoop | The Morning Upgrade", "Instant coffee with MCT powder, natural caffeine and L-theanine. One scoop in hot water, 30 servings a bag. $69.95 a month or $79.95 a bag.", HOME, "/img/flatlay.jpg", False),
-  "shop.html": ("Buy MCT Coffee: $69.95/mo or $79.95 a Bag | The Morning Upgrade", "Instant MCT coffee, 30 servings a bag. $79.95 for one bag or $69.95 a month on Subscribe & Save. Natural caffeine, L-theanine and four more actives.", SHOP, "/img/hero_breakfast.jpg", False),
-  "ingredients.html": ("Ingredients: MCT Powder, Caffeine, L-Theanine | The Morning Upgrade", "Seven ingredients and what each one is: MCT powder, natural caffeine, L-theanine, ChromeMate, Paradoxine, Garcinia Cambogia, Saffr'Activ.", ING, "/media/ingredients.jpg", False),
-  "faq.html": ("Coffee FAQ: Taste, Caffeine, Shipping | The Morning Upgrade", "How it tastes, how much caffeine is in a scoop, how Subscribe & Save works, shipping, returns, and who you're buying from.", FAQ, "/img/pour.jpg", False),
-  "partner.html": ("Build with us — The Morning Upgrade", "Join our team and sell the coffee with the same videos, site and email system we use. Honest numbers first.", PARTNER, "/media/ambient.jpg", False),
-  "share.html": ("Share & earn — The Morning Upgrade", "Get your coffee covered by the friends who steal a cup. The referral program, explained in plain language.", SHARE, "/media/ritual.jpg", False),
-  "about.html": ("About — The Morning Upgrade", "The Morning Upgrade is run by Rector & Stull LLC, two partners in Idaho and Texas who sell one instant MCT coffee and say plainly what is in it.", ABOUT, "/img/flatlay.jpg", False),
-  "shipping-returns.html": ("Shipping & returns — The Morning Upgrade", "$8.95 flat US shipping, Subscribe & Save terms, damaged-item replacement and the 90-day money-back guarantee on unopened bags.", SHIPPING, "/img/flatlay.jpg", False),
-  "privacy.html": ("Privacy — The Morning Upgrade", "What we collect, what we do with it, and how to opt out.", PRIVACY, "/img/flatlay.jpg", False),
-  "terms.html": ("Terms of sale — The Morning Upgrade", "Terms of sale for The Morning Upgrade: prices, Subscribe & Save renewals, use of the product, returns and liability.", TERMS, "/img/flatlay.jpg", False),
-  "order-complete.html": ("Order received — The Morning Upgrade", "Thanks for your order.", ORDER_COMPLETE, "/img/flatlay.jpg", True),
-  "start.html": ("One Scoop, Steady Energy | The Morning Upgrade", "Instant coffee with natural caffeine, L-theanine and MCT powder. $69.95 a month or $79.95 a bag, $8.95 flat US shipping, 90-day guarantee on unopened bags.", START, "/media/host_kitchen.jpg", True),
-  "thanks.html": ("Your guide is on its way — The Morning Upgrade", "Check your inbox for the 7 Mornings guide.", THANKS, "/img/desk.jpg", True),
-  "guides.html": ("Coffee Guides & Recipes | The Morning Upgrade", "Answer-first guides: what MCT coffee is, how to make instant MCT coffee, L-theanine with caffeine, MCT vs. butter coffee, and iced instant coffee recipes.", GUIDES_INDEX, "/img/kitchen_pour.jpg", False),
-  "what-is-mct-coffee.html": ("What Is MCT Coffee? MCT Oil vs. Powder, Explained | The Morning Upgrade", "MCT coffee is coffee with medium-chain triglycerides added, as an oil you blend in or a powder you stir in. What MCTs are and how oil and powder differ.", G_WHATMCT, "/img/scoop.jpg", False),
-  "how-to-make-mct-instant-coffee.html": ("How to Make Instant MCT Coffee: One Scoop, Hot Water | The Morning Upgrade", "One level scoop in 8 fl oz of hot water, stirred until dissolved. Step by step, plus iced and latte-style versions and how to adjust the strength.", G_HOWTO, "/img/kitchen_pour.jpg", False),
-  "mct-coffee-vs-butter-coffee.html": ("MCT Coffee vs. Butter Coffee: What's the Difference? | The Morning Upgrade", "Butter coffee is coffee blended with butter and usually MCT oil; MCT coffee adds MCT oil or powder, no butter. How prep, texture and travel compare.", G_MCT, "/img/pour.jpg", False),
-  "l-theanine-and-caffeine.html": ("L-Theanine and Caffeine: What the Label Means | The Morning Upgrade", "L-theanine is the amino acid in tea leaves, often paired with caffeine. What the pairing is, how to read the label, and what small studies found.", G_THEANINE, "/img/desk.jpg", False),
-  "iced-instant-coffee-recipes.html": ("Iced Instant Coffee Without Clumps: 3 Recipes | The Morning Upgrade", "Dissolve hot, then go cold: the trick for smooth iced instant coffee, plus iced classic, iced oat vanilla and a blended frappé.", G_ICED, "/img/patio_iced.jpg", False),
+  "404.html": ("Page not found — The Morning Upgrade", "That page isn't here. Try the shop, the ingredients, the guides or the FAQ.", NOT_FOUND, og_img("breakfast-og"), True),
+  "index.html": ("MCT Coffee with L-Theanine, One Scoop | The Morning Upgrade", "Instant coffee with MCT powder, natural caffeine and L-theanine. One scoop in hot water, 30 servings a bag. $69.95 a month or $79.95 a bag.", HOME, og_img("breakfast-og"), False),
+  "shop.html": ("Buy MCT Coffee: $69.95/mo or $79.95 a Bag | Morning Upgrade", "Instant MCT coffee, 30 servings a bag. $79.95 for one bag or $69.95 a month on Subscribe & Save. Natural caffeine, L-theanine and four more actives.", SHOP, og_img("breakfast-og"), False),
+  "ingredients.html": ("Ingredients: MCT, Caffeine &amp; L-Theanine | Morning Upgrade", "Seven ingredients and what each one is: MCT powder, natural caffeine, L-theanine, ChromeMate, Paradoxine, Garcinia Cambogia, Saffr'Activ.", ING, og_img("breakfast-og"), False),
+  "faq.html": ("Coffee FAQ: Taste, Caffeine, Shipping | The Morning Upgrade", "How it tastes, how much caffeine is in a scoop, how Subscribe & Save works, shipping, returns, and who you're buying from.", FAQ, og_img("pour-top"), False),
+  "partner.html": ("Build with us — The Morning Upgrade", "Join our team and sell the coffee with the same videos, site and email system we use. Honest numbers first.", PARTNER, og_img("breakfast-og"), False),
+  "share.html": ("Share & earn — The Morning Upgrade", "Get your coffee covered by the friends who steal a cup. The referral program, explained in plain language.", SHARE, og_img("breakfast-og"), False),
+  "about.html": ("About — The Morning Upgrade", "The Morning Upgrade is run by Rector & Stull LLC, two partners in Idaho and Texas who sell one instant MCT coffee and say plainly what is in it.", ABOUT, og_img("breakfast-og"), False),
+  "shipping-returns.html": ("Shipping & returns — The Morning Upgrade", "$8.95 flat US shipping, Subscribe & Save terms, damaged-item replacement and the 90-day money-back guarantee on unopened bags.", SHIPPING, og_img("breakfast-og"), False),
+  "privacy.html": ("Privacy — The Morning Upgrade", "What The Morning Upgrade collects (quiz answers, orders, analytics), what we do with it, who we share it with, and how to opt out or delete it.", PRIVACY, og_img("breakfast-og"), False),
+  "terms.html": ("Terms of sale — The Morning Upgrade", "Terms of sale for The Morning Upgrade: prices, Subscribe & Save renewals, use of the product, returns and liability.", TERMS, og_img("breakfast-og"), False),
+  "order-complete.html": ("Order received — The Morning Upgrade", "Thanks for your order.", ORDER_COMPLETE, og_img("breakfast-og"), True),
+  "start.html": ("One Scoop, Steady Energy | The Morning Upgrade", "Instant coffee with natural caffeine, L-theanine and MCT powder. $69.95 a month or $79.95 a bag, $8.95 flat US shipping, 90-day guarantee on unopened bags.", START, og_img("breakfast-og"), True),
+  "thanks.html": ("Your guide is on its way — The Morning Upgrade", "Check your inbox for the 7 Mornings guide.", THANKS, og_img("desk-top"), True),
+  "guides.html": ("Coffee Guides & Recipes | The Morning Upgrade", "Answer-first guides: what MCT coffee is, how to make instant MCT coffee, L-theanine with caffeine, MCT vs. butter coffee, and iced instant coffee recipes.", GUIDES_INDEX, og_img("kitchen-pour-top"), False),
+  "what-is-mct-coffee.html": ("What Is MCT Coffee? MCT Oil vs. Powder | Morning Upgrade", "MCT coffee is coffee with medium-chain triglycerides added, as an oil you blend in or a powder you stir in. What MCTs are and how oil and powder differ.", G_WHATMCT, og_img("scoop-top"), False),
+  "how-to-make-mct-instant-coffee.html": ("How to Make Instant MCT Coffee (One Scoop) | Morning Upgrade", "One level scoop in 8 fl oz of hot water, stirred until dissolved. Step by step, plus iced and latte-style versions and how to adjust the strength.", G_HOWTO, og_img("kitchen-pour-top"), False),
+  "mct-coffee-vs-butter-coffee.html": ("MCT Coffee vs. Butter Coffee, Compared | Morning Upgrade", "Butter coffee is coffee blended with butter and usually MCT oil; MCT coffee adds MCT oil or powder, no butter. How prep, texture and travel compare.", G_MCT, og_img("pour-top"), False),
+  "l-theanine-and-caffeine.html": ("L-Theanine and Caffeine: Reading the Label | Morning Upgrade", "L-theanine is the amino acid in tea leaves, often paired with caffeine. What the pairing is, how to read the label, and what small studies found.", G_THEANINE, og_img("desk-top"), False),
+  "iced-instant-coffee-recipes.html": ("Iced Instant Coffee, No Clumps: 3 Recipes | Morning Upgrade", "Dissolve hot, then go cold: the trick for smooth iced instant coffee, plus iced classic, iced oat vanilla and a blended frappé.", G_ICED, og_img("patio-left"), False),
 }
 
 # Sticky bar: checkout on the buy pages; a link to the shop on guides and the 404; none after a
@@ -1240,9 +1285,12 @@ PAGES = {
 STICKY = {fn: "shop" for fn in list(GUIDE_META) + ["guides.html", "404.html", "about.html", "privacy.html", "terms.html"]}
 STICKY.update({"order-complete.html": None, "thanks.html": None})
 
+# LCP image preloads
+PRELOAD = {fn: preload("breakfast-top", "(max-width: 860px) 100vw, 560px") for fn in ("index.html", "start.html", "ingredients.html")}
+
 _changed = set()   # pages whose HTML changed in this build: their sitemap lastmod moves to today
 for fn,(title,desc,body,og,noindex) in PAGES.items():
-    html_out = page(title,desc,body,og,noindex,nav=("mini" if fn == "start.html" else True),fn=fn,sticky=STICKY.get(fn, "buy"))
+    html_out = page(title,desc,body,og,noindex,nav=("mini" if fn == "start.html" else True),fn=fn,sticky=STICKY.get(fn, "buy"),extra_head=PRELOAD.get(fn, ""))
     _path = os.path.join(HERE,fn)
     if not os.path.exists(_path) or open(_path).read() != html_out:
         _changed.add(fn)
@@ -1298,15 +1346,11 @@ with open(os.path.join(HERE, "sitemap.xml"), "w") as f:
         f.write(f"  <url><loc>{url_for(fn)}</loc><lastmod>{lm}</lastmod><priority>{_prio.get(fn, '0.5')}</priority></url>\n")
     f.write("</urlset>\n")
 
-# Search and AI crawlers are welcome everywhere public. A crawler that matches a named
-# group ignores the * group, so the named group repeats the same rules.
-AI_CRAWLERS = ["GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "Claude-SearchBot", "Claude-User",
-               "PerplexityBot", "Perplexity-User", "Google-Extended", "Googlebot", "Bingbot", "Applebot",
-               "Applebot-Extended", "DuckAssistBot"]
+# Search engines and AI assistants are welcome everywhere public. One * group, so a new crawler
+# is never left out by accident (a crawler that matches a named group ignores the * group).
 _rules = "Allow: /\nDisallow: /order-complete.html\nDisallow: /thanks.html\nDisallow: /c/\n"
 with open(os.path.join(HERE, "robots.txt"), "w") as f:
     f.write("# Search engines and AI assistants may crawl and cite every public page.\n")
-    f.write("".join(f"User-agent: {a}\n" for a in AI_CRAWLERS) + _rules + "\n")
     f.write("User-agent: *\n" + _rules + "\nSitemap: " + SITE + "/sitemap.xml\n")
 
 # llms.txt (llmstxt.org): plain facts for AI assistants. Same rules as the rest of the
