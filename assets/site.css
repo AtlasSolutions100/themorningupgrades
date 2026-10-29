@@ -394,6 +394,12 @@ header.bar{display:block}
 @media(max-width:860px){
   .bar{font-size:11.5px;padding:7px 12px;line-height:1.35}
   .heroC .bagstage img{width:58%;margin:0 auto 6px}
-  .notice{bottom:78px;font-size:12px;padding:9px 12px;border-radius:10px;gap:8px}
+  /* phone: the analytics notice is a slim strip under the nav, never over the picker or buy bar */
+  .notice{position:relative;top:auto;bottom:auto;left:auto;right:auto;max-width:none;margin:0;border-radius:0;font-size:12px;line-height:1.35;padding:8px 16px;gap:10px;box-shadow:none;z-index:1}
   .notice button{padding:6px 10px}
 }
+/* touch targets + legibility */
+footer a{padding:6px 0;margin-bottom:2px;line-height:20px}
+.fine{font-size:13.5px}
+.picker .pnote{font-size:13px}
+.picker .ptxt em{white-space:nowrap}

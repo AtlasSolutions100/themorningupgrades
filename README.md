@@ -2,21 +2,23 @@
 
 Pre-sell page for themorningupgrades.com (GitHub Pages). Static HTML; the quiz posts to Klaviyo client API.
 
-## Creator links (15% lifetime commission)
+## Creator links
 
-Each creator on the $100 + 15% deal gets a link: `https://themorningupgrades.com/c/<code>`
+Creator offer (current): **15% of the coffee subtotal (before tax and shipping) on orders from
+customers the creator's link brings in, for that customer's first 12 months**, paid monthly. There
+are no discount codes: attribution is the creator's link only, `https://themorningupgrades.com/c/<code>`
 (kasey, macy, kristen, emma, laura today). Add a creator by adding a line to `CREATORS` in
 `build_site.py` and running `python3 build_site.py`.
 
 - The link sends people to `/start` and the site remembers the creator for 60 days (the last
   creator link someone used wins). GA4 records a `CreatorVisit` event and a `creator` user property.
-- With Stripe Payment Links filled in (`assets/site.js`), the Buy button adds
-  `client_reference_id=cr_<code>`. The first checkout with a creator code ties that customer to the
-  creator for life, so renewals and repeat orders count too.
-- While checkout is still the MarketPlace Global handoff, the link only carries `utm_content=cr_<code>`;
-  MPG doesn't report orders back to us, so commission can't be counted until Stripe checkout is live.
+- The Buy button adds `client_reference_id=cr_<code>`. The first checkout with a creator code ties
+  that customer to the creator, so renewals and repeat orders count too.
 - Monthly payout: `STRIPE_SECRET_KEY=rk_live_... python3 tools/creator_commissions.py 2026-11`
-  lists each creator's orders and what they're owed (15% of the coffee subtotal, before tax and shipping).
+  lists each creator's orders at 15% of the coffee subtotal. **Note:** the script still counts a
+  customer's orders with no end date (it predates the 12-month term and wasn't changed); drop orders
+  more than 12 months after a customer's first creator checkout by hand until it is updated, and
+  check whether any creator was promised "for life" in writing before the term changed.
 
 ## Editing pages
 
@@ -36,7 +38,7 @@ no maker trademarks in search-facing text, and no claims past the label.
   `transaction_id` / event id everywhere (GA4 standard `purchase`, Google Ads, Meta `eventID`,
   TikTok `event_id`, Snap `transaction_id`), so a server-side event can dedupe against it later.
   Value = the coffee subtotal of the plan: `?plan=` first, then `tmu_plan`, then $69.95.
-- **Stripe Payment Link redirects** (Dashboard → Payment Links → After payment → redirect):
+- **Stripe Payment Link redirects** (set in Stripe; both links pass `plan=`):
   - Subscribe & Save (`plink_1UVMJNRskSkrZOvOPlxbduJo`):
     `https://themorningupgrades.com/order-complete.html?session_id={CHECKOUT_SESSION_ID}&plan=subscribe`
   - One bag (`plink_1UVMJMRskSkrZOvORjXEhOe2`):

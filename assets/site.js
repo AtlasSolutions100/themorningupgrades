@@ -135,7 +135,7 @@ window.TMU = {
     var here=location.pathname.replace(/\/index\.html$/,'/');
     document.querySelectorAll('.menu a').forEach(function(a){ var h=a.getAttribute('href'); if(h && (h===here || (h!=='/' && here.indexOf(h)===0))) a.classList.add('on'); });
     // analytics notice (dismissable, remembered per browser)
-    try{ if(C.GA4_ID && !localStorage.getItem('tmu_notice')){ var n=document.createElement('div'); n.className='notice'; n.setAttribute('role','region'); n.setAttribute('aria-label','Analytics notice'); n.innerHTML='We use Google Analytics and a TikTok pixel to see which pages and videos bring people here. <a href="/privacy.html">Privacy</a> <button type="button">OK</button>'; document.body.appendChild(n); var done=function(){ try{localStorage.setItem('tmu_notice','1')}catch(e){} n.remove(); window.removeEventListener('scroll',onScroll); }; var onScroll=function(){ if(window.scrollY>window.innerHeight*0.6) done(); }; n.querySelector('button').onclick=done; window.addEventListener('scroll',onScroll,{passive:true}); } }catch(e){}
+    try{ if(C.GA4_ID && !localStorage.getItem('tmu_notice')){ var n=document.createElement('div'); n.className='notice'; n.setAttribute('role','region'); n.setAttribute('aria-label','Analytics notice'); n.innerHTML='We use analytics and ad-measurement pixels (Google, TikTok, Meta, Snap) to see which pages and ads bring people here. <a href="/privacy.html">Privacy</a> <button type="button">OK</button>'; var nv=document.querySelector('.nav'); if(nv&&nv.parentNode) nv.parentNode.insertBefore(n, nv.nextSibling); else document.body.insertBefore(n, document.body.firstChild); var done=function(){ try{localStorage.setItem('tmu_notice','1')}catch(e){} n.remove(); window.removeEventListener('scroll',onScroll); }; var onScroll=function(){ if(window.scrollY>window.innerHeight*0.6) done(); }; n.querySelector('button').onclick=done; window.addEventListener('scroll',onScroll,{passive:true}); } }catch(e){}
     // autoplay only while in view (saves bandwidth, keeps LCP clean)
     var vids=document.querySelectorAll('video[data-autoplay]');
     if('IntersectionObserver' in window){ var io=new IntersectionObserver(function(es){ es.forEach(function(e){ var v=e.target; if(e.isIntersecting){ v.play().catch(function(){}); } else { v.pause(); } }); },{threshold:.25}); vids.forEach(function(v){ io.observe(v); }); }
@@ -148,9 +148,13 @@ window.TMU = {
     // Plan picker: radio choice drives the single buy button
     document.querySelectorAll('[data-picker]').forEach(function(p){
       var btn=p.querySelector('[data-picker-btn]');
-      p.querySelectorAll('input[name=plan]').forEach(function(r){ r.addEventListener('change', function(){
+      p.querySelectorAll('input[type=radio]').forEach(function(r){ r.addEventListener('change', function(){
         p.querySelectorAll('.opt').forEach(function(o){ o.classList.toggle('on', o.contains(r)); });
         btn.setAttribute('data-buy', r.value); wire(btn);
+        var t=btn.querySelector('[data-cta]'); if(t&&r.getAttribute('data-cta')) t.textContent=r.getAttribute('data-cta');
+        // the sticky bar follows the plan the visitor picked
+        var sb=document.querySelector('.sticky a[data-buy]'); if(sb){ sb.setAttribute('data-buy', r.value); wire(sb); }
+        var sp=document.querySelector('.sticky [data-sticky-price]'); if(sp&&r.getAttribute('data-sticky')) sp.textContent=r.getAttribute('data-sticky');
       }); });
     });
     // Buy buttons: data-buy="onetime|subscribe"

@@ -60,12 +60,12 @@
     <h1 style="font-size:clamp(34px,4.4vw,52px)">CoreJava Coffee, 30 servings.</h1>
     <p class="lead">Medium-roast instant coffee built around natural caffeine and L-theanine, with ChromeMate, Paradoxine, Garcinia Cambogia and Saffr'Activ. Made for focus and steady energy. One level scoop in 8 oz of hot water.</p>
     <fieldset class="picker" data-picker><legend class="sr">Choose a plan</legend>
-  <label class="opt on"><input type="radio" name="plan" value="subscribe" checked><span class="radio"></span>
-    <span class="ptxt"><em>Best value &middot; $10 off every bag</em><b>Subscribe &amp; Save</b><span class="pp">$69.95<small>/mo &middot; $2.33 a morning</small></span><span class="pfine">A bag a month. Pause, skip or cancel from your receipt.</span></span></label>
-  <label class="opt"><input type="radio" name="plan" value="onetime"><span class="radio"></span>
+  <label class="opt on"><input type="radio" name="plan2" value="subscribe" checked data-cta="Checkout — $69.95/mo" data-sticky="$69.95/mo · $2.33 a morning"><span class="radio"></span>
+    <span class="ptxt"><em>Best value &middot; $10 off every bag</em><b>Subscribe &amp; Save</b><span class="pp">$69.95<small>/mo &middot; $2.33 a morning</small></span><span class="pfine">A bag every 30 days. Pause, skip or cancel from your receipt.</span></span></label>
+  <label class="opt"><input type="radio" name="plan2" value="onetime" data-cta="Checkout — $79.95" data-sticky="$79.95 one bag · $2.67 a morning"><span class="radio"></span>
     <span class="ptxt"><b>One bag</b><span class="pp">$79.95<small> &middot; $2.67 a morning</small></span><span class="pfine">30 servings. No commitment.</span></span></label>
-  <a class="btn big" data-buy="subscribe" data-picker-btn href="#">Add to cart <span aria-hidden="true">&rarr;</span></a>
-  
+  <a class="btn big" data-buy="subscribe" data-picker-btn href="#"><span data-cta>Checkout &mdash; $69.95/mo</span> <span aria-hidden="true">&rarr;</span></a>
+  <p class="fine pnote">+ shipping &amp; tax at checkout &middot; 90-day guarantee on unopened bags &middot; pause or cancel anytime</p>
 </fieldset>
     <p class="bonus" data-bonus hidden><strong>Free with your first order:</strong> the Recipe Pack, 12 ways to drink it plus a 30-morning tracker (PDF).</p>
     <p class="fine"><span data-ship="long">Ships to all 50 states.</span> Cancel anytime &middot; <span data-ship="checkout">secure checkout</span> &middot; <span data-ship="damage">made right if it arrives damaged</span>. Questions before you buy: hello@themorningupgrades.com.</p>
@@ -149,6 +149,6 @@
   <p>&copy; <span class="yr"></span> Rector &amp; Stull LLC &middot; 30 N Gould St Ste R, Sheridan, WY 82801</p>
 </div></footer>
 
-<aside class="sticky" aria-label="Quick buy"><div><b>CoreJava &middot; 30 servings</b><span>from $69.95/mo &middot; $2.33 a morning</span></div><a class="btn" data-buy="subscribe" href="#">Get it</a></aside>
+<aside class="sticky" aria-label="Quick buy"><div><b>CoreJava &middot; 30 servings</b><span data-sticky-price>$69.95/mo &middot; $2.33 a morning</span></div><a class="btn" data-buy="subscribe" href="#">Checkout</a></aside>
 </body>
 </html>
