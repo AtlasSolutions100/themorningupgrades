@@ -403,3 +403,17 @@ footer a{padding:6px 0;margin-bottom:2px;line-height:20px}
 .fine{font-size:13.5px}
 .picker .pnote{font-size:13px}
 .picker .ptxt em{white-space:nowrap}
+
+/* /start mini header (no menu) */
+.nav.mini .minilink{font-weight:600;font-size:15px;color:var(--ink2);text-decoration:none;padding:10px 4px}
+.nav.mini .minilink:hover{color:var(--copper-text)}
+/* /start headline variants can be longer than the default: let them wrap */
+@media(min-width:861px){.h1c.lp{white-space:normal;text-wrap:balance}}
+/* email capture */
+.capture{background:var(--tint);border:1px solid #EAD6C4;border-radius:var(--r2);padding:28px}
+.capture h2{font-size:clamp(22px,2.6vw,28px);margin:0 0 8px}
+.capture p{color:var(--muted)}
+.caprow{display:flex;gap:10px;flex-wrap:wrap}
+.caprow input{flex:1 1 220px;min-width:0}
+.caprow .btn{flex:0 0 auto}
+@media(max-width:480px){.caprow .btn{width:100%}}

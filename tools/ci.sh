@@ -4,4 +4,5 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 python3 tools/check_copy.py --drift   # banned words/phrases + generated HTML matches build_site.py
 python3 tools/test_tracking.py        # Phase T event tests
+python3 tools/test_pages.py         # page behaviour (variants, capture, quiz, order page)
 python3 tools/smoke.py                # layout, alt text, contrast, links at 390 and 1440
