@@ -1,6 +1,7 @@
 {
- "breakfast-og": {
-  "h": 630,
+ "breakfast": {
+  "ext": "jpg",
+  "h": 1607,
   "src": "hero_breakfast.jpg",
   "w": 1200,
   "widths": [
@@ -9,18 +10,9 @@
    1200
   ]
  },
- "breakfast-top": {
-  "h": 932,
-  "src": "hero_breakfast.jpg",
-  "w": 1200,
-  "widths": [
-   480,
-   800,
-   1200
-  ]
- },
- "desk-top": {
-  "h": 1478,
+ "desk": {
+  "ext": "jpg",
+  "h": 2150,
   "src": "desk.jpg",
   "w": 1200,
   "widths": [
@@ -29,26 +21,43 @@
    1200
   ]
  },
- "flatlay-right": {
+ "flatlay": {
+  "ext": "jpg",
   "h": 1200,
   "src": "flatlay.jpg",
-  "w": 636,
+  "w": 1200,
   "widths": [
    480,
-   636
+   800,
+   1200
   ]
  },
- "gym-face": {
-  "h": 1116,
+ "gym": {
+  "ext": "jpg",
+  "h": 1800,
   "src": "gym.jpg",
-  "w": 672,
+  "w": 1200,
   "widths": [
    480,
-   672
+   800,
+   1200
   ]
  },
- "kitchen-pour-top": {
-  "h": 1312,
+ "hero-props": {
+  "ext": "png",
+  "h": 1300,
+  "src": "hero_props.png",
+  "w": 1300,
+  "widths": [
+   480,
+   800,
+   1200,
+   1300
+  ]
+ },
+ "kitchen-pour": {
+  "ext": "jpg",
+  "h": 1800,
   "src": "kitchen_pour.jpg",
   "w": 1200,
   "widths": [
@@ -57,18 +66,20 @@
    1200
   ]
  },
- "patio-left": {
-  "h": 1038,
+ "patio": {
+  "ext": "jpg",
+  "h": 2125,
   "src": "patio_iced.jpg",
-  "w": 830,
+  "w": 1200,
   "widths": [
    480,
    800,
-   830
+   1200
   ]
  },
- "pour-top": {
-  "h": 1298,
+ "pour": {
+  "ext": "jpg",
+  "h": 2150,
   "src": "pour.jpg",
   "w": 1200,
   "widths": [
@@ -77,8 +88,20 @@
    1200
   ]
  },
- "scoop-top": {
-  "h": 1408,
+ "props-og": {
+  "ext": "jpg",
+  "h": 630,
+  "src": "hero_props.png",
+  "w": 1200,
+  "widths": [
+   480,
+   800,
+   1200
+  ]
+ },
+ "scoop": {
+  "ext": "jpg",
+  "h": 2150,
   "src": "scoop.jpg",
   "w": 1200,
   "widths": [
@@ -87,14 +110,26 @@
    1200
   ]
  },
- "shadows-top": {
-  "h": 995,
+ "shadows": {
+  "ext": "jpg",
+  "h": 1607,
   "src": "bag_shadows.jpg",
   "w": 1200,
   "widths": [
    480,
    800,
    1200
+  ]
+ },
+ "supplement-facts": {
+  "ext": "png",
+  "h": 812,
+  "src": "supplement-facts.png",
+  "w": 1000,
+  "widths": [
+   480,
+   800,
+   1000
   ]
  }
 }
