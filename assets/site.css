@@ -440,20 +440,14 @@ footer a{padding:6px 0;margin-bottom:2px;line-height:20px}
 img{height:auto}
 .frame img{height:100%}
 
-/* hero v4: a framed photo crop (the bag's sub-line stays out of frame) with the label chips over it */
-.bagstage.photo{max-width:640px;padding:28px 0}
-.bagstage.photo .herophoto{width:82%;margin:0 auto;aspect-ratio:1200/932;border-radius:22px}
-.heroC .bagstage.photo img,.bagstage.photo img{width:100%;height:100%;margin:0;filter:none;object-fit:cover}
-.bagstage.photo .chip.c1{left:-1%;top:22%}.bagstage.photo .chip.c2{right:-2%;top:18%}
-.bagstage.photo .chip.c3{left:-2%;top:70%}.bagstage.photo .chip.c4{right:-2%;top:58%}
+/* hero: the product cutout inside <picture>; the img stays the layout box (grid item on phones) */
+.bagstage>picture{display:contents}
+/* ingredients page: same stage outside the hero; on phones the chips sit two-up under the image */
 @media(max-width:860px){
-  .heroC .bagstage.photo{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0}
-  .heroC .bagstage.photo .herophoto{grid-column:1/-1;width:100%;margin:0 0 6px;aspect-ratio:1200/760}
-  .heroC .bagstage.photo .herophoto img{object-position:50% 100%}
+  section.tight .bagstage{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0}
+  section.tight .bagstage img{grid-column:1/-1;width:62%;margin:0 auto 6px}
+  section.tight .bagstage .chip{position:static;transform:none;white-space:normal;margin:0;padding:8px 12px 8px 8px;border-radius:16px;box-shadow:none}
 }
-/* ingredients page uses the same stage outside the hero */
-section .bagstage.photo .chip{position:absolute}
-@media(max-width:860px){section .bagstage.photo{display:grid;grid-template-columns:1fr 1fr;gap:8px}section .bagstage.photo .herophoto{grid-column:1/-1;width:100%}section .bagstage.photo .chip{position:static;transform:none;white-space:normal}}
 
 .facts{max-width:520px;margin:26px auto 0;text-align:center}
 .facts img{width:100%;height:auto;border:1px solid var(--line);border-radius:12px;background:#fff}

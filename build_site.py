@@ -52,32 +52,36 @@ FOOTER = """
 """
 
 SITE = "https://themorningupgrades.com"
-IMG_ALT = {"flatlay-right": "A cup of black coffee, a coffee scoop, sunglasses and keys on a stone table",
-           "kitchen-pour-top": "Pouring hot water from a kettle into a mug",
-           "scoop-top": "A scoop of instant coffee over an open bag",
-           "desk-top": "Laptop, mug and a bag of coffee on a desk",
-           "breakfast-top": "A bag of coffee on a sunlit breakfast table",
-           "pour-top": "Pouring hot water into a glass mug of coffee",
-           "patio-left": "Iced coffee on a sunny patio"}
+IMG_ALT = {"flatlay": "CoreJava bag, a cup of black coffee, a coffee scoop, sunglasses and keys on a stone table",
+           "kitchen-pour": "Pouring hot water from a kettle into a mug next to a CoreJava bag",
+           "scoop": "A scoop of instant coffee over a CoreJava bag",
+           "desk": "Laptop, mug and a CoreJava bag on a desk",
+           "breakfast": "CoreJava bag on a sunlit breakfast table",
+           "pour": "Pouring hot water into a glass mug of coffee next to a CoreJava bag",
+           "patio": "Woman on a sunny patio with an iced coffee and a CoreJava bag"}
 
-# Supplement Facts panel (D4): drop a legible photo of the real panel into img/ (for example
-# img/facts-panel.jpg), put its path here and rebuild. It shows on /ingredients and /shop as a
-# plain photo with no commentary. Empty = hidden.
-FACTS_PANEL_IMG = ""
-FACTS_PANEL_SIZE = (1200, 1600)   # width, height of that photo
+# Supplement Facts panel (D4): the real panel from the bag, shown on /ingredients and /shop as a
+# plain image with no commentary. tools/images.py makes its WebP/PNG sizes ("supplement-facts").
+# Empty = hidden.
+FACTS_PANEL_IMG = "/img/supplement-facts.png"
+FACTS_PANEL_SIZE = (1000, 812)   # width, height of that image
+FACTS_PANEL_ALT = "CoreJava Supplement Facts panel: serving size 1 scoop (6.8 g), 30 servings"
 
 def facts_panel():
     if not FACTS_PANEL_IMG:
         return ""
     w, h = FACTS_PANEL_SIZE
-    return (f'<figure class="facts"><img src="{FACTS_PANEL_IMG}" width="{w}" height="{h}" loading="lazy" decoding="async" '
-            f'alt="Supplement Facts panel from the bag: serving size, amounts per serving, other ingredients and allergen statement">'
-            f'<figcaption class="fine">The Supplement Facts panel, photographed from the bag.</figcaption></figure>')
+    if "supplement-facts" in _manifest():
+        img = pic("supplement-facts", FACTS_PANEL_ALT, sizes="(max-width: 600px) 100vw, 560px")
+    else:
+        img = f'<img src="{FACTS_PANEL_IMG}" width="{w}" height="{h}" alt="{FACTS_PANEL_ALT}" loading="lazy" decoding="async">'
+    return (f'<figure class="facts" id="supplement-facts">{img}'
+            f'<figcaption class="fine">The Supplement Facts panel as printed on the bag.</figcaption></figure>')
 
 # Paste the brand's Facebook Page URL here to add it to Organization sameAs. Empty = left out.
 FACEBOOK_PAGE = ""
 
-# Label-safe crops in img/opt/ (tools/images.py writes them and this manifest).
+# Responsive images in img/opt/ (tools/images.py writes them and this manifest).
 _MANIFEST = _json_load = None
 def _manifest():
     global _MANIFEST
@@ -88,12 +92,12 @@ def _manifest():
     return _MANIFEST
 
 def pic(name, alt, sizes="(max-width: 860px) 100vw, 50vw", eager=False):
-    """<picture> with WebP + JPEG srcsets, intrinsic width/height (no layout shift), lazy unless eager."""
+    """<picture> with WebP + JPEG (or PNG) srcsets, intrinsic width/height (no layout shift), lazy unless eager."""
     m = _manifest()[name]
-    ws = m["widths"]
+    ws, ext = m["widths"], m.get("ext", "jpg")
     webp = ", ".join(f"/img/opt/{name}-{w}.webp {w}w" for w in ws)
-    jpg = ", ".join(f"/img/opt/{name}-{w}.jpg {w}w" for w in ws)
-    fallback = f"/img/opt/{name}-{800 if 800 in ws else ws[-1]}.jpg"
+    jpg = ", ".join(f"/img/opt/{name}-{w}.{ext} {w}w" for w in ws)
+    fallback = f"/img/opt/{name}-{800 if 800 in ws else ws[-1]}.{ext}"
     load = 'fetchpriority="high" decoding="async"' if eager else 'loading="lazy" decoding="async"'
     return (f'<picture><source type="image/webp" srcset="{webp}" sizes="{sizes}">'
             f'<img src="{fallback}" srcset="{jpg}" sizes="{sizes}" width="{m["w"]}" height="{m["h"]}" alt="{alt}" {load}></picture>')
@@ -104,8 +108,9 @@ def preload(name, sizes="(max-width: 860px) 100vw, 50vw"):
     return f'<link rel="preload" as="image" type="image/webp" imagesrcset="{webp}" imagesizes="{sizes}" fetchpriority="high">'
 
 def og_img(name):
-    """Share image: the largest JPEG of a label-safe crop."""
-    return f"/img/opt/{name}-{_manifest()[name]['widths'][-1]}.jpg"
+    """Share image: the largest size of a photo in img/opt/."""
+    m = _manifest()[name]
+    return f"/img/opt/{name}-{m['widths'][-1]}.{m.get('ext', 'jpg')}"
 
 # Bing Webmaster Tools: paste the content="..." value of its msvalidate.01 meta tag here and
 # rebuild. Empty = no tag. (Bing can also import the site from Google Search Console.)
@@ -118,11 +123,12 @@ def url_for(fn):
 def _strip(h):
     return _html.unescape(re.sub(r"<[^>]+>", "", h)).strip()
 
-# Questions left out of FAQ rich results on purpose: the label claim, the AI
-# presenters, and the one that names the maker stay on the page but aren't
-# promoted as search snippets. Search-facing text (titles, descriptions,
-# structured data) never uses the product or company trademark names.
-FAQ_SKIP = {"What does it do?", "Who are the people in your videos?", "Who am I buying from?"}
+# Questions left out of FAQ rich results on purpose: the label claim and the AI
+# presenters stay on the page but aren't promoted as search snippets. The CoreJava
+# name is fine in titles, headings and structured data (owner, Oct 2026: as an
+# independent sales rep he may use it on the site); branded keywords in ads are a
+# separate rule, handled in the ad accounts.
+FAQ_SKIP = {"What does it do?", "Who are the people in your videos?"}
 
 # Answer-style guides: (published, modified). Guides get Article + FAQPage
 # markup from their visible questions, and og:type article.
@@ -142,9 +148,12 @@ GUIDE_META = {
     "instant-coffee-vs-drip-cost-per-cup.html": ("2026-10-29", "2026-10-29"),
 }
 
-# The one product, as the shop page states it. Named descriptively: search-facing
-# text stays free of the maker's trademarks (see note above FAQ_SKIP). No rating markup
-# until the page shows real, attributable customer feedback.
+# The one product, as the shop page states it: CoreJava, brand MarketPlace Global, sold by
+# Rector & Stull LLC (an independent ISR). No rating markup until the page shows real,
+# attributable customer feedback.
+PRODUCT_NAME = "CoreJava Instant Coffee with MCT Powder & L-Theanine"
+SELLER = {"@type": "Organization", "name": "Rector & Stull LLC", "url": SITE + "/"}   # the ISR that sells it
+
 def product_ld():
     ship = {"@type": "OfferShippingDetails",
             "shippingRate": {"@type": "MonetaryAmount", "value": "8.95", "currency": "USD"},
@@ -159,15 +168,17 @@ def product_ld():
     def offer(name, price, extra=None):
         o = {"@type": "Offer", "name": name, "price": price, "priceCurrency": "USD",
              "availability": "https://schema.org/InStock", "itemCondition": "https://schema.org/NewCondition",
-             "url": SITE + "/shop.html", "seller": {"@id": SITE + "/#org"},
+             "url": SITE + "/shop.html", "seller": SELLER, "offeredBy": SELLER,
              "shippingDetails": ship, "hasMerchantReturnPolicy": returns}
         o.update(extra or {})
         return o
     return {"@type": "Product", "@id": SITE + "/shop.html#product",
-            "name": "MCT Instant Coffee with L-Theanine, 30 Servings",
+            "name": PRODUCT_NAME,
+            "brand": {"@type": "Brand", "name": "MarketPlace Global"},
+            "manufacturer": {"@type": "Organization", "name": "MarketPlace Global"},
             "description": "Medium-roast instant coffee with MCT powder from coconut, natural caffeine and L-theanine. "
                            "One level scoop (about 6.8 g) in 8 fl oz of hot water. 30 servings per 7.2 oz (204 g) bag. Contains caffeine.",
-            "image": [SITE + og_img("breakfast-top"), SITE + og_img("shadows-top"), SITE + og_img("flatlay-right")],
+            "image": [SITE + og_img("hero-props"), SITE + og_img("shadows"), SITE + og_img("breakfast")],
             "sku": "CL805",
             "category": "Instant coffee",
             "weight": {"@type": "QuantitativeValue", "value": 204, "unitCode": "GRM"},
@@ -310,7 +321,7 @@ COMPARE = """
 """
 FOUNDER = """
 <section class="alt"><div class="wrap split">
-  <div class="frame p45">""" + pic("desk-top", "Laptop, mug and a bag of CoreJava on a desk") + """</div>
+  <div class="frame p45">""" + pic("desk", "Laptop, mug and a bag of CoreJava on a desk") + """</div>
   <div>
     <p class="eyebrow">A note from the two of us</p>
     <h2>We're new. Here's who you're buying from.</h2>
@@ -364,9 +375,16 @@ INGCARDS = f"""<div class="ingcards">
   <div>{ICON_SCOOP}<div><h2>30 servings. One scoop.</h2><p>Hot water, 30 seconds, no machine. A month of mornings in one bag. <a href="/how-to-make-mct-instant-coffee.html">How to make it</a>.</p></div></div>
 </div>"""
 
+HERO_SIZES = "(max-width: 860px) 70vw, 450px"   # the hero image is ~450 px wide on desktop, 52-70% of the screen on phones
 CALLOUTS = f"""<div class="callouts-wrap">
-  <div class="bagstage photo">
-    <div class="frame herophoto">""" + pic("breakfast-top", "CoreJava instant coffee bag on a sunlit breakfast table", sizes="(max-width: 860px) 100vw, 560px", eager=True) + f"""</div>
+  <div class="bagstage">
+    """ + pic("hero-props", "CoreJava bag with coconut, MCT powder, coffee beans, green tea leaves and matcha", sizes=HERO_SIZES, eager=True) + f"""
+    <svg class="leads" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M24 30 L27 30 L30 65.5" /><circle cx="30.2" cy="67.5" r="1"/>
+      <path d="M76 30 L73 30 L72.4 61" /><circle cx="72.3" cy="63" r="1"/>
+      <path d="M24 88 L27 88 L42 85.7" /><circle cx="43.5" cy="85.4" r="1"/>
+      <path d="M76 92 L73 92 L56.6 79.8" /><circle cx="55.4" cy="78.8" r="1"/>
+    </svg>
     <span class="chip c1"><i>{ICON_COCO}</i><span><b>MCT powder</b>the creamy part</span></span>
     <span class="chip c2"><i>{ICON_LEAF}</i><span><b>L-theanine</b>paired with caffeine</span></span>
     <span class="chip c3"><i>{ICON_BEAN}</i><span><b>Natural caffeine</b>about one cup's worth</span></span>
@@ -523,8 +541,8 @@ HOME = """
   <div>
     <p class="eyebrow">What's in it</p>
     <h2>Seven things, one scoop.</h2>
-    <p>MCT powder, for a creamy cup. Natural caffeine from coffee beans. L-theanine, the amino acid in green tea. ChromeMate, a patented chromium. Paradoxine, grains of paradise extract. Garcinia Cambogia fruit extract. Saffr'Activ saffron extract. One scoop, hot water, and you've got your morning cup.</p>
-    <p><a class="btn" href="/ingredients.html">See every ingredient</a></p>
+    <p>MCT powder, for a creamy cup. Natural caffeine from coffee beans. L-theanine, the amino acid in green tea. ChromeMate, a patented chromium. Paradoxine, grains of paradise extract. Garcinia Cambogia fruit extract. Saffr'Activ saffron extract. Those are the ones we talk about; the instant coffee itself and the other ingredients are on the full Supplement Facts panel.</p>
+    <p><a class="btn" href="/ingredients.html#supplement-facts">See the Supplement Facts</a></p>
   </div>
   <div class="frame phone"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/ingredients.jpg"><source src="/media/ingredients.mp4" type="video/mp4"></video></div>
 </div></section>
@@ -552,7 +570,7 @@ HOME = """
     <details><summary>Can I cancel the subscription?</summary><p>Any time. Use the link in your receipt, or <a href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00">manage your subscription here</a>: pause a month, cancel, or update your card. No calls, no forms.</p></details>
     <p><a class="btn ghost" href="/faq.html">All questions</a></p>
   </div>
-  <div class="frame p45">""" + pic("patio-left", "Iced coffee on a sunny patio") + """</div>
+  <div class="frame p45">""" + pic("patio", "Woman on a sunny patio with an iced coffee and a CoreJava bag") + """</div>
 </div></section>
 <section><div class="wrap split">
   <div>
@@ -561,7 +579,7 @@ HOME = """
     <p>Tell people about it anyway? MarketPlace Global pays a bonus on every order a friend places through your link. Three levels, explained without the hype.</p>
     <p><a class="btn ghost" href="/share.html">How it works</a></p>
   </div>
-  <div class="frame p45">""" + pic("scoop-top", "A scoop of CoreJava over the bag") + """</div>
+  <div class="frame p45">""" + pic("scoop", "A scoop of CoreJava over the bag") + """</div>
 </div></section>
 <section class="dark" style="text-align:center"><div class="wrap">
   <h2>Tomorrow's first cup.</h2>
@@ -576,18 +594,18 @@ SHOP = """
 <section style="padding-top:36px"><div class="wrap shopgrid">
   <!-- buy block first in the DOM: phones show it first and nothing shifts while the page streams in -->
   <div class="shop-buy">
-    <p class="eyebrow">CoreJava &middot; made by MarketPlace Global</p>
-    <h1 style="font-size:clamp(32px,4vw,48px)">MCT Instant Coffee with L-Theanine, 30 Servings</h1>
+    <p class="eyebrow">Made by MarketPlace Global &middot; 30 servings</p>
+    <h1 style="font-size:clamp(32px,4vw,48px)">CoreJava Instant Coffee with MCT Powder &amp; L-Theanine</h1>
     <p class="lead">Medium-roast instant coffee built around natural caffeine and L-theanine, with ChromeMate, Paradoxine, Garcinia Cambogia and Saffr'Activ. Made for focus and steady energy. One level scoop in 8 oz of hot water.</p>
     """ + picker() + """
     <p class="bonus" data-bonus hidden><strong>Free with your first order:</strong> the Recipe Pack, 12 ways to drink it plus a 30-morning tracker (PDF).</p>
     <p class="fine"><span data-ship="long">Ships to all 50 states.</span> Cancel anytime &middot; <span data-ship="checkout">secure checkout</span> &middot; <span data-ship="damage">made right if it arrives damaged</span>. Questions before you buy: hello@themorningupgrades.com.</p>
   </div>
   <div class="shop-media">
-    <div class="frame p45">""" + pic("shadows-top", "CoreJava coffee bag with leaf shadows in morning light", eager=True) + """</div>
+    <div class="frame p45">""" + pic("shadows", "CoreJava coffee bag with leaf shadows in morning light", eager=True) + """</div>
     <div class="gallery">
       <div class="frame" style="aspect-ratio:9/16"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/product_callouts_v2.jpg"><source src="/media/product_callouts_v2.mp4" type="video/mp4"></video></div>
-      <div class="frame" style="aspect-ratio:9/16">""" + pic("kitchen-pour-top", "Pouring hot water next to a CoreJava bag", sizes="(max-width: 860px) 33vw, 180px") + """</div>
+      <div class="frame" style="aspect-ratio:9/16">""" + pic("kitchen-pour", "Pouring hot water next to a CoreJava bag", sizes="(max-width: 860px) 33vw, 180px") + """</div>
       <div class="frame" style="aspect-ratio:9/16"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/iced.jpg"><source src="/media/iced.mp4" type="video/mp4"></video></div>
     </div>
   </div>
@@ -595,7 +613,7 @@ SHOP = """
     <h2 style="margin-top:30px;font-size:22px">Details</h2>
     <ul class="clean">
       <li><strong>Serving:</strong> 1 level scoop (about 6.8 g) in 8 fl oz hot water. 30 servings per 7.2 oz (204 g) bag.</li>
-      <li><strong>Ingredients:</strong> MCT powder, natural caffeine, L-theanine, ChromeMate&reg; chromium, Paradoxine&reg; grains of paradise extract, Garcinia Cambogia extract, Saffr'Activ&reg; saffron extract. <a href="/ingredients.html">Full breakdown</a>.</li>
+      <li><strong>Key ingredients:</strong> MCT powder, natural caffeine, L-theanine, ChromeMate&reg; chromium, Paradoxine&reg; grains of paradise extract, Garcinia Cambogia extract, Saffr'Activ&reg; saffron extract. Every ingredient, with amounts, is on the Supplement Facts panel below. <a href="/ingredients.html">Full breakdown</a>.</li>
       <li><strong>Taste:</strong> medium roast, smooth. Works black, with creamer, or over ice.</li>
       <li><strong>Who it's for:</strong> adults who drink coffee daily and want a steadier morning. Not for children, or if you're pregnant or nursing. Contains caffeine.</li>
       <li><strong>Made by:</strong> MarketPlace Global. Sold by Rector &amp; Stull LLC, Independent MarketPlace Global ISR.</li>
@@ -622,12 +640,12 @@ ING = """
   """ + CALLOUTS + """
   <div>
     <p class="eyebrow">What's in it</p>
-    <h1 style="font-size:clamp(34px,4.4vw,56px)">Seven ingredients. Nothing hidden behind a blend.</h1>
+    <h1 style="font-size:clamp(34px,4.4vw,56px)">What&rsquo;s in CoreJava. Nothing hidden behind a blend.</h1>
     <p class="lead">We'll tell you where each one comes from. We describe the cup by what's in it: natural caffeine for energy, L-theanine alongside it, MCT powder for a creamy texture. We don't make health claims beyond the label.</p>
   </div>
 </div></section>
 <section class="alt"><div class="wrap">
-  <h2 class="sr">The seven ingredients</h2>
+  <h2 class="sr">The ingredients we talk about</h2>
   <div class="ing">
     <div class="card"><b>MCT powder</b><h3>First on the label</h3><p>Medium-chain triglycerides, usually from coconut oil, in powder form. It&rsquo;s what gives the cup body and a creamy texture without adding cream. <a href="/what-is-mct-coffee.html">More on MCT coffee</a>.</p></div>
     <div class="card"><b>Natural caffeine</b><h3>From coffee beans</h3><p>The same caffeine you already drink, from coffee, not synthesized. About the amount in a strong cup.</p></div>
@@ -638,11 +656,11 @@ ING = """
     <div class="card"><b>Saffr'Activ&reg;</b><h3>Saffron extract</h3><p>A standardized extract of saffron stigmas, the same spice used in cooking.</p></div>
     <div class="card claim"><b>What we say about it</b><h3>Natural caffeine and L-theanine for focus and steady energy.</h3><p>That's the whole pitch. It's a dietary supplement, not a medicine, and we don't claim more than what's in the bag.</p></div>
   </div>
-  <p class="fine" style="margin-top:22px;text-align:center">Full Supplement Facts, including amounts per serving and other ingredients, are printed on the bag. Trademarks belong to their respective ingredient suppliers.</p>
+  <p class="fine" style="margin-top:22px;text-align:center">These are the ingredients we talk about. The full Supplement Facts panel below, as printed on the bag, lists every ingredient with amounts per serving, including the instant coffee and other ingredients. Trademarks belong to their respective ingredient suppliers.</p>
   """ + facts_panel() + """
 </div></section>
 <section><div class="wrap" style="text-align:center">
-  <h2>One scoop has all seven.</h2>
+  <h2>Everything on the panel, one scoop.</h2>
   <p style="color:var(--muted)">$79.95 a bag, or $69.95 a month on Subscribe &amp; Save.</p>
 """ + CTA_BLOCK + """
 </div></section>
@@ -692,7 +710,7 @@ PARTNER = """
 </div></section>
 
 <section><div class="wrap split">
-  <div class="frame p45">""" + pic("desk-top", "Laptop, mug and coffee bag on a desk") + """</div>
+  <div class="frame p45">""" + pic("desk", "Laptop, mug and a CoreJava bag on a desk") + """</div>
   <div>
     <h2>Who this is for</h2>
     <ul class="clean">
@@ -764,7 +782,7 @@ SHARE = """
     <p><a class="btn" href="#levels">See the three levels</a> &nbsp; <a class="btn ghost" href="#honest">What this actually is</a></p>
     <p class="fine" style="margin-top:14px">Independent Sales Representative (ISR) program of MarketPlace Global. Paid on product sales only. Most participants earn little; see the <a data-disclosure href="#">income disclosure</a>.</p>
   </div>
-  <div class="frame phone">""" + pic("gym-face", "Woman on a yoga mat holding a mug of coffee", sizes="(max-width: 860px) 300px, 360px") + """</div>
+  <div class="frame phone">""" + pic("gym", "Woman on a yoga mat holding a CoreJava bag and a mug", sizes="(max-width: 860px) 300px, 360px") + """</div>
 </div></section>
 
 <section class="alt" id="levels"><div class="wrap">
@@ -819,7 +837,7 @@ SHARE = """
 </div></section>
 
 <section class="alt"><div class="wrap split">
-  <div class="frame p45">""" + pic("desk-top", "Laptop, mug and a bag of CoreJava on a desk") + """</div>
+  <div class="frame p45">""" + pic("desk", "Laptop, mug and a bag of CoreJava on a desk") + """</div>
   <div>
     <h2>Questions people ask before they share</h2>
     <details><summary>Do I have to recruit anyone?</summary><p>No. The Share level is customers only: friends who buy coffee. Nobody is paid for recruiting at any level; compensation is on product sales.</p></details>
@@ -852,7 +870,7 @@ ABOUT = """
     <p>Everything on this site that earns us money says so. The people in our videos are AI presenters; we say so here and in the platform AI labels. If something's unclear, email us and a human will answer: hello@themorningupgrades.com.</p>
     <p><a class="btn" href="/shop.html">Buy CoreJava</a> &nbsp; <a class="btn ghost" href="/partner.html">Partner with us</a></p>
   </div>
-  <div class="frame p45">""" + pic("pour-top", "Pouring hot water next to a bag of CoreJava") + """</div>
+  <div class="frame p45">""" + pic("pour", "Pouring hot water next to a bag of CoreJava") + """</div>
   <p class="fine" style="margin-top:18px">The people in our videos are AI presenters we produce for the brand. They demonstrate the product; they never speak as customers or describe results.</p>
 </div></section>
 <section class="alt" id="koby"><div class="wrap" style="max-width:760px">
@@ -1018,7 +1036,7 @@ NINETY = """
 THANKS = """
 <section style="padding-top:36px"><div class="wrap" style="max-width:720px">
   <div class="card" style="padding:34px 30px">
-    <div class="frame" style="aspect-ratio:16/10;margin-bottom:22px;box-shadow:none">""" + pic("desk-top", "A mug and a bag of coffee on a desk", sizes="(max-width: 760px) 100vw, 660px") + """</div>
+    <div class="frame" style="aspect-ratio:16/10;margin-bottom:22px;box-shadow:none">""" + pic("desk", "Laptop, mug and a CoreJava bag on a desk", sizes="(max-width: 760px) 100vw, 660px") + """</div>
     <h1 style="font-size:clamp(30px,4vw,44px)">Your guide is on its way.</h1>
     <p>Check your inbox in the next minute or two (and the promotions tab, if you're on Gmail). If you'd rather not wait:</p>
     <p><a class="btn" href="https://d2ol7oe51mr4n9.cloudfront.net/user_3GvdxB9gfwtge4rv79iuyoXAckR/a857aef6-954a-4e8e-b256-41205db0097f.pdf" target="_blank" rel="noopener">Open the 7 Mornings guide</a></p>
@@ -1093,9 +1111,9 @@ START = """
 <section><div class="wrap split" style="align-items:center">
   <div class="frame phone vid"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/host_kitchen.jpg"><source src="/media/host_kitchen.mp4" type="video/mp4"></video><button class="unmute" type="button" data-unmute aria-label="Turn sound on">&#9654; Sound on</button></div>
   <div>
-    <p class="eyebrow">One scoop. Seven things on the label.</p>
+    <p class="eyebrow">One scoop. Every ingredient on the label.</p>
     <h2>Nothing hidden behind a blend.</h2>
-    <p>MCT powder, natural caffeine, L-theanine, ChromeMate&reg; chromium, Paradoxine&reg; grains of paradise, Garcinia Cambogia and Saffr'Activ&reg; saffron extract. We describe it by what's in it and don't make health claims beyond the label.</p>
+    <p>MCT powder, natural caffeine, L-theanine, ChromeMate&reg; chromium, Paradoxine&reg; grains of paradise, Garcinia Cambogia and Saffr'Activ&reg; saffron extract, plus the instant coffee itself; every ingredient is on the <a href="/ingredients.html#supplement-facts">Supplement Facts panel</a>. We describe it by what's in it and don't make health claims beyond the label.</p>
     <ul class="clean">
       <li>Medium roast, instant. Black is fine, creamer is fine, over ice is fine.</li>
       <li>One level scoop in 8 oz of hot water. Stir. Done.</li>
@@ -1415,7 +1433,7 @@ G_CAF_INSTANT = guide_page("Caffeine", "How much caffeine is in instant coffee?"
   <h2>What about ours?</h2>
   <p>Ours is an instant coffee with natural caffeine, L-theanine and MCT powder from coconut. A serving is one level scoop in 8 fl oz of hot water and has about as much caffeine as a strong cup of coffee; the exact amount per serving is on the Supplement Facts panel. Count it like any other coffee. <a href="/ingredients.html">Every ingredient is listed here</a>.</p>
   """,
-  fn="how-much-caffeine-in-instant-coffee.html", img="flatlay-right",
+  fn="how-much-caffeine-in-instant-coffee.html", img="flatlay",
   faq=[
     ("Does instant coffee have less caffeine than brewed?", "Usually, per cup, because a typical instant cup uses less coffee. USDA's averages are about 62 mg for an 8 fl oz instant cup and about 95 mg for brewed. More powder means more caffeine."),
     ("How much caffeine is in a teaspoon of instant coffee?", "USDA lists dry instant coffee powder at 3,142 mg per 100 g and a teaspoon at 1 g, so roughly 31 mg per level teaspoon. Heaped teaspoons hold more."),
@@ -1445,7 +1463,7 @@ G_TASTE = guide_page("How-to", "How to make instant coffee taste better",
   <h2>6. Try it cold</h2>
   <p>Some instant coffees taste better iced than hot, because cold mutes the harsher notes. Dissolve the powder in a little hot water, pour over ice and top with cold water or milk.</p>
   """,
-  fn="how-to-make-instant-coffee-taste-better.html", img="kitchen-pour-top",
+  fn="how-to-make-instant-coffee-taste-better.html", img="kitchen-pour",
   faq=[
     ("Should I use boiling water for instant coffee?", "Hot water just off the boil works well. Many people find a rolling boil tastes harsher; lukewarm water leaves grains. Try both and keep what you prefer."),
     ("Why does my instant coffee taste sour?", "Usually too much water for the amount of powder. Use the label's serving and a little less water."),
@@ -1478,7 +1496,7 @@ G_SHELF = guide_page("Storage", "Does instant coffee go bad?",
   <h2>Ours</h2>
   <p>Ours comes in a resealable bag with 30 servings, one scoop a morning, so a bag is used within a month. Press the air out and close the zip after each scoop. <a href="/how-to-make-mct-instant-coffee.html">How to make it</a>.</p>
   """,
-  fn="does-instant-coffee-go-bad.html", img="scoop-top",
+  fn="does-instant-coffee-go-bad.html", img="scoop",
   faq=[
     ("Can old instant coffee make you sick?", "Dry, sealed instant coffee that's just old usually only tastes flat. Moisture is what makes it unsafe: discard any powder with mold, a musty smell or discoloration."),
     ("Should I keep instant coffee in the freezer?", "It isn't necessary, and opening a cold container lets condensation in. A dry cupboard is better for a jar you use daily."),
@@ -1514,7 +1532,7 @@ G_TRAVEL = guide_page("How-to", "Instant coffee for travel, camping and dorms",
   <h2>Ours on the road</h2>
   <p>Ours is one level scoop in 8 fl oz of hot water, with the MCT powder already in it, so there's no oil or blender to pack. It contains caffeine; count it like your usual cup. <a href="/shop.html">See the coffee</a>.</p>
   """,
-  fn="instant-coffee-for-travel-camping-dorm.html", img="desk-top",
+  fn="instant-coffee-for-travel-camping-dorm.html", img="desk",
   faq=[
     ("Can you make instant coffee with cold water?", "Yes, slowly. Shake it hard in a sealed bottle and give it a few minutes. Hot water is faster and dissolves it completely."),
     ("Can I bring instant coffee on a plane?", "Dry coffee is fine in checked bags. In carry-on, powders are generally allowed in the US but may get extra screening; check the TSA's current rules."),
@@ -1554,7 +1572,7 @@ G_MCTPOWDER = guide_page("MCT", "What is MCT powder? MCT powder vs. MCT oil",
   <h2>MCT powder in coffee</h2>
   <p>Stirred into hot coffee, MCT powder gives a creamier body without milk, which is why it shows up in instant coffees. More on that in <a href="/what-is-mct-coffee.html">what is MCT coffee?</a> and <a href="/mct-coffee-vs-butter-coffee.html">MCT coffee vs. butter coffee</a>. In ours, MCT powder from coconut is the first ingredient, alongside natural caffeine and L-theanine. <a href="/ingredients.html">See every ingredient</a>.</p>
   """,
-  fn="what-is-mct-powder.html", img="breakfast-top",
+  fn="what-is-mct-powder.html", img="breakfast",
   faq=[
     ("Is MCT powder the same as MCT oil?", "It contains MCT oil, dried onto a carrier. Gram for gram it has less MCT than the oil, because part of the powder is the carrier."),
     ("What is MCT powder made from?", "MCT oil, usually from coconut or palm kernel oil, plus a carrier such as acacia gum, tapioca maltodextrin or a milk protein."),
@@ -1589,7 +1607,7 @@ G_NATCAF = guide_page("Caffeine", "Natural caffeine vs. synthetic caffeine: what
   <h2>Ours</h2>
   <p>Ours lists natural caffeine, alongside L-theanine and MCT powder from coconut. One level scoop is a serving, about as much caffeine as a strong cup of coffee; the exact amount is on the Supplement Facts panel. <a href="/l-theanine-and-caffeine.html">Why L-theanine is paired with caffeine</a>.</p>
   """,
-  fn="natural-caffeine-vs-synthetic.html", img="pour-top",
+  fn="natural-caffeine-vs-synthetic.html", img="pour",
   faq=[
     ("Is natural caffeine better than synthetic?", "They're the same molecule and act the same way per milligram. 'Natural' describes the source, not the strength or safety."),
     ("Does natural caffeine wear off differently?", "Caffeine is caffeine once it's in your body. How a drink feels can differ because of what else is in it and how fast you drink it."),
@@ -1624,7 +1642,7 @@ G_RATIO = guide_page("L-theanine", "Caffeine and L-theanine ratio: what the stud
   <h2>Ours</h2>
   <p>Ours lists natural caffeine and L-theanine together with MCT powder from coconut; the amounts per scoop are on the Supplement Facts panel. More background in <a href="/l-theanine-and-caffeine.html">L-theanine and caffeine: reading the label</a>.</p>
   """,
-  fn="caffeine-and-l-theanine-ratio.html", img="desk-top",
+  fn="caffeine-and-l-theanine-ratio.html", img="desk",
   faq=[
     ("What is the best caffeine to L-theanine ratio?", "No study has established one. The combinations in a 2021 review were 160 mg caffeine with 200 mg L-theanine, and 150 mg caffeine with 250 mg L-theanine."),
     ("Is 1:2 caffeine to L-theanine common?", "It's a ratio you'll see on product labels. The studies summarized in the 2021 review used about 1:1.25 to 1:1.7."),
@@ -1667,7 +1685,7 @@ G_COST = guide_page("Cost", "Instant coffee vs. drip coffee: cost per cup",
   <h2>Cost isn't the only number</h2>
   <p>A cheaper cup you don't enjoy isn't a saving. Time matters too: instant takes about 30 seconds and no clean-up. Pick the cup you'll actually make. <a href="/how-to-make-instant-coffee-taste-better.html">How to make instant coffee taste better</a>.</p>
   """,
-  fn="instant-coffee-vs-drip-cost-per-cup.html", img="kitchen-pour-top",
+  fn="instant-coffee-vs-drip-cost-per-cup.html", img="kitchen-pour",
   faq=[
     ("How do I calculate cost per cup of coffee?", "Divide what you paid by the number of cups it makes. For ground coffee, cups = the bag's grams divided by the grams you use per cup."),
     ("Is instant coffee cheaper than brewing?", "Plain instant coffee usually costs less per cup than ground coffee or pods. Specialty and functional instant coffees can cost more, so run the numbers."),
@@ -1683,7 +1701,7 @@ RECIPE_DATE = "2026-10-29"
 SERVING = "1 serving instant coffee (one level scoop of ours, or the serving size on your jar)"
 
 RECIPES = [
-  {"slug": "iced-instant-coffee-recipe", "name": "Iced instant coffee", "short": "Iced classic", "img": "patio-left", "iced": True,
+  {"slug": "iced-instant-coffee-recipe", "name": "Iced instant coffee", "short": "Iced classic", "img": "patio", "iced": True,
    "title": "Iced Instant Coffee Recipe (No Clumps) | Morning Upgrade",
    "desc": "Iced instant coffee in two minutes: dissolve the coffee in a little hot water first, then pour over ice and top up. No clumps, no machine.",
    "lede": "Stir one serving of instant coffee into 2 fl oz of hot water until it's fully dissolved, pour it over a glass full of ice, and top up with 6 fl oz of cold water or milk. Dissolving hot first is the whole trick: instant coffee clumps in cold water.",
@@ -1698,7 +1716,7 @@ RECIPES = [
             "Make the base the night before and keep it in a jar in the fridge for a two-second morning pour."],
    "faq": [("Why does instant coffee clump in cold water?", "The granules dissolve slowly in cold water and the outer layer gets sticky before the inside dissolves, so it forms lumps. Dissolving in a little hot water first avoids that."),
            ("Can I make it with cold brew concentrate instead?", "Yes, but that's a different drink. This recipe is for when all you have is instant coffee and two minutes.")]},
-  {"slug": "iced-oat-milk-vanilla-coffee", "name": "Iced oat milk vanilla coffee", "short": "Iced oat vanilla", "img": "patio-left", "iced": True,
+  {"slug": "iced-oat-milk-vanilla-coffee", "name": "Iced oat milk vanilla coffee", "short": "Iced oat vanilla", "img": "patio", "iced": True,
    "title": "Iced Oat Milk Vanilla Coffee (Instant) | Morning Upgrade",
    "desc": "An iced vanilla oat milk coffee made with instant coffee: a hot coffee base, ice, cold oat milk and one drop of vanilla. Ready in three minutes.",
    "lede": "Dissolve one serving of instant coffee and a teaspoon of sugar or maple syrup in 2 fl oz of hot water, add a single drop of vanilla extract, pour it over ice and top with 6 fl oz of cold oat milk. It tastes like a café vanilla latte without the syrup pump.",
@@ -1713,7 +1731,7 @@ RECIPES = [
             "Swap the vanilla for a pinch of cinnamon in the hot base for a cinnamon oat latte."],
    "faq": [("Will oat milk curdle in coffee?", "Cold oat milk poured over an iced, already-diluted coffee base rarely separates. Curdling is more likely when cold plant milk hits very hot, acidic coffee."),
            ("Can I use vanilla syrup instead of extract?", "Yes. Use about 2 teaspoons of syrup and skip the sugar.")]},
-  {"slug": "instant-coffee-frappe", "name": "Instant coffee frappé", "short": "Blended frappé", "img": "patio-left", "iced": True,
+  {"slug": "instant-coffee-frappe", "name": "Instant coffee frappé", "short": "Blended frappé", "img": "patio", "iced": True,
    "title": "Instant Coffee Frappé Recipe (3 Minutes) | Morning Upgrade",
    "desc": "A blended coffee frappé with instant coffee, milk, ice and a little honey: how to get it thick and how to keep it from separating.",
    "lede": "Dissolve one serving of instant coffee in 2 fl oz of hot water, then blend it with 4 fl oz of cold milk, a cup of ice and a teaspoon of honey until smooth and thick, about 30 seconds. Drink it right away; blended ice drinks start separating within minutes.",
@@ -1729,7 +1747,7 @@ RECIPES = [
             "For a mocha frapp\u00e9, add a teaspoon of cocoa powder to the hot coffee base before blending."],
    "faq": [("Why does my frappé separate?", "Blended ice and liquid separate as the ice melts. Frozen milk cubes or a little banana keep it together longer."),
            ("Is a frappé the same as a frappuccino?", "Frappuccino is a coffee-chain trademark for its blended drinks. A frappé is the general name for a blended or shaken iced coffee.")]},
-  {"slug": "instant-coffee-latte", "name": "Instant coffee latte", "short": "Latte-style", "img": "pour-top", "iced": False,
+  {"slug": "instant-coffee-latte", "name": "Instant coffee latte", "short": "Latte-style", "img": "pour", "iced": False,
    "title": "How to Make a Latte with Instant Coffee | Morning Upgrade",
    "desc": "A latte with instant coffee: a strong instant coffee base topped with steamed or frothed milk. Stovetop, microwave and handheld-frother methods.",
    "lede": "Dissolve one serving of instant coffee in 2 fl oz of hot water to make a strong base, then top it with 6 fl oz of hot milk you've frothed until it's foamy. A jar, a whisk or a handheld frother all work; you don't need an espresso machine.",
@@ -1744,7 +1762,7 @@ RECIPES = [
             "Shaking hot milk in a jar works, but leave room in the jar and hold the lid with a towel."],
    "faq": [("Can I make a latte without a frother?", "Yes. Shake the hot milk in a lidded jar for 30 seconds or whisk it hard in the pan. The foam is a little bigger-bubbled than a steam wand's, but it works."),
            ("What's the difference between a latte and a cappuccino?", "Mostly the milk: a latte has more milk and a thin foam layer; a cappuccino has less milk and a thicker cap of foam.")]},
-  {"slug": "instant-coffee-mocha", "name": "Mocha with instant coffee", "short": "Mocha", "img": "flatlay-right", "iced": False,
+  {"slug": "instant-coffee-mocha", "name": "Mocha with instant coffee", "short": "Mocha", "img": "flatlay", "iced": False,
    "title": "Mocha with Instant Coffee: Hot or Iced | Morning Upgrade",
    "desc": "A mocha made with instant coffee and cocoa powder: dissolve both in a little hot water, then add hot or cold milk. Hot and iced versions.",
    "lede": "Whisk one serving of instant coffee, 2 teaspoons of unsweetened cocoa powder and 2 teaspoons of sugar into 2 fl oz of hot water until smooth, then add 6 fl oz of hot milk for a hot mocha, or pour it over ice and cold milk for an iced one.",
@@ -1759,7 +1777,7 @@ RECIPES = [
             "Cocoa contains a small amount of caffeine of its own, so count a mocha as at least a full cup of coffee."],
    "faq": [("Can I use chocolate syrup instead of cocoa?", "Yes. Use about 1 tablespoon of chocolate syrup and skip the sugar."),
            ("Why is my mocha gritty?", "Cocoa powder needs a smooth paste with a little hot liquid before the rest goes in. Stirring it straight into a full mug of milk leaves grit.")]},
-  {"slug": "cinnamon-instant-coffee", "name": "Cinnamon instant coffee", "short": "Cinnamon", "img": "desk-top", "iced": False,
+  {"slug": "cinnamon-instant-coffee", "name": "Cinnamon instant coffee", "short": "Cinnamon", "img": "desk", "iced": False,
    "title": "Cinnamon Instant Coffee (No Grit) | Morning Upgrade",
    "desc": "How to add cinnamon to instant coffee without a gritty cup: bloom it in the hot water, sweeten while hot, or use a cinnamon stick. Hot and iced.",
    "lede": "Stir a quarter teaspoon of ground cinnamon into the hot water first, then add one serving of instant coffee and the rest of the water; let it sit a minute and the cinnamon settles instead of floating as grit. Or steep a cinnamon stick in the hot water for two minutes and skip the powder entirely.",
@@ -1775,7 +1793,7 @@ RECIPES = [
             "Ceylon cinnamon tastes softer and sweeter; the common cassia kind is spicier. Either works here."],
    "faq": [("Why doesn't cinnamon dissolve in coffee?", "Ground cinnamon is bark, not a soluble powder. It disperses but never dissolves, so it settles or floats."),
            ("Can I use cinnamon syrup?", "Yes. Use about 2 teaspoons and skip the sugar.")]},
-  {"slug": "instant-coffee-protein-shake", "name": "Instant coffee protein shake", "short": "Protein shake", "img": "scoop-top", "iced": True,
+  {"slug": "instant-coffee-protein-shake", "name": "Instant coffee protein shake", "short": "Protein shake", "img": "scoop", "iced": True,
    "title": "Coffee Protein Shake with Instant Coffee | Morning Upgrade",
    "desc": "A blended coffee protein shake with instant coffee, milk, ice and a scoop of protein powder. How to keep it smooth and how to make it without a blender.",
    "lede": "Dissolve one serving of instant coffee in 2 fl oz of hot water, then blend it with 6 fl oz of cold milk, one scoop of vanilla or chocolate protein powder and a handful of ice for 20 seconds. No blender? Shake the cooled coffee base, milk and powder hard in a shaker bottle.",
@@ -1790,7 +1808,7 @@ RECIPES = [
             "Read the protein powder's label too: some contain caffeine or other active ingredients of their own."],
    "faq": [("Can I put protein powder straight into hot coffee?", "Many protein powders clump or turn stringy in very hot liquid. Blend or shake them with cold milk and add the coffee base to that."),
            ("Does this work with plant-based protein?", "Yes. Plant proteins are often thicker, so add an extra splash of milk.")]},
-  {"slug": "coffee-ice-cubes", "name": "Coffee ice cubes", "short": "Coffee ice cubes", "img": "patio-left", "iced": True,
+  {"slug": "coffee-ice-cubes", "name": "Coffee ice cubes", "short": "Coffee ice cubes", "img": "patio", "iced": True,
    "title": "Coffee Ice Cubes from Instant Coffee | Morning Upgrade",
    "desc": "Coffee ice cubes keep iced coffee from going watery. How to make them from instant coffee, how long they keep, and three ways to use them.",
    "lede": "Dissolve instant coffee in hot water at normal drinking strength, let it cool, pour it into an ice-cube tray and freeze it for about four hours. Use the cubes in iced coffee so melting ice adds coffee instead of water.",
@@ -1807,7 +1825,7 @@ RECIPES = [
             "Label the bag with the date so you use the oldest cubes first."],
    "faq": [("Do coffee ice cubes need to be strong coffee?", "Normal strength works: as they melt they add coffee, so the drink holds its strength instead of thinning out."),
            ("Can I make them from leftover brewed coffee?", "Yes. Any coffee you'd drink works; leftover morning coffee is the classic use.")]},
-  {"slug": "instant-coffee-affogato", "name": "Instant coffee affogato", "short": "Affogato", "img": "flatlay-right", "iced": False,
+  {"slug": "instant-coffee-affogato", "name": "Instant coffee affogato", "short": "Affogato", "img": "flatlay", "iced": False,
    "title": "Affogato with Instant Coffee | Morning Upgrade",
    "desc": "An affogato with instant coffee: a strong, small instant coffee poured hot over a scoop of vanilla ice cream. Two ingredients, two minutes.",
    "lede": "Dissolve one serving of instant coffee in just 2 fl oz of very hot water to make a short, strong shot, then pour it over a scoop of vanilla ice cream in a small glass and eat it straight away with a spoon.",
@@ -1824,7 +1842,7 @@ RECIPES = [
             "For a crunchy finish, add a crumbled amaretti or shortbread cookie on top."],
    "faq": [("What does affogato mean?", "It's Italian for 'drowned': ice cream drowned in coffee. It's traditionally made with espresso."),
            ("Can I make it dairy-free?", "Yes. Use a dairy-free vanilla ice cream; coconut- and oat-based ones both work.")]},
-  {"slug": "dalgona-whipped-coffee", "name": "Dalgona whipped coffee", "short": "Whipped (dalgona)", "img": "scoop-top", "iced": True,
+  {"slug": "dalgona-whipped-coffee", "name": "Dalgona whipped coffee", "short": "Whipped (dalgona)", "img": "scoop", "iced": True,
    "title": "Dalgona Whipped Coffee with Instant Coffee | Morning Upgrade",
    "desc": "Dalgona whipped coffee: instant coffee, sugar and hot water whipped into a thick foam over milk. The ratio, the whisking time and a serving note.",
    "lede": "Whisk equal parts plain instant coffee, sugar and hot water (2 tablespoons each) for 3 to 5 minutes by hand, or about 2 minutes with a hand mixer, until it's thick, pale and holds a peak, then spoon it over a glass of iced or warm milk.",
@@ -1839,7 +1857,7 @@ RECIPES = [
             "Check the serving size: the classic ratio uses more instant coffee than a normal cup. Use plain instant coffee for it, and don't scale up a coffee with added caffeine or other ingredients beyond its label serving."],
    "faq": [("Why won't my dalgona coffee whip?", "Usually not enough whisking, too much water, or no sugar. Keep the equal ratio and keep going; it takes longer by hand than people expect."),
            ("Can I make it with a coffee that has added ingredients?", "Stick to the label serving for any coffee with added caffeine or other ingredients. The classic dalgona ratio is built for plain instant coffee.")]},
-  {"slug": "pumpkin-spice-instant-coffee", "name": "Pumpkin spice instant coffee", "short": "Pumpkin spice", "img": "desk-top", "iced": False,
+  {"slug": "pumpkin-spice-instant-coffee", "name": "Pumpkin spice instant coffee", "short": "Pumpkin spice", "img": "desk", "iced": False,
    "title": "Pumpkin Spice Coffee with Instant Coffee | Morning Upgrade",
    "desc": "A pumpkin spice latte at home with instant coffee: pumpkin purée, pumpkin pie spice, a little sugar and hot milk. Hot or iced, no syrup needed.",
    "lede": "Warm 6 fl oz of milk with 1 tablespoon of pumpkin purée, a quarter teaspoon of pumpkin pie spice and 2 teaspoons of sugar, whisk until smooth, then pour it over one serving of instant coffee dissolved in 2 fl oz of hot water.",
@@ -1854,7 +1872,7 @@ RECIPES = [
             "For iced: whisk the pumpkin, spice and sugar into cold milk, pour over ice and add the dissolved coffee."],
    "faq": [("Is pumpkin pie filling the same as pumpkin purée?", "No. Pie filling is already sweetened and spiced; if you use it, skip the sugar and spice."),
            ("Why is my pumpkin coffee grainy?", "Pumpkin purée has fiber that doesn't dissolve. Whisk it into the milk while heating, or blend it, for a smoother drink.")]},
-  {"slug": "instant-coffee-cold-foam", "name": "Instant coffee cold foam", "short": "Cold foam", "img": "pour-top", "iced": True,
+  {"slug": "instant-coffee-cold-foam", "name": "Instant coffee cold foam", "short": "Cold foam", "img": "pour", "iced": True,
    "title": "Coffee Cold Foam with Instant Coffee | Morning Upgrade",
    "desc": "Café-style cold foam at home: froth cold skim milk with a little sugar for 20 seconds and spoon it over iced instant coffee. Plain or vanilla.",
    "lede": "Froth 3 fl oz of cold skim or 2% milk with a teaspoon of sugar using a handheld frother for about 20 seconds until it's thick and glossy, then spoon it over a glass of iced instant coffee. Skim milk makes the stiffest cold foam; whole milk makes a softer, richer one.",
@@ -1971,34 +1989,34 @@ NOT_FOUND = """
 """
 
 PAGES = {
-  "404.html": ("Page not found — The Morning Upgrade", "That page isn't here. Try the shop, the ingredients, the guides or the FAQ.", NOT_FOUND, og_img("breakfast-og"), True),
-  "index.html": ("MCT Coffee with L-Theanine, One Scoop | The Morning Upgrade", "Instant coffee with MCT powder, natural caffeine and L-theanine. One scoop in hot water, 30 servings a bag. $69.95 a month or $79.95 a bag.", HOME, og_img("breakfast-og"), False),
-  "shop.html": ("Buy MCT Coffee: $69.95/mo or $79.95 a Bag | Morning Upgrade", "Instant MCT coffee, 30 servings a bag. $79.95 for one bag or $69.95 a month on Subscribe & Save. Natural caffeine, L-theanine and four more actives.", SHOP, og_img("breakfast-og"), False),
-  "ingredients.html": ("Ingredients: MCT, Caffeine &amp; L-Theanine | Morning Upgrade", "Seven ingredients and what each one is: MCT powder, natural caffeine, L-theanine, ChromeMate, Paradoxine, Garcinia Cambogia, Saffr'Activ.", ING, og_img("breakfast-og"), False),
-  "faq.html": ("Coffee FAQ: Taste, Caffeine, Shipping | The Morning Upgrade", "How it tastes, how much caffeine is in a scoop, how Subscribe & Save works, shipping, returns, and who you're buying from.", FAQ, og_img("pour-top"), False),
-  "partner.html": ("Build with us — The Morning Upgrade", "Join our team and sell the coffee with the same videos, site and email system we use. Honest numbers first.", PARTNER, og_img("breakfast-og"), False),
-  "share.html": ("Share & earn — The Morning Upgrade", "Get your coffee covered by the friends who steal a cup. The referral program, explained in plain language.", SHARE, og_img("breakfast-og"), False),
-  "about.html": ("About — The Morning Upgrade", "The Morning Upgrade is run by Rector & Stull LLC, two partners in Idaho and Texas who sell one instant MCT coffee and say plainly what is in it.", ABOUT, og_img("breakfast-og"), False),
-  "shipping-returns.html": ("Shipping & returns — The Morning Upgrade", "$8.95 flat US shipping, Subscribe & Save terms, damaged-item replacement and the 90-day money-back guarantee on unopened bags.", SHIPPING, og_img("breakfast-og"), False),
-  "privacy.html": ("Privacy — The Morning Upgrade", "What The Morning Upgrade collects (quiz answers, orders, analytics), what we do with it, who we share it with, and how to opt out or delete it.", PRIVACY, og_img("breakfast-og"), False),
-  "terms.html": ("Terms of sale — The Morning Upgrade", "Terms of sale for The Morning Upgrade: prices, Subscribe & Save renewals, use of the product, returns and liability.", TERMS, og_img("breakfast-og"), False),
-  "order-complete.html": ("Order received — The Morning Upgrade", "Thanks for your order.", ORDER_COMPLETE, og_img("breakfast-og"), True),
-  "start.html": ("One Scoop, Steady Energy | The Morning Upgrade", "Instant coffee with natural caffeine, L-theanine and MCT powder. $69.95 a month or $79.95 a bag, $8.95 flat US shipping, 90-day guarantee on unopened bags.", START, og_img("breakfast-og"), True),
-  "thanks.html": ("Your guide is on its way — The Morning Upgrade", "Check your inbox for the 7 Mornings guide.", THANKS, og_img("desk-top"), True),
-  "guides.html": ("Coffee Guides & Recipes | The Morning Upgrade", "Answer-first guides: what MCT coffee is, how to make instant MCT coffee, L-theanine with caffeine, MCT vs. butter coffee, and iced instant coffee recipes.", GUIDES_INDEX, og_img("kitchen-pour-top"), False),
-  "what-is-mct-coffee.html": ("What Is MCT Coffee? MCT Oil vs. Powder | Morning Upgrade", "MCT coffee is coffee with medium-chain triglycerides added, as an oil you blend in or a powder you stir in. What MCTs are and how oil and powder differ.", G_WHATMCT, og_img("scoop-top"), False),
-  "how-to-make-mct-instant-coffee.html": ("How to Make Instant MCT Coffee (One Scoop) | Morning Upgrade", "One level scoop in 8 fl oz of hot water, stirred until dissolved. Step by step, plus iced and latte-style versions and how to adjust the strength.", G_HOWTO, og_img("kitchen-pour-top"), False),
-  "mct-coffee-vs-butter-coffee.html": ("MCT Coffee vs. Butter Coffee, Compared | Morning Upgrade", "Butter coffee is coffee blended with butter and usually MCT oil; MCT coffee adds MCT oil or powder, no butter. How prep, texture and travel compare.", G_MCT, og_img("pour-top"), False),
-  "l-theanine-and-caffeine.html": ("L-Theanine and Caffeine: Reading the Label | Morning Upgrade", "L-theanine is the amino acid in tea leaves, often paired with caffeine. What the pairing is, how to read the label, and what small studies found.", G_THEANINE, og_img("desk-top"), False),
-  "iced-instant-coffee-recipes.html": ("Iced Instant Coffee, No Clumps: 3 Recipes | Morning Upgrade", "Dissolve hot, then go cold: the trick for smooth iced instant coffee, plus iced classic, iced oat vanilla and a blended frappé.", G_ICED, og_img("patio-left"), False),
-  "how-much-caffeine-in-instant-coffee.html": ("How Much Caffeine Is in Instant Coffee? | Morning Upgrade", "USDA data: about 62 mg in an 8 fl oz cup of instant coffee vs. about 95 mg brewed. What changes the number, and how to read a label.", G_CAF_INSTANT, og_img("flatlay-right"), False),
-  "how-to-make-instant-coffee-taste-better.html": ("How to Make Instant Coffee Taste Better | Morning Upgrade", "Six fixes for better instant coffee: water just off the boil, the right ratio, a paste first, a pinch of salt, milk, and keeping the jar dry.", G_TASTE, og_img("kitchen-pour-top"), False),
-  "does-instant-coffee-go-bad.html": ("Does Instant Coffee Go Bad? Storage Tips | Morning Upgrade", "Instant coffee goes stale rather than spoiling, but moisture can ruin it. What the date means, signs it's past its best, and how to store it.", G_SHELF, og_img("scoop-top"), False),
-  "instant-coffee-for-travel-camping-dorm.html": ("Instant Coffee for Travel, Camping & Dorms | Morning Upgrade", "How to make good instant coffee away from a kitchen: what to pack, where to find hot water, cold-water backup and flying with coffee powder.", G_TRAVEL, og_img("desk-top"), False),
-  "what-is-mct-powder.html": ("What Is MCT Powder? Powder vs. MCT Oil | Morning Upgrade", "MCT powder is MCT oil dried onto a carrier like acacia fiber, tapioca or milk protein. What's in it, how it compares to oil, and what to check.", G_MCTPOWDER, og_img("breakfast-top"), False),
-  "natural-caffeine-vs-synthetic.html": ("Natural vs. Synthetic Caffeine Explained | Morning Upgrade", "Natural and synthetic caffeine are the same molecule; the label word tells you the source. Where each comes from and what to check on a label.", G_NATCAF, og_img("pour-top"), False),
-  "caffeine-and-l-theanine-ratio.html": ("Caffeine and L-Theanine Ratio in Studies | Morning Upgrade", "The caffeine and L-theanine doses small studies used, how to work out a product's ratio from its label, and what the research can't tell you.", G_RATIO, og_img("desk-top"), False),
-  "instant-coffee-vs-drip-cost-per-cup.html": ("Instant vs. Drip Coffee: Cost per Cup | Morning Upgrade", "How to work out cost per cup for instant, drip, pods and café coffee, with a calculator and the extras people forget to count.", G_COST, og_img("kitchen-pour-top"), False),
+  "404.html": ("Page not found — The Morning Upgrade", "That page isn't here. Try the shop, the ingredients, the guides or the FAQ.", NOT_FOUND, og_img("props-og"), True),
+  "index.html": ("CoreJava MCT Coffee with L-Theanine | The Morning Upgrade", "Instant coffee with MCT powder, natural caffeine and L-theanine. One scoop in hot water, 30 servings a bag. $69.95 a month or $79.95 a bag.", HOME, og_img("props-og"), False),
+  "shop.html": ("Buy CoreJava MCT Coffee: $69.95/mo or $79.95 a Bag", "CoreJava instant MCT coffee, 30 servings a bag. $79.95 for one bag or $69.95 a month on Subscribe & Save. Natural caffeine, L-theanine and four more actives.", SHOP, og_img("props-og"), False),
+  "ingredients.html": ("CoreJava Ingredients & Supplement Facts | Morning Upgrade", "What's in a scoop of CoreJava: MCT powder, natural caffeine, L-theanine and four more named ingredients, plus the full Supplement Facts panel.", ING, og_img("props-og"), False),
+  "faq.html": ("Coffee FAQ: Taste, Caffeine, Shipping | The Morning Upgrade", "How it tastes, how much caffeine is in a scoop, how Subscribe & Save works, shipping, returns, and who you're buying from.", FAQ, og_img("pour"), False),
+  "partner.html": ("Build with us — The Morning Upgrade", "Join our team and sell the coffee with the same videos, site and email system we use. Honest numbers first.", PARTNER, og_img("props-og"), False),
+  "share.html": ("Share & earn — The Morning Upgrade", "Get your coffee covered by the friends who steal a cup. The referral program, explained in plain language.", SHARE, og_img("props-og"), False),
+  "about.html": ("About — The Morning Upgrade", "The Morning Upgrade is run by Rector & Stull LLC, two partners in Idaho and Texas who sell one instant MCT coffee and say plainly what is in it.", ABOUT, og_img("props-og"), False),
+  "shipping-returns.html": ("Shipping & returns — The Morning Upgrade", "$8.95 flat US shipping, Subscribe & Save terms, damaged-item replacement and the 90-day money-back guarantee on unopened bags.", SHIPPING, og_img("props-og"), False),
+  "privacy.html": ("Privacy — The Morning Upgrade", "What The Morning Upgrade collects (quiz answers, orders, analytics), what we do with it, who we share it with, and how to opt out or delete it.", PRIVACY, og_img("props-og"), False),
+  "terms.html": ("Terms of sale — The Morning Upgrade", "Terms of sale for The Morning Upgrade: prices, Subscribe & Save renewals, use of the product, returns and liability.", TERMS, og_img("props-og"), False),
+  "order-complete.html": ("Order received — The Morning Upgrade", "Thanks for your order.", ORDER_COMPLETE, og_img("props-og"), True),
+  "start.html": ("One Scoop, Steady Energy | The Morning Upgrade", "Instant coffee with natural caffeine, L-theanine and MCT powder. $69.95 a month or $79.95 a bag, $8.95 flat US shipping, 90-day guarantee on unopened bags.", START, og_img("props-og"), True),
+  "thanks.html": ("Your guide is on its way — The Morning Upgrade", "Check your inbox for the 7 Mornings guide.", THANKS, og_img("desk"), True),
+  "guides.html": ("Coffee Guides & Recipes | The Morning Upgrade", "Answer-first guides: what MCT coffee is, how to make instant MCT coffee, L-theanine with caffeine, MCT vs. butter coffee, and iced instant coffee recipes.", GUIDES_INDEX, og_img("kitchen-pour"), False),
+  "what-is-mct-coffee.html": ("What Is MCT Coffee? MCT Oil vs. Powder | Morning Upgrade", "MCT coffee is coffee with medium-chain triglycerides added, as an oil you blend in or a powder you stir in. What MCTs are and how oil and powder differ.", G_WHATMCT, og_img("scoop"), False),
+  "how-to-make-mct-instant-coffee.html": ("How to Make Instant MCT Coffee (One Scoop) | Morning Upgrade", "One level scoop in 8 fl oz of hot water, stirred until dissolved. Step by step, plus iced and latte-style versions and how to adjust the strength.", G_HOWTO, og_img("kitchen-pour"), False),
+  "mct-coffee-vs-butter-coffee.html": ("MCT Coffee vs. Butter Coffee, Compared | Morning Upgrade", "Butter coffee is coffee blended with butter and usually MCT oil; MCT coffee adds MCT oil or powder, no butter. How prep, texture and travel compare.", G_MCT, og_img("pour"), False),
+  "l-theanine-and-caffeine.html": ("L-Theanine and Caffeine: Reading the Label | Morning Upgrade", "L-theanine is the amino acid in tea leaves, often paired with caffeine. What the pairing is, how to read the label, and what small studies found.", G_THEANINE, og_img("desk"), False),
+  "iced-instant-coffee-recipes.html": ("Iced Instant Coffee, No Clumps: 3 Recipes | Morning Upgrade", "Dissolve hot, then go cold: the trick for smooth iced instant coffee, plus iced classic, iced oat vanilla and a blended frappé.", G_ICED, og_img("patio"), False),
+  "how-much-caffeine-in-instant-coffee.html": ("How Much Caffeine Is in Instant Coffee? | Morning Upgrade", "USDA data: about 62 mg in an 8 fl oz cup of instant coffee vs. about 95 mg brewed. What changes the number, and how to read a label.", G_CAF_INSTANT, og_img("flatlay"), False),
+  "how-to-make-instant-coffee-taste-better.html": ("How to Make Instant Coffee Taste Better | Morning Upgrade", "Six fixes for better instant coffee: water just off the boil, the right ratio, a paste first, a pinch of salt, milk, and keeping the jar dry.", G_TASTE, og_img("kitchen-pour"), False),
+  "does-instant-coffee-go-bad.html": ("Does Instant Coffee Go Bad? Storage Tips | Morning Upgrade", "Instant coffee goes stale rather than spoiling, but moisture can ruin it. What the date means, signs it's past its best, and how to store it.", G_SHELF, og_img("scoop"), False),
+  "instant-coffee-for-travel-camping-dorm.html": ("Instant Coffee for Travel, Camping & Dorms | Morning Upgrade", "How to make good instant coffee away from a kitchen: what to pack, where to find hot water, cold-water backup and flying with coffee powder.", G_TRAVEL, og_img("desk"), False),
+  "what-is-mct-powder.html": ("What Is MCT Powder? Powder vs. MCT Oil | Morning Upgrade", "MCT powder is MCT oil dried onto a carrier like acacia fiber, tapioca or milk protein. What's in it, how it compares to oil, and what to check.", G_MCTPOWDER, og_img("breakfast"), False),
+  "natural-caffeine-vs-synthetic.html": ("Natural vs. Synthetic Caffeine Explained | Morning Upgrade", "Natural and synthetic caffeine are the same molecule; the label word tells you the source. Where each comes from and what to check on a label.", G_NATCAF, og_img("pour"), False),
+  "caffeine-and-l-theanine-ratio.html": ("Caffeine and L-Theanine Ratio in Studies | Morning Upgrade", "The caffeine and L-theanine doses small studies used, how to work out a product's ratio from its label, and what the research can't tell you.", G_RATIO, og_img("desk"), False),
+  "instant-coffee-vs-drip-cost-per-cup.html": ("Instant vs. Drip Coffee: Cost per Cup | Morning Upgrade", "How to work out cost per cup for instant, drip, pods and café coffee, with a calculator and the extras people forget to count.", G_COST, og_img("kitchen-pour"), False),
 }
 
 # Sticky bar: checkout on the buy pages; a link to the shop on guides and the 404; none after a
@@ -2007,14 +2025,14 @@ STICKY = {fn: "shop" for fn in list(GUIDE_META) + ["guides.html", "404.html", "a
 STICKY.update({"order-complete.html": None, "thanks.html": None})
 
 # LCP image preloads
-PRELOAD = {fn: preload("breakfast-top", "(max-width: 860px) 100vw, 560px") for fn in ("index.html", "start.html", "ingredients.html")}
+PRELOAD = {fn: preload("hero-props", HERO_SIZES) for fn in ("index.html", "start.html", "ingredients.html")}
 
-PAGES["90-mornings.html"] = ("90 Mornings — The Morning Upgrade", "A chapter-by-chapter email series for your first 90 mornings with the coffee. Coming soon.", NINETY, og_img("breakfast-og"), True)
+PAGES["90-mornings.html"] = ("90 Mornings — The Morning Upgrade", "A chapter-by-chapter email series for your first 90 mornings with the coffee. Coming soon.", NINETY, og_img("props-og"), True)
 PAGES["quiz.html"] = ("Which Morning Are You? A 3-Question Quiz | Morning Upgrade",
-    "Three quick questions about your coffee mornings, a straight answer, our suggestion, and the free 7 Mornings guide.", QUIZ_PAGE, og_img("breakfast-og"), True)
+    "Three quick questions about your coffee mornings, a straight answer, our suggestion, and the free 7 Mornings guide.", QUIZ_PAGE, og_img("props-og"), True)
 PAGES["recipes.html"] = ("Instant Coffee Recipes: Iced, Hot &amp; Blended | Morning Upgrade",
     "Twelve drinks made with instant coffee: iced coffee, frapp\u00e9, latte, mocha, cold foam, dalgona, affogato and more. Steps, times and tips for each.",
-    RECIPES_INDEX, og_img("patio-left"), False)
+    RECIPES_INDEX, og_img("patio"), False)
 for _r in RECIPES:
     PAGES[_r["slug"] + ".html"] = (_r["title"], _r["desc"], recipe_page(_r), og_img(_r["img"]), False)
 STICKY.update({fn: "shop" for fn in list(RECIPE_BY) + ["recipes.html"]})
@@ -2085,14 +2103,13 @@ with open(os.path.join(HERE, "robots.txt"), "w") as f:
     f.write("# Search engines and AI assistants may crawl and cite every public page.\n")
     f.write("User-agent: *\n" + _rules + "\nSitemap: " + SITE + "/sitemap.xml\n")
 
-# llms.txt (llmstxt.org): plain facts for AI assistants. Same rules as the rest of the
-# search-facing text: label facts only, no maker trademarks, no claims past the label.
+# llms.txt (llmstxt.org): plain facts for AI assistants. Label facts only, no claims past the label.
 def _llm_link(fn):
     t, d = PAGES[fn][0], PAGES[fn][1]
     return f"- [{_html.unescape(t.split(' | ')[0].split(' — ')[0])}]({url_for(fn)}): {_html.unescape(d)}"
 LLMS = f"""# The Morning Upgrade
 
-> The Morning Upgrade (themorningupgrades.com) sells one product in the United States: a medium-roast instant coffee made with MCT powder from coconut, natural caffeine and L-theanine. One level scoop in 8 fl oz of hot water makes a cup, and a bag holds 30 servings. The site is run by Rector & Stull LLC, an independent sales representative (ISR) for the manufacturer; Rector & Stull is not the manufacturer.
+> The Morning Upgrade (themorningupgrades.com) sells one product in the United States: CoreJava, an instant coffee made by MarketPlace Global with MCT powder from coconut, natural caffeine and L-theanine among its ingredients (the full Supplement Facts panel is on the ingredients page). One level scoop in 8 fl oz of hot water makes a cup, and a bag holds 30 servings. The site is run by Rector & Stull LLC, an independent sales representative (ISR) of MarketPlace Global; Rector & Stull is not the manufacturer.
 
 Facts as stated on the site (updated {_today}):
 
