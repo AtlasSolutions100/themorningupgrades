@@ -26,7 +26,7 @@ def context(b, base, w=390, h=844, klaviyo=None):
         u = r.request.url
         if u.startswith(base):
             return r.continue_()
-        if klaviyo is not None and u.startswith("https://a.klaviyo.com/client/subscriptions/"):
+        if klaviyo is not None and u.startswith(("https://a.klaviyo.com/client/subscriptions/", "https://a.klaviyo.com/client/profiles/")):
             klaviyo.append(json.loads(r.request.post_data or "{}"))
             return r.fulfill(status=202, body="")
         return r.abort()
@@ -184,6 +184,42 @@ def quiz_tests(b, base):
         ctx.close()
 
 
+def order_tests(b, base):
+    for qs, stored, sub, one in [("?session_id=cs_test_ord1&plan=onetime", None, False, True),
+                                 ("?session_id=cs_test_ord2&plan=subscribe", None, True, False),
+                                 ("?session_id=cs_test_ord3", "onetime", False, True),
+                                 ("?session_id=cs_test_ord4", None, False, False)]:
+        ctx = context(b, base); pg = ctx.new_page()
+        pg.goto(base + "/shop.html")
+        pg.evaluate("s => { localStorage.clear(); if (s) localStorage.setItem('tmu_plan', s); }", stored)
+        pg.goto(base + "/order-complete.html" + qs)
+        vis = lambda sel: pg.locator(sel).is_visible()
+        check(vis(".plan-sub") == sub and vis(".plan-one") == one, f"order page {qs} stored={stored}: subscription block {sub}, next-bag block {one}")
+        if one:
+            check((pg.locator(".plan-one a[data-buy=subscribe]").get_attribute("href") or "").startswith("https://buy.stripe.com/"), "next-bag button goes to Subscribe & Save checkout")
+        ctx.close()
+    sent = []
+    ctx = context(b, base, klaviyo=sent); pg = ctx.new_page()
+    pg.goto(base + "/order-complete.html?session_id=cs_test_sms1&plan=subscribe")
+    check(not pg.locator("#sms-form input[name=consent]").is_checked(), "SMS consent box is unchecked by default")
+    pg.fill("#s-email", "test@example.com"); pg.fill("#s-phone", "(555) 555-0123")
+    pg.click("#sms-form button[type=submit]")
+    check("Tick the box" in pg.locator("#sms-msg").inner_text() and not sent, "no consent, nothing sent")
+    pg.check("#sms-form input[name=consent]")
+    pg.click("#sms-form button[type=submit]")
+    pg.wait_for_selector("#sms-form >> text=Saved")
+    pr = sent[0]["data"]["attributes"]["properties"] if sent else {}
+    check(pr.get("sms_refill_consent") is True and pr.get("sms_consent_phone") == "+15555550123" and "Reply STOP" in pr.get("sms_consent_text", "")
+          and pr.get("sms_consent_at"), "consent record (phone E.164, exact text, time) goes to the Klaviyo profile")
+    ctx.close()
+    ctx = context(b, base); pg = ctx.new_page()
+    pg.goto(base + "/thanks.html")
+    check(pg.locator("[data-picker] [data-picker-btn]").count() == 1, "thanks page has the plan picker inline")
+    pg.goto(base + "/90-mornings.html")
+    check(pg.locator("meta[name=robots][content=noindex]").count() == 1 and pg.locator("[data-picker]").count() == 1, "90 Mornings shell is noindex with a picker")
+    ctx.close()
+
+
 def main():
     with serve() as base, sync_playwright() as p:
         b = p.chromium.launch()
@@ -192,6 +228,7 @@ def main():
         recipe_tests(b, base)
         guide_tests(b, base)
         quiz_tests(b, base)
+        order_tests(b, base)
         b.close()
     print(f"\n{len(FAIL)} failure(s)")
     return 1 if FAIL else 0

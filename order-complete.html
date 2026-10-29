@@ -50,22 +50,69 @@
     <p class="eyebrow">Order received</p>
     <h1 style="font-size:clamp(30px,4vw,44px)">Your coffee is on its way.</h1>
     <p>Stripe has emailed your receipt. We set up your CoreJava customer account with MarketPlace Global, the maker, who ships from Maple Grove, Minnesota within about two business days; you'll get a tracking email when it leaves. If anything looks wrong, reply to the receipt or write hello@themorningupgrades.com.</p>
-    <h3 style="margin-top:26px">While you wait</h3>
+    <h3 style="margin-top:26px">Your first cup</h3>
     <ul class="clean">
-      <li>Morning 1: swap your <em>first</em> cup only. One level scoop, 8 oz hot water, stir.</li>
-      <li>Notice the afternoon, not the first hour.</li>
+      <li>One level scoop into 8 oz of hot water. Stir for about 15 seconds.</li>
+      <li>Swap your <em>first</em> cup only for the first week, and keep everything else the same.</li>
       <li>Give it the full week before you decide.</li>
+      <li>Questions about your first cup? Reply to your receipt. A person reads every reply, and we use them to write better guides.</li>
     </ul>
+    <div class="card plan-sub" data-plan-block="subscribe" hidden style="margin-top:22px;padding:22px;background:var(--cream2);box-shadow:none">
+      <p class="eyebrow" style="margin-bottom:6px">Your subscription</p>
+      <h3>A bag every 30 days</h3>
+      <p>Pause a month, skip, update your card or cancel any time, from the link in your receipt or the subscription portal. No calls.</p>
+      <p style="margin:0"><a class="btn ghost sm" href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00">Manage subscription</a></p>
+    </div>
+    <div class="card plan-one" data-plan-block="onetime" hidden style="margin-top:22px;padding:22px;background:var(--cream2);box-shadow:none">
+      <p class="eyebrow" style="margin-bottom:6px">Your next bag</p>
+      <h3>Subscribe &amp; Save: $10 off every bag</h3>
+      <p>If you like it, Subscribe &amp; Save sends a bag every 30 days for $69.95, plus shipping and tax. Pause or cancel from your receipt.</p>
+      <p style="margin:0"><a class="btn sm" data-buy="subscribe" href="/shop.html">Subscribe &amp; Save &mdash; $69.95/mo</a></p>
+    </div>
     <div class="card" style="margin-top:22px;padding:22px 22px;background:var(--tint);box-shadow:none">
       <p class="eyebrow" style="margin-bottom:6px">Your first-order bonus</p>
       <h3>The Recipe Pack</h3>
       <p>Twelve ways to drink it, hot, iced and blended, plus a 30-morning tracker for the fridge.</p>
       <p style="margin:0"><a class="btn" href="/assets/recipe-pack.pdf" download>Download the Recipe Pack (PDF)</a></p>
     </div>
-    <p style="margin-top:22px"><a class="btn ghost" href="/">Back to the site</a></p>
+    
+<div class="card smsform" style="margin-top:22px;padding:22px;box-shadow:none">
+  <p class="eyebrow" style="margin-bottom:6px">Optional</p>
+  <h3>Want a text before your coffee runs out?</h3>
+  <form id="sms-form" novalidate>
+    <label for="s-email">Email you ordered with</label><input id="s-email" type="email" name="email" required autocomplete="email">
+    <label for="s-phone">Mobile number (US)</label><input id="s-phone" type="tel" name="phone" required autocomplete="tel" placeholder="(555) 555-0123">
+    <label class="consent"><input type="checkbox" name="consent" value="yes"> <span>Yes, text me a refill reminder for my coffee at this number, up to 2 texts a month. Consent is not a condition of purchase. Msg &amp; data rates may apply. Reply STOP to opt out, HELP for help. We haven&rsquo;t started texting yet; the first message will confirm before any reminder. <a href="/privacy.html">Privacy</a> &middot; <a href="/terms.html">Terms</a>.</span></label>
+    <p style="margin:12px 0 6px"><button class="btn sm" type="submit">Save my number</button></p>
+    <p id="sms-msg" class="fine" role="status"></p>
+  </form>
+</div>
+<script>
+(function(){
+  var f=document.getElementById('sms-form'), msg=document.getElementById('sms-msg');
+  var TEXT="Yes, text me a refill reminder for my coffee at this number, up to 2 texts a month. Consent is not a condition of purchase. Msg & data rates may apply. Reply STOP to opt out, HELP for help. We haven\u2019t started texting yet; the first message will confirm before any reminder.";
+  f.addEventListener('submit',function(e){
+    e.preventDefault();
+    var email=f.email.value.trim(), digits=f.phone.value.replace(/\D/g,'');
+    if(digits.length===11&&digits[0]==='1') digits=digits.slice(1);
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ msg.textContent='Check the email address.'; return; }
+    if(digits.length!==10){ msg.textContent='Enter a 10-digit US mobile number.'; return; }
+    if(!f.consent.checked){ msg.textContent='Tick the box to agree to reminder texts, or skip this.'; return; }
+    var btn=f.querySelector('button'); btn.disabled=true; msg.textContent='Saving\u2026';
+    var body={data:{type:'profile',attributes:{email:email,properties:{sms_refill_consent:true,sms_consent_phone:'+1'+digits,
+      sms_consent_text:TEXT,sms_consent_at:new Date().toISOString(),sms_consent_source:location.pathname,plan:(window.TMU&&TMU.plan?TMU.plan():'')}}}};
+    fetch('https://a.klaviyo.com/client/profiles/?company_id='+TMU.KLAVIYO_COMPANY,{method:'POST',headers:{'Content-Type':'application/json','revision':'2025-01-15'},body:JSON.stringify(body)})
+      .then(function(r){ if(r.status>=200&&r.status<300){ f.innerHTML='<p class="fine" style="margin:0">Saved. We&rsquo;ll text to confirm before the first reminder. Reply STOP any time.</p>'; try{ if(window.gtag) gtag('event','SmsConsent',{source:'order'}); }catch(e){} } else { throw new Error(r.status); } })
+      .catch(function(){ msg.textContent='That didn\u2019t save. Try again, or reply to your receipt with your number.'; btn.disabled=false; });
+  });
+})();
+</script>
+    <p style="margin-top:22px"><a class="btn ghost" href="/recipes.html">Recipes to try</a> <a class="btn ghost" href="/">Back to the site</a></p>
   </div>
 </div></section>
 <script>tmuPurchase();</script>
+<script>(function(){ var p=(window.TMU&&TMU.plan)?TMU.plan():''; var known=/[?&]plan=(subscribe|onetime)\b/.test(location.search); try{ known=known||!!localStorage.getItem('tmu_plan'); }catch(e){}
+  if(!known) return; document.querySelectorAll('[data-plan-block]').forEach(function(e){ e.hidden = e.getAttribute('data-plan-block')!==p; }); })();</script>
 
 </main>
 

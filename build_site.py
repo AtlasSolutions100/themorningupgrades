@@ -886,7 +886,7 @@ PRIVACY = """
   <h1 style="font-size:clamp(30px,4vw,46px)">Privacy</h1>
   <p>This is the privacy policy for themorningupgrades.com, operated by Rector &amp; Stull LLC ("we"). It's written to be read.</p>
   <h2>What we collect</h2>
-  <ul><li><strong>If you take the quiz:</strong> your answers, first name and email, so we can send you the guide and the follow-up emails.</li><li><strong>If you buy:</strong> your name, shipping address, email and phone. Payment details go to Stripe; we never see your card number. To fulfil your order we create a customer account for you with MarketPlace Global, the maker, and pass them your name, address, email and phone so they can ship to you and honor their guarantee. Their <a href="https://marketplaceglobal.com/rectorandstull/privacy-policy">privacy policy</a> covers what they do with it.</li><li><strong>If you ask about partnering:</strong> what you type into the form.</li><li><strong>Automatically:</strong> Google Analytics records pages viewed, where visitors came from, and button clicks, with IP addresses anonymized. TikTok, Meta, Snapchat and Google Ads tags record page views, sign-ups and purchases so we can measure which ads work.</li></ul>
+  <ul><li><strong>If you take the quiz:</strong> your answers, first name and email, so we can send you the guide and the follow-up emails.</li><li><strong>If you buy:</strong> your name, shipping address, email and phone. Payment details go to Stripe; we never see your card number. To fulfil your order we create a customer account for you with MarketPlace Global, the maker, and pass them your name, address, email and phone so they can ship to you and honor their guarantee. Their <a href="https://marketplaceglobal.com/rectorandstull/privacy-policy">privacy policy</a> covers what they do with it.</li><li><strong>If you ask about partnering:</strong> what you type into the form.</li><li><strong>If you opt in to refill-reminder texts:</strong> your mobile number and a record of your consent (the wording you agreed to, when, and on which page). We haven&rsquo;t started sending texts; reply STOP to any text to opt out.</li><li><strong>Automatically:</strong> Google Analytics records pages viewed, where visitors came from, and button clicks, with IP addresses anonymized. TikTok, Meta, Snapchat and Google Ads tags record page views, sign-ups and purchases so we can measure which ads work.</li></ul>
   <h2>What we do with it</h2>
   <p>Fulfil orders, send the emails you signed up for, answer your questions, and measure which of our posts bring people here. We don't sell your data. We don't share it except with the services that make the site work: Stripe (payments), MarketPlace Global (the maker, who fulfils and ships orders), Klaviyo (email), GitHub (hosting), and analytics providers.</p>
   <h2>Your choices</h2>
@@ -918,28 +918,101 @@ TERMS = """
 </div></section>
 """
 
+# SMS refill reminders (D8): consent is collected from day one; nothing is texted yet.
+# The form records the consent (exact text, time, page) on the customer's Klaviyo profile through
+# Klaviyo's client profile endpoint. It does not subscribe anyone to SMS. When SMS is set up in
+# Klaviyo (10DLC registration first), import profiles with sms_refill_consent = true.
+SMS_CONSENT_TEXT = ("Yes, text me a refill reminder for my coffee at this number, up to 2 texts a month. "
+                    "Consent is not a condition of purchase. Msg &amp; data rates may apply. Reply STOP to opt out, HELP for help. "
+                    "We haven&rsquo;t started texting yet; the first message will confirm before any reminder.")
+SMS_FORM = """
+<div class="card smsform" style="margin-top:22px;padding:22px;box-shadow:none">
+  <p class="eyebrow" style="margin-bottom:6px">Optional</p>
+  <h3>Want a text before your coffee runs out?</h3>
+  <form id="sms-form" novalidate>
+    <label for="s-email">Email you ordered with</label><input id="s-email" type="email" name="email" required autocomplete="email">
+    <label for="s-phone">Mobile number (US)</label><input id="s-phone" type="tel" name="phone" required autocomplete="tel" placeholder="(555) 555-0123">
+    <label class="consent"><input type="checkbox" name="consent" value="yes"> <span>""" + SMS_CONSENT_TEXT + """ <a href="/privacy.html">Privacy</a> &middot; <a href="/terms.html">Terms</a>.</span></label>
+    <p style="margin:12px 0 6px"><button class="btn sm" type="submit">Save my number</button></p>
+    <p id="sms-msg" class="fine" role="status"></p>
+  </form>
+</div>
+<script>
+(function(){
+  var f=document.getElementById('sms-form'), msg=document.getElementById('sms-msg');
+  var TEXT=""" + _json.dumps(_html.unescape(SMS_CONSENT_TEXT)) + """;
+  f.addEventListener('submit',function(e){
+    e.preventDefault();
+    var email=f.email.value.trim(), digits=f.phone.value.replace(/\\D/g,'');
+    if(digits.length===11&&digits[0]==='1') digits=digits.slice(1);
+    if(!/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(email)){ msg.textContent='Check the email address.'; return; }
+    if(digits.length!==10){ msg.textContent='Enter a 10-digit US mobile number.'; return; }
+    if(!f.consent.checked){ msg.textContent='Tick the box to agree to reminder texts, or skip this.'; return; }
+    var btn=f.querySelector('button'); btn.disabled=true; msg.textContent='Saving\\u2026';
+    var body={data:{type:'profile',attributes:{email:email,properties:{sms_refill_consent:true,sms_consent_phone:'+1'+digits,
+      sms_consent_text:TEXT,sms_consent_at:new Date().toISOString(),sms_consent_source:location.pathname,plan:(window.TMU&&TMU.plan?TMU.plan():'')}}}};
+    fetch('https://a.klaviyo.com/client/profiles/?company_id='+TMU.KLAVIYO_COMPANY,{method:'POST',headers:{'Content-Type':'application/json','revision':'2025-01-15'},body:JSON.stringify(body)})
+      .then(function(r){ if(r.status>=200&&r.status<300){ f.innerHTML='<p class="fine" style="margin:0">Saved. We&rsquo;ll text to confirm before the first reminder. Reply STOP any time.</p>'; try{ if(window.gtag) gtag('event','SmsConsent',{source:'order'}); }catch(e){} } else { throw new Error(r.status); } })
+      .catch(function(){ msg.textContent='That didn\\u2019t save. Try again, or reply to your receipt with your number.'; btn.disabled=false; });
+  });
+})();
+</script>"""
+
 ORDER_COMPLETE = """
 <section style="padding-top:36px"><div class="wrap" style="max-width:720px">
   <div class="card" style="padding:34px 30px">
     <p class="eyebrow">Order received</p>
     <h1 style="font-size:clamp(30px,4vw,44px)">Your coffee is on its way.</h1>
     <p>Stripe has emailed your receipt. We set up your CoreJava customer account with MarketPlace Global, the maker, who ships from Maple Grove, Minnesota within about two business days; you'll get a tracking email when it leaves. If anything looks wrong, reply to the receipt or write hello@themorningupgrades.com.</p>
-    <h3 style="margin-top:26px">While you wait</h3>
+    <h3 style="margin-top:26px">Your first cup</h3>
     <ul class="clean">
-      <li>Morning 1: swap your <em>first</em> cup only. One level scoop, 8 oz hot water, stir.</li>
-      <li>Notice the afternoon, not the first hour.</li>
+      <li>One level scoop into 8 oz of hot water. Stir for about 15 seconds.</li>
+      <li>Swap your <em>first</em> cup only for the first week, and keep everything else the same.</li>
       <li>Give it the full week before you decide.</li>
+      <li>Questions about your first cup? Reply to your receipt. A person reads every reply, and we use them to write better guides.</li>
     </ul>
+    <div class="card plan-sub" data-plan-block="subscribe" hidden style="margin-top:22px;padding:22px;background:var(--cream2);box-shadow:none">
+      <p class="eyebrow" style="margin-bottom:6px">Your subscription</p>
+      <h3>A bag every 30 days</h3>
+      <p>Pause a month, skip, update your card or cancel any time, from the link in your receipt or the subscription portal. No calls.</p>
+      <p style="margin:0"><a class="btn ghost sm" href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00">Manage subscription</a></p>
+    </div>
+    <div class="card plan-one" data-plan-block="onetime" hidden style="margin-top:22px;padding:22px;background:var(--cream2);box-shadow:none">
+      <p class="eyebrow" style="margin-bottom:6px">Your next bag</p>
+      <h3>Subscribe &amp; Save: $10 off every bag</h3>
+      <p>If you like it, Subscribe &amp; Save sends a bag every 30 days for $69.95, plus shipping and tax. Pause or cancel from your receipt.</p>
+      <p style="margin:0"><a class="btn sm" data-buy="subscribe" href="/shop.html">Subscribe &amp; Save &mdash; $69.95/mo</a></p>
+    </div>
     <div class="card" style="margin-top:22px;padding:22px 22px;background:var(--tint);box-shadow:none">
       <p class="eyebrow" style="margin-bottom:6px">Your first-order bonus</p>
       <h3>The Recipe Pack</h3>
       <p>Twelve ways to drink it, hot, iced and blended, plus a 30-morning tracker for the fridge.</p>
       <p style="margin:0"><a class="btn" href="/assets/recipe-pack.pdf" download>Download the Recipe Pack (PDF)</a></p>
     </div>
-    <p style="margin-top:22px"><a class="btn ghost" href="/">Back to the site</a></p>
+    """ + SMS_FORM + """
+    <p style="margin-top:22px"><a class="btn ghost" href="/recipes.html">Recipes to try</a> <a class="btn ghost" href="/">Back to the site</a></p>
   </div>
 </div></section>
 <script>tmuPurchase();</script>
+<script>(function(){ var p=(window.TMU&&TMU.plan)?TMU.plan():''; var known=/[?&]plan=(subscribe|onetime)\\b/.test(location.search); try{ known=known||!!localStorage.getItem('tmu_plan'); }catch(e){}
+  if(!known) return; document.querySelectorAll('[data-plan-block]').forEach(function(e){ e.hidden = e.getAttribute('data-plan-block')!==p; }); })();</script>
+"""
+
+NINETY = """
+<section style="padding-top:36px"><div class="wrap" style="max-width:760px">
+  <p class="eyebrow">Coming soon</p>
+  <h1 style="font-size:clamp(30px,4vw,46px)">90 Mornings</h1>
+  <p class="lead">A short email for each stretch of the first 90 mornings with your coffee: how people actually build a morning routine, recipes to keep it interesting, and a question at the end of each chapter that you can answer by replying.</p>
+  <h2>The chapters</h2>
+  <div class="steps">
+    <div><h3>Mornings 1&ndash;30</h3><p>The swap. One cup, same time, the ritual, and the tracker on the fridge.</p></div>
+    <div><h3>Mornings 31&ndash;60</h3><p>Keeping it interesting: iced, latte-style, travel cups and the recipes people send us.</p></div>
+    <div><h3>Mornings 61&ndash;90</h3><p>Making it yours: what to keep, what to change, and what you&rsquo;d tell a friend.</p></div>
+  </div>
+  <p style="margin-top:22px">The chapters are being written now. Subscribers get them first. In the meantime, the <a href="/assets/recipe-pack.pdf">Recipe Pack</a> has the 30-morning tracker.</p>
+  <div style="max-width:520px;margin-top:22px">""" + picker() + """</div>
+  <p class="fine" style="margin-top:18px">Contains caffeine. General information, not medical advice.</p>
+</div></section>
 """
 
 THANKS = """
@@ -953,7 +1026,10 @@ THANKS = """
       <strong>What happens next</strong>
       <ol style="margin:8px 0 0;padding-left:20px"><li>Morning 1 starts tomorrow. It takes two minutes.</li><li>Over the next two weeks you'll get a handful of short notes: the why, the how-to, the cost math.</li><li>If you want to try the cup the guide is built around, it's below. One bag is 30 mornings.</li></ol>
     </div>
-    <p><a class="btn" href="/start.html?utm_source=quiz">See the coffee</a> <a class="btn ghost" href="/">Back to the start</a></p>
+    <h2 style="font-size:24px;margin-top:8px">The cup the guide is built around</h2>
+    <p>Instant coffee with MCT powder from coconut, natural caffeine and L-theanine. One scoop, 30 servings a bag.</p>
+    """ + picker() + """
+    <p style="margin-top:18px"><a class="btn ghost" href="/">Back to the start</a></p>
   </div>
 </div></section>
 """
@@ -1933,6 +2009,7 @@ STICKY.update({"order-complete.html": None, "thanks.html": None})
 # LCP image preloads
 PRELOAD = {fn: preload("breakfast-top", "(max-width: 860px) 100vw, 560px") for fn in ("index.html", "start.html", "ingredients.html")}
 
+PAGES["90-mornings.html"] = ("90 Mornings — The Morning Upgrade", "A chapter-by-chapter email series for your first 90 mornings with the coffee. Coming soon.", NINETY, og_img("breakfast-og"), True)
 PAGES["quiz.html"] = ("Which Morning Are You? A 3-Question Quiz | Morning Upgrade",
     "Three quick questions about your coffee mornings, a straight answer, our suggestion, and the free 7 Mornings guide.", QUIZ_PAGE, og_img("breakfast-og"), True)
 PAGES["recipes.html"] = ("Instant Coffee Recipes: Iced, Hot &amp; Blended | Morning Upgrade",
