@@ -220,6 +220,68 @@ def order_tests(b, base):
     ctx.close()
 
 
+def seo_tests(b, base):
+    """Static checks on the generated HTML: titles/descriptions, canonicals, sitemap, structured data,
+    and the CoreJava page (brand searches) with its internal links."""
+    import os, re, glob, html as _h
+    root = os.path.join(os.path.dirname(__file__), "..")
+    site = "https://themorningupgrades.com"
+    titles, descs, indexable = {}, {}, set()
+    for path in sorted(glob.glob(os.path.join(root, "*.html"))):
+        fn = os.path.basename(path)
+        h = open(path).read()
+        if 'name="robots" content="noindex"' in h:
+            check("application/ld+json" not in h, f"{fn}: noindex page carries no structured data")
+            continue
+        indexable.add(fn)
+        url = site + "/" if fn == "index.html" else f"{site}/{fn}"
+        t = _h.unescape(re.search(r"<title>(.*?)</title>", h).group(1))
+        d = _h.unescape(re.search(r'<meta name="description" content="(.*?)"', h).group(1))
+        titles.setdefault(t, []).append(fn); descs.setdefault(d, []).append(fn)
+        check(len(t) <= 60 and 50 <= len(d) <= 160, f"{fn}: title {len(t)} <= 60, description {len(d)} in 50-160")
+        check(f'<link rel="canonical" href="{url}">' in h, f"{fn}: canonical is its own URL")
+        og = re.search(r'<meta property="og:image" content="https://themorningupgrades.com(/[^"]+)"', h)
+        check(bool(og) and os.path.exists(os.path.join(root, og.group(1).lstrip("/"))), f"{fn}: og:image exists ({og and og.group(1)})")
+        lds = re.findall(r'<script type="application/ld\+json">(.*?)</script>', h, re.S)
+        try:
+            graph = [g for j in lds for g in json.loads(j)["@graph"]]
+        except Exception as e:
+            graph = []; check(False, f"{fn}: JSON-LD parses ({e})")
+        types = [g["@type"] for g in graph]
+        check("AggregateRating" not in h and '"Review"' not in h and "ratingValue" not in h, f"{fn}: no rating or review markup")
+        if fn != "index.html":
+            bc = [g for g in graph if g["@type"] == "BreadcrumbList"]
+            names = [i["name"] for i in bc[0]["itemListElement"]] if bc else []
+            check(bool(bc) and names[0] == "Home" and bc[0]["itemListElement"][-1]["item"] == url and all(len(n) <= 60 for n in names),
+                  f"{fn}: BreadcrumbList ends at the page with short names ({names})")
+        for g in graph:
+            if g["@type"] == "Product":
+                offers = g["offers"]
+                ok = g["brand"]["name"] == "CoreJava" and g["manufacturer"]["name"] == "MarketPlace Global" and len(offers) == 2 and all(
+                    o["price"] in ("79.95", "69.95") and o["priceCurrency"] == "USD" and o["availability"].endswith("InStock") for o in offers)
+                check(ok and "aggregateRating" not in g and "review" not in g, f"{fn}: Product brand CoreJava, maker MarketPlace Global, two in-stock USD offers")
+    for t, fns in titles.items():
+        check(len(fns) == 1, f"title unique: {t!r} ({fns})")
+    for d, fns in descs.items():
+        check(len(fns) == 1, f"description unique ({fns})")
+    sm = set(re.findall(r"<loc>(.*?)</loc>", open(os.path.join(root, "sitemap.xml")).read()))
+    want = {site + "/" if f == "index.html" else f"{site}/{f}" for f in indexable}
+    check(sm == want, f"sitemap lists exactly the {len(want)} indexable pages (missing {sorted(want - sm)}, extra {sorted(sm - want)})")
+    # the CoreJava page: label facts, disclosure, no claims, and linked from the pages that matter
+    h = open(os.path.join(root, "corejava-coffee.html")).read()
+    txt = _h.unescape(re.sub(r"<[^>]+>", " ", h))
+    for must in ("100 mg of added natural caffeine", "the instant coffee’s own", "$79.95", "$69.95", "Independent ISR of MarketPlace Global",
+                 "not an independent review", "Dark Roast Colombian Instant Coffee", "400 mg"):
+        check(must in txt, f"corejava-coffee.html says {must!r}")
+    check('"@type":"Product"' in h and '"@type":"FAQPage"' in h, "corejava-coffee.html has Product and FAQPage markup")
+    for page in ("index.html", "shop.html", "ingredients.html", "guides.html", "faq.html"):
+        check('href="/corejava-coffee.html"' in open(os.path.join(root, page)).read(), f"{page} links /corejava-coffee.html")
+    ing = open(os.path.join(root, "ingredients.html")).read()
+    check('id="panel-text"' in ing and "L-Theanine" in ing and "400 mg" in ing, "ingredients.html has the Supplement Facts panel as text")
+    llms = open(os.path.join(root, "llms.txt")).read()
+    check("corejava-coffee.html" in llms and "L-Theanine 400 mg" in llms, "llms.txt lists the CoreJava page and the panel")
+
+
 def main():
     with serve() as base, sync_playwright() as p:
         b = p.chromium.launch()
@@ -229,6 +291,7 @@ def main():
         guide_tests(b, base)
         quiz_tests(b, base)
         order_tests(b, base)
+        seo_tests(b, base)
         b.close()
     print(f"\n{len(FAIL)} failure(s)")
     return 1 if FAIL else 0

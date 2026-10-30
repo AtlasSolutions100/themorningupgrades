@@ -28,6 +28,7 @@ FOOTER = """
     <div>
       <h2 class="fh">Shop</h2>
       <a href="/shop.html">CoreJava coffee</a>
+      <a href="/corejava-coffee.html">CoreJava, explained</a>
       <a href="/ingredients.html">What's in it</a>
       <a href="/faq.html">Questions</a>
       <a href="/shipping-returns.html">Shipping &amp; returns</a>
@@ -130,12 +131,18 @@ def _strip(h):
 # separate rule, handled in the ad accounts.
 FAQ_SKIP = {"What does it do?", "Who are the people in your videos?"}
 
+# Breadcrumb (BreadcrumbList) names for pages whose <title> is a sentence. Guides use GUIDE_LINKS.
+CRUMB_NAME = {"shop.html": "Shop", "ingredients.html": "CoreJava ingredients", "faq.html": "FAQ",
+              "guides.html": "Guides", "recipes.html": "Recipes", "corejava-coffee.html": "CoreJava coffee",
+              "about.html": "About", "shipping-returns.html": "Shipping & returns", "privacy.html": "Privacy",
+              "terms.html": "Terms of sale", "partner.html": "Build with us", "share.html": "Share with friends"}
+
 # Answer-style guides: (published, modified). Guides get Article + FAQPage
 # markup from their visible questions, and og:type article.
 GUIDE_META = {
     "what-is-mct-coffee.html": ("2026-10-28", "2026-10-30"),
     "how-to-make-mct-instant-coffee.html": ("2026-10-28", "2026-10-30"),
-    "l-theanine-and-caffeine.html": ("2026-10-25", "2026-10-29"),
+    "l-theanine-and-caffeine.html": ("2026-10-25", "2026-10-30"),
     "mct-coffee-vs-butter-coffee.html": ("2026-10-25", "2026-10-28"),
     "iced-instant-coffee-recipes.html": ("2026-10-25", "2026-10-29"),
     "how-much-caffeine-in-instant-coffee.html": ("2026-10-29", "2026-10-30"),
@@ -145,12 +152,14 @@ GUIDE_META = {
     "what-is-mct-powder.html": ("2026-10-29", "2026-10-29"),
     "natural-caffeine-vs-synthetic.html": ("2026-10-29", "2026-10-30"),
     "caffeine-and-l-theanine-ratio.html": ("2026-10-29", "2026-10-29"),
-    "instant-coffee-vs-drip-cost-per-cup.html": ("2026-10-29", "2026-10-29"),
+    "instant-coffee-vs-drip-cost-per-cup.html": ("2026-10-29", "2026-10-30"),
+    "instant-coffee-subscription.html": ("2026-10-30", "2026-10-30"),
+    "coffee-for-afternoon-slump.html": ("2026-10-30", "2026-10-30"),
 }
 
-# The one product, as the shop page states it: CoreJava, brand MarketPlace Global, sold by
-# Rector & Stull LLC (an independent ISR). No rating markup until the page shows real,
-# attributable customer feedback.
+# The one product, as the shop page states it: CoreJava (the brand/product line), made by
+# MarketPlace Global, sold by Rector & Stull LLC (an independent ISR). No rating markup
+# (AggregateRating/Review) until the page shows real, attributable customer feedback.
 PRODUCT_NAME = "CoreJava Instant Coffee with MCT Powder & L-Theanine"
 SELLER = {"@type": "Organization", "name": "Rector & Stull LLC", "url": SITE + "/"}   # the ISR that sells it
 
@@ -163,7 +172,7 @@ def product_ld():
                              "transitTime": {"@type": "QuantitativeValue", "minValue": 3, "maxValue": 6, "unitCode": "DAY"}}}
     returns = {"@type": "MerchantReturnPolicy", "applicableCountry": "US",
                "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow", "merchantReturnDays": 90,
-               "returnMethod": "https://schema.org/ReturnByMail", "returnFees": "https://schema.org/ReturnShippingFees",
+               "returnMethod": "https://schema.org/ReturnByMail", "returnFees": "https://schema.org/ReturnFeesCustomerResponsibility",
                "itemCondition": "https://schema.org/NewCondition"}
     def offer(name, price, extra=None):
         o = {"@type": "Offer", "name": name, "price": price, "priceCurrency": "USD",
@@ -174,10 +183,11 @@ def product_ld():
         return o
     return {"@type": "Product", "@id": SITE + "/shop.html#product",
             "name": PRODUCT_NAME,
-            "brand": {"@type": "Brand", "name": "MarketPlace Global"},
+            "brand": {"@type": "Brand", "name": "CoreJava"},
             "manufacturer": {"@type": "Organization", "name": "MarketPlace Global"},
-            "description": "Dark-roast instant coffee with MCT powder from coconut, natural caffeine and L-theanine. "
-                           "One level scoop (about 6.8 g) in 8 fl oz of hot water. 30 servings per 7.2 oz (204 g) bag. Contains caffeine.",
+            "description": "Dark roast Colombian instant coffee with MCT powder from coconut, L-theanine and 100 mg of added natural caffeine per scoop, "
+                           "plus the instant coffee's own. One level scoop (about 6.8 g) in 8 fl oz of hot water. 30 servings per 7.2 oz (204 g) bag. Contains caffeine.",
+            "url": SITE + "/shop.html",
             "image": [SITE + og_img("hero-props"), SITE + og_img("shadows"), SITE + og_img("breakfast")],
             "sku": "CL805",
             "category": "Instant coffee",
@@ -211,7 +221,7 @@ def structured_data(fn, title, desc, body, og_image):
         graph.append({"@type": "WebSite", "@id": SITE + "/#site", "url": SITE + "/", "name": "The Morning Upgrade",
                       "description": "Instant coffee with MCT powder, natural caffeine and L-theanine, plus plain-language guides.",
                       "inLanguage": "en-US", "publisher": {"@id": SITE + "/#org"}})
-    if fn in ("shop.html", "index.html"):
+    if fn in ("shop.html", "index.html", "corejava-coffee.html"):
         graph.append(product_ld())
     if fn in GUIDE_META:
         pub, mod = GUIDE_META[fn]
@@ -222,8 +232,7 @@ def structured_data(fn, title, desc, body, og_image):
         graph.append(person_ld())
     qa = re.findall(r"<details><summary>(.*?)</summary>(.*?)</details>", body, re.S)
     qa = [(_strip(q), _strip(a)) for q, a in qa if _strip(q) not in FAQ_SKIP]
-    qa = [(q, a) for q, a in qa if not re.search(r"corejava|marketplace\s*global|\bmpg\b", q + " " + a, re.I)]
-    if (fn == "faq.html" or fn in GUIDE_META or fn in RECIPE_BY) and qa:
+    if (fn in ("faq.html", "corejava-coffee.html") or fn in GUIDE_META or fn in RECIPE_BY) and qa:
         graph.append({"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": q,
                       "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in qa]})
     if fn == "about.html":
@@ -239,7 +248,9 @@ def structured_data(fn, title, desc, body, og_image):
             crumbs.append(("Recipes", url_for("recipes.html")))
             crumbs.append((RECIPE_BY[fn]["name"], url_for(fn)))
         else:
-            crumbs.append((title.split(" — ")[0].split(" | ")[0], url_for(fn)))
+            # short crumb names (the page title is too long for a breadcrumb trail)
+            name = CRUMB_NAME.get(fn) or _html.unescape(GUIDE_LINKS.get(fn, "")) or title.split(" — ")[0].split(" | ")[0]
+            crumbs.append((name, url_for(fn)))
         graph.append({"@type": "BreadcrumbList", "itemListElement": [
             {"@type": "ListItem", "position": i + 1, "name": n, "item": u} for i, (n, u) in enumerate(crumbs)]})
     return '<script type="application/ld+json">' + _json.dumps({"@context": "https://schema.org", "@graph": graph}, ensure_ascii=False, separators=(",", ":")) + "</script>"
@@ -279,7 +290,7 @@ def page(title, desc, body, og_image="/img/opt/breakfast-og-1200.jpg", noindex=F
 <meta name="twitter:description" content="{desc}">
 <meta name="twitter:image" content="https://themorningupgrades.com{og_image}">
 {'' if noindex else structured_data(fn, title, desc, body, og_image)}
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet"></noscript>
 <link rel="stylesheet" href="/assets/site.css">
 <script src="/assets/site.js"></script>
 {extra_head}
@@ -543,6 +554,7 @@ HOME = """
     <h2>Seven things, one scoop.</h2>
     <p>MCT powder, for a creamy cup. Natural caffeine from coffee beans. L-theanine, the amino acid in green tea. ChromeMate, a patented chromium. Paradoxine, grains of paradise extract. Garcinia Cambogia fruit extract. Saffr'Activ saffron extract. Those are the ones we talk about; the instant coffee itself and the other ingredients are on the full Supplement Facts panel.</p>
     <p><a class="btn" href="/ingredients.html#supplement-facts">See the Supplement Facts</a></p>
+    <p><a href="/ingredients.html">CoreJava ingredients, one by one</a></p>
   </div>
   <div class="frame phone"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/ingredients.jpg"><source src="/media/ingredients.mp4" type="video/mp4"></video></div>
 </div></section>
@@ -559,7 +571,7 @@ HOME = """
     <a href="/l-theanine-and-caffeine.html"><p class="eyebrow">L-theanine</p><h3>L-theanine and caffeine</h3><p>What the pairing is, how to read the label, and what the small studies say.</p></a>
     <a href="/how-to-make-mct-instant-coffee.html"><p class="eyebrow">How-to</p><h3>How to make instant MCT coffee</h3><p>One scoop, hot water, 30 seconds. Plus iced and latte-style.</p></a>
   </div>
-  <p style="text-align:center;margin-top:18px"><a href="/guides.html">All guides &amp; recipes &rarr;</a></p>
+  <p style="text-align:center;margin-top:18px"><a href="/corejava-coffee.html">CoreJava, explained: label, price, how to make it</a> &middot; <a href="/guides.html">All guides &amp; recipes &rarr;</a></p>
 </div></section>
 <section class="alt"><div class="wrap split">
   <div>
@@ -617,7 +629,7 @@ SHOP = """
       <li><strong>Taste:</strong> dark roast, smooth. Works black, with creamer, or over ice.</li>
       <li><strong>Allergens:</strong> contains tree nuts (coconut), as printed on the bag.</li>
       <li><strong>Who it's for:</strong> adults who drink coffee daily and want a steadier morning. Not for children, or if you're pregnant or nursing. Contains caffeine.</li>
-      <li><strong>Made by:</strong> MarketPlace Global. Sold by Rector &amp; Stull LLC, Independent MarketPlace Global ISR.</li>
+      <li><strong>Made by:</strong> MarketPlace Global. Sold by Rector &amp; Stull LLC, Independent MarketPlace Global ISR. <a href="/corejava-coffee.html">CoreJava, explained</a>: the label in text, how to make it, and the price per cup.</li>
     </ul>
     """ + facts_panel() + """
   </div>
@@ -634,6 +646,30 @@ SHOP = """
 """ + COMPARE + FOUNDER + """
 <section class="dark" style="text-align:center"><div class="wrap"><h2>Start tomorrow.</h2>""" + CTA_BLOCK + """</div></section>
 """
+
+# The Supplement Facts panel as text (searchable, readable by screen readers and AI assistants).
+# Transcribed from img/supplement-facts.png; amounts only, no label claims. Keep in sync with the bag.
+PANEL_ROWS = [
+    ("Chromium (as ChromeMate&reg; chromium polynicotinate)", "600 mcg", "1700%"),
+    ("Dark Roast Colombian Instant Coffee", "3000 mg", "&dagger;"),
+    ("Garcinia cambogia", "1500 mg", "&dagger;"),
+    ("L-Theanine", "400 mg", "&dagger;"),
+    ("Natural Caffeine (<em>Coffea robusta</em>) (seed)", "100 mg", "&dagger;"),
+    ("Paradoxine&reg; (<em>Aframomum melegueta</em>) extract", "40 mg", "&dagger;"),
+    ("Saffr&rsquo;Activ&reg; (<em>Crocus sativus</em> L.) extract", "30 mg", "&dagger;"),
+]
+PANEL_OTHER = "MCT powder (coconut MCT oil, acacia gum), natural flavor, silicon dioxide (flow agent)"
+
+def panel_table(heading="The panel in text"):
+    rows = "".join(f"<tr><td>{a}</td><td>{b}</td><td>{c}</td></tr>" for a, b, c in PANEL_ROWS)
+    return f"""<h2 id="panel-text">{heading}</h2>
+  <p>Serving size: 1 scoop (6.8 g). Servings per container: 30.</p>
+  <div class="tbl"><table>
+    <tr><th>Per scoop</th><th>Amount</th><th>% Daily Value</th></tr>
+    {rows}
+  </table></div>
+  <p><strong>Other ingredients:</strong> {PANEL_OTHER}. <strong>Contains:</strong> tree nuts (coconut). &dagger; Daily Value not established.</p>
+  <p class="fine">Copied from the Supplement Facts panel on the bag. If the bag in your hands differs, the bag is right.</p>"""
 
 # ---------- INGREDIENTS ----------
 ING = """
@@ -659,11 +695,77 @@ ING = """
   </div>
   <p class="fine" style="margin-top:22px;text-align:center">These are the ingredients we talk about. The full Supplement Facts panel below, as printed on the bag, lists every ingredient with amounts per serving, including the instant coffee and other ingredients. Trademarks belong to their respective ingredient suppliers.</p>
   """ + facts_panel() + """
+  <div class="guide" style="margin:0 auto">""" + panel_table("CoreJava Supplement Facts, in text") + """
+  <p>How to make it and what it costs: <a href="/corejava-coffee.html">CoreJava, explained</a>.</p></div>
 </div></section>
 <section><div class="wrap" style="text-align:center">
   <h2>Everything on the panel, one scoop.</h2>
   <p style="color:var(--muted)">$79.95 a bag, or $69.95 a month on Subscribe &amp; Save.</p>
 """ + CTA_BLOCK + """
+</div></section>
+"""
+
+# ---------- COREJAVA (brand / product-name searches) ----------
+# The page people land on when they search the product name: label facts, how to make it, price,
+# who sells it. No claims past the label, no invented customer quotes or ratings.
+COREJAVA = """
+<section style="padding-top:36px"><div class="wrap guide">
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> <span aria-hidden="true">&rsaquo;</span> <span aria-current="page">CoreJava coffee</span></nav>
+  <p class="eyebrow">CoreJava, explained</p>
+  <h1 style="font-size:clamp(32px,4.4vw,48px)">CoreJava coffee: what&rsquo;s in it, how to make it, and what it costs</h1>
+  <p class="lead answer">CoreJava is a dark roast Colombian instant coffee made by MarketPlace Global. Each scoop has MCT powder from coconut, 400 mg of L-theanine and 100 mg of added natural caffeine, plus the instant coffee&rsquo;s own caffeine. Stir one level scoop into 8 fl oz of hot water. A bag holds 30 servings: $79.95, or $69.95 a month on Subscribe &amp; Save.</p>
+  <div class="frame gphoto">""" + pic("shadows", "CoreJava coffee bag with leaf shadows in morning light", sizes="(max-width: 760px) 100vw, 720px") + """</div>
+  <h2>CoreJava at a glance</h2>
+  <div class="tbl"><table>
+    <tr><th></th><th>From the label and our store</th></tr>
+    <tr><td>Made by</td><td>MarketPlace Global (sold in the US through its Independent Sales Representatives)</td></tr>
+    <tr><td>What it is</td><td>Dark roast Colombian instant coffee with added ingredients, sold as a dietary supplement</td></tr>
+    <tr><td>Serving</td><td>1 level scoop (6.8 g) in 8 fl oz of hot water</td></tr>
+    <tr><td>Bag</td><td>30 servings, net wt 7.2 oz (204 g), resealable</td></tr>
+    <tr><td>Caffeine</td><td>100 mg of added natural caffeine (from <em>Coffea robusta</em> seed), plus the instant coffee&rsquo;s own</td></tr>
+    <tr><td>Allergen</td><td>Contains tree nuts (coconut)</td></tr>
+    <tr><td>Price here</td><td>$79.95 one bag &middot; $69.95 a month on Subscribe &amp; Save &middot; plus $8.95 US shipping and tax</td></tr>
+    <tr><td>Item number</td><td>CL805</td></tr>
+  </table></div>
+  <p>People search for it as CoreJava, Core Java coffee or MarketPlace Global coffee; it&rsquo;s the same bag.</p>
+
+  <h2>What&rsquo;s in it</h2>
+  <p>Seven ingredients have amounts on the Supplement Facts panel: the dark roast Colombian instant coffee itself, L-theanine (the amino acid found in tea leaves), natural caffeine, ChromeMate&reg; chromium, Garcinia cambogia, Paradoxine&reg; grains of paradise extract and Saffr&rsquo;Activ&reg; saffron extract. The MCT powder, made from coconut MCT oil and acacia gum, is what makes the cup creamy without cream. <a href="/ingredients.html">Each ingredient, explained</a>.</p>
+  """ + panel_table() + """
+
+  <h2>How to make it</h2>
+  <ol class="howto">
+    <li><strong>Hot:</strong> one level scoop in a mug, 8 fl oz of hot water, stir about 15 seconds.</li>
+    <li><strong>Iced:</strong> dissolve the scoop in 2 fl oz of hot water, pour over a full glass of ice, top with 6 fl oz of cold water or milk.</li>
+    <li><strong>Latte-style:</strong> dissolve the scoop in 2 fl oz of hot water, then add 6 fl oz of steamed or frothed milk.</li>
+  </ol>
+  <p>No machine and no blender: the MCT is already a powder. One scoop is the serving, so change the water, not the scoop, to adjust the strength. <a href="/how-to-make-mct-instant-coffee.html">Step-by-step guide</a> &middot; <a href="/recipes.html">12 recipes</a>.</p>
+
+  <h2>CoreJava price</h2>
+  <div class="tbl"><table>
+    <tr><th>Plan</th><th>Price</th><th>Per scoop</th><th>With $8.95 shipping</th></tr>
+    <tr><td>One bag (30 servings)</td><td>$79.95</td><td>$2.67</td><td>$2.96</td></tr>
+    <tr><td>Subscribe &amp; Save, a bag every 30 days</td><td>$69.95</td><td>$2.33</td><td>$2.63</td></tr>
+  </table></div>
+  <p>Sales tax is added at checkout where it applies. The subscription can be paused, skipped or cancelled from the link in any receipt. <a href="/instant-coffee-subscription.html">What to check in any coffee subscription</a>.</p>
+  """ + picker() + """
+
+  <h2>Who sells it</h2>
+  <p>CoreJava is a product of MarketPlace Global, a direct-sales company. This store, The Morning Upgrade, is run by Rector &amp; Stull LLC, Independent ISR of MarketPlace Global products and services. We are not the manufacturer and not MarketPlace Global itself; we earn income on the coffee we sell. Orders are fulfilled by MarketPlace Global from Maple Grove, Minnesota, usually within two business days. Unopened bags have the maker&rsquo;s 90-day money-back guarantee. <a href="/shipping-returns.html">Shipping &amp; returns</a> &middot; <a href="/about.html">About us</a>.</p>
+
+  <h2>Looking for a CoreJava review?</h2>
+  <p>We sell CoreJava, so anything we write is a seller&rsquo;s description, not an independent review, and we don&rsquo;t post star ratings or customer quotes we can&rsquo;t verify. What we can tell you plainly: it tastes like a dark roast, a little smoother than drip, and the MCT powder gives it a creamy body. It works black, with creamer or over ice. The label is above, the price is above, and the guarantee covers unopened bags. If you try it and it isn&rsquo;t for you, email hello@themorningupgrades.com.</p>
+  <p>We describe CoreJava by what&rsquo;s in it and don&rsquo;t make health claims beyond the label. It&rsquo;s a dietary supplement, not a medicine, and it hasn&rsquo;t been evaluated by the FDA.</p>
+
+  <h2 id="questions">Questions</h2>
+  <details><summary>Who makes CoreJava?</summary><p>MarketPlace Global makes CoreJava and ships it from Maple Grove, Minnesota. Rector &amp; Stull LLC, an independent sales representative, runs this store.</p></details>
+  <details><summary>Is this the official CoreJava website?</summary><p>No. This is an independent seller&rsquo;s store. Rector &amp; Stull LLC is an Independent ISR of MarketPlace Global, which makes CoreJava.</p></details>
+  <details><summary>How much caffeine is in CoreJava?</summary><p>Each scoop has 100 mg of added natural caffeine, plus the caffeine in the instant coffee itself. Count both toward your day.</p></details>
+  <details><summary>Is CoreJava dark roast?</summary><p>Yes. The panel lists Dark Roast Colombian Instant Coffee, 3000 mg per scoop.</p></details>
+  <details><summary>How much does CoreJava cost?</summary><p>Here it&rsquo;s $79.95 for one 30-serving bag, or $69.95 a month on Subscribe &amp; Save, plus $8.95 US shipping and any sales tax.</p></details>
+  <details><summary>Does CoreJava contain dairy?</summary><p>The label lists tree nuts (coconut) as its allergen, and the MCT powder is made with acacia gum. Check the bag if you have an allergy.</p></details>
+
+  <p class="fine" style="margin-top:24px">Contains caffeine. Not for children, or if you&rsquo;re pregnant or nursing. Ask your physician first if you take medication or have a medical condition.</p>
 </div></section>
 """
 
@@ -1156,7 +1258,7 @@ def _nice(d):
 GUIDE_LINKS = {
     "what-is-mct-coffee.html": "What is MCT coffee?",
     "how-to-make-mct-instant-coffee.html": "How to make instant MCT coffee",
-    "l-theanine-and-caffeine.html": "L-theanine and caffeine: what the label means",
+    "l-theanine-and-caffeine.html": "L-theanine coffee: caffeine + L-theanine explained",
     "mct-coffee-vs-butter-coffee.html": "MCT coffee vs. butter coffee",
     "iced-instant-coffee-recipes.html": "Iced instant coffee without clumps",
     "how-much-caffeine-in-instant-coffee.html": "How much caffeine is in instant coffee?",
@@ -1167,6 +1269,8 @@ GUIDE_LINKS = {
     "natural-caffeine-vs-synthetic.html": "Natural vs. synthetic caffeine",
     "caffeine-and-l-theanine-ratio.html": "Caffeine and L-theanine ratio",
     "instant-coffee-vs-drip-cost-per-cup.html": "Instant vs. drip: cost per cup",
+    "instant-coffee-subscription.html": "Instant coffee subscriptions: what to check",
+    "coffee-for-afternoon-slump.html": "Coffee for the afternoon slump: timing",
 }
 # One-line blurbs for the guides index cards: (eyebrow, blurb)
 GUIDE_BLURBS = {
@@ -1183,6 +1287,8 @@ GUIDE_BLURBS = {
     "natural-caffeine-vs-synthetic.html": ("Caffeine", "Same molecule, different source. What the label tells you."),
     "caffeine-and-l-theanine-ratio.html": ("L-theanine", "The doses small studies used, and how to read a label's ratio."),
     "instant-coffee-vs-drip-cost-per-cup.html": ("Cost", "The formula, a calculator, and the extras people forget."),
+    "instant-coffee-subscription.html": ("Subscriptions", "Cost per cup with shipping, delivery timing, and how to pause or cancel."),
+    "coffee-for-afternoon-slump.html": ("Caffeine", "How late is too late, what a sleep study found, and what else people try."),
 }
 
 
@@ -1248,6 +1354,14 @@ G_WHATMCT = guide_page("MCT coffee", "What is MCT coffee?",
     <tr><td>In the cup</td><td>Rich, frothy if blended</td><td>Smooth, lightly creamy</td></tr>
   </table></div>
   <p>Powders differ in what the carrier is and how much MCT a serving holds, so read the label of any powder you compare.</p>
+  <h2>Three ways to make MCT coffee</h2>
+  <div class="tbl"><table>
+    <tr><th>Way</th><th>What you need</th><th>Good to know</th></tr>
+    <tr><td>Brewed coffee + MCT oil</td><td>Coffee, MCT oil, a blender or frother</td><td>Blend 20&ndash;30 s or the oil floats on top</td></tr>
+    <tr><td>Any coffee + MCT powder</td><td>Coffee, a tub of MCT powder, a spoon</td><td>Check the carrier on the label (acacia, starch or milk protein)</td></tr>
+    <tr><td>Instant coffee with MCT already in it</td><td>Hot water and a spoon</td><td>One product to buy; the serving is fixed by the scoop</td></tr>
+  </table></div>
+  <p>Pre-mixed instant MCT coffees use powder, not oil, because oil won&rsquo;t mix into a dry jar. If you already have plain instant coffee and a bottle of MCT oil, the <a href="/how-to-make-mct-instant-coffee.html#mct-oil">how-to guide</a> covers that too.</p>
   <h2>What's in ours</h2>
   <p>Ours is an instant MCT coffee: MCT powder from coconut is the first ingredient on the label, alongside natural caffeine and L-theanine, the amino acid found in tea leaves. One level scoop (about 6.8 g) in 8 fl oz of hot water makes a cup, and a bag holds 30 servings. <a href="/ingredients.html">Every ingredient is listed here</a>, and <a href="/how-to-make-mct-instant-coffee.html">here's how to make it</a>.</p>
   <h2>What MCT coffee isn't</h2>
@@ -1282,6 +1396,14 @@ G_HOWTO = guide_page("How-to", "How to make instant MCT coffee (one scoop, 30 se
     <tr><td>Iced</td><td>Dissolve 1 scoop in 2 fl oz hot water, pour over a full glass of ice, top with 6 fl oz cold water or milk. <a href="/iced-instant-coffee-recipes.html">Three iced recipes</a>.</td></tr>
     <tr><td>Latte-style</td><td>Dissolve 1 scoop in 2 fl oz hot water, then top with 6 fl oz steamed or frothed milk.</td></tr>
   </table></div>
+  <h2 id="mct-oil">Instant coffee with MCT oil instead</h2>
+  <p>If you have plain instant coffee and a bottle of MCT oil, you can make the same kind of cup; it just needs mixing.</p>
+  <ol class="howto">
+    <li><strong>Make the coffee.</strong> Dissolve your usual serving of instant coffee in 8 fl oz of hot water.</li>
+    <li><strong>Add the oil.</strong> Use the serving on the MCT oil bottle; many labels suggest starting with a smaller amount.</li>
+    <li><strong>Froth or blend.</strong> A handheld frother for 15&ndash;20 seconds, or a blender. Stirred oil just floats on top.</li>
+  </ol>
+  <p>The powder version skips step three: MCT powder is <a href="/what-is-mct-powder.html">MCT oil dried onto a carrier</a> so it disperses with a spoon. That&rsquo;s why pre-mixed instant MCT coffees use powder.</p>
   <h2>Habits that help</h2>
   <ul class="clean">
     <li>Have it in the morning. It contains caffeine.</li>
@@ -1295,14 +1417,24 @@ G_HOWTO = guide_page("How-to", "How to make instant MCT coffee (one scoop, 30 se
     ("Can I use milk instead of water?", "Yes. Heat the milk first, or dissolve the scoop in a splash of hot water and then add the milk, hot or cold."),
     ("How much caffeine is in a scoop?", "100 mg of added natural caffeine, plus the instant coffee's own. See the Supplement Facts panel on the bag."),
     ("Do I need a machine or a blender?", "No. A mug, hot water and a spoon. The MCT is already in powder form, so nothing needs blending."),
+    ("Can I add MCT oil to instant coffee?", "Yes. Dissolve the instant coffee in hot water, add the MCT oil at the serving on its bottle, and froth or blend it; stirred oil floats on top. MCT powder stirs in without blending."),
     ("How long does a bag last?", "A bag has 30 servings, so one scoop a day lasts 30 days."),
   ])
 
-G_THEANINE = guide_page("L-theanine", "L-theanine and caffeine: what the pairing is, and what the label means",
+G_THEANINE = guide_page("L-theanine", "L-theanine coffee: what caffeine + L-theanine is, and what the label means",
   "L-theanine is an amino acid found naturally in tea leaves, and it's often added alongside caffeine because many people describe the combination as smoother than caffeine alone. On a label, &ldquo;caffeine + L-theanine&rdquo; means each serving contains both; the Supplement Facts panel says how much. The research is real but small: something to try, not a promise.",
   """
   <h2>What L-theanine is</h2>
   <p>L-theanine is an amino acid that occurs naturally in tea leaves. It's one reason a cup of tea can feel different from a cup of coffee with similar caffeine. A 2022 review in <em>Frontiers in Nutrition</em> reported average contents of about 6.6 mg per gram in green tea, 6.3 in white, 6.1 in oolong and 5.1 in black tea across 37 varieties. On its own it's sold as a supplement; more often you'll see it next to caffeine.</p>
+  <h2>What &ldquo;L-theanine coffee&rdquo; means</h2>
+  <p>Coffee doesn't contain L-theanine on its own; tea does. An L-theanine coffee is coffee with L-theanine added, so each cup has both. You'll find it three ways:</p>
+  <div class="tbl"><table>
+    <tr><th>Way</th><th>What it is</th><th>What to check</th></tr>
+    <tr><td>Pre-mixed instant coffee</td><td>Instant coffee with L-theanine (and often added caffeine) in the powder</td><td>Milligrams of each per serving on the Supplement Facts panel</td></tr>
+    <tr><td>Coffee + an L-theanine supplement</td><td>Your usual coffee, with a capsule or powder alongside</td><td>That product's own label and serving</td></tr>
+    <tr><td>Coffee and tea in one day</td><td>A cup of each</td><td>Tea has much less L-theanine than supplements, and its own caffeine</td></tr>
+  </table></div>
+  <p>Whichever way, the caffeine still counts. <a href="/caffeine-and-l-theanine-ratio.html">How to work out a product's caffeine to L-theanine ratio</a>.</p>
   <h2>Why it's paired with caffeine</h2>
   <p>People who use the combination often describe it as smoother than caffeine alone. Researchers have looked at the pair mostly through short lab tests: reaction time, attention tasks, and how alert people say they feel.</p>
   <h2>What the studies actually say</h2>
@@ -1329,7 +1461,8 @@ G_THEANINE = guide_page("L-theanine", "L-theanine and caffeine: what the pairing
     ("Does L-theanine cancel out caffeine?", "No. Adding L-theanine doesn't lower the amount of caffeine in a serving. Count it the same as any other coffee."),
     ("Where does L-theanine come from?", "It occurs naturally in tea leaves. When it's listed as an ingredient, the product contains it as an added ingredient; the label shows how much per serving."),
     ("How much L-theanine is in a cup of tea?", "It varies with the tea, how much leaf you use and how long it steeps. A 2022 review averaged roughly 5 to 7 mg per gram of dry tea across 37 varieties."),
-    ("Can I drink a caffeine + L-theanine coffee in the afternoon?", "It still contains caffeine. If caffeine late in the day affects your sleep, keep it to the morning."),
+    ("Can I drink a caffeine + L-theanine coffee in the afternoon?", "It still contains caffeine. If caffeine late in the day affects your sleep, keep it to the morning. More on <a href=\"/coffee-for-afternoon-slump.html\">timing an afternoon cup</a>."),
+    ("Does coffee naturally contain L-theanine?", "No. L-theanine occurs naturally in tea leaves. Coffee has it only when it's added, and then the label lists it."),
     ("What does &ldquo;natural caffeine&rdquo; mean on a label?", "Caffeine that comes from a plant, such as coffee beans, rather than being made synthetically. The molecule is the same; the term describes the source."),
   ],
   sources=[SRC_SOHAIL, SRC_LI, SRC_FDA])
@@ -1414,7 +1547,7 @@ G_CAF_INSTANT = guide_page("Caffeine", "How much caffeine is in instant coffee?"
     <li><strong>Decaf.</strong> Decaffeinated instant still contains a few milligrams per cup.</li>
   </ul>
   <h2>How it fits a day</h2>
-  <p>For most healthy adults, the FDA cites 400 mg a day as an amount not generally associated with negative effects, and lists a 12 fl oz cup of regular brewed coffee at roughly 113&ndash;247 mg. Sensitivity varies, and pregnancy, medication and some conditions change the picture; ask your physician if that's you.</p>
+  <p>For most healthy adults, the FDA cites 400 mg a day as an amount not generally associated with negative effects, and lists a 12 fl oz cup of regular brewed coffee at roughly 113&ndash;247 mg. Sensitivity varies, and pregnancy, medication and some conditions change the picture; ask your physician if that's you. Timing matters too: <a href="/coffee-for-afternoon-slump.html">caffeine late in the day and sleep</a>.</p>
   <h2>What about ours?</h2>
   <p>Ours is an instant coffee with natural caffeine, L-theanine and MCT powder from coconut. A serving is one level scoop in 8 fl oz of hot water, with 100 mg of added natural caffeine plus the instant coffee&rsquo;s own, so the USDA averages above don&rsquo;t apply to it. Count both toward your daily total; the Supplement Facts panel is on the bag. <a href="/ingredients.html">Every ingredient is listed here</a>.</p>
   """,
@@ -1625,7 +1758,7 @@ G_RATIO = guide_page("L-theanine", "Caffeine and L-theanine ratio: what the stud
   <h2>Counting caffeine</h2>
   <p>L-theanine doesn't reduce caffeine. For most healthy adults the FDA cites 400 mg of caffeine a day as an amount not generally associated with negative effects, and sensitivity varies. Ask a physician first if you're pregnant, nursing, take medication or have a medical condition.</p>
   <h2>Ours</h2>
-  <p>Ours lists natural caffeine and L-theanine together with MCT powder from coconut; the amounts per scoop are on the Supplement Facts panel. More background in <a href="/l-theanine-and-caffeine.html">L-theanine and caffeine: reading the label</a>.</p>
+  <p>Ours lists natural caffeine and L-theanine together with MCT powder from coconut; the amounts per scoop are on the Supplement Facts panel (<a href="/corejava-coffee.html#panel-text">here in text</a>). More background in <a href="/l-theanine-and-caffeine.html">L-theanine and caffeine: reading the label</a>.</p>
   """,
   fn="caffeine-and-l-theanine-ratio.html", img="desk",
   faq=[
@@ -1666,7 +1799,7 @@ G_COST = guide_page("Cost", "Instant coffee vs. drip coffee: cost per cup",
     <li><strong>Any of them:</strong> milk, creamer and sugar.</li>
   </ul>
   <h2>Shipping and subscriptions</h2>
-  <p>If you buy online, add shipping to the price before you divide, and compare one-time and subscription prices on the same basis. Ours is $69.95 a month on Subscribe &amp; Save or $79.95 for one bag, 30 servings either way, plus shipping and tax at checkout.</p>
+  <p>If you buy online, add shipping to the price before you divide, and compare one-time and subscription prices on the same basis (<a href="/instant-coffee-subscription.html">what else to check in a coffee subscription</a>). Ours is $69.95 a month on Subscribe &amp; Save or $79.95 for one bag, 30 servings either way, plus shipping and tax at checkout.</p>
   <h2>Cost isn't the only number</h2>
   <p>A cheaper cup you don't enjoy isn't a saving. Time matters too: instant takes about 30 seconds and no clean-up. Pick the cup you'll actually make. <a href="/how-to-make-instant-coffee-taste-better.html">How to make instant coffee taste better</a>.</p>
   """,
@@ -1677,6 +1810,94 @@ G_COST = guide_page("Cost", "Instant coffee vs. drip coffee: cost per cup",
     ("Should I include shipping in cost per cup?", "Yes, if you pay it. Add it to the price before dividing."),
     ("How many grams of ground coffee per cup?", "Many people use around 10 to 15 g for an 8 fl oz cup. Weigh your usual scoop once to get your own number."),
   ])
+
+# ---------- Search-gap guides (SEO pass 3): subscriptions, afternoon timing ----------
+SRC_DRAKE = ('Drake C, Roehrs T, Shambroom J, Roth T. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3805807/" rel="noopener" target="_blank">'
+             'Caffeine effects on sleep taken 0, 3, or 6 hours before going to bed</a>. <em>Journal of Clinical Sleep Medicine</em>. 2013;9(11):1195&ndash;1200.')
+
+G_SUB = guide_page("Subscriptions", "Instant coffee subscription: what to check before you sign up",
+  "An instant coffee subscription ships a bag or jar on a set schedule, usually for less than buying it once. Before you sign up, check four things: the cost per cup including shipping, whether the delivery interval matches how fast you drink it, how to pause or cancel online, and what happens if a bag arrives damaged.",
+  """
+  <h2>How they work</h2>
+  <p>You pick a product and an interval, such as every 30 days. The store charges your card and ships a new bag each time, at a lower price than a one-time order, until you pause or cancel. The details that matter are in the terms, not the headline discount.</p>
+  <h2>1. Cost per cup, with shipping</h2>
+  <p>Divide what you pay per delivery, shipping included, by the servings in it. A subscription price that looks cheaper can cost more per cup if shipping is charged on every delivery and the one-time order ships free, so compare both on the same basis. The <a href="/instant-coffee-vs-drip-cost-per-cup.html">cost-per-cup calculator</a> does the math.</p>
+  <h2>2. Match the interval to how much you drink</h2>
+  <p>Servings in a bag &divide; cups a day = days the bag lasts. If that's shorter than the interval, you'll run out before the next one arrives; if it's longer, bags pile up.</p>
+  <div class="tbl"><table>
+    <tr><th>Servings per bag</th><th>Cups a day</th><th>A bag lasts</th></tr>
+    <tr><td>30</td><td>1</td><td>30 days</td></tr>
+    <tr><td>30</td><td>2</td><td>15 days</td></tr>
+    <tr><td>60</td><td>1</td><td>60 days</td></tr>
+  </table></div>
+  <p>If your use changes, look for a way to change the interval or skip a delivery rather than cancelling.</p>
+  <h2>3. Pausing and cancelling</h2>
+  <ul class="clean">
+    <li><strong>Where:</strong> can you pause, skip or cancel online, or do you have to call or email?</li>
+    <li><strong>When:</strong> what's the cut-off before the next charge?</li>
+    <li><strong>Minimums:</strong> is there a minimum number of deliveries or a cancellation fee?</li>
+    <li><strong>Reminders:</strong> do you get an email before each charge?</li>
+  </ul>
+  <h2>4. Damaged bags and returns</h2>
+  <p>Find the window for reporting a damaged or wrong delivery, whether opened bags can be returned, and who pays return shipping. Food products often can't be returned once opened.</p>
+  <h2>How ours works</h2>
+  <div class="tbl"><table>
+    <tr><th></th><th>Subscribe &amp; Save</th><th>One bag</th></tr>
+    <tr><td>Price</td><td>$69.95 every 30 days</td><td>$79.95</td></tr>
+    <tr><td>Servings</td><td>30 (one scoop a day for a month)</td><td>30</td></tr>
+    <tr><td>Shipping</td><td>$8.95 flat per bag, US only</td><td>$8.95 flat, US only</td></tr>
+    <tr><td>Per cup with shipping</td><td>$2.63</td><td>$2.96</td></tr>
+    <tr><td>Pause, skip, cancel</td><td>From the link in any receipt, up to the day before the next shipment; no fees</td><td>Nothing to cancel</td></tr>
+  </table></div>
+  <p>Sales tax is added at checkout where it applies. Unopened bags have the maker&rsquo;s 90-day money-back guarantee, and a damaged or wrong delivery is replaced if you tell us within 30 days. <a href="/shipping-returns.html">Shipping &amp; returns</a>.</p>
+  """,
+  fn="instant-coffee-subscription.html", img="flatlay",
+  faq=[
+    ("Is an instant coffee subscription cheaper than buying once?", "Usually per bag. Compare the cost per cup with shipping included, since some stores charge shipping on every delivery. Ours is $10 less per bag than a one-time order."),
+    ("Can I pause an instant coffee subscription?", "Many stores allow it; check the terms before you sign up. Ours can be paused, skipped or cancelled from the link in any receipt."),
+    ("What if I drink more than one cup a day?", "Divide the servings in a bag by your cups a day. At two cups a day, a 30-serving bag lasts 15 days, so a 30-day interval would leave you short."),
+    ("Do I have to call to cancel?", "It depends on the store. Ours is cancelled online from the receipt link or the subscription portal, with no call and no fee."),
+  ])
+
+G_SLUMP = guide_page("Caffeine", "Coffee for the afternoon slump: how late is too late?",
+  "Coffee can be part of getting through the afternoon, but timing matters as much as the cup. Caffeine can still affect sleep hours later: in a small 2013 study, 400 mg taken six hours before bed cut measured sleep by more than an hour. The usual approach is an earlier, smaller cup, counted toward your daily total.",
+  """
+  <h2>Why the afternoon feels long</h2>
+  <p>Plenty of people notice their focus fade in the early afternoon. The reasons vary from person to person, and this page can't tell you yours. If you're unusually tired every day, that's worth raising with a doctor rather than solving with more coffee.</p>
+  <h2>Work back from bedtime</h2>
+  <p>In a 2013 study in the <em>Journal of Clinical Sleep Medicine</em> (Drake et al.), 12 healthy adults took 400 mg of caffeine at bedtime, three hours before or six hours before. Even at six hours, measured total sleep fell by more than an hour, and people didn't notice it in their own sleep reports. The authors suggested avoiding a substantial dose of caffeine for at least six hours before bed.</p>
+  <div class="tbl"><table>
+    <tr><th>If you go to bed at</th><th>Six hours earlier is</th></tr>
+    <tr><td>10:00 PM</td><td>4:00 PM</td></tr>
+    <tr><td>11:00 PM</td><td>5:00 PM</td></tr>
+    <tr><td>Midnight</td><td>6:00 PM</td></tr>
+  </table></div>
+  <p>The study tested one large dose in a small group, so treat six hours as a floor, not a guarantee. Sensitivity varies; if late caffeine keeps you up, move your cut-off earlier.</p>
+  <h2>Earlier, smaller, counted</h2>
+  <ul class="clean">
+    <li><strong>Earlier:</strong> if you want an afternoon cup, have it early in the afternoon rather than late.</li>
+    <li><strong>Smaller:</strong> a smaller cup, half-caf or decaf keeps the ritual with less caffeine. Decaf still has a few milligrams.</li>
+    <li><strong>Counted:</strong> for most healthy adults, the FDA cites 400 mg a day as an amount not generally associated with negative effects. Add up coffee, tea, soda, chocolate and supplements.</li>
+    <li><strong>Swap, don't stack:</strong> replace a cup rather than adding one on top. <a href="/how-much-caffeine-in-instant-coffee.html">How much caffeine is in instant coffee</a>.</li>
+  </ul>
+  <h2>Things people try that aren't coffee</h2>
+  <ul class="clean">
+    <li>A ten-minute walk outside.</li>
+    <li>A glass of water.</li>
+    <li>Standing up, switching tasks, or a short break away from the screen.</li>
+    <li>An earlier bedtime the night before.</li>
+  </ul>
+  <h2>Ours is a morning cup</h2>
+  <p>Ours has 100 mg of added natural caffeine per scoop, plus the instant coffee&rsquo;s own, alongside L-theanine and MCT powder from coconut. We suggest it in the morning, as the first cup of the day, and counting both toward your total. <a href="/how-to-make-mct-instant-coffee.html">How to make it</a>.</p>
+  """,
+  fn="coffee-for-afternoon-slump.html", img="desk",
+  faq=[
+    ("How late can I drink coffee?", "It depends on your bedtime and how sensitive you are. In a 2013 study, 400 mg of caffeine six hours before bed still reduced measured sleep, and the authors suggested at least six hours between a substantial dose and bedtime."),
+    ("Should I have a second cup in the afternoon?", "That's your call. Count it toward your day's caffeine, keep it well before bed, and consider a smaller cup or decaf."),
+    ("Is decaf caffeine-free?", "No. Decaffeination removes most caffeine but not all, so a cup still has a small amount."),
+    ("Does L-theanine stop caffeine from affecting sleep?", "No. L-theanine doesn't remove caffeine from a serving. Count a caffeine + L-theanine coffee like any other coffee."),
+  ],
+  sources=[SRC_DRAKE, SRC_FDA])
 
 # ---------- RECIPES (programmatic: one dict per drink -> page + Recipe schema) ----------
 # Search intent here is generic ("iced instant coffee recipe"), so every recipe works with any
@@ -1950,6 +2171,7 @@ GUIDES_INDEX = """
   <p class="eyebrow">Guides &amp; recipes</p>
   <h1 style="font-size:clamp(32px,4.4vw,48px)">Better mornings, plainly explained.</h1>
   <p class="lead">Short guides on what's in the cup and how to make it the way you like. Each one starts with the answer.</p>
+  <p>Looking for our coffee specifically? <a href="/corejava-coffee.html">CoreJava, explained</a>: the label in text, how to make it and the price.</p>
   <div class="glist" style="margin-top:22px">""" + _guide_cards() + """</div>
   <h2 style="margin-top:34px">Recipes</h2>
   <p>Twelve drinks made with instant coffee, hot, iced and blended. <a href="/recipes.html">All recipes &rarr;</a></p>
@@ -1976,7 +2198,8 @@ NOT_FOUND = """
 PAGES = {
   "404.html": ("Page not found — The Morning Upgrade", "That page isn't here. Try the shop, the ingredients, the guides or the FAQ.", NOT_FOUND, og_img("props-og"), True),
   "index.html": ("CoreJava MCT Coffee with L-Theanine | The Morning Upgrade", "Instant coffee with MCT powder, natural caffeine and L-theanine. One scoop in hot water, 30 servings a bag. $69.95 a month or $79.95 a bag.", HOME, og_img("props-og"), False),
-  "shop.html": ("Buy CoreJava MCT Coffee: $69.95/mo or $79.95 a Bag", "CoreJava instant MCT coffee, 30 servings a bag. $79.95 for one bag or $69.95 a month on Subscribe & Save. Natural caffeine, L-theanine and four more actives.", SHOP, og_img("props-og"), False),
+  "shop.html": ("Buy CoreJava MCT Coffee: $69.95/mo or $79.95 a Bag", "CoreJava price: $79.95 for a 30-serving bag or $69.95 a month on Subscribe & Save. Dark roast instant coffee with MCT powder, L-theanine and natural caffeine.", SHOP, og_img("props-og"), False),
+  "corejava-coffee.html": ("CoreJava Coffee: Ingredients, Price & How to Make It", "CoreJava is MarketPlace Global's dark roast instant coffee with MCT powder, L-theanine and 100 mg added natural caffeine. Ingredients, price and how to make it.", COREJAVA, og_img("props-og"), False),
   "ingredients.html": ("CoreJava Ingredients & Supplement Facts | Morning Upgrade", "What's in a scoop of CoreJava: MCT powder, natural caffeine, L-theanine and four more named ingredients, plus the full Supplement Facts panel.", ING, og_img("props-og"), False),
   "faq.html": ("Coffee FAQ: Taste, Caffeine, Shipping | The Morning Upgrade", "How it tastes, how much caffeine is in a scoop, how Subscribe & Save works, shipping, returns, and who you're buying from.", FAQ, og_img("pour"), False),
   "partner.html": ("Build with us — The Morning Upgrade", "Join our team and sell the coffee with the same videos, site and email system we use. Honest numbers first.", PARTNER, og_img("props-og"), False),
@@ -1990,9 +2213,9 @@ PAGES = {
   "thanks.html": ("Your guide is on its way — The Morning Upgrade", "Check your inbox for the 7 Mornings guide.", THANKS, og_img("desk"), True),
   "guides.html": ("Coffee Guides & Recipes | The Morning Upgrade", "Answer-first guides: what MCT coffee is, how to make instant MCT coffee, L-theanine with caffeine, MCT vs. butter coffee, and iced instant coffee recipes.", GUIDES_INDEX, og_img("kitchen-pour"), False),
   "what-is-mct-coffee.html": ("What Is MCT Coffee? MCT Oil vs. Powder | Morning Upgrade", "MCT coffee is coffee with medium-chain triglycerides added, as an oil you blend in or a powder you stir in. What MCTs are and how oil and powder differ.", G_WHATMCT, og_img("scoop"), False),
-  "how-to-make-mct-instant-coffee.html": ("How to Make Instant MCT Coffee (One Scoop) | Morning Upgrade", "One level scoop in 8 fl oz of hot water, stirred until dissolved. Step by step, plus iced and latte-style versions and how to adjust the strength.", G_HOWTO, og_img("kitchen-pour"), False),
+  "how-to-make-mct-instant-coffee.html": ("How to Make Instant MCT Coffee (One Scoop) | Morning Upgrade", "One level scoop in 8 fl oz of hot water, stirred until dissolved. Plus iced and latte-style, and instant coffee with MCT oil if that's what you have.", G_HOWTO, og_img("kitchen-pour"), False),
   "mct-coffee-vs-butter-coffee.html": ("MCT Coffee vs. Butter Coffee, Compared | Morning Upgrade", "Butter coffee is coffee blended with butter and usually MCT oil; MCT coffee adds MCT oil or powder, no butter. How prep, texture and travel compare.", G_MCT, og_img("pour"), False),
-  "l-theanine-and-caffeine.html": ("L-Theanine and Caffeine: Reading the Label | Morning Upgrade", "L-theanine is the amino acid in tea leaves, often paired with caffeine. What the pairing is, how to read the label, and what small studies found.", G_THEANINE, og_img("desk"), False),
+  "l-theanine-and-caffeine.html": ("L-Theanine Coffee & Caffeine Explained | Morning Upgrade", "L-theanine coffee is coffee with the tea amino acid added alongside caffeine. Three ways to get it, how to read the label, and what small studies found.", G_THEANINE, og_img("desk"), False),
   "iced-instant-coffee-recipes.html": ("Iced Instant Coffee, No Clumps: 3 Recipes | Morning Upgrade", "Dissolve hot, then go cold: the trick for smooth iced instant coffee, plus iced classic, iced oat vanilla and a blended frappé.", G_ICED, og_img("patio"), False),
   "how-much-caffeine-in-instant-coffee.html": ("How Much Caffeine Is in Instant Coffee? | Morning Upgrade", "USDA data: about 62 mg in an 8 fl oz cup of instant coffee vs. about 95 mg brewed. What changes the number, and how to read a label.", G_CAF_INSTANT, og_img("flatlay"), False),
   "how-to-make-instant-coffee-taste-better.html": ("How to Make Instant Coffee Taste Better | Morning Upgrade", "Six fixes for better instant coffee: water just off the boil, the right ratio, a paste first, a pinch of salt, milk, and keeping the jar dry.", G_TASTE, og_img("kitchen-pour"), False),
@@ -2002,6 +2225,8 @@ PAGES = {
   "natural-caffeine-vs-synthetic.html": ("Natural vs. Synthetic Caffeine Explained | Morning Upgrade", "Natural and synthetic caffeine are the same molecule; the label word tells you the source. Where each comes from and what to check on a label.", G_NATCAF, og_img("pour"), False),
   "caffeine-and-l-theanine-ratio.html": ("Caffeine and L-Theanine Ratio in Studies | Morning Upgrade", "The caffeine and L-theanine doses small studies used, how to work out a product's ratio from its label, and what the research can't tell you.", G_RATIO, og_img("desk"), False),
   "instant-coffee-vs-drip-cost-per-cup.html": ("Instant vs. Drip Coffee: Cost per Cup | Morning Upgrade", "How to work out cost per cup for instant, drip, pods and café coffee, with a calculator and the extras people forget to count.", G_COST, og_img("kitchen-pour"), False),
+  "instant-coffee-subscription.html": ("Instant Coffee Subscription: What to Check | Morning Upgrade", "How an instant coffee subscription works and what to check first: cost per cup with shipping, delivery timing, pausing and cancelling, damaged bags.", G_SUB, og_img("flatlay"), False),
+  "coffee-for-afternoon-slump.html": ("Coffee for the Afternoon Slump: Timing It | Morning Upgrade", "Reaching for coffee to get through the afternoon? How late is too late for caffeine, what a sleep study found, and what people try instead.", G_SLUMP, og_img("desk"), False),
 }
 
 # Sticky bar: checkout on the buy pages; a link to the shop on guides and the 404; none after a
@@ -2015,7 +2240,7 @@ PRELOAD = {fn: preload("hero-props", HERO_SIZES) for fn in ("index.html", "start
 PAGES["90-mornings.html"] = ("90 Mornings — The Morning Upgrade", "A chapter-by-chapter email series for your first 90 mornings with the coffee. Coming soon.", NINETY, og_img("props-og"), True)
 PAGES["quiz.html"] = ("Which Morning Are You? A 3-Question Quiz | Morning Upgrade",
     "Three quick questions about your coffee mornings, a straight answer, our suggestion, and the free 7 Mornings guide.", QUIZ_PAGE, og_img("props-og"), True)
-PAGES["recipes.html"] = ("Instant Coffee Recipes: Iced, Hot &amp; Blended | Morning Upgrade",
+PAGES["recipes.html"] = ("Instant Coffee Recipes: Iced, Hot, Blended | Morning Upgrade",
     "Twelve drinks made with instant coffee: iced coffee, frapp\u00e9, latte, mocha, cold foam, dalgona, affogato and more. Steps, times and tips for each.",
     RECIPES_INDEX, og_img("patio"), False)
 for _r in RECIPES:
@@ -2071,7 +2296,7 @@ print("wrote creator links:", ", ".join(f"/c/{c}" for c in CREATORS))
 import datetime as _dt
 _today = _dt.date.today().isoformat()
 _indexable = [fn for fn,(t,d,b,og,ni) in PAGES.items() if not ni]
-_prio = {"index.html": "1.0", "shop.html": "0.9", "ingredients.html": "0.8", "faq.html": "0.7"}
+_prio = {"index.html": "1.0", "shop.html": "0.9", "corejava-coffee.html": "0.8", "ingredients.html": "0.8", "faq.html": "0.7"}
 _prio.update({fn: "0.6" for fn in GUIDE_META})
 _prio.update({fn: "0.5" for fn in RECIPE_BY})
 _old_lastmod = {}
@@ -2105,6 +2330,8 @@ Facts as stated on the site (updated {_today}):
 - Price: $79.95 for one bag (30 servings), or $69.95 a month with Subscribe & Save (one bag every 30 days; pause, skip or cancel anytime from the receipt link).
 - Serving: one level scoop, about 6.8 g, in 8 fl oz of hot water. 30 servings per 7.2 oz (204 g) bag. Dark roast; works black, with creamer or over ice.
 - Caffeine: 100 mg of added natural caffeine per scoop, plus the instant coffee's own caffeine.
+- Supplement Facts per scoop (as printed on the bag): {"; ".join(_html.unescape(re.sub(r"<[^>]+>", "", a)) + " " + b for a, b, c in PANEL_ROWS)}. Other ingredients: {PANEL_OTHER}. Contains tree nuts (coconut).
+- Names people search: CoreJava, Core Java coffee, MarketPlace Global coffee. Item CL805. This site is an independent ISR's store, not MarketPlace Global's own site.
 - Shipping: US addresses only, flat $8.95 per bag. Orders ship from Minnesota within about two business days, then 3-6 days in transit.
 - Returns: the maker's 90-day money-back guarantee on unopened bags; damaged or incorrect items are replaced if reported within 30 days of delivery.
 - Contains caffeine. For adults; not for children or anyone pregnant or nursing. Ask a physician first if you take medication or have a medical condition.
@@ -2115,6 +2342,7 @@ Facts as stated on the site (updated {_today}):
 ## Product
 
 {_llm_link("shop.html")}
+{_llm_link("corejava-coffee.html")}
 {_llm_link("ingredients.html")}
 {_llm_link("faq.html")}
 {_llm_link("shipping-returns.html")}
