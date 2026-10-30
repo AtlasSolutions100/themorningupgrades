@@ -124,7 +124,8 @@ window.TMU = {
   }catch(e){ return false; } };
 
   // ViewContent on the product pages, for TikTok / Meta / Snap optimisation.
-  if (/^\/(index\.html|shop\.html|start\.html)?$/.test(location.pathname)) track('ViewContent',{value:PRICE.subscribe,currency:'USD'});
+  // GitHub Pages also serves /shop and /start without .html: count those too (ad URLs often drop it).
+  if (/^\/((index|shop|start)(\.html)?)?$/.test(location.pathname)) track('ViewContent',{value:PRICE.subscribe,currency:'USD'});
 
   if (qref) track('CreatorVisit',{creator:qref});
 
@@ -159,11 +160,17 @@ window.TMU = {
     });
     // Buy buttons: data-buy="onetime|subscribe"
     var utm = location.search ? location.search.replace(/^\?/,'') : '';
+    // Only the page's utm_* tags ride to Stripe (utm_source defaults to "site"). Anything else in the
+    // landing URL (client_reference_id, prefilled_email, promo codes, click ids) is never forwarded, so
+    // a crafted link can't override creator/ad credit and Stripe sees one value per tag.
+    var stripeQs = (function(){ var o=[], has={}; try{ new URLSearchParams(location.search).forEach(function(v,k){
+        if(/^utm_(source|medium|campaign|content|term)$/.test(k) && !has[k] && v){ has[k]=1; o.push(k+'='+encodeURIComponent(v.slice(0,100))); } }); }catch(e){}
+      if(!has.utm_source) o.unshift('utm_source=site'); return o.join('&'); })();
     function wire(a){
       var kind=a.getAttribute('data-buy');
       var link = kind==='subscribe' ? C.STRIPE_SUBSCRIBE : C.STRIPE_ONETIME;
       if (link) {
-        a.href = link + (link.indexOf('?')>-1?'&':'?') + 'utm_source=site' + (utm?'&'+utm:'')
+        a.href = link + (link.indexOf('?')>-1?'&':'?') + stripeQs
           + (C.REF ? '&client_reference_id=cr_' + C.REF : (C.UT ? '&client_reference_id=' + C.UT : ''));
         a.removeAttribute('rel'); a.removeAttribute('target');
       } else {

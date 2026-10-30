@@ -20,6 +20,13 @@ def serve(root=ROOT):
     """Serve `root` on a free localhost port. Yields the base URL (no trailing slash).
     Unknown paths get /404.html when it exists, like GitHub Pages."""
     class H(_Quiet):
+        def translate_path(self, path):
+            # GitHub Pages serves /shop as /shop.html; do the same so extensionless ad URLs are testable.
+            fs = super().translate_path(path)
+            if not os.path.exists(fs) and os.path.exists(fs + ".html"):
+                return fs + ".html"
+            return fs
+
         def send_error(self, code, message=None, explain=None):
             p = os.path.join(root, "404.html")
             if code == 404 and os.path.exists(p):
