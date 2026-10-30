@@ -39,7 +39,7 @@ FOOTER = """
     <div>
       <h2 class="fh">Company</h2>
       <a href="/about.html">About us</a>
-      <a href="/share.html">Share &amp; earn</a>
+      <a href="/share.html">Share with friends</a>
       <a href="/partner.html">Build with us</a>
       <a href="/privacy.html">Privacy</a>
       <a href="/terms.html">Terms</a>
@@ -133,17 +133,17 @@ FAQ_SKIP = {"What does it do?", "Who are the people in your videos?"}
 # Answer-style guides: (published, modified). Guides get Article + FAQPage
 # markup from their visible questions, and og:type article.
 GUIDE_META = {
-    "what-is-mct-coffee.html": ("2026-10-28", "2026-10-29"),
-    "how-to-make-mct-instant-coffee.html": ("2026-10-28", "2026-10-28"),
+    "what-is-mct-coffee.html": ("2026-10-28", "2026-10-30"),
+    "how-to-make-mct-instant-coffee.html": ("2026-10-28", "2026-10-30"),
     "l-theanine-and-caffeine.html": ("2026-10-25", "2026-10-29"),
     "mct-coffee-vs-butter-coffee.html": ("2026-10-25", "2026-10-28"),
     "iced-instant-coffee-recipes.html": ("2026-10-25", "2026-10-29"),
-    "how-much-caffeine-in-instant-coffee.html": ("2026-10-29", "2026-10-29"),
+    "how-much-caffeine-in-instant-coffee.html": ("2026-10-29", "2026-10-30"),
     "how-to-make-instant-coffee-taste-better.html": ("2026-10-29", "2026-10-29"),
     "does-instant-coffee-go-bad.html": ("2026-10-29", "2026-10-29"),
-    "instant-coffee-for-travel-camping-dorm.html": ("2026-10-29", "2026-10-29"),
+    "instant-coffee-for-travel-camping-dorm.html": ("2026-10-29", "2026-10-30"),
     "what-is-mct-powder.html": ("2026-10-29", "2026-10-29"),
-    "natural-caffeine-vs-synthetic.html": ("2026-10-29", "2026-10-29"),
+    "natural-caffeine-vs-synthetic.html": ("2026-10-29", "2026-10-30"),
     "caffeine-and-l-theanine-ratio.html": ("2026-10-29", "2026-10-29"),
     "instant-coffee-vs-drip-cost-per-cup.html": ("2026-10-29", "2026-10-29"),
 }
@@ -176,7 +176,7 @@ def product_ld():
             "name": PRODUCT_NAME,
             "brand": {"@type": "Brand", "name": "MarketPlace Global"},
             "manufacturer": {"@type": "Organization", "name": "MarketPlace Global"},
-            "description": "Medium-roast instant coffee with MCT powder from coconut, natural caffeine and L-theanine. "
+            "description": "Dark-roast instant coffee with MCT powder from coconut, natural caffeine and L-theanine. "
                            "One level scoop (about 6.8 g) in 8 fl oz of hot water. 30 servings per 7.2 oz (204 g) bag. Contains caffeine.",
             "image": [SITE + og_img("hero-props"), SITE + og_img("shadows"), SITE + og_img("breakfast")],
             "sku": "CL805",
@@ -387,7 +387,7 @@ CALLOUTS = f"""<div class="callouts-wrap">
     </svg>
     <span class="chip c1"><i>{ICON_COCO}</i><span><b>MCT powder</b>the creamy part</span></span>
     <span class="chip c2"><i>{ICON_LEAF}</i><span><b>L-theanine</b>paired with caffeine</span></span>
-    <span class="chip c3"><i>{ICON_BEAN}</i><span><b>Natural caffeine</b>about one cup's worth</span></span>
+    <span class="chip c3"><i>{ICON_BEAN}</i><span><b>Natural caffeine</b>100 mg added, plus the coffee&rsquo;s own</span></span>
     <span class="chip c4"><i>{ICON_BAG}</i><span><b>30 servings</b>one scoop a morning</span></span>
   </div>
 </div>"""
@@ -530,7 +530,7 @@ HOME = """
     <h2>One scoop. Hot water. That's the whole ritual.</h2>
     <ul class="clean">
       <li>One level scoop into 8 oz of hot water, stir. No machine, no grounds, no filter.</li>
-      <li>Medium roast. Black is fine, creamer is fine, over ice is fine.</li>
+      <li>Dark roast. Black is fine, creamer is fine, over ice is fine.</li>
       <li>30 servings a bag: one scoop every morning for a month.</li>
     </ul>
     <p><a class="btn" href="/shop.html">Buy CoreJava</a></p>
@@ -564,7 +564,7 @@ HOME = """
 <section class="alt"><div class="wrap split">
   <div>
     <h2>Questions, answered plainly</h2>
-    <details><summary>Does it taste like coffee?</summary><p>Yes. Medium roast, a little smoother than drip. Black is fine; creamer is fine.</p></details>
+    <details><summary>Does it taste like coffee?</summary><p>Yes. Dark roast, a little smoother than drip. Black is fine; creamer is fine.</p></details>
     <details><summary>Is it one cup or two?</summary><p>One scoop is the serving on the label.</p></details>
     <details><summary>What if I drink coffee all day?</summary><p>Swap the first cup only for a week, and keep everything else the same.</p></details>
     <details><summary>Can I cancel the subscription?</summary><p>Any time. Use the link in your receipt, or <a href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00">manage your subscription here</a>: pause a month, cancel, or update your card. No calls, no forms.</p></details>
@@ -574,9 +574,9 @@ HOME = """
 </div></section>
 <section><div class="wrap split">
   <div>
-    <p class="eyebrow">Share &amp; earn</p>
-    <h2>Your coffee, paid for by the friends who steal a cup.</h2>
-    <p>Tell people about it anyway? MarketPlace Global pays a bonus on every order a friend places through your link. Three levels, explained without the hype.</p>
+    <p class="eyebrow">Share with friends</p>
+    <h2>Love it? Share your link with friends.</h2>
+    <p>Already telling people about it? Get your own link and pass it along. Three levels, explained without the hype.</p>
     <p><a class="btn ghost" href="/share.html">How it works</a></p>
   </div>
   <div class="frame p45">""" + pic("scoop", "A scoop of CoreJava over the bag") + """</div>
@@ -596,7 +596,7 @@ SHOP = """
   <div class="shop-buy">
     <p class="eyebrow">Made by MarketPlace Global &middot; 30 servings</p>
     <h1 style="font-size:clamp(32px,4vw,48px)">CoreJava Instant Coffee with MCT Powder &amp; L-Theanine</h1>
-    <p class="lead">Medium-roast instant coffee built around natural caffeine and L-theanine, with ChromeMate, Paradoxine, Garcinia Cambogia and Saffr'Activ. Made for focus and steady energy. One level scoop in 8 oz of hot water.</p>
+    <p class="lead">Dark-roast instant coffee built around natural caffeine and L-theanine, with ChromeMate, Paradoxine, Garcinia Cambogia and Saffr'Activ. Made for focus and steady energy. One level scoop in 8 oz of hot water.</p>
     """ + picker() + """
     <p class="bonus" data-bonus hidden><strong>Free with your first order:</strong> the Recipe Pack, 12 ways to drink it plus a 30-morning tracker (PDF).</p>
     <p class="fine"><span data-ship="long">Ships to all 50 states.</span> Cancel anytime &middot; <span data-ship="checkout">secure checkout</span> &middot; <span data-ship="damage">made right if it arrives damaged</span>. Questions before you buy: hello@themorningupgrades.com.</p>
@@ -614,7 +614,7 @@ SHOP = """
     <ul class="clean">
       <li><strong>Serving:</strong> 1 level scoop (about 6.8 g) in 8 fl oz hot water. 30 servings per 7.2 oz (204 g) bag.</li>
       <li><strong>Key ingredients:</strong> MCT powder, natural caffeine, L-theanine, ChromeMate&reg; chromium, Paradoxine&reg; grains of paradise extract, Garcinia Cambogia extract, Saffr'Activ&reg; saffron extract. Every ingredient, with amounts, is on the Supplement Facts panel below. <a href="/ingredients.html">Full breakdown</a>.</li>
-      <li><strong>Taste:</strong> medium roast, smooth. Works black, with creamer, or over ice.</li>
+      <li><strong>Taste:</strong> dark roast, smooth. Works black, with creamer, or over ice.</li>
       <li><strong>Allergens:</strong> contains tree nuts (coconut), as printed on the bag.</li>
       <li><strong>Who it's for:</strong> adults who drink coffee daily and want a steadier morning. Not for children, or if you're pregnant or nursing. Contains caffeine.</li>
       <li><strong>Made by:</strong> MarketPlace Global. Sold by Rector &amp; Stull LLC, Independent MarketPlace Global ISR.</li>
@@ -649,7 +649,7 @@ ING = """
   <h2 class="sr">The ingredients we talk about</h2>
   <div class="ing">
     <div class="card"><b>MCT powder</b><h3>First on the label</h3><p>Medium-chain triglycerides, usually from coconut oil, in powder form. It&rsquo;s what gives the cup body and a creamy texture without adding cream. <a href="/what-is-mct-coffee.html">More on MCT coffee</a>.</p></div>
-    <div class="card"><b>Natural caffeine</b><h3>From coffee beans</h3><p>The same caffeine you already drink, from coffee, not synthesized. About the amount in a strong cup.</p></div>
+    <div class="card"><b>Natural caffeine</b><h3>From coffee beans</h3><p>The same caffeine you already drink, from coffee, not synthesized. Each scoop has 100 mg of added natural caffeine, plus the instant coffee&rsquo;s own.</p></div>
     <div class="card"><b>L-theanine</b><h3>The amino acid in green tea</h3><p>Found naturally in tea leaves. Commonly paired with caffeine; many people describe the pairing as smoother than coffee alone. <a href="/l-theanine-and-caffeine.html">What the research says</a>.</p></div>
     <div class="card"><b>ChromeMate&reg;</b><h3>A patented chromium</h3><p>A branded form of the mineral chromium, bound to niacin. Chromium is an essential trace mineral.</p></div>
     <div class="card"><b>Paradoxine&reg;</b><h3>Grains of paradise extract</h3><p>A standardized extract of <em>Aframomum melegueta</em>, a West African seed in the ginger family.</p></div>
@@ -673,8 +673,8 @@ FAQ = """
   <p class="eyebrow">FAQ</p>
   <h1 style="font-size:clamp(30px,4vw,46px)">Questions, answered plainly.</h1>
   <h2>The coffee</h2>
-  <details><summary>Does it taste like coffee?</summary><p>Yes. Medium roast, a little smoother than drip. Black is fine; creamer is fine; over ice is fine.</p></details>
-  <details><summary>How much caffeine is in a serving?</summary><p>About the same as a strong cup of coffee. The exact amount is on the Supplement Facts panel on the bag. It contains caffeine, so skip it late in the day if you're sensitive.</p></details>
+  <details><summary>Does it taste like coffee?</summary><p>Yes. Dark roast, a little smoother than drip. Black is fine; creamer is fine; over ice is fine.</p></details>
+  <details><summary>How much caffeine is in a serving?</summary><p>Each scoop has 100 mg of added natural caffeine, plus the instant coffee&rsquo;s own. See the Supplement Facts panel on the bag. It contains caffeine, so skip it late in the day if you're sensitive.</p></details>
   <details><summary>Is it one cup or two?</summary><p>One scoop is the serving on the label.</p></details>
   <details><summary>What does it do?</summary><p>It's instant coffee with natural caffeine, L-theanine and MCT powder, made for focus and steady energy. It's a dietary supplement, not a medicine, and it hasn't been evaluated by the FDA.</p></details>
   <details><summary>Who shouldn't take it?</summary><p>Children, and anyone pregnant or nursing. If you take medication or have a medical condition, ask your physician first.</p></details>
@@ -777,9 +777,9 @@ PARTNER = """
 SHARE = """
 <section style="padding-top:36px"><div class="wrap split">
   <div>
-    <p class="eyebrow">Share &amp; earn</p>
-    <h1 style="font-size:clamp(32px,4.4vw,50px)">Your coffee, paid for by the friends who steal a cup.</h1>
-    <p class="lead">You already tell people about the coffee that got you through the afternoon. With MarketPlace Global&rsquo;s referral program you get paid every time one of them orders. Three levels. Start wherever you like.</p>
+    <p class="eyebrow">Share with friends</p>
+    <h1 style="font-size:clamp(32px,4.4vw,50px)">Love it? Share your link with friends.</h1>
+    <p class="lead">You already tell people about the coffee that got you through the afternoon. MarketPlace Global&rsquo;s referral program gives you your own link to pass along. Three levels. Start wherever you like.</p>
     <p><a class="btn" href="#levels">See the three levels</a> &nbsp; <a class="btn ghost" href="#honest">What this actually is</a></p>
     <p class="fine" style="margin-top:14px">Independent Sales Representative (ISR) program of MarketPlace Global. Paid on product sales only. Most participants earn little; see the <a data-disclosure href="#">income disclosure</a>.</p>
   </div>
@@ -799,14 +799,8 @@ SHARE = """
     <div class="lvl best">
       <span class="num">2</span>
       <h3>Share</h3>
-      <p class="tag2">Get your bag covered</p>
-      <p>Become an MPG referral rep and get your own link. Friends order through it, you earn a bonus on every order and re-order. <span class="math" hidden>At <b class="pct"></b> back, <b class="n3"></b> friends on Subscribe &amp; Save covers your own bag every month.</span></p>
-      <div class="ladder" hidden>
-        <div><i>1 friend</i><b class="l1"></b><em>/mo</em></div>
-        <div><i>3 friends</i><b class="l3"></b><em>/mo</em></div>
-        <div><i>5 friends</i><b class="l5"></b><em>/mo</em></div>
-        <div><i>10 friends</i><b class="l10"></b><em>/mo</em></div>
-      </div>
+      <p class="tag2">Pass it along</p>
+      <p>Become an MPG referral rep and get your own link. Friends order through it and MPG ships to them. What it costs and how MPG&rsquo;s program works are spelled out below.</p>
       <a class="btn sm" data-enroll href="#">Start sharing</a>
     </div>
     <div class="lvl">
@@ -817,7 +811,6 @@ SHARE = """
       <a class="btn ghost sm" href="/partner.html">See the Build track</a>
     </div>
   </div>
-  <p class="fine" style="text-align:center;margin-top:18px">Ladder figures are illustrative, based on friends ordering one bag a month at the current Subscribe &amp; Save price, before any expenses. They are not projections of what you will earn.</p>
 </div></section>
 
 <section id="honest"><div class="wrap" style="max-width:820px">
@@ -833,7 +826,7 @@ SHARE = """
       <li><strong>You can stop whenever.</strong> Don&rsquo;t renew the membership and it lapses. 30-day money-back on unopened product bought as an ISR.</li>
     </ul>
   </div>
-  <p style="margin-top:22px">If that all sounds fine and you mostly want your coffee covered, Share is for you. If you read it and thought &ldquo;I could do more than three friends,&rdquo; look at <a href="/partner.html">Build</a>.</p>
+  <p style="margin-top:22px">If that all sounds fine and you mostly want to pass your link to a few friends, Share is for you. If you read it and thought &ldquo;I could do more than that,&rdquo; look at <a href="/partner.html">Build</a>.</p>
   <p><a class="btn" data-enroll href="#">Start sharing</a></p>
 </div></section>
 
@@ -849,15 +842,6 @@ SHARE = """
   </div>
 </div></section>
 
-<script>
-(function(){
-  var pct = (window.TMU && TMU.RETAIL_BONUS_PCT) || 0; if(!pct) return;
-  var price = 69.95, bag = 69.95 + 8.95, per = price * pct / 100;
-  var n3 = Math.ceil(bag / per);
-  document.querySelectorAll('.math').forEach(function(e){ e.hidden=false; e.querySelector('.pct').textContent = pct + '%'; e.querySelector('.n3').textContent = n3; });
-  document.querySelectorAll('.ladder').forEach(function(l){ l.hidden=false; [1,3,5,10].forEach(function(n){ l.querySelector('.l'+n).textContent = '$' + Math.round(per*n); }); });
-})();
-</script>
 """
 
 # ---------- ABOUT ----------
@@ -1116,7 +1100,7 @@ START = """
     <h2>Nothing hidden behind a blend.</h2>
     <p>MCT powder, natural caffeine, L-theanine, ChromeMate&reg; chromium, Paradoxine&reg; grains of paradise, Garcinia Cambogia and Saffr'Activ&reg; saffron extract, plus the instant coffee itself; every ingredient is on the <a href="/ingredients.html#supplement-facts">Supplement Facts panel</a>. We describe it by what's in it and don't make health claims beyond the label.</p>
     <ul class="clean">
-      <li>Medium roast, instant. Black is fine, creamer is fine, over ice is fine.</li>
+      <li>Dark roast, instant. Black is fine, creamer is fine, over ice is fine.</li>
       <li>One level scoop in 8 oz of hot water. Stir. Done.</li>
       <li>Made by MarketPlace Global in the US, shipped from Minnesota.</li>
     </ul>
@@ -1139,8 +1123,8 @@ START = """
 <section class="alt"><div class="wrap split">
   <div>
     <h2>Questions, answered plainly</h2>
-    <details><summary>Does it taste like coffee?</summary><p>Yes. Medium roast, a little smoother than drip. Black is fine; creamer is fine.</p></details>
-    <details><summary>How much caffeine is in a scoop?</summary><p>About the same as a regular cup of coffee. One scoop is the serving on the label.</p></details>
+    <details><summary>Does it taste like coffee?</summary><p>Yes. Dark roast, a little smoother than drip. Black is fine; creamer is fine.</p></details>
+    <details><summary>How much caffeine is in a scoop?</summary><p>100 mg of added natural caffeine, plus the instant coffee&rsquo;s own. One scoop is the serving on the label.</p></details>
     <details><summary>Is it one cup or two?</summary><p>One scoop is the serving on the label.</p></details>
     <details><summary>What if I drink coffee all day?</summary><p>Swap the first cup only for a week, and keep everything else the same.</p></details>
     <details><summary>Can I cancel the subscription?</summary><p>Any time, from the link in your receipt. Pause a month, skip, or cancel. No calls, no forms.</p></details>
@@ -1274,7 +1258,7 @@ G_WHATMCT = guide_page("MCT coffee", "What is MCT coffee?",
     ("Is MCT coffee the same as butter coffee?", "No. Butter coffee is brewed coffee blended with butter or ghee and usually MCT oil. MCT coffee has MCT oil or powder added and no butter. Butter coffee needs a blender; MCT powder coffee only needs a spoon."),
     ("Is MCT oil the same as coconut oil?", "No. MCT oil is made from coconut or palm kernel oil but keeps only the medium-chain fats, so it stays liquid and has almost no taste. Coconut oil is mostly lauric acid, tastes of coconut and turns solid in a cool kitchen."),
     ("Do I need a blender to make MCT coffee?", "Only with MCT oil, which otherwise floats on top. MCT powder is made to dissolve in hot water, so a spoon is enough."),
-    ("Does MCT coffee have caffeine?", "Yes, unless it's made with decaf. Ours contains natural caffeine, about the same as a strong cup of coffee; the exact amount is on the Supplement Facts panel."),
+    ("Does MCT coffee have caffeine?", "Yes, unless it's made with decaf. Ours has 100 mg of added natural caffeine per scoop, plus the instant coffee's own; see the Supplement Facts panel."),
     ("Can I make MCT coffee iced?", "Yes. Dissolve the powder in about 2 oz of hot water first, then pour it over ice and top up with cold water or milk. Cold water alone leaves clumps."),
   ],
   sources=[SRC_MCT])
@@ -1287,7 +1271,7 @@ G_HOWTO = guide_page("How-to", "How to make instant MCT coffee (one scoop, 30 se
     <li><strong>Scoop.</strong> One level scoop, leveled off against the edge of the bag. That's about 6.8 g, the serving size on the label.</li>
     <li><strong>Add hot water.</strong> 8 fl oz (one standard mug) from a kettle or hot-water tap. Hot water dissolves the powder completely; lukewarm water leaves grains.</li>
     <li><strong>Stir.</strong> About 15 seconds, until the surface is smooth.</li>
-    <li><strong>Adjust.</strong> Add creamer, milk or sweetener if you like. It's a medium roast and works black.</li>
+    <li><strong>Adjust.</strong> Add creamer, milk or sweetener if you like. It's a dark roast and works black.</li>
   </ol>
   <h2>Getting the strength right</h2>
   <p>Change the water, not the scoop. A little less water makes a bolder cup and a little more makes it milder. One scoop is the serving: a second scoop doubles the caffeine as well as the flavor.</p>
@@ -1309,7 +1293,7 @@ G_HOWTO = guide_page("How-to", "How to make instant MCT coffee (one scoop, 30 se
   faq=[
     ("Can I make it with cold water?", "Not directly; powders dissolve slowly in cold water and clump. Stir the scoop into about 2 oz of hot water first, then add ice and cold water."),
     ("Can I use milk instead of water?", "Yes. Heat the milk first, or dissolve the scoop in a splash of hot water and then add the milk, hot or cold."),
-    ("How much caffeine is in a scoop?", "About the same as a strong cup of coffee. The exact amount is on the Supplement Facts panel on the bag."),
+    ("How much caffeine is in a scoop?", "100 mg of added natural caffeine, plus the instant coffee's own. See the Supplement Facts panel on the bag."),
     ("Do I need a machine or a blender?", "No. A mug, hot water and a spoon. The MCT is already in powder form, so nothing needs blending."),
     ("How long does a bag last?", "A bag has 30 servings, so one scoop a day lasts 30 days."),
   ])
@@ -1432,7 +1416,7 @@ G_CAF_INSTANT = guide_page("Caffeine", "How much caffeine is in instant coffee?"
   <h2>How it fits a day</h2>
   <p>For most healthy adults, the FDA cites 400 mg a day as an amount not generally associated with negative effects, and lists a 12 fl oz cup of regular brewed coffee at roughly 113&ndash;247 mg. Sensitivity varies, and pregnancy, medication and some conditions change the picture; ask your physician if that's you.</p>
   <h2>What about ours?</h2>
-  <p>Ours is an instant coffee with natural caffeine, L-theanine and MCT powder from coconut. A serving is one level scoop in 8 fl oz of hot water and has about as much caffeine as a strong cup of coffee; the exact amount per serving is on the Supplement Facts panel. Count it like any other coffee. <a href="/ingredients.html">Every ingredient is listed here</a>.</p>
+  <p>Ours is an instant coffee with natural caffeine, L-theanine and MCT powder from coconut. A serving is one level scoop in 8 fl oz of hot water, with 100 mg of added natural caffeine plus the instant coffee&rsquo;s own, so the USDA averages above don&rsquo;t apply to it. Count both toward your daily total; the Supplement Facts panel is on the bag. <a href="/ingredients.html">Every ingredient is listed here</a>.</p>
   """,
   fn="how-much-caffeine-in-instant-coffee.html", img="flatlay",
   faq=[
@@ -1531,7 +1515,7 @@ G_TRAVEL = guide_page("How-to", "Instant coffee for travel, camping and dorms",
   <h2>Why a dorm runs on it</h2>
   <p>No machine to store, no grounds to clean, no pods to buy. A bag of 30 servings fits in a desk drawer and a kettle does the rest. <a href="/iced-instant-coffee-recipe.html">Iced</a> works too, with ice from the dining hall.</p>
   <h2>Ours on the road</h2>
-  <p>Ours is one level scoop in 8 fl oz of hot water, with the MCT powder already in it, so there's no oil or blender to pack. It contains caffeine; count it like your usual cup. <a href="/shop.html">See the coffee</a>.</p>
+  <p>Ours is one level scoop in 8 fl oz of hot water, with the MCT powder already in it, so there's no oil or blender to pack. Each scoop has 100 mg of added natural caffeine, plus the instant coffee&rsquo;s own; count both toward your day. <a href="/shop.html">See the coffee</a>.</p>
   """,
   fn="instant-coffee-for-travel-camping-dorm.html", img="desk",
   faq=[
@@ -1606,7 +1590,7 @@ G_NATCAF = guide_page("Caffeine", "Natural caffeine vs. synthetic caffeine: what
   <h2>How much is a lot?</h2>
   <p>For most healthy adults, the FDA cites 400 mg a day as an amount not generally associated with negative effects. It also warns that pure and highly concentrated caffeine products can be dangerous, because a tiny amount of powder can hold a very large dose. Count every source across the day: coffee, tea, soda, chocolate and supplements.</p>
   <h2>Ours</h2>
-  <p>Ours lists natural caffeine, alongside L-theanine and MCT powder from coconut. One level scoop is a serving, about as much caffeine as a strong cup of coffee; the exact amount is on the Supplement Facts panel. <a href="/l-theanine-and-caffeine.html">Why L-theanine is paired with caffeine</a>.</p>
+  <p>Ours lists natural caffeine, alongside L-theanine and MCT powder from coconut. One level scoop is a serving, with 100 mg of added natural caffeine plus the instant coffee&rsquo;s own; see the Supplement Facts panel. <a href="/l-theanine-and-caffeine.html">Why L-theanine is paired with caffeine</a>.</p>
   """,
   fn="natural-caffeine-vs-synthetic.html", img="pour",
   faq=[
@@ -1935,7 +1919,7 @@ def recipe_page(r):
   <p class="fine" style="margin-top:18px"><strong>Contains caffeine.</strong> Works with any instant coffee; one serving is the amount on your jar or bag. Ours dissolves with a spoon: one level scoop.</p>
   <div class="card" style="margin-top:28px;padding:24px;background:var(--tint);box-shadow:none">
     <h2 style="font-size:22px;margin:0 0 8px">The instant coffee we use</h2>
-    <p>Medium-roast instant coffee with MCT powder from coconut, natural caffeine and L-theanine. One level scoop in hot water, 30 servings a bag. <a href="/ingredients.html">See every ingredient</a>.</p>
+    <p>Dark-roast instant coffee with MCT powder from coconut, natural caffeine and L-theanine. One level scoop in hot water, 30 servings a bag. <a href="/ingredients.html">See every ingredient</a>.</p>
     <p style="margin:0"><a class="btn" href="/shop.html">See the coffee</a></p>
   </div>
   <h2>More recipes</h2>
@@ -1996,7 +1980,7 @@ PAGES = {
   "ingredients.html": ("CoreJava Ingredients & Supplement Facts | Morning Upgrade", "What's in a scoop of CoreJava: MCT powder, natural caffeine, L-theanine and four more named ingredients, plus the full Supplement Facts panel.", ING, og_img("props-og"), False),
   "faq.html": ("Coffee FAQ: Taste, Caffeine, Shipping | The Morning Upgrade", "How it tastes, how much caffeine is in a scoop, how Subscribe & Save works, shipping, returns, and who you're buying from.", FAQ, og_img("pour"), False),
   "partner.html": ("Build with us — The Morning Upgrade", "Join our team and sell the coffee with the same videos, site and email system we use. Honest numbers first.", PARTNER, og_img("props-og"), False),
-  "share.html": ("Share & earn — The Morning Upgrade", "Get your coffee covered by the friends who steal a cup. The referral program, explained in plain language.", SHARE, og_img("props-og"), False),
+  "share.html": ("Share with friends — The Morning Upgrade", "Love it? Share your link with friends. The referral program, explained in plain language.", SHARE, og_img("props-og"), False),
   "about.html": ("About — The Morning Upgrade", "The Morning Upgrade is run by Rector & Stull LLC, two partners in Idaho and Texas who sell one instant MCT coffee and say plainly what is in it.", ABOUT, og_img("props-og"), False),
   "shipping-returns.html": ("Shipping & returns — The Morning Upgrade", "$8.95 flat US shipping, Subscribe & Save terms, damaged-item replacement and the 90-day money-back guarantee on unopened bags.", SHIPPING, og_img("props-og"), False),
   "privacy.html": ("Privacy — The Morning Upgrade", "What The Morning Upgrade collects (quiz answers, orders, analytics), what we do with it, who we share it with, and how to opt out or delete it.", PRIVACY, og_img("props-og"), False),
@@ -2119,7 +2103,8 @@ LLMS = f"""# The Morning Upgrade
 Facts as stated on the site (updated {_today}):
 
 - Price: $79.95 for one bag (30 servings), or $69.95 a month with Subscribe & Save (one bag every 30 days; pause, skip or cancel anytime from the receipt link).
-- Serving: one level scoop, about 6.8 g, in 8 fl oz of hot water. 30 servings per 7.2 oz (204 g) bag. Medium roast; works black, with creamer or over ice.
+- Serving: one level scoop, about 6.8 g, in 8 fl oz of hot water. 30 servings per 7.2 oz (204 g) bag. Dark roast; works black, with creamer or over ice.
+- Caffeine: 100 mg of added natural caffeine per scoop, plus the instant coffee's own caffeine.
 - Shipping: US addresses only, flat $8.95 per bag. Orders ship from Minnesota within about two business days, then 3-6 days in transit.
 - Returns: the maker's 90-day money-back guarantee on unopened bags; damaged or incorrect items are replaced if reported within 30 days of delivery.
 - Contains caffeine. For adults; not for children or anyone pregnant or nursing. Ask a physician first if you take medication or have a medical condition.
