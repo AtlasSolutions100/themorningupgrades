@@ -50,6 +50,7 @@ def main():
 
         # 1. ViewContent on home/shop/start for the ad pixels, not on other pages, not to GA4
         for path, want in [("/", True), ("/index.html", True), ("/shop.html", True), ("/start.html", True),
+                           ("/start?utm_source=tiktok", True), ("/shop", True), ("/faq", False),
                            ("/faq.html", False), ("/what-is-mct-coffee.html", False)]:
             ctx, pg = fresh(); pg.goto(base + path); e = events(pg)
             got = ("ViewContent" in names(e, "fb"), "ViewContent" in names(e, "tt"), "VIEW_CONTENT" in names(e, "snap"))
@@ -115,6 +116,31 @@ def main():
             ut = pg.evaluate("() => localStorage.getItem('tmu_ut')")
             check(bool(ut) == want, f"tmu_ut stored for utm_medium={med or '(none)'}: {want}")
             ctx.close()
+        # 5. Stripe links carry the page's utm tags once, and nothing else from the landing URL
+        ctx, pg = fresh()
+        pg.goto(base + "/shop.html?utm_source=tiktok&utm_medium=paid&utm_campaign=c1&client_reference_id=cr_evil&prefilled_promo_code=X&ttclid=T1")
+        href = pg.locator("main a[data-buy='subscribe']").first.get_attribute("href") or ""
+        qs = __import__("urllib.parse").parse.parse_qs(href.split("?", 1)[1])
+        check(qs.get("utm_source") == ["tiktok"] and qs.get("utm_campaign") == ["c1"], f"Stripe link has the page's utm_source once ({qs.get('utm_source')})")
+        check(qs.get("client_reference_id") == ["ut__tiktok__c1__"] and "prefilled_promo_code" not in qs and "ttclid" not in qs,
+              f"landing URL can't inject Stripe params ({qs.get('client_reference_id')})")
+        pg.goto(base + "/faq.html")
+        href = pg.locator("a[data-buy]").first.get_attribute("href") or ""
+        check("utm_source=site" in href, "no utm on the page: Stripe gets utm_source=site")
+        ctx.close()
+
+        # 6. Creator links keep the visitor's ad tags and click ids, and the creator code can't be swapped
+        ctx, pg = fresh()
+        pg.goto(base + "/c/kasey/?utm_source=tiktok&utm_medium=paid&utm_campaign=spark&ttclid=TT1&ref=macy")
+        pg.wait_for_url("**/start.html*")
+        u = pg.url
+        check("ref=kasey" in u and "ttclid=TT1" in u and "utm_medium=paid" in u and "macy" not in u, f"creator redirect keeps ad params ({u.split('?')[1]})")
+        href = pg.locator("main a[data-buy]").first.get_attribute("href") or ""
+        check("client_reference_id=cr_kasey" in href, "creator still credited after a paid creator link")
+        pg.goto(base + "/c/kasey/")
+        pg.wait_for_url("**/start.html*")
+        check(pg.url.endswith("/start.html?ref=kasey&utm_source=creator&utm_medium=influencer&utm_campaign=kasey"), "plain creator link lands as before")
+        ctx.close()
         b.close()
     print(f"\n{len(FAIL)} failure(s)")
     return 1 if FAIL else 0

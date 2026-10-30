@@ -615,6 +615,7 @@ SHOP = """
       <li><strong>Serving:</strong> 1 level scoop (about 6.8 g) in 8 fl oz hot water. 30 servings per 7.2 oz (204 g) bag.</li>
       <li><strong>Key ingredients:</strong> MCT powder, natural caffeine, L-theanine, ChromeMate&reg; chromium, Paradoxine&reg; grains of paradise extract, Garcinia Cambogia extract, Saffr'Activ&reg; saffron extract. Every ingredient, with amounts, is on the Supplement Facts panel below. <a href="/ingredients.html">Full breakdown</a>.</li>
       <li><strong>Taste:</strong> medium roast, smooth. Works black, with creamer, or over ice.</li>
+      <li><strong>Allergens:</strong> contains tree nuts (coconut), as printed on the bag.</li>
       <li><strong>Who it's for:</strong> adults who drink coffee daily and want a steadier morning. Not for children, or if you're pregnant or nursing. Contains caffeine.</li>
       <li><strong>Made by:</strong> MarketPlace Global. Sold by Rector &amp; Stull LLC, Independent MarketPlace Global ISR.</li>
     </ul>
@@ -2065,8 +2066,12 @@ def creator_page(code):
 <link rel="icon" href="/img/mark.jpg"><meta property="og:title" content="The Morning Upgrade">
 <meta property="og:description" content="One scoop, hot water, 30 seconds. No machine, no pods.">
 <meta property="og:image" content="https://themorningupgrades.com/media/host_kitchen.jpg">
-<meta http-equiv="refresh" content="0; url={dest}">
-<script>location.replace({_json.dumps(dest)});</script>
+<script>(function(){{var d={_json.dumps(dest)};
+  // Keep what the visitor's link carried (ad utm tags, ttclid/fbclid/gclid) so paid creator posts
+  // still attribute; the creator code itself can't be changed from the URL.
+  try{{var u=new URL(d,location.href),q=new URLSearchParams(location.search);q.forEach(function(v,k){{if(k!=='ref')u.searchParams.set(k,v);}});d=u.pathname+u.search;}}catch(e){{}}
+  location.replace(d);}})();</script>
+<noscript><meta http-equiv="refresh" content="0; url={dest}"></noscript>
 </head><body style="background:#1b130e;color:#f6efe6;font-family:system-ui,sans-serif;padding:24px">
 <p><a style="color:#f6efe6" href="{dest}">Continue to The Morning Upgrade</a></p></body></html>
 """
