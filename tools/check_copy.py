@@ -136,12 +136,12 @@ def drift():
         path = line[3:]
         if path == "llms.txt":
             diff = subprocess.run(["git", "diff", "-U0", "--", "llms.txt"], cwd=ROOT, capture_output=True, text=True).stdout
-            changed = [l for l in diff.split("\n") if l[:1] in "+-" and not l.startswith(("+++", "---"))]
+            changed = [l for l in diff.split("\n") if l[:1] in ("+", "-") and not l.startswith(("+++", "---"))]
             if all("Facts as stated on the site (updated" in l for l in changed):
                 continue
         if path == "sitemap.xml":
             diff = subprocess.run(["git", "diff", "-U0", "--", "sitemap.xml"], cwd=ROOT, capture_output=True, text=True).stdout
-            changed = [l for l in diff.split("\n") if l[:1] in "+-" and not l.startswith(("+++", "---"))]
+            changed = [l for l in diff.split("\n") if l[:1] in ("+", "-") and not l.startswith(("+++", "---"))]
             if all("<lastmod>" in l for l in changed):
                 continue
         bad.append(line)
