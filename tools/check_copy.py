@@ -10,6 +10,7 @@ What it guards (owner rules):
   - no invented proof or implied results ("most people", "no 2 PM crash", star ratings, "reviews");
   - bare "fat" only where a guide defines MCTs as a type of fat (flagged next to burn/lose/body...).
   - no "medium roast" (or medium-dark): the bag says Dark Roast.
+  - no slump / energy-drop / before-and-after framing.
 
 Edit BANNED_WORDS / BANNED_PHRASES / ALLOW below; keep them as plain regexes.
 
@@ -37,6 +38,8 @@ BANNED_PHRASES = (
     r"guaranteed results", r"★", r"&#9733;", r"\breviews\b", r"\brated\b", r"\btestimonial",
     r"clinically (proven|shown)", r"doctor[- ]recommended",
     r"medium[- ]?(dark[- ]?)?roast\w*", r"medium[- ]dark",                 # the bag says Dark Roast
+    r"\bslump\w*", r"\benergy (drop|dip|crash)\w*", r"\bafternoon (dip|wall)\b",   # no energy-dip framing
+    r"before[- ]and[- ]after", r"\bbefore ?/ ?after\b",
 )
 # "fat" is a word the MCT guides need ("MCTs are a type of fat"). Flag it only near these.
 FAT_NEAR = r"burn\w*|los[es]\w*|loss|body|belly|melt\w*|shed\w*|reduc\w*|torch\w*"
@@ -156,12 +159,14 @@ def selftest():
                  "MCTs are a type of fat, usually made from coconut", "assets/ads/tmu_flatlay_4x5.jpg",
                  "a dietary supplement", 'data-v="crash"', '{"crash": ["The 2 PM slide"', '[("crash", "Early afternoon', "Most participants earn little",
                  "A 2022 review in the journal", "the fat content is real: read the nutrition panel",
-                 "Dark roast, a little smoother", "medium heat", "medium-chain triglycerides"]
+                 "Dark roast, a little smoother", "medium heat", "medium-chain triglycerides",
+                 "steady energy", "before bed", "after lunch"]
     must_fail = ["supports weight loss", "Weight control coffee", "healthy appetite control", "boosts metabolism",
                  "fat burning", "burns fat", "slimming", "Most popular", "No 2 PM crash", "the jitters",
                  "Most people stop", "★★★★★", "500 reviews", "helps you lose fat",
                  "keto friendly", "curbs cravings", "weight",
-                 "Medium roast", "medium-roast instant coffee", "a medium-dark roast"]
+                 "Medium roast", "medium-roast instant coffee", "a medium-dark roast",
+                 "the afternoon slump", "no more energy drops", "before-and-after", "before/after"]
     for s in must_pass:
         if scan_text(s):
             print("selftest FAIL (should pass):", s, scan_text(s)); ok = False

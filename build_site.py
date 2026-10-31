@@ -145,7 +145,7 @@ CRUMB_NAME = {"shop.html": "Shop", "ingredients.html": "CoreJava ingredients", "
 GUIDE_META = {
     "what-is-mct-coffee.html": ("2026-10-28", "2026-10-30"),
     "how-to-make-mct-instant-coffee.html": ("2026-10-28", "2026-10-30"),
-    "l-theanine-and-caffeine.html": ("2026-10-25", "2026-10-30"),
+    "l-theanine-and-caffeine.html": ("2026-10-25", "2026-10-31"),
     "mct-coffee-vs-butter-coffee.html": ("2026-10-25", "2026-10-28"),
     "iced-instant-coffee-recipes.html": ("2026-10-25", "2026-10-29"),
     "how-much-caffeine-in-instant-coffee.html": ("2026-10-29", "2026-10-30"),
@@ -153,11 +153,11 @@ GUIDE_META = {
     "does-instant-coffee-go-bad.html": ("2026-10-29", "2026-10-29"),
     "instant-coffee-for-travel-camping-dorm.html": ("2026-10-29", "2026-10-30"),
     "what-is-mct-powder.html": ("2026-10-29", "2026-10-29"),
-    "natural-caffeine-vs-synthetic.html": ("2026-10-29", "2026-10-30"),
+    "natural-caffeine-vs-synthetic.html": ("2026-10-29", "2026-10-31"),
     "caffeine-and-l-theanine-ratio.html": ("2026-10-29", "2026-10-29"),
     "instant-coffee-vs-drip-cost-per-cup.html": ("2026-10-29", "2026-10-30"),
     "instant-coffee-subscription.html": ("2026-10-30", "2026-10-30"),
-    "coffee-for-afternoon-slump.html": ("2026-10-30", "2026-10-30"),
+    "how-late-can-you-drink-coffee.html": ("2026-10-30", "2026-10-31"),
 }
 
 # The one product, as the shop page states it: CoreJava (the brand/product line), made by
@@ -479,7 +479,7 @@ HOME_HERO = """
 </div></section>
 """
 
-def hero_c(h1="One scoop. Steady energy, sharp focus.", strip=("Steady energy","Sharp focus","30 mornings a bag"), video=True, variants=False):
+def hero_c(h1="More than a cup.", strip=("A 30-second ritual","$2.33 a morning","30 mornings a bag"), video=True, variants=False):
     """/start hero: the headline matches the ad (variants), then the photograph and the plan picker."""
     striphtml = " <i>/</i> ".join(f"<span>{t}</span>" for t in strip)
     pick = ""
@@ -509,18 +509,20 @@ GUIDE_PDF = "https://d2ol7oe51mr4n9.cloudfront.net/user_3GvdxB9gfwtge4rv79iuyoXA
 # Quiz v2: all three answers shape the result. Q1 picks the headline and the guide to read,
 # Q2 the swap line, Q3 the plan (simple -> Subscribe & Save, otherwise try one bag).
 # The answer keys (data-v values) are stored in Klaviyo as quiz_result/cups/want: keep them stable.
+# Q1's keys are legacy ids from the v1 wording (see ALLOW in tools/check_copy.py); never shown,
+# and Klaviyo flows may branch on them, so only the displayed text changes.
 QUIZ = {
-  "q1": ("When does your energy actually drop off?", [("crash", "Early afternoon. 2pm is a wall."), ("jitters", "It doesn't drop so much as spike. I get wired, then flat."),
-         ("parent", "By the time the kids are back it's gone."), ("desk", "Mid-morning, right when the real work starts.")]),
-  "q2": ("How many cups does it take to get through a day?", [("1", "One, and I'm hanging on."), ("2", "Two. The second one is damage control."), ("3", "Three or more. I've stopped counting.")]),
-  "q3": ("What would you want from a better cup?", [("focus", "Focus that lasts into the afternoon."), ("smooth", "Energy without the shaky edge."), ("simple", "Something simple I'll actually stick with.")]),
+  "q1": ("What does your first cup look like now?", [("crash", "A drive-through cup on the way in."), ("jitters", "Strong and black, made the same way every day."),
+         ("parent", "Made in a hurry between everyone else’s mornings."), ("desk", "Poured at my desk before the first real work of the day.")]),
+  "q2": ("How many cups make up your morning?", [("1", "One. It’s a ritual, not a habit."), ("2", "Two: one to start, one to settle in."), ("3", "Three or more, spread through the day.")]),
+  "q3": ("What matters most in a better cup?", [("focus", "Focus for the morning’s real work."), ("smooth", "A smooth, dark cup I’d drink black."), ("simple", "A ritual simple enough to keep.")]),
   "results": {
-    "crash": ["The 2 PM slide", "Your first cup does its work early and the afternoon is on its own. The guide starts with the one-cup swap.", "/how-to-make-mct-instant-coffee.html", "How to make it in 30 seconds"],
-    "jitters": ["Sharp, not shaky", "More coffee isn’t the only option. Day 1 of the guide explains why caffeine and L-theanine are paired.", "/l-theanine-and-caffeine.html", "L-theanine and caffeine, explained"],
-    "parent": ["The 3pm pickup", "Your day has a second shift. The guide starts with a cup that takes 30 seconds, so the morning has room for everything else.", "/instant-coffee-for-travel-camping-dorm.html", "Coffee anywhere there’s hot water"],
-    "desk": ["Mid-morning fade", "The slump arrives before lunch. The guide starts with when you drink the first cup.", "/how-much-caffeine-in-instant-coffee.html", "How much caffeine is in a cup"],
+    "crash": ["The thirty-second ritual", "The best cup of your morning shouldn’t come through a window. The guide starts with making it at home in thirty seconds.", "/how-to-make-mct-instant-coffee.html", "How to make it in 30 seconds"],
+    "jitters": ["Dark, smooth, considered", "You know how you like it. Day 1 of the guide explains why caffeine and L-theanine share one scoop.", "/l-theanine-and-caffeine.html", "L-theanine and caffeine, explained"],
+    "parent": ["One quiet minute", "Your mornings belong to everyone. The guide starts with a cup that takes thirty seconds, so one minute stays yours.", "/instant-coffee-for-travel-camping-dorm.html", "Coffee anywhere there’s hot water"],
+    "desk": ["The focus hour", "Your best work comes early. The guide starts with when to make the first cup, and what’s in it.", "/how-much-caffeine-in-instant-coffee.html", "How much caffeine is in a cup"],
   },
-  "cups": {"1": "One cup a day: make it this one for a week.", "2": "Two cups: swap the first one only and leave the second as it is.", "3": "Three or more: swap the first cup only and count the rest the same as always."},
+  "cups": {"1": "One cup: make it this one for a week.", "2": "Two cups: swap the first one only and keep the second as it is.", "3": "Three or more: swap the first cup only and keep the rest as they are."},
   "plan": {"simple": ["subscribe", "Subscribe & Save fits “simple”: a bag arrives every 30 days, $10 less than a single bag, and you can pause or cancel from the receipt."],
            "other": ["onetime", "Try one bag first: 30 servings, no commitment. Decide after a week."]},
 }
@@ -891,11 +893,11 @@ SHARE = """
   <div>
     <p class="eyebrow">Share with friends</p>
     <h1 style="font-size:clamp(32px,4.4vw,50px)">Love it? Share your link with friends.</h1>
-    <p class="lead">You already tell people about the coffee that got you through the afternoon. MarketPlace Global&rsquo;s referral program gives you your own link to pass along. Three levels. Start wherever you like.</p>
+    <p class="lead">You already tell people about the cup you make every morning. MarketPlace Global&rsquo;s referral program gives you your own link to pass along. Three levels. Start wherever you like.</p>
     <p><a class="btn" href="#levels">See the three levels</a> &nbsp; <a class="btn ghost" href="#honest">What this actually is</a></p>
     <p class="fine" style="margin-top:14px">Independent Sales Representative (ISR) program of MarketPlace Global. Paid on product sales only. Most participants earn little; see the <a data-disclosure href="#">income disclosure</a>.</p>
   </div>
-  <div class="frame phone">""" + pic("gym", "Woman on a yoga mat holding a CoreJava bag and a mug", sizes="(max-width: 860px) 300px, 360px") + """</div>
+  <div class="frame phone">""" + pic("lux-pour", "Hot water pouring from a kettle into a stoneware cup, steam lit by the morning sun", sizes="(max-width: 860px) 300px, 360px") + """</div>
 </div></section>
 
 <section class="alt" id="levels"><div class="wrap">
@@ -1153,7 +1155,7 @@ THANKS = """
 # utm_content's first word (ritual_a -> "ritual") picks a variant; anything else gets the default.
 # Every variant is label wording or plain facts, no results.
 LANDING_VARIANTS = {
-    "default": ("One scoop. Steady energy, sharp focus.", ("Steady energy", "Sharp focus", "30 mornings a bag")),
+    "default": ("More than a cup.", ("A 30-second ritual", "$2.33 a morning", "30 mornings a bag")),
     "ritual":  ("One scoop. Hot water. That's it.", ("30 seconds", "No machine", "30 mornings a bag")),
     "swap":    ("Swap one cup for a week.", ("One scoop", "Hot water", "Seven mornings")),
     "label":   ("Seven things on the label. One scoop.", ("MCT powder", "Natural caffeine", "L-theanine")),
@@ -1258,7 +1260,7 @@ GUIDE_LINKS = {
     "caffeine-and-l-theanine-ratio.html": "Caffeine and L-theanine ratio",
     "instant-coffee-vs-drip-cost-per-cup.html": "Instant vs. drip: cost per cup",
     "instant-coffee-subscription.html": "Instant coffee subscriptions: what to check",
-    "coffee-for-afternoon-slump.html": "Coffee for the afternoon slump: timing",
+    "how-late-can-you-drink-coffee.html": "How late can you drink coffee?",
 }
 # One-line blurbs for the guides index cards: (eyebrow, blurb)
 GUIDE_BLURBS = {
@@ -1276,7 +1278,7 @@ GUIDE_BLURBS = {
     "caffeine-and-l-theanine-ratio.html": ("L-theanine", "The doses small studies used, and how to read a label's ratio."),
     "instant-coffee-vs-drip-cost-per-cup.html": ("Cost", "The formula, a calculator, and the extras people forget."),
     "instant-coffee-subscription.html": ("Subscriptions", "Cost per cup with shipping, delivery timing, and how to pause or cancel."),
-    "coffee-for-afternoon-slump.html": ("Caffeine", "How late is too late, what a sleep study found, and what else people try."),
+    "how-late-can-you-drink-coffee.html": ("Caffeine", "How late is too late, what a sleep study found, and an afternoon break without the cup."),
 }
 
 
@@ -1441,7 +1443,7 @@ G_THEANINE = guide_page("L-theanine", "L-theanine coffee: what caffeine + L-thea
   <ul class="clean">
     <li>Swap, don't stack. Replace a cup of coffee rather than adding caffeine on top.</li>
     <li>Have it in the morning. It still contains caffeine.</li>
-    <li>Judge it over a week, not a single cup. Notice your afternoon, not the first hour.</li>
+    <li>Judge it over a week, not a single cup: the taste, the routine, and whether you still reach for a second cup.</li>
   </ul>
   """,
   fn="l-theanine-and-caffeine.html",
@@ -1449,7 +1451,7 @@ G_THEANINE = guide_page("L-theanine", "L-theanine coffee: what caffeine + L-thea
     ("Does L-theanine cancel out caffeine?", "No. Adding L-theanine doesn't lower the amount of caffeine in a serving. Count it the same as any other coffee."),
     ("Where does L-theanine come from?", "It occurs naturally in tea leaves. When it's listed as an ingredient, the product contains it as an added ingredient; the label shows how much per serving."),
     ("How much L-theanine is in a cup of tea?", "It varies with the tea, how much leaf you use and how long it steeps. A 2022 review averaged roughly 5 to 7 mg per gram of dry tea across 37 varieties."),
-    ("Can I drink a caffeine + L-theanine coffee in the afternoon?", "It still contains caffeine. If caffeine late in the day affects your sleep, keep it to the morning. More on <a href=\"/coffee-for-afternoon-slump.html\">timing an afternoon cup</a>."),
+    ("Can I drink a caffeine + L-theanine coffee in the afternoon?", "It still contains caffeine. If caffeine late in the day affects your sleep, keep it to the morning. More on <a href=\"/how-late-can-you-drink-coffee.html\">timing an afternoon cup</a>."),
     ("Does coffee naturally contain L-theanine?", "No. L-theanine occurs naturally in tea leaves. Coffee has it only when it's added, and then the label lists it."),
     ("What does &ldquo;natural caffeine&rdquo; mean on a label?", "Caffeine that comes from a plant, such as coffee beans, rather than being made synthetically. The molecule is the same; the term describes the source."),
   ],
@@ -1535,7 +1537,7 @@ G_CAF_INSTANT = guide_page("Caffeine", "How much caffeine is in instant coffee?"
     <li><strong>Decaf.</strong> Decaffeinated instant still contains a few milligrams per cup.</li>
   </ul>
   <h2>How it fits a day</h2>
-  <p>For most healthy adults, the FDA cites 400 mg a day as an amount not generally associated with negative effects, and lists a 12 fl oz cup of regular brewed coffee at roughly 113&ndash;247 mg. Sensitivity varies, and pregnancy, medication and some conditions change the picture; ask your physician if that's you. Timing matters too: <a href="/coffee-for-afternoon-slump.html">caffeine late in the day and sleep</a>.</p>
+  <p>For most healthy adults, the FDA cites 400 mg a day as an amount not generally associated with negative effects, and lists a 12 fl oz cup of regular brewed coffee at roughly 113&ndash;247 mg. Sensitivity varies, and pregnancy, medication and some conditions change the picture; ask your physician if that's you. Timing matters too: <a href="/how-late-can-you-drink-coffee.html">caffeine late in the day and sleep</a>.</p>
   <h2>What about ours?</h2>
   <p>Ours is an instant coffee with natural caffeine, L-theanine and MCT powder from coconut. A serving is one level scoop in 8 fl oz of hot water, with 100 mg of added natural caffeine plus the instant coffee&rsquo;s own, so the USDA averages above don&rsquo;t apply to it. Count both toward your daily total; the Supplement Facts panel is on the bag. <a href="/ingredients.html">Every ingredient is listed here</a>.</p>
   """,
@@ -1689,7 +1691,7 @@ G_MCTPOWDER = guide_page("MCT", "What is MCT powder? MCT powder vs. MCT oil",
   sources=[SRC_MCT])
 
 G_NATCAF = guide_page("Caffeine", "Natural caffeine vs. synthetic caffeine: what's the difference?",
-  "Natural and synthetic caffeine are the same molecule, C8H10N4O2, and your body handles them the same way. The difference is where it comes from: natural caffeine is extracted from plants such as coffee beans, tea leaves or guarana, while synthetic caffeine is made in a factory. The word on a label tells you the source, not the strength.",
+  "Natural and synthetic caffeine are the same molecule, C8H10N4O2, and act the same way per milligram. The difference is where it comes from: natural caffeine is extracted from plants such as coffee beans, tea leaves or guarana, while synthetic caffeine is made in a factory. The word on a label tells you the source, not the strength.",
   """
   <h2>Same molecule, different origin</h2>
   <p>Caffeine is caffeine. Pure caffeine from a coffee bean and pure caffeine made by chemical synthesis have the same structure and the same effect per milligram. What differs is the supply chain and what comes along with it: a cup of coffee or tea delivers caffeine together with everything else in the plant, while an isolated ingredient delivers caffeine alone.</p>
@@ -1716,7 +1718,7 @@ G_NATCAF = guide_page("Caffeine", "Natural caffeine vs. synthetic caffeine: what
   fn="natural-caffeine-vs-synthetic.html", img="pour",
   faq=[
     ("Is natural caffeine better than synthetic?", "They're the same molecule and act the same way per milligram. 'Natural' describes the source, not the strength or safety."),
-    ("Does natural caffeine wear off differently?", "Caffeine is caffeine once it's in your body. How a drink feels can differ because of what else is in it and how fast you drink it."),
+    ("Does natural caffeine wear off differently?", "Caffeine is the same molecule whatever its source. How a drink feels can differ because of what else is in it and how fast you drink it."),
     ("How can I tell if caffeine is synthetic?", "Labels that name a plant source (coffee, tea, guarana) indicate natural caffeine. A plain 'caffeine' listing doesn't say either way."),
     ("Does guarana have caffeine?", "Yes. Guarana seeds are a natural source of caffeine, so a product with guarana has more caffeine than its 'caffeine' line alone suggests."),
   ],
@@ -1847,11 +1849,11 @@ G_SUB = guide_page("Subscriptions", "Instant coffee subscription: what to check 
     ("Do I have to call to cancel?", "It depends on the store. Ours is cancelled online from the receipt link or the subscription portal, with no call and no fee."),
   ])
 
-G_SLUMP = guide_page("Caffeine", "Coffee for the afternoon slump: how late is too late?",
-  "Coffee can be part of getting through the afternoon, but timing matters as much as the cup. Caffeine can still affect sleep hours later: in a small 2013 study, 400 mg taken six hours before bed cut measured sleep by more than an hour. The usual approach is an earlier, smaller cup, counted toward your daily total.",
+G_LATE = guide_page("Caffeine", "How late can you drink coffee?",
+  "If you like a cup after lunch, timing matters as much as the cup. Caffeine can still affect sleep hours later: in a small 2013 study, 400 mg taken six hours before bed cut measured sleep by more than an hour. The usual approach is an earlier, smaller cup, counted toward your daily total.",
   """
-  <h2>Why the afternoon feels long</h2>
-  <p>Plenty of people notice their focus fade in the early afternoon. The reasons vary from person to person, and this page can't tell you yours. If you're unusually tired every day, that's worth raising with a doctor rather than solving with more coffee.</p>
+  <h2>The afternoon cup</h2>
+  <p>Plenty of people like a second cup after lunch. Whether it suits you depends mostly on two things: when you go to bed, and how sensitive you are to caffeine. Both are yours to judge; this page gives you the numbers.</p>
   <h2>Work back from bedtime</h2>
   <p>In a 2013 study in the <em>Journal of Clinical Sleep Medicine</em> (Drake et al.), 12 healthy adults took 400 mg of caffeine at bedtime, three hours before or six hours before. Even at six hours, measured total sleep fell by more than an hour, and people didn't notice it in their own sleep reports. The authors suggested avoiding a substantial dose of caffeine for at least six hours before bed.</p>
   <div class="tbl"><table>
@@ -1868,7 +1870,7 @@ G_SLUMP = guide_page("Caffeine", "Coffee for the afternoon slump: how late is to
     <li><strong>Counted:</strong> for most healthy adults, the FDA cites 400 mg a day as an amount not generally associated with negative effects. Add up coffee, tea, soda, chocolate and supplements.</li>
     <li><strong>Swap, don't stack:</strong> replace a cup rather than adding one on top. <a href="/how-much-caffeine-in-instant-coffee.html">How much caffeine is in instant coffee</a>.</li>
   </ul>
-  <h2>Things people try that aren't coffee</h2>
+  <h2>An afternoon break without the cup</h2>
   <ul class="clean">
     <li>A ten-minute walk outside.</li>
     <li>A glass of water.</li>
@@ -1878,7 +1880,7 @@ G_SLUMP = guide_page("Caffeine", "Coffee for the afternoon slump: how late is to
   <h2>Ours is a morning cup</h2>
   <p>Ours has 100 mg of added natural caffeine per scoop, plus the instant coffee&rsquo;s own, alongside L-theanine and MCT powder from coconut. We suggest it in the morning, as the first cup of the day, and counting both toward your total. <a href="/how-to-make-mct-instant-coffee.html">How to make it</a>.</p>
   """,
-  fn="coffee-for-afternoon-slump.html", img="desk",
+  fn="how-late-can-you-drink-coffee.html", img="desk",
   faq=[
     ("How late can I drink coffee?", "It depends on your bedtime and how sensitive you are. In a 2013 study, 400 mg of caffeine six hours before bed still reduced measured sleep, and the authors suggested at least six hours between a substantial dose and bedtime."),
     ("Should I have a second cup in the afternoon?", "That's your call. Count it toward your day's caffeine, keep it well before bed, and consider a smaller cup or decaf."),
@@ -2197,7 +2199,7 @@ PAGES = {
   "privacy.html": ("Privacy — The Morning Upgrade", "What The Morning Upgrade collects (quiz answers, orders, analytics), what we do with it, who we share it with, and how to opt out or delete it.", PRIVACY, og_img("props-og"), False),
   "terms.html": ("Terms of sale — The Morning Upgrade", "Terms of sale for The Morning Upgrade: prices, Subscribe & Save renewals, use of the product, returns and liability.", TERMS, og_img("props-og"), False),
   "order-complete.html": ("Order received — The Morning Upgrade", "Thanks for your order.", ORDER_COMPLETE, og_img("props-og"), True),
-  "start.html": ("One Scoop, Steady Energy | The Morning Upgrade", "Instant coffee with natural caffeine, L-theanine and MCT powder. $69.95 a month or $79.95 a bag, $8.95 flat US shipping, 90-day guarantee on unopened bags.", START, og_img("lux-og"), True),
+  "start.html": ("More Than a Cup. $2.33 a Morning | The Morning Upgrade", "A 30-second morning ritual: dark roast Colombian instant coffee with MCT powder, L-theanine and natural caffeine. $2.33 a morning on Subscribe & Save ($69.95 for 30 servings) or $79.95 a bag, $8.95 flat US shipping, 90-day guarantee on unopened bags.", START, og_img("lux-og"), True),
   "thanks.html": ("Your guide is on its way — The Morning Upgrade", "Check your inbox for the 7 Mornings guide.", THANKS, og_img("desk"), True),
   "guides.html": ("Coffee Guides & Recipes | The Morning Upgrade", "Answer-first guides: what MCT coffee is, how to make instant MCT coffee, L-theanine with caffeine, MCT vs. butter coffee, and iced instant coffee recipes.", GUIDES_INDEX, og_img("kitchen-pour"), False),
   "what-is-mct-coffee.html": ("What Is MCT Coffee? MCT Oil vs. Powder | Morning Upgrade", "MCT coffee is coffee with medium-chain triglycerides added, as an oil you blend in or a powder you stir in. What MCTs are and how oil and powder differ.", G_WHATMCT, og_img("scoop"), False),
@@ -2214,7 +2216,7 @@ PAGES = {
   "caffeine-and-l-theanine-ratio.html": ("Caffeine and L-Theanine Ratio in Studies | Morning Upgrade", "The caffeine and L-theanine doses small studies used, how to work out a product's ratio from its label, and what the research can't tell you.", G_RATIO, og_img("desk"), False),
   "instant-coffee-vs-drip-cost-per-cup.html": ("Instant vs. Drip Coffee: Cost per Cup | Morning Upgrade", "How to work out cost per cup for instant, drip, pods and café coffee, with a calculator and the extras people forget to count.", G_COST, og_img("kitchen-pour"), False),
   "instant-coffee-subscription.html": ("Instant Coffee Subscription: What to Check | Morning Upgrade", "How an instant coffee subscription works and what to check first: cost per cup with shipping, delivery timing, pausing and cancelling, damaged bags.", G_SUB, og_img("flatlay"), False),
-  "coffee-for-afternoon-slump.html": ("Coffee for the Afternoon Slump: Timing It | Morning Upgrade", "Reaching for coffee to get through the afternoon? How late is too late for caffeine, what a sleep study found, and what people try instead.", G_SLUMP, og_img("desk"), False),
+  "how-late-can-you-drink-coffee.html": ("How Late Can You Drink Coffee? Timing It | Morning Upgrade", "Like a cup after lunch? How late is too late for caffeine, what a sleep study found, and an afternoon break without the cup.", G_LATE, og_img("desk"), False),
 }
 
 # Sticky bar: checkout on the buy pages; a link to the shop on guides and the 404; none after a
