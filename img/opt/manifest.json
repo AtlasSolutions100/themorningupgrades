@@ -66,6 +66,147 @@
    1200
   ]
  },
+ "lux-cup": {
+  "avif": true,
+  "ext": "jpg",
+  "h": 2000,
+  "src": "lux_cup.jpg",
+  "w": 1600,
+  "widths": [
+   480,
+   800,
+   1200,
+   1600
+  ]
+ },
+ "lux-hero": {
+  "avif": true,
+  "ext": "jpg",
+  "h": 2000,
+  "src": "lux_hero.jpg",
+  "w": 1600,
+  "widths": [
+   480,
+   800,
+   1200,
+   1600
+  ]
+ },
+ "lux-iced": {
+  "avif": true,
+  "ext": "jpg",
+  "h": 2000,
+  "src": "lux_iced.jpg",
+  "w": 1600,
+  "widths": [
+   480,
+   800,
+   1200,
+   1600
+  ]
+ },
+ "lux-ingredients": {
+  "avif": true,
+  "ext": "jpg",
+  "h": 2000,
+  "src": "lux_ingredients.jpg",
+  "w": 1600,
+  "widths": [
+   480,
+   800,
+   1200,
+   1600
+  ]
+ },
+ "lux-linen": {
+  "avif": true,
+  "ext": "jpg",
+  "h": 905,
+  "src": "lux_linen.jpg",
+  "w": 1600,
+  "widths": [
+   480,
+   800,
+   1200,
+   1600
+  ]
+ },
+ "lux-og": {
+  "ext": "jpg",
+  "h": 630,
+  "src": "lux_og.jpg",
+  "w": 1200,
+  "widths": [
+   480,
+   800,
+   1200
+  ]
+ },
+ "lux-pattern": {
+  "avif": true,
+  "ext": "jpg",
+  "h": 2000,
+  "src": "lux_pattern.jpg",
+  "w": 1600,
+  "widths": [
+   480,
+   800,
+   1200,
+   1600
+  ]
+ },
+ "lux-pour": {
+  "avif": true,
+  "ext": "jpg",
+  "h": 2000,
+  "src": "lux_pour.jpg",
+  "w": 1600,
+  "widths": [
+   480,
+   800,
+   1200,
+   1600
+  ]
+ },
+ "lux-scoop": {
+  "avif": true,
+  "ext": "jpg",
+  "h": 2000,
+  "src": "lux_scoop.jpg",
+  "w": 1600,
+  "widths": [
+   480,
+   800,
+   1200,
+   1600
+  ]
+ },
+ "lux-still": {
+  "avif": true,
+  "ext": "jpg",
+  "h": 2000,
+  "src": "lux_still.jpg",
+  "w": 1600,
+  "widths": [
+   480,
+   800,
+   1200,
+   1600
+  ]
+ },
+ "lux-table": {
+  "avif": true,
+  "ext": "jpg",
+  "h": 1062,
+  "src": "lux_table.jpg",
+  "w": 1600,
+  "widths": [
+   480,
+   800,
+   1200,
+   1600
+  ]
+ },
  "patio": {
   "ext": "jpg",
   "h": 2125,

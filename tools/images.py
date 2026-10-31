@@ -25,6 +25,10 @@ PAPER = (247, 243, 236)   # --paper in assets/site.css
 #   png:   PNG fallback instead of JPEG (text graphics stay crisp)
 #   q:     WebP quality (default 78); aq: WebP alpha quality (default 100)
 #   pad:   (w, h) compose the image centred on a --paper canvas of that size (share images)
+#   avif:  also write AVIF (smaller than WebP; pic() lists it first). Used for the editorial stills.
+#
+# The lux_* stills (Oct 2026 redesign) are generated editorial photographs: cup, scoop, kettle,
+# light. Where the bag appears it is soft-focus, partial or secondary; never a label close-up.
 IMAGES = {
     "hero-props":       ("hero_props.png", {"alpha": True, "aq": 60}),   # hero: bag with coconut, MCT powder, beans, tea
     "props-og":         ("hero_props.png", {"pad": (1200, 630)}),       # 1200x630 share image
@@ -38,6 +42,17 @@ IMAGES = {
     "gym":              ("gym.jpg", {}),
     "patio":            ("patio_iced.jpg", {}),
     "supplement-facts": ("supplement-facts.png", {"png": True, "q": 90}),
+    "lux-hero":         ("lux_hero.jpg", {"avif": True}),          # cup and steam, bag soft at the frame edge
+    "lux-scoop":        ("lux_scoop.jpg", {"avif": True}),         # a scoop over the cup
+    "lux-pour":         ("lux_pour.jpg", {"avif": True}),          # kettle pour, steam
+    "lux-cup":          ("lux_cup.jpg", {"avif": True}),           # top-down cup, morning light
+    "lux-ingredients":  ("lux_ingredients.jpg", {"avif": True}),   # coffee, powder, tea leaves, coconut
+    "lux-still":        ("lux_still.jpg", {"avif": True}),         # bag turned away, cup in focus
+    "lux-table":        ("lux_table.jpg", {"avif": True}),         # morning table, bag far and soft
+    "lux-iced":         ("lux_iced.jpg", {"avif": True}),          # iced, milk sinking
+    "lux-pattern":      ("lux_pattern.jpg", {"avif": True}),       # the bag's copper line pattern, no text
+    "lux-linen":        ("lux_linen.jpg", {"avif": True}),         # top-down linen, cup, bag at the edge
+    "lux-og":           ("lux_og.jpg", {}),                        # 1200x630 share image: the hero cup
 }
 
 
@@ -68,12 +83,16 @@ def main():
             h = round(h0 * w / w0)
             r = im if w == w0 else im.resize((w, h), Image.LANCZOS)
             r.save(os.path.join(OUT, f"{name}-{w}.webp"), "WEBP", quality=opts.get("q", 78), alpha_quality=opts.get("aq", 100), method=6)
+            if opts.get("avif"):
+                r.save(os.path.join(OUT, f"{name}-{w}.avif"), "AVIF", quality=58, speed=4)
             if ext == "png":
                 q = r.quantize(256, method=Image.FASTOCTREE if r.mode == "RGBA" else Image.MEDIANCUT, dither=Image.NONE)
                 q.save(os.path.join(OUT, f"{name}-{w}.png"), "PNG", optimize=True)
             else:
                 r.save(os.path.join(OUT, f"{name}-{w}.jpg"), "JPEG", quality=80, optimize=True, progressive=True)
         manifest[name] = {"w": w0, "h": h0, "widths": widths, "src": src, "ext": ext}
+        if opts.get("avif"):
+            manifest[name]["avif"] = True
     with open(os.path.join(OUT, "manifest.json"), "w") as f:
         json.dump(manifest, f, indent=1, sort_keys=True)
     print("wrote", len(manifest), "images to img/opt/")
