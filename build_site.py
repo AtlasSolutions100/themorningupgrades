@@ -5,7 +5,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 
 NAV = """
 <nav class="nav" aria-label="Main"><div class="wrap">
-  <a class="brand" href="/"><img src="/img/mark.jpg" alt="" width="30" height="30"><b>The Morning Upgrade</b></a>
+  <a class="brand" href="/"><b>The Morning Upgrade</b></a>
   <button class="burger" aria-label="Open menu" aria-expanded="false" aria-controls="menu">Menu</button>
   <div class="menu" id="menu">
     <a href="/shop.html">Shop</a>
@@ -22,7 +22,7 @@ FOOTER = """
   <div class="cols">
     <div>
       <h2 class="fh">The Morning Upgrade</h2>
-      <p>Instant coffee with MCT powder, natural caffeine and L-theanine. One scoop, hot water, 30 servings a bag. Sold by Rector &amp; Stull LLC, Independent ISR of MarketPlace Global products and services.</p>
+      <p>Dark roast Colombian instant coffee with MCT powder, L-theanine and natural caffeine. One scoop, hot water, thirty seconds; thirty servings a bag. Sold by Rector &amp; Stull LLC, Independent ISR of MarketPlace Global products and services.</p>
       <p>hello@themorningupgrades.com</p>
     </div>
     <div>
@@ -93,20 +93,23 @@ def _manifest():
     return _MANIFEST
 
 def pic(name, alt, sizes="(max-width: 860px) 100vw, 50vw", eager=False):
-    """<picture> with WebP + JPEG (or PNG) srcsets, intrinsic width/height (no layout shift), lazy unless eager."""
+    """<picture> with AVIF (when made) + WebP + JPEG/PNG srcsets, intrinsic width/height (no layout shift), lazy unless eager."""
     m = _manifest()[name]
     ws, ext = m["widths"], m.get("ext", "jpg")
+    avif = ", ".join(f"/img/opt/{name}-{w}.avif {w}w" for w in ws)
     webp = ", ".join(f"/img/opt/{name}-{w}.webp {w}w" for w in ws)
     jpg = ", ".join(f"/img/opt/{name}-{w}.{ext} {w}w" for w in ws)
     fallback = f"/img/opt/{name}-{800 if 800 in ws else ws[-1]}.{ext}"
     load = 'fetchpriority="high" decoding="async"' if eager else 'loading="lazy" decoding="async"'
-    return (f'<picture><source type="image/webp" srcset="{webp}" sizes="{sizes}">'
+    src_avif = f'<source type="image/avif" srcset="{avif}" sizes="{sizes}">' if m.get("avif") else ""
+    return (f'<picture>{src_avif}<source type="image/webp" srcset="{webp}" sizes="{sizes}">'
             f'<img src="{fallback}" srcset="{jpg}" sizes="{sizes}" width="{m["w"]}" height="{m["h"]}" alt="{alt}" {load}></picture>')
 
 def preload(name, sizes="(max-width: 860px) 100vw, 50vw"):
-    ws = _manifest()[name]["widths"]
-    webp = ", ".join(f"/img/opt/{name}-{w}.webp {w}w" for w in ws)
-    return f'<link rel="preload" as="image" type="image/webp" imagesrcset="{webp}" imagesizes="{sizes}" fetchpriority="high">'
+    m = _manifest()[name]
+    kind = "avif" if m.get("avif") else "webp"
+    srcset = ", ".join(f"/img/opt/{name}-{w}.{kind} {w}w" for w in m["widths"])
+    return f'<link rel="preload" as="image" type="image/{kind}" imagesrcset="{srcset}" imagesizes="{sizes}" fetchpriority="high">'
 
 def og_img(name):
     """Share image: the largest size of a photo in img/opt/."""
@@ -276,7 +279,7 @@ def page(title, desc, body, og_image="/img/opt/breakfast-og-1200.jpg", noindex=F
 <link rel="icon" href="/img/mark.jpg">
 <link rel="apple-touch-icon" href="/img/mark.jpg">
 {'' if noindex else f'<link rel="canonical" href="{url_for(fn)}">'}
-<meta name="theme-color" content="#1b130e">
+<meta name="theme-color" content="#F3EEE5">
 {'<meta name="google-site-verification" content="7jyn0E7TYq9A_Ug0PhqrwoI0ssqQj0Z9mrlBYkPK4dw"><meta name="facebook-domain-verification" content="fplr4vshxvflcgysu4cu6j0cpwtbco">' if fn == "index.html" else ''}{f'<meta name="msvalidate.01" content="{BING_VERIFICATION}">' if fn == "index.html" and BING_VERIFICATION else ''}
 <meta property="og:type" content="{'article' if fn in GUIDE_META or fn in RECIPE_BY else 'website'}">
 <meta property="og:site_name" content="The Morning Upgrade">
@@ -290,7 +293,7 @@ def page(title, desc, body, og_image="/img/opt/breakfast-og-1200.jpg", noindex=F
 <meta name="twitter:description" content="{desc}">
 <meta name="twitter:image" content="https://themorningupgrades.com{og_image}">
 {'' if noindex else structured_data(fn, title, desc, body, og_image)}
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet"></noscript>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=Libre+Caslon+Display&family=Libre+Caslon+Text:ital@0;1&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=Libre+Caslon+Display&family=Libre+Caslon+Text:ital@0;1&display=swap" rel="stylesheet"></noscript>
 <link rel="stylesheet" href="/assets/site.css">
 <script src="/assets/site.js"></script>
 {extra_head}
@@ -307,103 +310,177 @@ def page(title, desc, body, og_image="/img/opt/breakfast-og-1200.jpg", noindex=F
 </html>
 """
 
-BENEFITS = """
-<div class="marq"><div>
-  <span>Smooth energy</span><span>Sharp focus</span><span>Creamy without the cream</span><span>Tastes like coffee</span><span>Ready in 30 seconds</span><span>30 mornings a bag</span>
-  <span>Smooth energy</span><span>Sharp focus</span><span>Creamy without the cream</span><span>Tastes like coffee</span><span>Ready in 30 seconds</span><span>30 mornings a bag</span>
-</div></div>
-"""
+# ---------- Shared blocks (design v3: "a considered morning") ----------
+# Voice: calm, adult, precise. "More than a cup" means what is in the scoop and the ritual of making
+# it, never what it does to a body (tools/check_copy.py lists the words that stay out). Prices lead
+# with the cost of a morning, then the bag. No badges, no discount shouting.
+
+PLAN_CTA = {"subscribe": "Subscribe for $69.95 a month", "onetime": "Buy one bag for $79.95"}
+PLAN_STICKY = {"subscribe": "$2.33 a morning &middot; $69.95 a month", "onetime": "$2.67 a morning &middot; $79.95 one bag"}
+SHIP_NOTE = "$8.95 flat US shipping and any tax at checkout"
+
 CTA_BLOCK = """
-<div class="ctab"><a class="btn" data-buy="subscribe" href="#">Subscribe &amp; Save &mdash; $69.95/mo</a><a class="btn ghost" data-buy="onetime" href="#">One bag &mdash; $79.95</a><p class="fine"><span data-ship="short">Ships to all 50 states</span> &middot; cancel anytime &middot; <span data-ship="checkout">secure checkout</span></p></div>
+<div class="ctab"><a class="btn" data-buy="subscribe" href="#">Subscribe for $69.95 a month</a><a class="btn ghost" data-buy="onetime" href="#">Buy one bag for $79.95</a><p class="fine"><span data-ship="short">Ships to all 50 states</span>. Pause or cancel anytime. <span data-ship="checkout">Secure checkout</span>.</p></div>
 """
-COMPARE = """
-<section><div class="wrap">
-  <h2 style="text-align:center">The math on a month of mornings</h2>
-  <p style="text-align:center;color:var(--muted);margin:0 0 26px">Same 30 mornings. Three ways to buy them.</p>
-  <div class="cmp">
-    <div class="cmp-h"><span></span><span>Caf&eacute; latte</span><span>Drip + second cup</span><span class="hl">CoreJava</span></div>
-    <div><span>Per morning</span><span>$5&ndash;7</span><span>$1&ndash;2, twice</span><span class="hl">$2.33&ndash;2.67</span></div>
-    <div><span>Per month</span><span>$150&ndash;210</span><span>$60&ndash;120</span><span class="hl">$69.95&ndash;79.95</span></div>
-    <div><span>Time</span><span>A line and a drive</span><span>Grind, brew, clean</span><span class="hl">30 seconds</span></div>
-    <div><span>What's in it</span><span>Caffeine, sugar, milk</span><span>Caffeine</span><span class="hl">Caffeine + L-theanine + 5 more</span></div>
-  </div>
-  <p class="fine" style="text-align:center;margin-top:14px">Caf&eacute; and drip costs are typical US prices; yours will vary. CoreJava prices are ours, before shipping and tax.</p>
-</div></section>
-"""
-FOUNDER = """
-<section class="alt"><div class="wrap split">
-  <div class="frame p45">""" + pic("desk", "Laptop, mug and a bag of CoreJava on a desk") + """</div>
-  <div>
-    <p class="eyebrow">A note from the two of us</p>
-    <h2>We're new. Here's who you're buying from.</h2>
-    <p>We're Rector &amp; Stull, two partners, one in Idaho and one in Texas, both of whom run on coffee and spend afternoons on calls. We drank CoreJava for a while before we decided to sell it. The reason is simple: it's the cup we kept making.</p>
-    <p>We're new, so there's no wall of star ratings here yet. We have a bag we drink every morning, a label we quote instead of embellish, and an email a real person answers. If it's not for you, say so and we'll make it right.</p>
-    <p style="font-size:14px;color:var(--muted)">&mdash; <a href="/about.html#koby">Koby Stull</a>, Dallas, Texas, for Rector &amp; Stull &middot; hello@themorningupgrades.com</p>
-  </div>
-</div></section>
-"""
-
-
-ICON_TRUCK = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7z"/><circle cx="7" cy="17" r="1.6"/><circle cx="17" cy="17" r="1.6"/></svg>'
-ICON_SHIELD = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>'
-ICON_LOOP = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 0 1-14.5 4.6M4 12a8 8 0 0 1 14.5-4.6"/><path d="M20 4v4h-4M4 20v-4h4"/></svg>'
-ICON_LOCK = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>'
-ICON_SCOOP = '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a6 6 0 0 0 12 0v-2H4z"/><path d="M16 12l5-6"/></svg>'
-ICON_LEAF = '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19C5 9 11 4 20 4c0 9-5 15-15 15z"/><path d="M5 19l8-8"/></svg>'
-ICON_COCO = '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><path d="M12 4v4M4 12h4"/></svg>'
-
-ICON_BEAN = '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5a7 7 0 0 1 11 11 7 7 0 0 1-11-11z"/><path d="M8 16c3-1 4-4 4-8 0-1.5.5-3 1.5-4"/></svg>'
-ICON_BAG = '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10l1 4H6z"/><path d="M6 8v11a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V8"/><path d="M9 13h6"/></svg>'
-ICON_GLOBE = '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg>'
 
 def trust_row(dark=False):
-    return f"""<div class="trustbar{' on-dark' if dark else ''}">
-  <span>{ICON_TRUCK}<span><b>Ships from Minnesota</b><i>in 2 business days</i></span></span>
-  <span>{ICON_LOCK}<span><b data-ship="checkout">Secure checkout</b><i>90-day guarantee on unopened bags</i></span></span>
-  <span>{ICON_GLOBE}<span><b>Made by MarketPlace Global</b><i>sold by Rector &amp; Stull, an independent ISR</i></span></span>
+    return f"""<div class="trustbar row{' on-dark' if dark else ''}">
+  <span><b>Ships from Minnesota</b><i>in about two business days</i></span>
+  <span><b data-ship="checkout">Secure checkout</b><i>90-day guarantee on unopened bags</i></span>
+  <span><b>Made by MarketPlace Global</b><i>sold by Rector &amp; Stull, an independent ISR</i></span>
 </div>"""
 
 _PICKERS = [0]
-PLAN_CTA = {"subscribe": "Checkout &mdash; $69.95/mo", "onetime": "Checkout &mdash; $79.95"}
-PLAN_STICKY = {"subscribe": "$69.95/mo &middot; $2.33 a morning", "onetime": "$79.95 one bag &middot; $2.67 a morning"}
-SHIP_NOTE = "+ shipping &amp; tax at checkout"
 
 def picker(note=True):
     _PICKERS[0] += 1
     name = f"plan{_PICKERS[0]}"
     return f"""<fieldset class="picker" data-picker><legend class="sr">Choose a plan</legend>
   <label class="opt on"><input type="radio" name="{name}" value="subscribe" checked data-cta="{_html.unescape(PLAN_CTA['subscribe'])}" data-sticky="{_html.unescape(PLAN_STICKY['subscribe'])}"><span class="radio"></span>
-    <span class="ptxt"><em>Best value &middot; $10 off every bag</em><b>Subscribe &amp; Save</b><span class="pp">$69.95<small>/mo &middot; $2.33 a morning</small></span><span class="pfine">A bag every 30 days. Pause, skip or cancel from your receipt.</span></span></label>
+    <span class="ptxt"><b>Subscribe &amp; Save</b><span class="pp">$2.33<small>a morning</small></span><span class="pfine">$69.95 every 30 days, $10 less than a single bag. Pause, skip or cancel from your receipt.</span></span></label>
   <label class="opt"><input type="radio" name="{name}" value="onetime" data-cta="{_html.unescape(PLAN_CTA['onetime'])}" data-sticky="{_html.unescape(PLAN_STICKY['onetime'])}"><span class="radio"></span>
-    <span class="ptxt"><b>One bag</b><span class="pp">$79.95<small> &middot; $2.67 a morning</small></span><span class="pfine">30 servings. No commitment.</span></span></label>
-  <a class="btn big" data-buy="subscribe" data-picker-btn href="#"><span data-cta>{PLAN_CTA['subscribe']}</span> <span aria-hidden="true">&rarr;</span></a>
-  {f'<p class="fine pnote">{SHIP_NOTE} &middot; 90-day guarantee on unopened bags &middot; pause or cancel anytime</p>' if note else ''}
+    <span class="ptxt"><b>One bag</b><span class="pp">$2.67<small>a morning</small></span><span class="pfine">$79.95 for 30 servings. No commitment.</span></span></label>
+  <a class="btn big" data-buy="subscribe" data-picker-btn href="#"><span data-cta>{PLAN_CTA['subscribe']}</span></a>
+  {f'<p class="fine pnote">{SHIP_NOTE}. 90-day money-back guarantee on unopened bags.</p>' if note else ''}
 </fieldset>"""
 
-INGCARDS = f"""<div class="ingcards">
-  <div>{ICON_COCO}<div><h2>MCT powder</h2><p>The creamy part. From coconut, and the first thing on the label. <a href="/what-is-mct-coffee.html">What MCT coffee is</a>.</p></div></div>
-  <div>{ICON_LEAF}<div><h2>Natural caffeine + L-theanine</h2><p>Coffee-bean caffeine with the amino acid in green tea. <a href="/l-theanine-and-caffeine.html">Why they&rsquo;re paired</a>.</p></div></div>
-  <div>{ICON_SCOOP}<div><h2>30 servings. One scoop.</h2><p>Hot water, 30 seconds, no machine. A month of mornings in one bag. <a href="/how-to-make-mct-instant-coffee.html">How to make it</a>.</p></div></div>
-</div>"""
+# What is in a scoop, from the Supplement Facts panel: (amount, unit, name, source, why it is there).
+# The "why" is what the ingredient is and what it does to the cup, never what it does to a body.
+SCOOP_ROWS = [
+    ("3,000", "mg", "Dark roast Colombian instant coffee", "",
+     "The coffee itself: three grams of dark roast in every scoop, a little smoother than drip. Good black, with milk, or over ice."),
+    ("400", "mg", "L-theanine", "",
+     "An amino acid found in tea leaves, where it occurs alongside tea&rsquo;s own caffeine. Here it is paired with coffee. <a href=\"/l-theanine-and-caffeine.html\">What the pairing is</a>."),
+    ("100", "mg", "Natural caffeine", "<i>Coffea robusta</i> seed",
+     "Added on top of the instant coffee&rsquo;s own caffeine, so count both toward your day."),
+    ("From coconut", "", "MCT powder", "MCT oil and acacia gum",
+     "Medium-chain triglycerides from coconut, already a powder. It gives the cup a rounded, creamy body without cream, and it stirs in with a spoon. <a href=\"/what-is-mct-coffee.html\">What MCT coffee is</a>."),
+]
+MINOR_ROWS = [
+    ("600", "mcg", "Chromium", "as ChromeMate&reg; chromium polynicotinate",
+     "An essential trace mineral, here in a branded form bound to niacin. The panel lists it at 1700% of the Daily Value."),
+    ("1,500", "mg", "Garcinia cambogia", "fruit rind extract",
+     "An extract of the rind of a small tropical fruit, standardized for hydroxycitric acid."),
+    ("40", "mg", "Paradoxine&reg;", "<i>Aframomum melegueta</i> extract",
+     "A standardized extract of grains of paradise, a West African seed in the ginger family."),
+    ("30", "mg", "Saffr&rsquo;Activ&reg;", "<i>Crocus sativus</i> L. extract",
+     "A standardized extract of saffron stigmas, the same spice used in cooking."),
+]
 
-HERO_SIZES = "(max-width: 860px) 70vw, 450px"   # the hero image is ~450 px wide on desktop, 52-70% of the screen on phones
-CALLOUTS = f"""<div class="callouts-wrap">
-  <div class="bagstage">
-    """ + pic("hero-props", "CoreJava bag with coconut, MCT powder, coffee beans, green tea leaves and matcha", sizes=HERO_SIZES, eager=True) + f"""
-    <svg class="leads" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-      <path d="M24 30 L27 30 L30 65.5" /><circle cx="30.2" cy="67.5" r="1"/>
-      <path d="M76 30 L73 30 L72.4 61" /><circle cx="72.3" cy="63" r="1"/>
-      <path d="M24 88 L27 88 L42 85.7" /><circle cx="43.5" cy="85.4" r="1"/>
-      <path d="M76 92 L73 92 L56.6 79.8" /><circle cx="55.4" cy="78.8" r="1"/>
-    </svg>
-    <span class="chip c1"><i>{ICON_COCO}</i><span><b>MCT powder</b>the creamy part</span></span>
-    <span class="chip c2"><i>{ICON_LEAF}</i><span><b>L-theanine</b>paired with caffeine</span></span>
-    <span class="chip c3"><i>{ICON_BEAN}</i><span><b>Natural caffeine</b>100 mg added, plus the coffee&rsquo;s own</span></span>
-    <span class="chip c4"><i>{ICON_BAG}</i><span><b>30 servings</b>one scoop a morning</span></span>
+def ledger(rows, cls=""):
+    li = "".join(f'<li><span class="amt{"" if a[0].isdigit() else " word"}">{a}{f"<small>{u}</small>" if u else ""}</span>'
+                 f'<h3>{n}{f" <em>{src}</em>" if src else ""}</h3><p>{why}</p></li>' for a, u, n, src, why in rows)
+    return f'<ul class="ledger{(" " + cls) if cls else ""}">{li}</ul>'
+
+AFTERNOTE = ('<p class="afternote">The panel lists four more ingredients by amount: ChromeMate&reg; chromium, Garcinia cambogia, '
+             'Paradoxine&reg; grains of paradise and Saffr&rsquo;Activ&reg; saffron extract. We name them so nothing is hidden, and we '
+             'don&rsquo;t make claims for them. <a href="/ingredients.html">Every ingredient, and the full panel</a>.</p>')
+
+SCOOP_SECTION = """
+<section><div class="wrap">
+  <div class="shead"><h2>What&rsquo;s in the scoop.</h2><p>Four things you will taste or notice, with the amounts printed on the bag.</p></div>
+  """ + ledger(SCOOP_ROWS) + AFTERNOTE + """
+</div></section>
+"""
+
+THIRD = "(max-width: 860px) 50vw, 33vw"
+RITUAL = """
+<section class="alt"><div class="wrap">
+  <div class="shead"><h2>Thirty seconds.</h2><p>No machine, no pods, no grounds to rinse away. A spoon, a kettle and the cup you like best.</p></div>
+  <div class="ritual">
+    <figure><div class="frame">""" + pic("lux-scoop", "A level scoop of dark instant coffee held over a stoneware cup", sizes="(max-width: 860px) 100vw, 33vw") + """</div><figcaption><div>One level scoop.<span>About 6.8 g, the serving on the label.</span></div></figcaption></figure>
+    <figure><div class="frame">""" + pic("lux-pour", "Hot water pouring from a kettle into the cup, steam lit by the morning sun", sizes=THIRD) + """</div><figcaption><div>Eight ounces of hot water.<span>Just off the boil is best.</span></div></figcaption></figure>
+    <figure><div class="frame">""" + pic("lux-cup", "A finished cup of black coffee on a saucer in a shaft of morning light", sizes=THIRD) + """</div><figcaption><div>Stir for fifteen seconds.<span>Black, with milk, or over ice.</span></div></figcaption></figure>
   </div>
-</div>"""
+</div></section>
+"""
+
+_CMP = [("Caf&eacute; latte", "$5&ndash;7", "$150&ndash;210", "A line and a drive", "Coffee, milk, often sugar"),
+        ("Drip at home", "$1&ndash;2, often twice", "$60&ndash;120", "Grind, brew, clean", "Coffee"),
+        ("CoreJava", "$2.33&ndash;2.67", "$69.95&ndash;79.95", "30 seconds", "Coffee, MCT, L&#8209;theanine, added caffeine and four more on the panel")]
+COMPARE_MOBILE = '<div class="cmp-m">' + "".join(
+    f'<div{" class=\"hl\"" if n == "CoreJava" else ""}><h3>{n}</h3><dl><div><dt>A morning</dt><dd>{a}</dd></div><div><dt>A month</dt><dd>{b}</dd></div>'
+    f'<div><dt>Time</dt><dd>{t}</dd></div><div><dt>In the cup</dt><dd>{c}</dd></div></dl></div>' for n, a, b, t, c in _CMP) + '</div>'
+COMPARE_TABLE = COMPARE_MOBILE + """<div class="tbl cmp-t"><table class="cmp">
+    <thead><tr><th scope="col"><span class="sr">Measure</span></th><th scope="col">Caf&eacute; latte</th><th scope="col">Drip at home</th><th scope="col" class="hl">CoreJava</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">A morning</th><td>$5&ndash;7</td><td>$1&ndash;2, often twice</td><td class="hl">$2.33&ndash;2.67</td></tr>
+      <tr><th scope="row">A month</th><td>$150&ndash;210</td><td>$60&ndash;120</td><td class="hl">$69.95&ndash;79.95</td></tr>
+      <tr><th scope="row">Time</th><td>A line and a drive</td><td>Grind, brew, clean</td><td class="hl">30 seconds</td></tr>
+      <tr><th scope="row">In the cup</th><td>Coffee, milk, often sugar</td><td>Coffee</td><td class="hl">Coffee, MCT, L&#8209;theanine, added caffeine and four more on the panel</td></tr>
+    </tbody>
+  </table></div>
+  <p class="fine" style="margin-top:16px">Caf&eacute; and drip costs are typical US prices; yours will vary. CoreJava prices are ours, before $8.95 shipping and tax. With shipping, a morning costs $2.63 on Subscribe &amp; Save and $2.96 with a single bag.</p>"""
+
+COMPARE = """
+<section><div class="wrap mathgrid">
+  <div>
+    <h2>$2.33 a morning.</h2>
+    <p class="lead">That is a cup on Subscribe &amp; Save: $69.95 for thirty servings, delivered every thirty days. A single bag is $79.95, or $2.67 a morning.</p>
+    <p style="color:var(--muted);max-width:44ch">Less than a caf&eacute; drink and more than a jar of supermarket instant. The difference is what goes into the scoop, and the time you get back.</p>
+  </div>
+  <div>""" + COMPARE_TABLE + """</div>
+</div></section>
+"""
+
+PLEDGES = """
+<section class="dark"><div class="wrap">
+  <div class="band-media">""" + pic("lux-linen", "A cup of coffee and a small scoop on linen, the bag at the edge of the frame", sizes="(max-width: 860px) 100vw, 1180px") + """</div>
+  <div class="shead"><h2>Yours to pause, skip or keep.</h2><p>A subscription should be easy to leave. This one is.</p></div>
+  <div class="pledges">
+    <div><h3>A bag every 30 days</h3><p>$69.95 on Subscribe &amp; Save, $10 less than a single bag. Pause a month, skip, or cancel from the link in any receipt. No calls, no forms.</p></div>
+    <div><h3>Ninety days to decide</h3><p>MarketPlace Global, the maker, backs unopened bags with a 90-day money-back guarantee. A bag that arrives damaged or wrong is replaced if you tell us within 30 days of delivery.</p></div>
+    <div><h3>From Minnesota, in about two days</h3><p>Orders leave Maple Grove, Minnesota within about two business days, then 3&ndash;6 days in transit. Shipping is a flat $8.95 to any US address.</p></div>
+  </div>
+</div></section>
+"""
+
+WHO = """
+<section class="alt"><div class="wrap ed flip">
+  <div class="frame wide">""" + pic("lux-table", "A quiet morning table with a cup of coffee, an open notebook and reading glasses", sizes="(max-width: 860px) 100vw, 55vw") + """</div>
+  <div>
+    <h2>For the first cup of the day.</h2>
+    <p class="lead">For adults who drink coffee every morning and would rather make one good cup at home than buy two on the way.</p>
+    <p>It asks for a spoon and hot water, so it works on a kitchen counter, at a desk, in a hotel room or at a campsite. Thirty servings fit in one resealable bag.</p>
+    <p class="fine">Contains caffeine. Not for children, or if you&rsquo;re pregnant or nursing. Ask your physician first if you take medication or have a medical condition.</p>
+  </div>
+</div></section>
+"""
+
+def founder(img="lux-still", alt="A cup of black coffee and a scoop in front of the CoreJava bag, morning light"):
+    return """
+<section><div class="wrap ed">
+  <div class="frame">""" + pic(img, alt, sizes="(max-width: 860px) 100vw, 50vw") + """</div>
+  <div>
+    <h2>Who you&rsquo;re buying from.</h2>
+    <p>We&rsquo;re Rector &amp; Stull, two partners, one in Idaho and one in Texas. We drank CoreJava for a while before we decided to sell it, for a simple reason: it&rsquo;s the cup we kept making.</p>
+    <p>We&rsquo;re new, so there&rsquo;s no wall of star ratings here. What we have is a bag we drink every morning, a label we quote rather than embellish, and an inbox a real person answers. If it isn&rsquo;t for you, tell us and we&rsquo;ll make it right.</p>
+    <p class="signed">&mdash; <a href="/about.html#koby">Koby Stull</a>, Dallas, for Rector &amp; Stull. hello@themorningupgrades.com</p>
+  </div>
+</div></section>
+"""
+
+HERO_SIZES = "(max-width: 860px) 100vw, 52vw"   # home hero photo: full width on phones, the right half on desktop
+LP_SIZES = "(max-width: 860px) 100vw, 50vw"
+
+HOME_HERO = """
+<section class="hero"><div class="hero-grid">
+  <div class="hero-copy">
+    <h1>More than a cup.</h1>
+    <p class="lede">Dark roast Colombian coffee, MCT and L&#8209;theanine in a single scoop. Add hot water. Thirty seconds, every morning.</p>
+  </div>
+  <div class="hero-media">""" + pic("lux-hero", "A stoneware cup of black coffee steaming in early morning light, the bag soft at the edge of the frame", sizes=HERO_SIZES, eager=True) + """</div>
+  <div class="hero-buy">
+    <p class="price"><b>$2.33</b><span>a morning</span></p>
+    <p class="price-note">$69.95 a month on Subscribe &amp; Save: thirty servings, delivered every thirty days. Or $79.95 for a single bag.</p>
+    <div class="buyrow"><a class="btn" data-buy="subscribe" href="#">Subscribe for $69.95 a month</a><a class="tlink" data-buy="onetime" href="#">Buy one bag for $79.95</a></div>
+    <ul class="terms"><li>Pause, skip or cancel from any receipt.</li><li>90-day money-back guarantee on unopened bags.</li><li><span data-ship="long">$8.95 flat US shipping.</span></li></ul>
+  </div>
+</div></section>
+"""
 
 def hero_c(h1="One scoop. Steady energy, sharp focus.", strip=("Steady energy","Sharp focus","30 mornings a bag"), video=True, variants=False):
+    """/start hero: the headline matches the ad (variants), then the photograph and the plan picker."""
     striphtml = " <i>/</i> ".join(f"<span>{t}</span>" for t in strip)
     pick = ""
     if variants:
@@ -413,18 +490,18 @@ def hero_c(h1="One scoop. Steady energy, sharp focus.", strip=("Steady energy","
                 + "st.querySelectorAll('span:not(.rule)').forEach(function(e,i){if(v[1][i])e.textContent=v[1][i];});"
                 + "document.documentElement.setAttribute('data-variant',c);})();</script>")
     return f"""
-<div class="heroC"><div class="wrap">
-  <h1 class="h1c{' lp' if variants else ''}" id="lp-h1">{h1}</h1>
-  <p class="stripc" id="lp-strip"><span class="rule"></span>{striphtml}<span class="rule"></span></p>{pick}
-  <div class="heroC-grid">
-    <div class="heroC-left">{CALLOUTS}</div>
-    <div class="heroC-right">
-      <p class="sr">CoreJava instant coffee: natural caffeine, L-theanine and MCT powder. One scoop, hot water, 30 seconds. Made for a focused, steady morning.</p>
-      {picker()}
-    </div>
+<section class="lphero"><div class="lp-grid">
+  <div class="lp-copy">
+    <h1 class="h1c{' lp' if variants else ''}" id="lp-h1">{h1}</h1>
+    <p class="stripc" id="lp-strip"><span class="rule"></span>{striphtml}<span class="rule"></span></p>{pick}
   </div>
-  {trust_row(dark=False)}
-</div></div>
+  <div class="lp-media">{pic("lux-hero", "A stoneware cup of black coffee steaming in early morning light", sizes=LP_SIZES, eager=True)}</div>
+  <div class="lp-buy">
+    <p class="sr">CoreJava instant coffee: dark roast Colombian coffee with MCT powder, L-theanine and natural caffeine. One scoop, hot water, 30 seconds.</p>
+    {picker()}
+    {trust_row()}
+  </div>
+</div></section>
 """
 
 GUIDE_PDF = "https://d2ol7oe51mr4n9.cloudfront.net/user_3GvdxB9gfwtge4rv79iuyoXAckR/a857aef6-954a-4e8e-b256-41205db0097f.pdf"
@@ -521,130 +598,67 @@ QUIZ_PAGE = """
 """
 
 # ---------- HOME ----------
-HOME = """
-""" + hero_c() + """
-"""+"""
-
-<section class="alt"><div class="wrap">
-  <h2>Three mornings, three problems</h2>
-  <div class="grid3">
-    <div class="card"><h3>The 2pm slide</h3><p>A big cup hits fast and leaves fast. By the afternoon meeting your focus has gone home without you.</p></div>
-    <div class="card"><h3>The second-cup habit</h3><p>So you pour another, then another. The coffee is running the schedule instead of the other way round.</p></div>
-    <div class="card"><h3>The $6 habit</h3><p>A latte on the way in, a cold brew after lunch. Two stops, two lines, twelve dollars.</p></div>
-  </div>
-</div></section>
-
-<section><div class="wrap split">
-  <div class="frame phone"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/ritual.jpg"><source src="/media/ritual.mp4" type="video/mp4"></video></div>
-  <div>
-    <p class="eyebrow">How it works</p>
-    <h2>One scoop. Hot water. That's the whole ritual.</h2>
-    <ul class="clean">
-      <li>One level scoop into 8 oz of hot water, stir. No machine, no grounds, no filter.</li>
-      <li>Dark roast. Black is fine, creamer is fine, over ice is fine.</li>
-      <li>30 servings a bag: one scoop every morning for a month.</li>
-    </ul>
-    <p><a class="btn" href="/shop.html">Buy CoreJava</a></p>
-  </div>
-</div></section>
-""" + FOUNDER + """
-<section class="dark"><div class="wrap split">
-  <div>
-    <p class="eyebrow">What's in it</p>
-    <h2>Seven things, one scoop.</h2>
-    <p>MCT powder, for a creamy cup. Natural caffeine from coffee beans. L-theanine, the amino acid in green tea. ChromeMate, a patented chromium. Paradoxine, grains of paradise extract. Garcinia Cambogia fruit extract. Saffr'Activ saffron extract. Those are the ones we talk about; the instant coffee itself and the other ingredients are on the full Supplement Facts panel.</p>
-    <p><a class="btn" href="/ingredients.html#supplement-facts">See the Supplement Facts</a></p>
-    <p><a href="/ingredients.html">CoreJava ingredients, one by one</a></p>
-  </div>
-  <div class="frame phone"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/ingredients.jpg"><source src="/media/ingredients.mp4" type="video/mp4"></video></div>
-</div></section>
-
-<section class="alt"><div class="wrap">""" + INGCARDS.replace("ingcards","ingcards light") + """</div></section>
-""" + COMPARE + """
-""" + quiz_section("home") + """
-""" + """
+HOME = HOME_HERO + SCOOP_SECTION + RITUAL + COMPARE + PLEDGES + WHO + founder() + quiz_section("home") + """
 <section><div class="wrap">
-  <p class="eyebrow" style="text-align:center">Read before you buy</p>
-  <h2 style="text-align:center">Plain answers to the three questions people search</h2>
-  <div class="glist" style="margin-top:22px">
+  <div class="shead"><h2>Read before you buy.</h2><p>Plain answers to the questions people search, written from the label and published sources.</p></div>
+  <div class="glist">
     <a href="/what-is-mct-coffee.html"><p class="eyebrow">MCT coffee</p><h3>What is MCT coffee?</h3><p>What MCTs are, where they come from, and how oil and powder differ.</p></a>
     <a href="/l-theanine-and-caffeine.html"><p class="eyebrow">L-theanine</p><h3>L-theanine and caffeine</h3><p>What the pairing is, how to read the label, and what the small studies say.</p></a>
     <a href="/how-to-make-mct-instant-coffee.html"><p class="eyebrow">How-to</p><h3>How to make instant MCT coffee</h3><p>One scoop, hot water, 30 seconds. Plus iced and latte-style.</p></a>
   </div>
-  <p style="text-align:center;margin-top:18px"><a href="/corejava-coffee.html">CoreJava, explained: label, price, how to make it</a> &middot; <a href="/guides.html">All guides &amp; recipes &rarr;</a></p>
+  <p style="margin-top:28px"><a href="/corejava-coffee.html">CoreJava, explained: label, price, how to make it</a><br><a href="/guides.html">All guides and recipes</a></p>
 </div></section>
-<section class="alt"><div class="wrap split">
+<section class="alt"><div class="wrap closing-grid">
   <div>
-    <h2>Questions, answered plainly</h2>
+    <h2>Your morning, considered.</h2>
+    <p class="lead" style="margin-bottom:40px">One scoop, hot water, thirty seconds. Thirty mornings in a bag.</p>
     <details><summary>Does it taste like coffee?</summary><p>Yes. Dark roast, a little smoother than drip. Black is fine; creamer is fine.</p></details>
     <details><summary>Is it one cup or two?</summary><p>One scoop is the serving on the label.</p></details>
     <details><summary>What if I drink coffee all day?</summary><p>Swap the first cup only for a week, and keep everything else the same.</p></details>
     <details><summary>Can I cancel the subscription?</summary><p>Any time. Use the link in your receipt, or <a href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00">manage your subscription here</a>: pause a month, cancel, or update your card. No calls, no forms.</p></details>
-    <p><a class="btn ghost" href="/faq.html">All questions</a></p>
+    <p style="margin-top:24px"><a href="/faq.html">All questions</a></p>
   </div>
-  <div class="frame p45">""" + pic("patio", "Woman on a sunny patio with an iced coffee and a CoreJava bag") + """</div>
+  <div>""" + picker() + """</div>
 </div></section>
-<section><div class="wrap split">
-  <div>
-    <p class="eyebrow">Share with friends</p>
-    <h2>Love it? Share your link with friends.</h2>
-    <p>Already telling people about it? Get your own link and pass it along. Three levels, explained without the hype.</p>
-    <p><a class="btn ghost" href="/share.html">How it works</a></p>
-  </div>
-  <div class="frame p45">""" + pic("scoop", "A scoop of CoreJava over the bag") + """</div>
-</div></section>
-<section class="dark" style="text-align:center"><div class="wrap">
-  <h2>Tomorrow's first cup.</h2>
-  <p>One scoop, hot water, thirty seconds. Thirty mornings a bag.</p>
-""" + CTA_BLOCK + """
-</div></section>
-
 """
 
 # ---------- SHOP ----------
+# Phones: photo, then the buy block (first checkout button inside two screens), then the gallery and details.
 SHOP = """
-<section style="padding-top:36px"><div class="wrap shopgrid">
-  <!-- buy block first in the DOM: phones show it first and nothing shifts while the page streams in -->
+<section class="shop"><div class="wrap shopgrid">
+  <div class="frame shop-main">""" + pic("lux-still", "A stoneware cup of black coffee and a scoop in front of the CoreJava bag, morning light", sizes="(max-width: 860px) 100vw, 55vw", eager=True) + """</div>
   <div class="shop-buy">
-    <p class="eyebrow">Made by MarketPlace Global &middot; 30 servings</p>
-    <h1 style="font-size:clamp(32px,4vw,48px)">CoreJava Instant Coffee with MCT Powder &amp; L-Theanine</h1>
-    <p class="lead">Dark-roast instant coffee built around natural caffeine and L-theanine, with ChromeMate, Paradoxine, Garcinia Cambogia and Saffr'Activ. Made for focus and steady energy. One level scoop in 8 oz of hot water.</p>
+    <h1>CoreJava<span>Instant coffee with MCT powder &amp; L&#8209;theanine. Thirty servings.</span></h1>
+    <p class="lead">More than a cup of coffee. Each scoop holds dark roast Colombian coffee, MCT powder from coconut, 400 mg of L-theanine and 100 mg of added natural caffeine. Hot water, thirty seconds.</p>
     """ + picker() + """
     <p class="bonus" data-bonus hidden><strong>Free with your first order:</strong> the Recipe Pack, 12 ways to drink it plus a 30-morning tracker (PDF).</p>
-    <p class="fine"><span data-ship="long">Ships to all 50 states.</span> Cancel anytime &middot; <span data-ship="checkout">secure checkout</span> &middot; <span data-ship="damage">made right if it arrives damaged</span>. Questions before you buy: hello@themorningupgrades.com.</p>
+    <p class="fine" style="margin-top:14px">Questions before you buy: hello@themorningupgrades.com. A person answers.</p>
   </div>
-  <div class="shop-media">
-    <div class="frame p45">""" + pic("shadows", "CoreJava coffee bag with leaf shadows in morning light", eager=True) + """</div>
-    <div class="gallery">
-      <div class="frame" style="aspect-ratio:9/16"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/product_callouts_v2.jpg"><source src="/media/product_callouts_v2.mp4" type="video/mp4"></video></div>
-      <div class="frame" style="aspect-ratio:9/16">""" + pic("kitchen-pour", "Pouring hot water next to a CoreJava bag", sizes="(max-width: 860px) 33vw, 180px") + """</div>
-      <div class="frame" style="aspect-ratio:9/16"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/iced.jpg"><source src="/media/iced.mp4" type="video/mp4"></video></div>
-    </div>
+  <div class="gallery">
+    <figure><div class="frame">""" + pic("lux-pattern", "The copper line pattern on the CoreJava bag, close up", sizes="(max-width: 860px) 42vw, 14vw") + """</div><figcaption>The bag</figcaption></figure>
+    <figure><div class="frame">""" + pic("lux-scoop", "A level scoop of dark instant coffee over a cup", sizes="(max-width: 860px) 42vw, 14vw") + """</div><figcaption>One scoop</figcaption></figure>
+    <figure><div class="frame">""" + pic("lux-iced", "Iced coffee with milk sinking through it", sizes="(max-width: 860px) 42vw, 14vw") + """</div><figcaption>Over ice</figcaption></figure>
+    <figure><div class="frame">""" + pic("shadows", "The CoreJava bag, front, in morning light", sizes="(max-width: 860px) 42vw, 14vw") + """</div><figcaption>The bag as it ships</figcaption></figure>
   </div>
   <div class="shop-details">
-    <h2 style="margin-top:30px;font-size:22px">Details</h2>
-    <ul class="clean">
-      <li><strong>Serving:</strong> 1 level scoop (about 6.8 g) in 8 fl oz hot water. 30 servings per 7.2 oz (204 g) bag.</li>
-      <li><strong>Key ingredients:</strong> MCT powder, natural caffeine, L-theanine, ChromeMate&reg; chromium, Paradoxine&reg; grains of paradise extract, Garcinia Cambogia extract, Saffr'Activ&reg; saffron extract. Every ingredient, with amounts, is on the Supplement Facts panel below. <a href="/ingredients.html">Full breakdown</a>.</li>
-      <li><strong>Taste:</strong> dark roast, smooth. Works black, with creamer, or over ice.</li>
-      <li><strong>Allergens:</strong> contains tree nuts (coconut), as printed on the bag.</li>
-      <li><strong>Who it's for:</strong> adults who drink coffee daily and want a steadier morning. Not for children, or if you're pregnant or nursing. Contains caffeine.</li>
-      <li><strong>Made by:</strong> MarketPlace Global. Sold by Rector &amp; Stull LLC, Independent MarketPlace Global ISR. <a href="/corejava-coffee.html">CoreJava, explained</a>: the label in text, how to make it, and the price per cup.</li>
-    </ul>
+    <dl class="specs">
+      <div><dt>Serving</dt><dd>One level scoop (about 6.8 g) in 8 fl oz of hot water. 30 servings in a resealable 7.2 oz (204 g) bag.</dd></div>
+      <div><dt>In the scoop</dt><dd>Dark roast Colombian instant coffee, L-theanine, natural caffeine and MCT powder, plus ChromeMate&reg; chromium, Garcinia cambogia, Paradoxine&reg; and Saffr&rsquo;Activ&reg;. Every amount is on the panel below. <a href="/ingredients.html">Each ingredient, explained</a>.</dd></div>
+      <div><dt>Taste</dt><dd>Dark roast, a little smoother than drip. Black, with creamer, or over ice.</dd></div>
+      <div><dt>Allergens</dt><dd>Contains tree nuts (coconut), as printed on the bag.</dd></div>
+      <div><dt>For</dt><dd>Adults who drink coffee daily. Not for children, or if you&rsquo;re pregnant or nursing. Contains caffeine.</dd></div>
+      <div><dt>Made by</dt><dd>MarketPlace Global. Sold by Rector &amp; Stull LLC, Independent MarketPlace Global ISR. <a href="/corejava-coffee.html">CoreJava, explained</a>: the label in text, how to make it, and the price per cup.</dd></div>
+      <div><dt>Shipping</dt><dd><span data-ship="policy">Orders ship from Minnesota within about two business days, then 3&ndash;6 days in transit. US shipping is a flat $8.95 a bag.</span> <a href="/shipping-returns.html">Shipping &amp; returns</a>.</dd></div>
+    </dl>
     """ + facts_panel() + """
   </div>
 </div></section>
-
-<section class="alt"><div class="wrap">
-  <h2>How a week with it goes</h2>
-  <div class="steps">
-    <div><h3>Days 1&ndash;2</h3><p>Swap your first cup only. Same mug, same time. Notice the afternoon.</p></div>
-    <div><h3>Days 3&ndash;5</h3><p>Notice whether you still want a second cup. Write it down.</p></div>
-    <div><h3>Days 6&ndash;7</h3><p>Decide. If you like the cup, Subscribe &amp; Save keeps it coming for $2.33 a morning.</p></div>
-  </div>
+""" + SCOOP_SECTION.replace("<section>", '<section class="alt">', 1) + COMPARE + PLEDGES + founder("lux-cup", "A cup of black coffee on a saucer in a shaft of morning light") + """
+<section class="alt" style="text-align:center"><div class="wrap">
+  <h2>Your morning, considered.</h2>
+  <p class="lead" style="margin:0 auto 28px">$2.33 a morning on Subscribe &amp; Save, or $79.95 for a single bag.</p>
+""" + CTA_BLOCK + """
 </div></section>
-""" + COMPARE + FOUNDER + """
-<section class="dark" style="text-align:center"><div class="wrap"><h2>Start tomorrow.</h2>""" + CTA_BLOCK + """</div></section>
 """
 
 # The Supplement Facts panel as text (searchable, readable by screen readers and AI assistants).
@@ -673,34 +687,30 @@ def panel_table(heading="The panel in text"):
 
 # ---------- INGREDIENTS ----------
 ING = """
-<section class="tight"><div class="wrap split" style="align-items:center">
-  """ + CALLOUTS + """
-  <div>
-    <p class="eyebrow">What's in it</p>
-    <h1 style="font-size:clamp(34px,4.4vw,56px)">What&rsquo;s in CoreJava. Nothing hidden behind a blend.</h1>
-    <p class="lead">We'll tell you where each one comes from. We describe the cup by what's in it: natural caffeine for energy, L-theanine alongside it, MCT powder for a creamy texture. We don't make health claims beyond the label.</p>
+<section class="ihero"><div class="ed">
+  <div class="ihero-copy">
+    <h1>Every ingredient, by name.</h1>
+    <p class="lead">CoreJava is dark roast Colombian instant coffee with MCT powder, L-theanine and added natural caffeine, plus four more ingredients printed with their amounts on the Supplement Facts panel. Here is each one: what it is, and why it is in the scoop. We don&rsquo;t make health claims beyond the label.</p>
   </div>
+  <div class="frame">""" + pic("lux-ingredients", "Small dishes of instant coffee, white powder, tea leaves and coconut on stone", sizes="(max-width: 860px) 100vw, 50vw", eager=True) + """</div>
+</div></section>
+<section><div class="wrap">
+  <div class="shead"><h2>The four that make the cup.</h2><p>Why each one is in the scoop, in plain words.</p></div>
+  """ + ledger(SCOOP_ROWS) + """
+  <div class="shead" style="margin-top:clamp(72px,9vw,128px)"><h2>Also on the panel.</h2><p>Four more ingredients, listed with amounts. We describe them by what they are, and we don&rsquo;t make claims for them.</p></div>
+  """ + ledger(MINOR_ROWS, "minor") + """
+  <p class="afternote">Other ingredients: natural flavor, and silicon dioxide, which keeps the powder flowing. Contains tree nuts (coconut). Trademarks belong to their respective ingredient suppliers.</p>
+  <div class="claim"><h3>What we say about it</h3><p>It&rsquo;s a dark roast instant coffee with MCT powder, L-theanine and added natural caffeine, made in thirty seconds. It&rsquo;s a dietary supplement, not a medicine, and we don&rsquo;t claim more than what&rsquo;s on the bag.</p></div>
 </div></section>
 <section class="alt"><div class="wrap">
-  <h2 class="sr">The ingredients we talk about</h2>
-  <div class="ing">
-    <div class="card"><b>MCT powder</b><h3>First on the label</h3><p>Medium-chain triglycerides, usually from coconut oil, in powder form. It&rsquo;s what gives the cup body and a creamy texture without adding cream. <a href="/what-is-mct-coffee.html">More on MCT coffee</a>.</p></div>
-    <div class="card"><b>Natural caffeine</b><h3>From coffee beans</h3><p>The same caffeine you already drink, from coffee, not synthesized. Each scoop has 100 mg of added natural caffeine, plus the instant coffee&rsquo;s own.</p></div>
-    <div class="card"><b>L-theanine</b><h3>The amino acid in green tea</h3><p>Found naturally in tea leaves. Commonly paired with caffeine; many people describe the pairing as smoother than coffee alone. <a href="/l-theanine-and-caffeine.html">What the research says</a>.</p></div>
-    <div class="card"><b>ChromeMate&reg;</b><h3>A patented chromium</h3><p>A branded form of the mineral chromium, bound to niacin. Chromium is an essential trace mineral.</p></div>
-    <div class="card"><b>Paradoxine&reg;</b><h3>Grains of paradise extract</h3><p>A standardized extract of <em>Aframomum melegueta</em>, a West African seed in the ginger family.</p></div>
-    <div class="card"><b>Garcinia Cambogia</b><h3>Fruit extract</h3><p>Extract of the rind of a small tropical fruit, standardized for hydroxycitric acid.</p></div>
-    <div class="card"><b>Saffr'Activ&reg;</b><h3>Saffron extract</h3><p>A standardized extract of saffron stigmas, the same spice used in cooking.</p></div>
-    <div class="card claim"><b>What we say about it</b><h3>Natural caffeine and L-theanine for focus and steady energy.</h3><p>That's the whole pitch. It's a dietary supplement, not a medicine, and we don't claim more than what's in the bag.</p></div>
-  </div>
-  <p class="fine" style="margin-top:22px;text-align:center">These are the ingredients we talk about. The full Supplement Facts panel below, as printed on the bag, lists every ingredient with amounts per serving, including the instant coffee and other ingredients. Trademarks belong to their respective ingredient suppliers.</p>
+  <div class="shead c"><h2>The panel, as printed.</h2><p>Every ingredient with its amount per scoop, photographed from the bag and copied out in text below.</p></div>
   """ + facts_panel() + """
-  <div class="guide" style="margin:0 auto">""" + panel_table("CoreJava Supplement Facts, in text") + """
+  <div class="guide" style="margin:56px auto 0">""" + panel_table("CoreJava Supplement Facts, in text") + """
   <p>How to make it and what it costs: <a href="/corejava-coffee.html">CoreJava, explained</a>.</p></div>
 </div></section>
-<section><div class="wrap" style="text-align:center">
-  <h2>Everything on the panel, one scoop.</h2>
-  <p style="color:var(--muted)">$79.95 a bag, or $69.95 a month on Subscribe &amp; Save.</p>
+<section class="dark" style="text-align:center"><div class="wrap">
+  <h2>Everything above, in one scoop.</h2>
+  <p style="margin:0 auto 28px;max-width:46ch">$2.33 a morning on Subscribe &amp; Save, or $79.95 for a single bag.</p>
 """ + CTA_BLOCK + """
 </div></section>
 """
@@ -1152,7 +1162,7 @@ LANDING_VARIANTS = {
 
 MINI_NAV = """
 <header class="nav mini" aria-label="The Morning Upgrade"><div class="wrap">
-  <a class="brand" href="/"><img src="/img/mark.jpg" alt="" width="30" height="30"><b>The Morning Upgrade</b></a>
+  <a class="brand" href="/"><b>The Morning Upgrade</b></a>
   <a class="minilink" href="/faq.html">Questions</a>
 </div></header>
 """
@@ -1194,37 +1204,21 @@ START = """
 <section class="tight alt"><div class="wrap">
   """ + GUAR + """
 </div></section>
-
-<section><div class="wrap split" style="align-items:center">
-  <div class="frame phone vid"><video muted loop playsinline preload="metadata" data-autoplay poster="/media/host_kitchen.jpg"><source src="/media/host_kitchen.mp4" type="video/mp4"></video><button class="unmute" type="button" data-unmute aria-label="Turn sound on">&#9654; Sound on</button></div>
-  <div>
-    <p class="eyebrow">One scoop. Every ingredient on the label.</p>
-    <h2>Nothing hidden behind a blend.</h2>
-    <p>MCT powder, natural caffeine, L-theanine, ChromeMate&reg; chromium, Paradoxine&reg; grains of paradise, Garcinia Cambogia and Saffr'Activ&reg; saffron extract, plus the instant coffee itself; every ingredient is on the <a href="/ingredients.html#supplement-facts">Supplement Facts panel</a>. We describe it by what's in it and don't make health claims beyond the label.</p>
-    <ul class="clean">
-      <li>Dark roast, instant. Black is fine, creamer is fine, over ice is fine.</li>
-      <li>One level scoop in 8 oz of hot water. Stir. Done.</li>
-      <li>Made by MarketPlace Global in the US, shipped from Minnesota.</li>
-    </ul>
-    <p><a class="btn ghost sm" href="/ingredients.html">Every ingredient, explained</a></p>
-  </div>
-</div></section>
-
-<section class="alt"><div class="wrap">
-  <h2 style="text-align:center">The 7-day swap</h2>
-  <p style="text-align:center;color:var(--muted);margin:0 0 26px">How we tell everyone to try it. Change one cup, watch one hour.</p>
+""" + SCOOP_SECTION + RITUAL + """
+<section><div class="wrap">
+  <div class="shead"><h2>The 7-day swap.</h2><p>How we suggest trying it. Change one cup and give it a week.</p></div>
   <div class="steps">
     <div><h3>Days 1&ndash;2</h3><p>Swap your first cup only. Same mug, same time. Change nothing else.</p></div>
-    <div><h3>Days 3&ndash;5</h3><p>Pay attention around 2 PM. Are you reaching for the second cup, or not? Write it down.</p></div>
+    <div><h3>Days 3&ndash;5</h3><p>Notice whether you still want a second cup. Write it down.</p></div>
     <div><h3>Days 6&ndash;7</h3><p>Decide. If you like the cup, Subscribe &amp; Save keeps it coming for $2.33 a morning.</p></div>
   </div>
 </div></section>
 
-<section><div class="wrap" style="max-width:760px">""" + capture("start") + """</div></section>
+<section class="alt"><div class="wrap" style="max-width:820px">""" + capture("start") + """</div></section>
 
-<section class="alt"><div class="wrap split">
+<section><div class="wrap closing-grid">
   <div>
-    <h2>Questions, answered plainly</h2>
+    <h2>Questions.</h2>
     <details><summary>Does it taste like coffee?</summary><p>Yes. Dark roast, a little smoother than drip. Black is fine; creamer is fine.</p></details>
     <details><summary>How much caffeine is in a scoop?</summary><p>100 mg of added natural caffeine, plus the instant coffee&rsquo;s own. One scoop is the serving on the label.</p></details>
     <details><summary>Is it one cup or two?</summary><p>One scoop is the serving on the label.</p></details>
@@ -1233,12 +1227,6 @@ START = """
     <details><summary>Who ships it, and who answers?</summary><p>MarketPlace Global, the maker, ships from Maple Grove, Minnesota, usually within two business days. You're buying from Rector &amp; Stull LLC, an independent sales representative, and a real person answers hello@themorningupgrades.com. <a href="/shipping-returns.html">Shipping &amp; returns</a>.</p></details>
   </div>
   <div>""" + picker() + """</div>
-</div></section>
-
-<section class="dark" style="text-align:center"><div class="wrap">
-  <h2>Tomorrow's first cup.</h2>
-  <p>One scoop, hot water, thirty seconds. Thirty mornings a bag.</p>
-""" + CTA_BLOCK + """
 </div></section>
 """
 
@@ -2197,10 +2185,10 @@ NOT_FOUND = """
 
 PAGES = {
   "404.html": ("Page not found — The Morning Upgrade", "That page isn't here. Try the shop, the ingredients, the guides or the FAQ.", NOT_FOUND, og_img("props-og"), True),
-  "index.html": ("CoreJava MCT Coffee with L-Theanine | The Morning Upgrade", "Instant coffee with MCT powder, natural caffeine and L-theanine. One scoop in hot water, 30 servings a bag. $69.95 a month or $79.95 a bag.", HOME, og_img("props-og"), False),
-  "shop.html": ("Buy CoreJava MCT Coffee: $69.95/mo or $79.95 a Bag", "CoreJava price: $79.95 for a 30-serving bag or $69.95 a month on Subscribe & Save. Dark roast instant coffee with MCT powder, L-theanine and natural caffeine.", SHOP, og_img("props-og"), False),
+  "index.html": ("CoreJava MCT Coffee with L-Theanine | The Morning Upgrade", "Instant coffee with MCT powder, natural caffeine and L-theanine. One scoop in hot water, 30 servings a bag. $69.95 a month or $79.95 a bag.", HOME, og_img("lux-og"), False),
+  "shop.html": ("Buy CoreJava MCT Coffee: $69.95/mo or $79.95 a Bag", "CoreJava price: $79.95 for a 30-serving bag or $69.95 a month on Subscribe & Save. Dark roast instant coffee with MCT powder, L-theanine and natural caffeine.", SHOP, og_img("lux-og"), False),
   "corejava-coffee.html": ("CoreJava Coffee: Ingredients, Price & How to Make It", "CoreJava is MarketPlace Global's dark roast instant coffee with MCT powder, L-theanine and 100 mg added natural caffeine. Ingredients, price and how to make it.", COREJAVA, og_img("props-og"), False),
-  "ingredients.html": ("CoreJava Ingredients & Supplement Facts | Morning Upgrade", "What's in a scoop of CoreJava: MCT powder, natural caffeine, L-theanine and four more named ingredients, plus the full Supplement Facts panel.", ING, og_img("props-og"), False),
+  "ingredients.html": ("CoreJava Ingredients & Supplement Facts | Morning Upgrade", "What's in a scoop of CoreJava: MCT powder, natural caffeine, L-theanine and four more named ingredients, plus the full Supplement Facts panel.", ING, og_img("lux-og"), False),
   "faq.html": ("Coffee FAQ: Taste, Caffeine, Shipping | The Morning Upgrade", "How it tastes, how much caffeine is in a scoop, how Subscribe & Save works, shipping, returns, and who you're buying from.", FAQ, og_img("pour"), False),
   "partner.html": ("Build with us — The Morning Upgrade", "Join our team and sell the coffee with the same videos, site and email system we use. Honest numbers first.", PARTNER, og_img("props-og"), False),
   "share.html": ("Share with friends — The Morning Upgrade", "Love it? Share your link with friends. The referral program, explained in plain language.", SHARE, og_img("props-og"), False),
@@ -2209,7 +2197,7 @@ PAGES = {
   "privacy.html": ("Privacy — The Morning Upgrade", "What The Morning Upgrade collects (quiz answers, orders, analytics), what we do with it, who we share it with, and how to opt out or delete it.", PRIVACY, og_img("props-og"), False),
   "terms.html": ("Terms of sale — The Morning Upgrade", "Terms of sale for The Morning Upgrade: prices, Subscribe & Save renewals, use of the product, returns and liability.", TERMS, og_img("props-og"), False),
   "order-complete.html": ("Order received — The Morning Upgrade", "Thanks for your order.", ORDER_COMPLETE, og_img("props-og"), True),
-  "start.html": ("One Scoop, Steady Energy | The Morning Upgrade", "Instant coffee with natural caffeine, L-theanine and MCT powder. $69.95 a month or $79.95 a bag, $8.95 flat US shipping, 90-day guarantee on unopened bags.", START, og_img("props-og"), True),
+  "start.html": ("One Scoop, Steady Energy | The Morning Upgrade", "Instant coffee with natural caffeine, L-theanine and MCT powder. $69.95 a month or $79.95 a bag, $8.95 flat US shipping, 90-day guarantee on unopened bags.", START, og_img("lux-og"), True),
   "thanks.html": ("Your guide is on its way — The Morning Upgrade", "Check your inbox for the 7 Mornings guide.", THANKS, og_img("desk"), True),
   "guides.html": ("Coffee Guides & Recipes | The Morning Upgrade", "Answer-first guides: what MCT coffee is, how to make instant MCT coffee, L-theanine with caffeine, MCT vs. butter coffee, and iced instant coffee recipes.", GUIDES_INDEX, og_img("kitchen-pour"), False),
   "what-is-mct-coffee.html": ("What Is MCT Coffee? MCT Oil vs. Powder | Morning Upgrade", "MCT coffee is coffee with medium-chain triglycerides added, as an oil you blend in or a powder you stir in. What MCTs are and how oil and powder differ.", G_WHATMCT, og_img("scoop"), False),
@@ -2235,7 +2223,9 @@ STICKY = {fn: "shop" for fn in list(GUIDE_META) + ["guides.html", "404.html", "a
 STICKY.update({"order-complete.html": None, "thanks.html": None})
 
 # LCP image preloads
-PRELOAD = {fn: preload("hero-props", HERO_SIZES) for fn in ("index.html", "start.html", "ingredients.html")}
+PRELOAD = {"index.html": preload("lux-hero", HERO_SIZES), "start.html": preload("lux-hero", LP_SIZES),
+           "ingredients.html": preload("lux-ingredients", "(max-width: 860px) 100vw, 50vw"),
+           "shop.html": preload("lux-still", "(max-width: 860px) 100vw, 55vw")}
 
 PAGES["90-mornings.html"] = ("90 Mornings — The Morning Upgrade", "A chapter-by-chapter email series for your first 90 mornings with the coffee. Coming soon.", NINETY, og_img("props-og"), True)
 PAGES["quiz.html"] = ("Which Morning Are You? A 3-Question Quiz | Morning Upgrade",
