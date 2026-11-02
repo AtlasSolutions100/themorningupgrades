@@ -267,6 +267,10 @@ def sticky_bar(mode):
         return '<aside class="sticky" aria-label="See the coffee"><div><b>Our instant MCT coffee</b><span>30 servings &middot; from $69.95/mo</span></div><a class="btn" href="/shop.html">See the coffee &rarr;</a></aside>'
     return ""
 
+# The email pop-up (assets/site.js) never opens on these: after an order or sign-up, the partner/ISR
+# pages, the 404 and the quiz page (it would cover the quiz).
+NO_POPUP = {"order-complete.html", "thanks.html", "partner.html", "share.html", "404.html", "quiz.html"}
+
 def page(title, desc, body, og_image="/img/opt/breakfast-og-1200.jpg", noindex=False, extra_head="", nav=True, fn="index.html", sticky="buy"):
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -298,7 +302,7 @@ def page(title, desc, body, og_image="/img/opt/breakfast-og-1200.jpg", noindex=F
 <script src="/assets/site.js"></script>
 {extra_head}
 </head>
-<body>
+<body{' data-popup="off"' if fn in NO_POPUP else ''}>
 <a class="skip" href="#main">Skip to content</a>
 {NAV if nav is True else (MINI_NAV if nav == 'mini' else '')}
 <main id="main">
@@ -1008,14 +1012,14 @@ PRIVACY = """
   <h1 style="font-size:clamp(30px,4vw,46px)">Privacy</h1>
   <p>This is the privacy policy for themorningupgrades.com, operated by Rector &amp; Stull LLC ("we"). It's written to be read.</p>
   <h2>What we collect</h2>
-  <ul><li><strong>If you take the quiz:</strong> your answers, first name and email, so we can send you the guide and the follow-up emails.</li><li><strong>If you buy:</strong> your name, shipping address, email and phone. Payment details go to Stripe; we never see your card number. To fulfil your order we create a customer account for you with MarketPlace Global, the maker, and pass them your name, address, email and phone so they can ship to you and honor their guarantee. Their <a href="https://marketplaceglobal.com/rectorandstull/privacy-policy">privacy policy</a> covers what they do with it.</li><li><strong>If you ask about partnering:</strong> what you type into the form.</li><li><strong>If you opt in to refill-reminder texts:</strong> your mobile number and a record of your consent (the wording you agreed to, when, and on which page). We haven&rsquo;t started sending texts; reply STOP to any text to opt out.</li><li><strong>Automatically:</strong> Google Analytics records pages viewed, where visitors came from, and button clicks, with IP addresses anonymized. TikTok, Meta, Snapchat and Google Ads tags record page views, sign-ups and purchases so we can measure which ads work.</li></ul>
+  <ul><li><strong>If you take the quiz:</strong> your answers, first name and email, so we can send you the guide and the follow-up emails.</li><li><strong>If you sign up in the email pop-up:</strong> your email, your first name if you give it, the page you signed up on and the offer you signed up for (the free Recipe Pack), so we can send you our emails. Every email has an unsubscribe link.</li><li><strong>If you buy:</strong> your name, shipping address, email and phone. Payment details go to Stripe; we never see your card number. To fulfil your order we create a customer account for you with MarketPlace Global, the maker, and pass them your name, address, email and phone so they can ship to you and honor their guarantee. Their <a href="https://marketplaceglobal.com/rectorandstull/privacy-policy">privacy policy</a> covers what they do with it.</li><li><strong>If you ask about partnering:</strong> what you type into the form.</li><li><strong>If you opt in to refill-reminder texts:</strong> your mobile number and a record of your consent (the wording you agreed to, when, and on which page). We haven&rsquo;t started sending texts; reply STOP to any text to opt out.</li><li><strong>Automatically:</strong> Google Analytics records pages viewed, where visitors came from, and button clicks, with IP addresses anonymized. TikTok, Meta, Snapchat and Google Ads tags record page views, sign-ups and purchases so we can measure which ads work. Your browser also keeps a note, on your device only, of whether you&rsquo;ve seen, closed or used the email pop-up, so it doesn&rsquo;t keep asking.</li></ul>
   <h2>What we do with it</h2>
   <p>Fulfil orders, send the emails you signed up for, answer your questions, and measure which of our posts bring people here. We don't sell your data. We don't share it except with the services that make the site work: Stripe (payments), MarketPlace Global (the maker, who fulfils and ships orders), Klaviyo (email), GitHub (hosting), and analytics providers.</p>
   <h2>Your choices</h2>
   <p>Every email has an unsubscribe link. To see, correct or delete what we hold about you, email hello@themorningupgrades.com and we'll do it within 30 days.</p>
   <h2>Cookies</h2>
   <p>Google Analytics and the TikTok pixel set measurement cookies; you can block them with the <a href="https://tools.google.com/dlpage/gaoptout" rel="noopener">Google Analytics opt-out add-on</a> or your browser settings. Stripe and Klaviyo set the ones they need to work. TikTok&rsquo;s ad choices are at tiktok.com/legal/ads-and-your-data. The Meta pixel sets its own; you can opt out at facebook.com/ads/preferences. The Snap pixel sets its own too; Snapchat&rsquo;s ad preferences are in the app under Settings &gt; Ad Preferences.</p>
-  <p class="fine">Rector &amp; Stull LLC, 30 N Gould St Ste R, Sheridan, WY 82801 &middot; hello@themorningupgrades.com. Last updated October 2026.</p>
+  <p class="fine">Rector &amp; Stull LLC, 30 N Gould St Ste R, Sheridan, WY 82801 &middot; hello@themorningupgrades.com. Last updated November 2026.</p>
 </div></section>
 """
 
