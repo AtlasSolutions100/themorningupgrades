@@ -70,7 +70,7 @@
   <div>
     <h2>Who this is for</h2>
     <ul class="clean">
-      <li>You drink coffee every day and you'd rather sell one thing you use than ten you don't.</li>
+      <li>You drink coffee every day and you'd rather sell 1 thing you use than 10 you don't.</li>
       <li>You're comfortable posting short videos, or willing to learn with templates that do most of the work.</li>
       <li>You're fine with honest numbers. We'll show you ours.</li>
     </ul>
@@ -92,7 +92,7 @@
 <section class="alt" id="apply"><div class="wrap">
   <div class="quiz" style="max-width:640px">
     <h3>Tell us a little about you</h3>
-    <p class="fine" style="margin:0 0 10px">We'll reply within one business day with the enrollment details and the current costs. No pressure, no scripts.</p>
+    <p class="fine" style="margin:0 0 10px">We'll reply within 1 business day with the enrollment details and the current costs. No pressure, no scripts.</p>
     <form id="partner-form" novalidate>
       <label for="q-first">First name</label><input id="q-first" type="text" name="first_name" autocomplete="given-name">
       <label for="q-email">Email</label><input id="q-email" type="email" name="email" required autocomplete="email">
@@ -121,7 +121,7 @@
     if(!TMU.KLAVIYO_LIST_PARTNERS){ location.href='mailto:hello@themorningupgrades.com?subject=Partner%20inquiry&body='+encodeURIComponent('Name: '+f.first_name.value+'\nEmail: '+email+'\nPhone: '+f.phone.value+'\nStarting from: '+f.experience.value+'\n\n'+f.note.value); return; }
     var btn=f.querySelector('button'); btn.disabled=true; msg.textContent='Sending\u2026';
     klaviyoSubscribe(TMU.KLAVIYO_LIST_PARTNERS, email, f.first_name.value.trim(), {phone:f.phone.value,experience:f.experience.value,note:f.note.value,utm_source:q.get('utm_source')||'',utm_campaign:q.get('utm_campaign')||''}, 'themorningupgrades.com partner form')
-    .then(function(r){ if(r.status===202){ track('PartnerLead'); msg.textContent='Got it. We\u2019ll be in touch within one business day.'; f.reset(); } else { throw new Error(r.status); } })
+    .then(function(r){ if(r.status===202){ track('PartnerLead'); msg.textContent='Got it. We\u2019ll be in touch within 1 business day.'; f.reset(); } else { throw new Error(r.status); } })
     .catch(function(){ msg.textContent='Something went wrong. Email us at hello@themorningupgrades.com.'; btn.disabled=false; });
   });
 })();
@@ -133,7 +133,7 @@
   <div class="cols">
     <div>
       <h2 class="fh">The Morning Upgrade</h2>
-      <p>Dark roast Colombian instant coffee with MCT powder, L-theanine and natural caffeine. One scoop, hot water, thirty seconds; thirty servings a bag. Sold by Rector &amp; Stull LLC, Independent ISR of MarketPlace Global products and services.</p>
+      <p>Dark roast Colombian instant coffee with MCT powder, L-theanine and natural caffeine. 1 scoop, hot water, 30 seconds; 30 servings a bag. Sold by Rector &amp; Stull LLC, Independent ISR of MarketPlace Global products and services.</p>
       <p>hello@themorningupgrades.com</p>
     </div>
     <div>
@@ -145,7 +145,7 @@
       <a href="/shipping-returns.html">Shipping &amp; returns</a>
       <a href="/guides.html">Guides</a>
       <a href="/recipes.html">Recipes</a>
-      <a href="/start.html">The 7-day swap</a>
+      <a href="/start.html">Try it for 7 days</a>
       <a href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00" rel="noopener">Manage subscription</a>
     </div>
     <div>
