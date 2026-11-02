@@ -18,9 +18,15 @@ def check(cond, msg):
         FAIL.append(msg)
 
 
-def context(b, base, w=390, h=844, klaviyo=None):
-    ctx = b.new_context(viewport={"width": w, "height": h})
+# Seen-and-closed pop-up state, so the email pop-up stays out of the way of the other tests.
+NO_POPUP_JS = "try{if(!localStorage.getItem('tmu_pop'))localStorage.setItem('tmu_pop',JSON.stringify({s:'closed',t:Date.now()}))}catch(e){}"
+
+
+def context(b, base, w=390, h=844, klaviyo=None, popup=False, status=202):
+    ctx = b.new_context(viewport={"width": w, "height": h}, reduced_motion="reduce" if popup else None)
     ctx.add_init_script("try{localStorage.setItem('tmu_notice','1')}catch(e){}")
+    if not popup:
+        ctx.add_init_script(NO_POPUP_JS)
 
     def route(r):
         u = r.request.url
@@ -28,7 +34,7 @@ def context(b, base, w=390, h=844, klaviyo=None):
             return r.continue_()
         if klaviyo is not None and u.startswith(("https://a.klaviyo.com/client/subscriptions/", "https://a.klaviyo.com/client/profiles/")):
             klaviyo.append(json.loads(r.request.post_data or "{}"))
-            return r.fulfill(status=202, body="")
+            return r.fulfill(status=status, body="")
         return r.abort()
     ctx.route("**/*", route)
     return ctx
@@ -220,6 +226,122 @@ def order_tests(b, base):
     ctx.close()
 
 
+def popup_tests(b, base):
+    """Email pop-up: when it opens, where it never opens, keyboard and focus, the Klaviyo sign-up and
+    the success state, and the Subscribe & Save note afterwards. Timers run on Playwright's clock."""
+    SUB = "https://buy.stripe.com/8x228t3VN2Hsapg56k4wM01"
+    def is_open(pg):
+        return pg.locator(".tmu-pop .tp-panel[role=dialog]").count() == 1 and pg.locator(".tmu-pop .tp-panel").is_visible()
+    def wait10(pg):
+        pg.clock.run_for(11000); pg.wait_for_timeout(50)
+
+    # opens after 10 s on the home page (desktop), not before; focus lands in the email field
+    sent = []
+    ctx = context(b, base, 1440, 900, klaviyo=sent, popup=True); pg = ctx.new_page(); pg.clock.install()
+    pg.goto(base + "/")
+    pg.clock.run_for(5000); pg.wait_for_timeout(50)
+    check(not is_open(pg), "pop-up: not open at 5 s")
+    wait10(pg)
+    check(is_open(pg), "pop-up: opens after 10 s on the home page")
+    check(pg.evaluate("() => document.activeElement && document.activeElement.id") == "tp-email", "pop-up: focus starts in the email field (desktop)")
+    check(pg.locator(".tp-panel").get_attribute("aria-modal") == "true" and pg.locator("#tp-h").count() == 1
+          and pg.locator("label[for=tp-email]").count() == 1 and pg.locator("label[for=tp-first]").count() == 1, "pop-up: modal dialog with a heading and labelled fields")
+    txt = pg.locator(".tp-panel").inner_text()
+    for must in ("Recipe Pack", "$10", "Subscribe & Save", "Pause, skip or cancel anytime", "By signing up you agree to emails from The Morning Upgrade. Unsubscribe anytime."):
+        check(must in txt, f"pop-up says {must!r}")
+    check("MORNING10" not in txt and "code" not in txt.lower(), "pop-up mentions no promo code")
+    check(pg.locator(".tp-panel a[href='/privacy.html']").count() == 1, "pop-up links the privacy page")
+    inside = []
+    for _ in range(12):
+        pg.keyboard.press("Tab")
+        inside.append(pg.evaluate("() => !!document.activeElement.closest('.tp-panel')"))
+    pg.keyboard.press("Shift+Tab"); inside.append(pg.evaluate("() => !!document.activeElement.closest('.tp-panel')"))
+    check(all(inside), "pop-up: Tab and Shift+Tab stay inside the dialog")
+    # submit: bad email, then a good one
+    pg.fill("#tp-email", "nope"); pg.click(".tp-form button[type=submit]")
+    check(pg.locator("#tp-msg").inner_text().startswith("Check the email") and not sent, "pop-up: rejects a bad email, sends nothing")
+    pg.fill("#tp-first", "Sam"); pg.fill("#tp-email", "test@example.com"); pg.click(".tp-form button[type=submit]")
+    pg.wait_for_selector('.tmu-pop [data-step="done"]:not([hidden])')
+    a = sent[0]["data"] if sent else {}
+    props = a.get("attributes", {}).get("profile", {}).get("data", {}).get("attributes", {}).get("properties", {}) if a else {}
+    check(bool(a) and a["relationships"]["list"]["data"]["id"] == "WgctGT" and a["attributes"]["custom_source"] == "popup"
+          and props.get("offer") == "recipe_pack_plus_autoship10" and props.get("source") == "popup"
+          and a["attributes"]["profile"]["data"]["attributes"]["first_name"] == "Sam", "pop-up: subscribes to list WgctGT, source popup, offer recipe_pack_plus_autoship10")
+    lead = pg.evaluate("() => (window.dataLayer||[]).map(a=>Array.from(a)).filter(x=>x[0]==='event'&&x[1]==='Lead').map(x=>x[2].source)")
+    check(lead == ["popup"], f"pop-up: Lead fires once with source popup ({lead})")
+    dl = pg.locator(".tmu-pop .tp-dl")
+    check(dl.get_attribute("href") == "/assets/recipe-pack.pdf" and dl.get_attribute("download") is not None and dl.is_visible(), "pop-up success: Download the Recipe Pack")
+    use = pg.locator(".tmu-pop .tp-use")
+    href = use.get_attribute("href") or ""
+    check(use.is_visible() and "Claim $10 off" in use.text_content() and href.startswith(SUB + "?") and "promo" not in href,
+          f"pop-up success: Claim $10 off goes to the plain Subscribe & Save checkout ({href[:70]})")
+    check(pg.evaluate("() => document.activeElement.id") == "tp-h2", "pop-up success: focus moves to the success heading")
+    pg.keyboard.press("Escape")
+    check(not is_open(pg) and pg.evaluate("() => JSON.parse(localStorage.getItem('tmu_pop')).s") == "signed", "pop-up: Escape closes; sign-up remembered")
+    note = pg.locator(".hero2 [data-picker] .promo-note")
+    check(note.count() == 1 and note.is_visible() and note.inner_text() == "$10 off vs a single bag \u00b7 Cancel anytime", "after sign-up: note under the Subscribe & Save button")
+    pg.goto(base + "/"); wait10(pg)
+    check(not is_open(pg), "pop-up: never again after sign-up")
+    note = pg.locator(".hero2 [data-picker] .promo-note")
+    check(note.is_visible() and note.inner_text().startswith("$10 off vs a single bag"), "after sign-up: the note is there on the next page view")
+    pg.locator(".hero2 [data-picker] input[value=onetime]").locator("xpath=..").click()
+    check(not note.is_visible(), "after sign-up: no note while 1 bag is picked")
+    hrefs = pg.eval_on_selector_all("a[data-buy]", "els => els.map(e => e.href)")
+    check(hrefs and not any("promo" in h for h in hrefs), "no checkout link carries a promo code")
+    ctx.close()
+
+    # close (backdrop) snoozes for 14 days; after that it can show again
+    ctx = context(b, base, 1440, 900, popup=True); pg = ctx.new_page(); pg.clock.install()
+    pg.goto(base + "/shop.html"); wait10(pg)
+    check(is_open(pg), "pop-up: opens on /shop")
+    pg.mouse.click(30, 30)
+    check(not is_open(pg), "pop-up: backdrop click closes it")
+    pg.goto(base + "/faq.html"); wait10(pg)
+    check(not is_open(pg), "pop-up: snoozed after closing")
+    pg.evaluate("() => localStorage.setItem('tmu_pop', JSON.stringify({s:'closed',t:Date.now()-15*864e5}))")
+    pg.goto(base + "/faq.html"); wait10(pg)
+    check(is_open(pg), "pop-up: shows again after 14 days")
+    pg.click(".tp-x")
+    check(not is_open(pg), "pop-up: the close button closes it")
+    ctx.close()
+
+    # exit intent (desktop) and failure message
+    ctx = context(b, base, 1440, 900, klaviyo=[], popup=True, status=500); pg = ctx.new_page(); pg.clock.install()
+    pg.goto(base + "/ingredients.html"); pg.clock.run_for(3000)
+    pg.evaluate("() => document.dispatchEvent(new MouseEvent('mouseout',{clientY:-2,relatedTarget:null,bubbles:true}))")
+    check(is_open(pg), "pop-up: opens on desktop exit intent")
+    pg.fill("#tp-email", "test@example.com"); pg.click(".tp-form button[type=submit]")
+    pg.wait_for_selector("#tp-msg:has-text('try again')")
+    check(pg.locator(".tp-form").is_visible() and pg.locator(".tp-form button[type=submit]").is_enabled()
+          and pg.locator('[data-step="done"]').is_hidden(), "pop-up: a failed sign-up shows a friendly error and keeps the form")
+    ctx.close()
+
+    # never on these pages, never over the quiz
+    ctx = context(b, base, 1440, 900, popup=True); pg = ctx.new_page(); pg.clock.install()
+    for path in ("/quiz.html", "/order-complete.html", "/thanks.html", "/partner.html", "/share.html", "/no-such-page"):
+        pg.goto(base + path); wait10(pg)
+        pg.evaluate("() => window.scrollTo(0, document.documentElement.scrollHeight)"); pg.wait_for_timeout(50)
+        check(not is_open(pg), f"pop-up: never on {path}")
+    pg.goto(base + "/")
+    pg.click('#quiz .q[data-q="1"] .opt[data-v="crash"]')
+    wait10(pg); pg.clock.run_for(10000); pg.wait_for_timeout(50)
+    check(not is_open(pg), "pop-up: not while the quiz is under way")
+    pg.evaluate("() => localStorage.setItem('tmu_purchased', JSON.stringify(['cs_test_x']))")
+    pg.goto(base + "/"); wait10(pg)
+    check(not is_open(pg), "pop-up: not after an order from this browser")
+    ctx.close()
+
+    # phones: 50% scroll opens it as a bottom sheet with the photo hidden
+    ctx = context(b, base, 390, 844, popup=True); pg = ctx.new_page()
+    pg.goto(base + "/shop.html")
+    pg.evaluate("() => window.scrollTo(0, (document.documentElement.scrollHeight - innerHeight) * 0.55)")
+    pg.wait_for_selector(".tmu-pop .tp-panel", timeout=3000)
+    box = pg.locator(".tp-panel").bounding_box()
+    check(abs(box["y"] + box["height"] - 844) < 2 and box["width"] == 390 and pg.locator(".tp-media").is_hidden(), f"pop-up: 50% scroll opens a bottom sheet on phones ({box})")
+    check(pg.evaluate("() => document.documentElement.scrollWidth - innerWidth") <= 1, "pop-up: no horizontal overflow on phones")
+    ctx.close()
+
+
 def seo_tests(b, base):
     """Static checks on the generated HTML: titles/descriptions, canonicals, sitemap, structured data,
     and the CoreJava page (brand searches) with its internal links."""
@@ -291,6 +413,7 @@ def main():
         guide_tests(b, base)
         quiz_tests(b, base)
         order_tests(b, base)
+        popup_tests(b, base)
         seo_tests(b, base)
         b.close()
     print(f"\n{len(FAIL)} failure(s)")

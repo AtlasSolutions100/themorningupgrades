@@ -13,6 +13,12 @@ window.TMU = {
   KLAVIYO_COMPANY: "Ucdz59",
   KLAVIYO_LIST_QUIZ: "WgctGT",
   KLAVIYO_LIST_PARTNERS: "WeMj34",   // separate list; never the customer list
+  KLAVIYO_LIST_NEWSLETTER: "WgctGT", // email pop-up sign-ups. Same id as the quiz list for now; put a dedicated list id here to split them
+  // Email pop-up: the free Recipe Pack for signing up, plus "Claim $10 off with Subscribe & Save" (the $10 is the
+  // Subscribe & Save price itself, $69.95 vs $79.95 for 1 bag; there is no promo code). 0 turns the pop-up off.
+  RECIPE_PACK: "/assets/recipe-pack.pdf",
+  POPUP_DELAY_MS: 10000,             // pop-up opens after this long, at 50% scroll, or on desktop exit intent
+  POPUP_SNOOZE_DAYS: 14,             // after it's closed (or seen), wait this long before showing it again
   // Tracking
   RETAIL_BONUS_PCT: 0,         // ISR Retail Customer Bonus % on referred customer orders (0 = hide the math)
   GA4_ID: "G-G79BLY9MDG",       // Google Analytics 4
@@ -123,6 +129,13 @@ window.TMU = {
     return true;
   }catch(e){ return false; } };
 
+  // Pop-up state, kept in this browser only: tmu_pop = {s:'seen'|'closed'|'signed', t:time}.
+  function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+  function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+  function lsJSON(k){ try{ return JSON.parse(lsGet(k)||'null'); }catch(e){ return null; } }
+  C.ordered = function(){ var d=lsJSON('tmu_purchased'); return !!(d && d.length); };
+  C.signedUp = function(){ var p=lsJSON('tmu_pop'); return !!(p && p.s==='signed'); };
+
   // ViewContent on the product pages, for TikTok / Meta / Snap optimisation.
   // GitHub Pages also serves /shop and /start without .html: count those too (ad URLs often drop it).
   if (/^\/((index|shop|start)(\.html)?)?$/.test(location.pathname)) track('ViewContent',{value:PRICE.subscribe,currency:'USD'});
@@ -156,6 +169,7 @@ window.TMU = {
         // the sticky bar follows the plan the visitor picked
         var sb=document.querySelector('.sticky a[data-buy]'); if(sb){ sb.setAttribute('data-buy', r.value); wire(sb); }
         var sp=document.querySelector('.sticky [data-sticky-price]'); if(sp&&r.getAttribute('data-sticky')) sp.textContent=r.getAttribute('data-sticky');
+        promoNotes();
       }); });
     });
     // Buy buttons: data-buy="onetime|subscribe"
@@ -184,6 +198,7 @@ window.TMU = {
       wire(a);
       a.addEventListener('click', function(){ var k=a.getAttribute('data-buy'); try{ localStorage.setItem('tmu_plan', k); }catch(e){} track('InitiateCheckout',{plan:k, mode:a.dataset.mode, value:PRICE[k]||PRICE.subscribe, currency:'USD'}); });
     });
+    promoNotes();
     // Shipping / checkout copy depends on which checkout is live. Never promise free shipping in handoff mode.
     var SELF = !!(C.STRIPE_ONETIME||C.STRIPE_SUBSCRIBE);
     var SHIP = SELF ? {
@@ -217,5 +232,170 @@ window.TMU = {
         relationships:{list:{data:{type:'list',id:listId}}}}};
       return fetch('https://a.klaviyo.com/client/subscriptions/?company_id='+C.KLAVIYO_COMPANY,{method:'POST',headers:{'Content-Type':'application/json','revision':'2025-01-15'},body:JSON.stringify(body)});
     };
+
+    // ---------- After a pop-up sign-up: a short note next to Subscribe & Save buttons ----------
+    // (function declarations only: promoNotes() first runs above, before any var here is assigned)
+    function noteEl(){ var n=document.createElement('p'); n.className='promo-note'; n.textContent='$10 off vs a single bag \u00b7 Cancel anytime'; return n; }
+    function promoNotes(){
+      var on=C.signedUp() && !!C.STRIPE_SUBSCRIBE;
+      // plan pickers: under the buy button, only while Subscribe & Save is picked
+      document.querySelectorAll('[data-picker]').forEach(function(p){
+        var btn=p.querySelector('[data-picker-btn]'); if(!btn) return;
+        var n=p.querySelector('.promo-note'); if(!n && on){ n=noteEl(); btn.parentNode.insertBefore(n, btn.nextSibling); }
+        if(n) n.hidden=!(on && btn.getAttribute('data-buy')==='subscribe');
+      });
+      // other Subscribe & Save buttons (CTA rows, the order page's next-bag card)
+      document.querySelectorAll('a[data-buy="subscribe"]').forEach(function(a){
+        if(a.closest('[data-picker],.sticky,.tmu-pop')) return;
+        if(!a._pn && on){
+          var n=noteEl(), row=a.closest('.ctab'), par=a.parentNode;
+          if(row) row.insertBefore(n, row.querySelector('.fine'));
+          else if(par.tagName==='P' && par.children.length===1) par.parentNode.insertBefore(n, par.nextSibling);
+          else par.insertBefore(n, a.nextSibling);
+          a._pn=n;
+        }
+        if(a._pn) a._pn.hidden=!on;
+      });
+      // the phone sticky bar: a short line under the price while it checks out Subscribe & Save
+      var sb=document.querySelector('.sticky a[data-buy]'), sd=sb&&sb.parentNode.querySelector('div');
+      if(sd){ var sn=sd.querySelector('.promo-sticky');
+        if(!sn && on){ sn=document.createElement('span'); sn.className='promo-sticky'; sn.textContent='$10 off vs a single bag'; sd.appendChild(sn); }
+        if(sn) sn.hidden=!(on && sb.getAttribute('data-buy')==='subscribe'); }
+    }
+
+    // ---------- Pop-up: the Recipe Pack free for signing up + "Claim $10 off with Subscribe & Save" ----------
+    // Opens once per visitor after POPUP_DELAY_MS, at 50% scroll, or on desktop exit intent, whichever is
+    // first. Never on pages built with <body data-popup="off"> (order page, thank-you, partner/ISR, 404,
+    // the quiz page), never while the quiz is on screen or in progress, never after an order from this
+    // browser, never again after sign-up; closing it (or just seeing it) snoozes it POPUP_SNOOZE_DAYS.
+    function ga(n,p){ try{ if(window.gtag&&C.GA4_ID) gtag('event',n,p||{}); }catch(e){} }
+    function popEligible(){
+      if(!C.STRIPE_SUBSCRIBE || !C.POPUP_DELAY_MS) return false;
+      if(document.body.getAttribute('data-popup')==='off' || C.ordered()) return false;
+      var s=lsJSON('tmu_pop'); if(s && (s.s==='signed' || Date.now()-(+s.t||0) < (C.POPUP_SNOOZE_DAYS||14)*864e5)) return false;
+      return !document.querySelector('.tmu-pop');
+    }
+    function popBusy(){
+      var qz=document.querySelector('.quiz[data-source]');
+      if(qz){ var cur=qz.querySelector('.q.on'); if(cur && cur.getAttribute('data-q')!=='1') return true;   // quiz under way or done
+        var r=(document.getElementById('quiz')||qz).getBoundingClientRect(); if(r.top<innerHeight && r.bottom>0) return true; }
+      var ae=document.activeElement; if(ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) return true;   // typing somewhere
+      return !!document.querySelector('.menu.open') || document.visibilityState==='hidden';
+    }
+    if (popEligible()) (function(){
+      var armed=true, retry=0, t0=Date.now();
+      function off(){ armed=false; clearTimeout(timer); clearTimeout(retry); window.removeEventListener('scroll',onScroll); document.removeEventListener('mouseout',onOut); }
+      function attempt(why, again){
+        if(!armed) return;
+        if(!popEligible()){ off(); return; }
+        if(popBusy()){ if(again && !retry) retry=setTimeout(function(){ retry=0; attempt(why, true); }, 3000); return; }
+        off(); openPopup(why);
+      }
+      var timer=setTimeout(function(){ attempt('timer', true); }, C.POPUP_DELAY_MS);
+      function onScroll(){ var max=document.documentElement.scrollHeight-innerHeight;
+        if(max>innerHeight*0.5 && scrollY/max>=0.5) attempt('scroll', true); }
+      function onOut(e){ if(!e.relatedTarget && e.clientY<=0 && Date.now()-t0>2500) attempt('exit', false); }
+      window.addEventListener('scroll',onScroll,{passive:true});
+      if(window.matchMedia && matchMedia('(hover: hover) and (pointer: fine)').matches && innerWidth>860) document.addEventListener('mouseout',onOut);
+    })();
+
+    function openPopup(why){
+      var pack=C.RECIPE_PACK||'/assets/recipe-pack.pdf', img='/img/opt/lux-iced-';
+      var srcs=function(ext){ return img+'480.'+ext+' 480w, '+img+'800.'+ext+' 800w'; };
+      var wrap=document.createElement('div'); wrap.className='tmu-pop';
+      wrap.innerHTML=
+        '<div class="tp-bg" data-close></div>'+
+        '<div class="tp-panel" role="dialog" aria-modal="true" aria-labelledby="tp-h" aria-describedby="tp-d" tabindex="-1">'+
+          '<button class="tp-x" type="button" aria-label="Close" data-close><span aria-hidden="true"></span></button>'+
+          '<div class="tp-media" aria-hidden="true"><picture><source type="image/avif" srcset="'+srcs('avif')+'" sizes="340px"><source type="image/webp" srcset="'+srcs('webp')+'" sizes="340px"><img src="'+img+'800.jpg" alt="" width="1600" height="2000" loading="lazy" decoding="async"></picture></div>'+
+          '<div class="tp-body">'+
+            '<div class="tp-step" data-step="form">'+
+              '<p class="eyebrow">The Morning Upgrade list</p>'+
+              '<h2 id="tp-h">Get the Recipe Pack free.<br> Claim $10&nbsp;off with Subscribe&nbsp;&amp;&nbsp;Save.</h2>'+
+              '<ol class="tp-gets" id="tp-d">'+
+                '<li><span>01</span><div><b>The Recipe Pack, free</b><i>12 drinks, hot, iced and blended, plus a 30-morning tracker. PDF.</i></div></li>'+
+                '<li><span>02</span><div><b>$10 off with autoship</b><i>$69.95 a bag instead of $79.95, 1 bag every 30 days. Pause, skip or cancel anytime.</i></div></li>'+
+              '</ol>'+
+              '<form class="tp-form" novalidate>'+
+                '<div class="tp-fields">'+
+                  '<div><label for="tp-first">First name <span>(optional)</span></label><input id="tp-first" type="text" name="first_name" autocomplete="given-name"></div>'+
+                  '<div><label for="tp-email">Email</label><input id="tp-email" type="email" name="email" required autocomplete="email" inputmode="email" aria-describedby="tp-msg"></div>'+
+                '</div>'+
+                '<button class="btn big" type="submit">Send my Recipe Pack</button>'+
+                '<p class="tp-msg" id="tp-msg" role="status" aria-live="polite"></p>'+
+                '<p class="tp-fine">The $10 off is on Subscribe &amp; Save only (1 bag every 30 days, $69.95 vs $79.95 for a single bag). Pause, skip or cancel anytime.</p>'+
+                '<p class="tp-fine">By signing up you agree to emails from The Morning Upgrade. Unsubscribe anytime. <a href="/privacy.html">Privacy</a></p>'+
+              '</form>'+
+              '<button class="tp-no" type="button" data-close>No thanks</button>'+
+            '</div>'+
+            '<div class="tp-step" data-step="done" hidden>'+
+              '<p class="eyebrow">You&rsquo;re on the list</p>'+
+              '<h2 id="tp-h2" tabindex="-1">Your Recipe Pack is ready.</h2>'+
+              '<p class="tp-lede">12 drinks and a 30-morning tracker for the fridge. When you&rsquo;re ready for coffee, Subscribe &amp; Save is $10 less than a single bag.</p>'+
+              '<a class="btn ghost big tp-dl" href="'+pack+'" download>Download the Recipe Pack</a>'+
+              '<a class="btn big tp-use" data-buy="subscribe" href="/shop.html">Claim $10 off &mdash; start Subscribe &amp; Save</a>'+
+              '<p class="tp-fine">$69.95 every 30 days instead of $79.95 a bag, plus $8.95 shipping, until you cancel. Pause, skip or cancel anytime.</p>'+
+            '</div>'+
+          '</div>'+
+        '</div>';
+      var panel=wrap.querySelector('.tp-panel'), f=wrap.querySelector('form'), msg=wrap.querySelector('#tp-msg');
+      var prev=document.activeElement, root=document.documentElement, oldOverflow=root.style.overflow, signed=false;
+      document.body.appendChild(wrap);
+      root.style.overflow='hidden';
+      lsSet('tmu_pop', JSON.stringify({s:'seen',t:Date.now()}));
+      requestAnimationFrame(function(){ wrap.classList.add('on'); });
+      var fine=window.matchMedia && matchMedia('(hover: hover) and (pointer: fine)').matches;
+      (fine ? wrap.querySelector('#tp-email') : panel).focus({preventScroll:true});
+      ga('PopupView',{trigger:why});
+
+      function close(){
+        if(!wrap.parentNode) return;
+        if(!signed) lsSet('tmu_pop', JSON.stringify({s:'closed',t:Date.now()}));
+        document.removeEventListener('keydown',onKey,true); document.removeEventListener('focusin',onFocus,true);
+        root.style.overflow=oldOverflow; wrap.remove();
+        try{ if(prev && prev.focus && document.contains(prev)) prev.focus({preventScroll:true}); }catch(e){}
+        ga('PopupClose',{signed:signed});
+      }
+      function focusables(){ return [].slice.call(panel.querySelectorAll('a[href],button:not([disabled]),input:not([disabled])')).filter(function(e){ return e.getClientRects().length>0; }); }
+      function onKey(e){
+        if(e.key==='Escape'||e.key==='Esc'){ e.preventDefault(); close(); return; }
+        if(e.key!=='Tab') return;
+        var fs=focusables(); if(!fs.length){ e.preventDefault(); return; }
+        var a=document.activeElement, first=fs[0], last=fs[fs.length-1];
+        if(e.shiftKey && (a===first || !panel.contains(a) || a===panel)){ e.preventDefault(); last.focus(); }
+        else if(!e.shiftKey && (a===last || !panel.contains(a))){ e.preventDefault(); first.focus(); }
+      }
+      function onFocus(e){ if(!panel.contains(e.target)){ var fs=focusables(); (fs[0]||panel).focus(); } }
+      document.addEventListener('keydown',onKey,true); document.addEventListener('focusin',onFocus,true);
+      wrap.querySelectorAll('[data-close]').forEach(function(b){ b.addEventListener('click', close); });
+
+      f.addEventListener('submit', function(e){
+        e.preventDefault();
+        var em=f.email, email=em.value.trim(), first=f.first_name.value.trim().slice(0,60);
+        if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ em.setAttribute('aria-invalid','true'); msg.textContent='Check the email address.'; em.focus(); return; }
+        em.removeAttribute('aria-invalid');
+        var btn=f.querySelector('button[type=submit]'), label=btn.textContent; btn.disabled=true; btn.textContent='Sending…'; msg.textContent='';
+        var q; try{ q=new URLSearchParams(location.search); }catch(x){ q={get:function(){ return ''; }}; }
+        var props={offer:'recipe_pack_plus_autoship10',lead_magnet:'Recipe Pack',source:'popup',signup_page:location.pathname,
+          utm_source:q.get('utm_source')||'',utm_medium:q.get('utm_medium')||'',utm_campaign:q.get('utm_campaign')||'',utm_content:q.get('utm_content')||''};
+        var p; try{ p=window.klaviyoSubscribe(C.KLAVIYO_LIST_NEWSLETTER||C.KLAVIYO_LIST_QUIZ, email, first, props, 'popup'); }catch(x){ p=Promise.reject(x); }
+        p.then(function(r){ if(r && r.status===202) done(); else throw new Error(r && r.status); })
+         .catch(function(){ msg.textContent='That didn’t go through. Check your connection and try again.'; btn.disabled=false; btn.textContent=label; });
+      });
+      function done(){
+        signed=true;
+        lsSet('tmu_pop', JSON.stringify({s:'signed',t:Date.now()}));
+        track('Lead',{source:'popup'});
+        wrap.querySelector('[data-step="form"]').hidden=true;
+        wrap.querySelector('[data-step="done"]').hidden=false;
+        panel.setAttribute('aria-labelledby','tp-h2'); panel.removeAttribute('aria-describedby');
+        promoNotes();
+        wrap.querySelector('#tp-h2').focus({preventScroll:true});
+      }
+      var use=wrap.querySelector('.tp-use');
+      wire(use);   // the normal Subscribe & Save checkout (utm tags and creator/ad credit ride along as usual)
+      use.addEventListener('click', function(){ lsSet('tmu_plan','subscribe'); track('InitiateCheckout',{plan:'subscribe',mode:use.dataset.mode,value:PRICE.subscribe,currency:'USD',source:'popup'}); });
+      wrap.querySelector('.tp-dl').addEventListener('click', function(){ ga('RecipePackDownload',{source:'popup'}); });
+    }
   });
 })();

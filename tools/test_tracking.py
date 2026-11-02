@@ -46,6 +46,7 @@ def main():
         def fresh():
             ctx = b.new_context()
             block_third_party(ctx, base)
+            ctx.add_init_script("try{localStorage.setItem('tmu_pop',JSON.stringify({s:'closed',t:Date.now()}))}catch(e){}")   # email pop-up off here
             return ctx, ctx.new_page()
 
         # 1. ViewContent on home/shop/start for the ad pixels, not on other pages, not to GA4

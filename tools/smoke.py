@@ -57,6 +57,7 @@ def main(argv):
             ctx = b.new_context(viewport={"width": w, "height": h})
             block_third_party(ctx, base)
             ctx.add_init_script("try{localStorage.setItem('tmu_notice','1')}catch(e){}")
+            ctx.add_init_script("try{localStorage.setItem('tmu_pop',JSON.stringify({s:'closed',t:Date.now()}))}catch(e){}")   # email pop-up: tested in test_pages.py
             pg = ctx.new_page()
             for fn in pages():
                 path = "/" + ("" if fn == "index.html" else fn)
