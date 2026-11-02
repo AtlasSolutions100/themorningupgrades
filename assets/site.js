@@ -189,11 +189,11 @@ window.TMU = {
     var SHIP = SELF ? {
       bar:'$8.95 flat US shipping', short:'$8.95 US shipping', trust:'$8.95 flat US shipping', long:'$8.95 flat US shipping, added at checkout.',
       checkout:'Secure checkout by Stripe', damage:'90-day money-back guarantee on unopened bags',
-      policy:'Orders are fulfilled by the maker, MarketPlace Global, from Maple Grove, Minnesota, usually within two business days, then 3\u20136 days in transit. US shipping is a flat $8.95 a bag.'
+      policy:'The maker, MarketPlace Global, ships from Maple Grove, Minnesota within about 2 business days, then 3\u20136 days in transit. US shipping is a flat $8.95 a bag.'
     } : {
       bar:'$8.95 flat US shipping', short:'$8.95 US shipping', trust:'$8.95 flat US shipping', long:'$8.95 flat US shipping, shown at checkout.',
       checkout:'Secure checkout', damage:'Made right if it arrives damaged',
-      policy:'Orders are fulfilled by the maker, MarketPlace Global, from Maple Grove, Minnesota, usually within two business days, then 3\u20136 days in transit. US shipping is a flat $8.95 a bag, shown at their checkout before you pay.'
+      policy:'The maker, MarketPlace Global, ships from Maple Grove, Minnesota within about 2 business days, then 3\u20136 days in transit. US shipping is a flat $8.95 a bag, shown at their checkout.'
     };
     document.querySelectorAll('[data-ship]').forEach(function(e){ var k=e.getAttribute('data-ship'); if(SHIP[k]) e.textContent = SHIP[k]; });
     // First-order bonus is only promised when checkout is ours (the order page delivers it).

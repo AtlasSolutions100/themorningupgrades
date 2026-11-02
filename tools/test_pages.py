@@ -167,7 +167,7 @@ def quiz_tests(b, base):
         pg.click('#quiz .q[data-q="1"] .opt[data-v="jitters"]')
         pg.click('#quiz .q[data-q="2"] .opt[data-v="2"]')
         pg.click(f'#quiz .q[data-q="3"] .opt[data-v="{want}"]')
-        check(pg.locator("#r-label").text_content() == "Dark, smooth, considered", f"{path}: result uses Q1")
+        check(pg.locator("#r-label").text_content() == "Dark and smooth", f"{path}: result uses Q1")
         check("first one only" in pg.locator("#r-cups").text_content(), f"{path}: result uses Q2")
         check(pg.locator("#r-guide").get_attribute("href") == "/l-theanine-and-caffeine.html", f"{path}: result links the matching guide")
         checked = pg.locator("#quiz .qpick input:checked").get_attribute("value")
