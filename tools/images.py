@@ -53,6 +53,10 @@ IMAGES = {
     "lux-pattern":      ("lux_pattern.jpg", {"avif": True}),       # the bag's copper line pattern, no text
     "lux-linen":        ("lux_linen.jpg", {"avif": True}),         # top-down linen, cup, bag at the edge
     "lux-og":           ("lux_og.jpg", {}),                        # 1200x630 share image: the hero cup
+    # Nov 2026 second design pass: generated mood stills, no bag in frame
+    "lux-darkpour":     ("lux_darkpour.jpg", {"avif": True}),      # slow pour into a charcoal stone cup, dark (the one dark band)
+    "lux-stonecup":     ("lux_stonecup.jpg", {"avif": True}),      # cup on travertine, long window shadows (How to make it)
+    "lux-granules":     ("lux_granules.jpg", {"avif": True}),      # a scoop of instant coffee granules on travertine
 }
 
 

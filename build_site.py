@@ -324,9 +324,9 @@ CTA_BLOCK = """
 """
 
 _ICON = {
-    "truck": '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 6h11v10H3zM14 9h4l3 3v4h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg>',
-    "shield": '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>',
-    "store": '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 9h16l-1-4H5zM5 9v10h14V9M10 19v-5h4v5"/></svg>',
+    "truck": '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" aria-hidden="true"><path d="M3 6h11v10H3zM14 9h4l3 3v4h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg>',
+    "shield": '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>',
+    "store": '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" aria-hidden="true"><path d="M4 9h16l-1-4H5zM5 9v10h14V9M10 19v-5h4v5"/></svg>',
 }
 
 def trust_row(dark=False):
@@ -342,62 +342,59 @@ def picker(note=True):
     _PICKERS[0] += 1
     name = f"plan{_PICKERS[0]}"
     return f"""<fieldset class="picker" data-picker><legend class="sr">Choose a plan</legend>
-  <label class="opt on"><input type="radio" name="{name}" value="subscribe" checked data-cta="{_html.unescape(PLAN_CTA['subscribe'])}" data-sticky="{_html.unescape(PLAN_STICKY['subscribe'])}"><span class="radio"></span>
+  <div class="opts"><label class="opt on"><input type="radio" name="{name}" value="subscribe" checked data-cta="{_html.unescape(PLAN_CTA['subscribe'])}" data-sticky="{_html.unescape(PLAN_STICKY['subscribe'])}"><span class="radio"></span>
     <span class="ptxt"><b>Subscribe &amp; Save</b><span class="pfine">Every 30 days. Pause or cancel anytime.</span></span>
     <span class="pprice"><b>$69.95<small>/mo</small></b><em>$2.33 a morning</em></span></label>
   <label class="opt"><input type="radio" name="{name}" value="onetime" data-cta="{_html.unescape(PLAN_CTA['onetime'])}" data-sticky="{_html.unescape(PLAN_STICKY['onetime'])}"><span class="radio"></span>
     <span class="ptxt"><b>1 bag</b><span class="pfine">30 servings, no subscription.</span></span>
-    <span class="pprice"><b>$79.95</b><em>$2.67 a morning</em></span></label>
+    <span class="pprice"><b>$79.95</b><em>$2.67 a morning</em></span></label></div>
   <a class="btn big" data-buy="subscribe" data-picker-btn href="#"><span data-cta>{PLAN_CTA['subscribe']}</span></a>
   {f'<p class="fine pnote">{SHIP_NOTE}. 90-day money-back guarantee on unopened bags.</p>' if note else ''}
 </fieldset>"""
 
-# What is in a scoop, from the Supplement Facts panel: (amount, unit, name, source, what it is).
-# Say what each one is, never what it does to a body. Used on /ingredients.
+# The 4 ingredients we feature, as on the label: (name, source, what it is). Say what each one
+# is, never what it does to a body. The coffee is named without an amount; the full label (text
+# table and image) is the only place every amount appears. Used on /ingredients.
 SCOOP_ROWS = [
-    ("3,000", "mg", "Dark roast Colombian instant coffee", "",
-     "The coffee itself: 3 grams of dark roast per scoop. Good black, with milk or over ice."),
-    ("400", "mg", "L-theanine", "",
-     "An amino acid found in tea leaves. Here it is paired with coffee. <a href=\"/l-theanine-and-caffeine.html\">About L-theanine and caffeine</a>."),
-    ("100", "mg", "Natural caffeine", "<i>Coffea robusta</i> seed",
-     "Added on top of the coffee&rsquo;s own caffeine, so count both."),
-    ("From coconut", "", "MCT powder", "MCT oil and acacia gum",
+    ("Dark roast Colombian coffee", "instant", "The coffee itself. Good black, with milk or over ice."),
+    ("100 mg natural caffeine", "<i>Coffea robusta</i> seed", "Added per scoop, plus the coffee&rsquo;s own. Count both."),
+    ("400 mg L-theanine", "", "An amino acid found in tea leaves. <a href=\"/l-theanine-and-caffeine.html\">About L-theanine and caffeine</a>."),
+    ("MCT powder from coconut", "MCT oil and acacia gum",
      "Medium-chain triglycerides from coconut, as a powder. It makes the cup creamy without cream and stirs in with a spoon. <a href=\"/what-is-mct-coffee.html\">What MCT coffee is</a>."),
-]
-MINOR_ROWS = [
-    ("600", "mcg", "Chromium", "as ChromeMate&reg; chromium polynicotinate",
-     "A trace mineral, in a form bound to niacin. 1700% of the Daily Value on the panel."),
-    ("1,500", "mg", "Garcinia cambogia", "fruit rind extract",
-     "An extract of the rind of a small tropical fruit."),
-    ("40", "mg", "Paradoxine&reg;", "<i>Aframomum melegueta</i> extract",
-     "An extract of grains of paradise, a West African seed in the ginger family."),
-    ("30", "mg", "Saffr&rsquo;Activ&reg;", "<i>Crocus sativus</i> L. extract",
-     "An extract of saffron, the same spice used in cooking."),
 ]
 
 def ledger(rows, cls=""):
-    li = "".join(f'<li><span class="amt{"" if a[0].isdigit() else " word"}">{a}{f"<small>{u}</small>" if u else ""}</span>'
-                 f'<h3>{n}{f" <em>{src}</em>" if src else ""}</h3><p>{why}</p></li>' for a, u, n, src, why in rows)
+    li = "".join(f'<li><span class="no">{i:02d}</span><h3>{n}{f" <em>{src}</em>" if src else ""}</h3><p>{why}</p></li>'
+                 for i, (n, src, why) in enumerate(rows, 1))
     return f'<ul class="ledger{(" " + cls) if cls else ""}">{li}</ul>'
 
-# The short version of the scoop for home, /start and /shop: one card per ingredient.
+# The short version of the scoop for home and /start: one card per ingredient, each with a fine
+# line icon. Rendered as the page's one dark band (espresso-black, champagne-gold hairlines).
+_LINE = 'width="34" height="34" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"'
+INSIDE_ICONS = {
+    "bean": f'<svg {_LINE}><ellipse cx="18" cy="18" rx="9" ry="13" transform="rotate(32 18 18)"/><path d="M11.5 8.5c5 3.5 2.5 8.5 6 11.5s3.5 6 7 7.5"/></svg>',
+    "leaf": f'<svg {_LINE}><path d="M7 29C7 16 16 7 29 7c0 13-9 22-22 22z"/><path d="M7 29L21 15"/><path d="M14 22h6M18 18v-5"/></svg>',
+    "cherry": f'<svg {_LINE}><circle cx="12.5" cy="24.5" r="6"/><circle cx="24.5" cy="25.5" r="5.5"/><path d="M12.5 18.5c.5-6 4.5-10.5 10-12.5M24.5 20c-.5-5-1.5-9.5-2-14"/><path d="M22.5 6c3-1.5 6.5-.5 8 2"/></svg>',
+    "coconut": f'<svg {_LINE}><path d="M5 19h26a13 13 0 0 1-26 0z"/><path d="M9.5 19a8.5 8.5 0 0 0 17 0"/><path d="M18 4.5c2.2 3.2 3.2 5 3.2 6.6a3.2 3.2 0 0 1-6.4 0c0-1.6 1-3.4 3.2-6.6z"/></svg>',
+}
 INSIDE_CARDS = [
-    ("3,000", "mg", "Dark roast coffee", "Colombian instant coffee."),
-    ("400", "mg", "L-theanine", "An amino acid found in tea leaves."),
-    ("100", "mg", "Natural caffeine", "Added to the coffee&rsquo;s own caffeine."),
-    ("Coconut", "", "MCT powder", "Makes the cup creamy. Stirs right in."),
+    ("bean", "Dark roast Colombian coffee", "Instant. Ready in 30 seconds."),
+    ("cherry", "100 mg natural caffeine", "Added per scoop, plus the coffee&rsquo;s own."),
+    ("leaf", "400 mg L-theanine", "An amino acid found in tea leaves."),
+    ("coconut", "MCT powder from coconut", "Makes the cup creamy. Stirs right in."),
 ]
-AFTERNOTE = ('<p class="afternote">The label also lists chromium, Garcinia cambogia, grains of paradise and saffron extract. '
-             'We don&rsquo;t make claims for them. <a href="/ingredients.html">See every ingredient and the full label</a>.</p>')
+AFTERNOTE = '<p class="afternote"><a href="/ingredients.html#panel-text">See the full label</a></p>'
 
-def inside(cls=""):
-    cards = "".join(f'<div><span class="amt{"" if a[0].isdigit() else " word"}">{a}{f"<small>{u}</small>" if u else ""}</span><h3>{n}</h3><p>{d}</p></div>'
-                    for a, u, n, d in INSIDE_CARDS)
+def inside():
+    cards = "".join(f'<div>{INSIDE_ICONS[ic]}<h3>{n}</h3><p>{d}</p></div>' for ic, n, d in INSIDE_CARDS)
     return f"""
-<section{f' class="{cls}"' if cls else ''}><div class="wrap">
-  <div class="shead"><h2>What&rsquo;s inside</h2><p>Per scoop, from the label.</p></div>
-  <div class="inside">{cards}</div>
-  {AFTERNOTE}
+<section class="dark band"><div class="wrap band-grid">
+  <div class="band-media">""" + pic("lux-darkpour", "Coffee pouring in a thin stream into a dark stone cup", sizes="(max-width: 860px) 100vw, 46vw") + f"""</div>
+  <div class="band-copy">
+    <div class="shead"><h2>What&rsquo;s inside</h2><p>Per scoop, from the label.</p></div>
+    <div class="inside">{cards}</div>
+    {AFTERNOTE}
+  </div>
 </div></section>
 """
 
@@ -405,12 +402,15 @@ SCOOP_SECTION = inside()
 
 THIRD = "(max-width: 860px) 33vw, 33vw"
 RITUAL = """
-<section class="alt"><div class="wrap">
-  <div class="shead"><h2>How to make it</h2><p>No machine, no pods. Ready in 30 seconds.</p></div>
-  <div class="ritual">
-    <figure><div class="frame">""" + pic("lux-scoop", "A level scoop of dark instant coffee held over a stoneware cup", sizes=THIRD) + """</div><figcaption><div>1 level scoop<span>About 6.8 g.</span></div></figcaption></figure>
-    <figure><div class="frame">""" + pic("lux-pour", "Hot water pouring from a kettle into the cup", sizes=THIRD) + """</div><figcaption><div>8 oz hot water<span>Just off the boil.</span></div></figcaption></figure>
-    <figure><div class="frame">""" + pic("lux-cup", "A finished cup of black coffee on a saucer", sizes=THIRD) + """</div><figcaption><div>Stir 15 seconds<span>Black, with milk or iced.</span></div></figcaption></figure>
+<section class="alt"><div class="wrap howto">
+  <div class="frame howto-media">""" + pic("lux-stonecup", "A stoneware cup of black coffee on a travertine slab in long window shadows", sizes="(max-width: 860px) 100vw, 58vw") + """</div>
+  <div class="howto-copy">
+    <div class="shead"><h2>How to make it</h2><p>No machine, no pods. Ready in 30 seconds.</p></div>
+    <ol class="nums">
+      <li><span>01</span><div>1 level scoop<i>About 6.8 g.</i></div></li>
+      <li><span>02</span><div>8 oz hot water<i>Just off the boil.</i></div></li>
+      <li><span>03</span><div>Stir 15 seconds<i>Black, with milk or iced.</i></div></li>
+    </ol>
   </div>
 </div></section>
 """
@@ -464,19 +464,19 @@ def founder(img="lux-table", alt="A cup of coffee, an open notebook and reading 
 </div></section>
 """
 
-HERO_SIZES = "(max-width: 860px) 100vw, 52vw"   # home hero photo: full width on phones, the left half on desktop
+HERO_SIZES = "(max-width: 860px) 100vw, 54vw"   # home hero photo: full width on phones, the left half on desktop
 LP_SIZES = "(max-width: 860px) 100vw, 50vw"
 HERO_IMG = "lux-still"
 HERO_ALT = "A cup of black coffee and a scoop in front of the CoreJava bag"
 
 HOME_HERO = """
 <section class="hero2"><div class="wrap hero2-grid">
+  <div class="frame hero2-media">""" + pic(HERO_IMG, HERO_ALT, sizes=HERO_SIZES, eager=True) + """</div>
   <div class="hero2-copy">
     <p class="eyebrow">CoreJava instant coffee</p>
     <h1>Dark roast coffee with MCT and L&#8209;theanine.</h1>
     <p class="lede">1 scoop in hot water. Ready in 30 seconds. 30 servings a bag.</p>
   </div>
-  <div class="frame hero2-media">""" + pic(HERO_IMG, HERO_ALT, sizes=HERO_SIZES, eager=True) + """</div>
   <div class="hero2-buy">
     """ + picker() + """
     """ + trust_row() + """
@@ -495,13 +495,13 @@ def hero_c(h1="Dark roast coffee with MCT and L-theanine.", strip=("Ready in 30 
                 + "st.querySelectorAll('span:not(.rule)').forEach(function(e,i){if(v[1][i])e.textContent=v[1][i];});"
                 + "document.documentElement.setAttribute('data-variant',c);})();</script>")
     return f"""
-<section class="lphero"><div class="lp-grid">
-  <div class="lp-copy">
+<section class="hero2 lphero"><div class="wrap hero2-grid">
+  <div class="frame hero2-media">{pic(HERO_IMG, HERO_ALT, sizes=LP_SIZES, eager=True)}</div>
+  <div class="hero2-copy">
     <h1 class="h1c{' lp' if variants else ''}" id="lp-h1">{h1}</h1>
     <p class="stripc" id="lp-strip"><span class="rule"></span>{striphtml}<span class="rule"></span></p>{pick}
   </div>
-  <div class="lp-media">{pic(HERO_IMG, HERO_ALT, sizes=LP_SIZES, eager=True)}</div>
-  <div class="lp-buy">
+  <div class="hero2-buy">
     <p class="sr">CoreJava instant coffee: dark roast Colombian coffee with MCT powder, L-theanine and natural caffeine. 1 scoop, hot water, 30 seconds.</p>
     {picker()}
     {trust_row()}
@@ -611,7 +611,7 @@ CLOSING_FAQ = """
     <details><summary>Can I cancel the subscription?</summary><p>Anytime, from the link in your receipt or <a href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00">the subscription portal</a>. No calls.</p></details>"""
 
 # ---------- HOME ----------
-HOME = HOME_HERO + inside("alt") + RITUAL.replace('<section class="alt">', "<section>", 1) + COMPARE.replace("<section>", '<section class="alt">', 1) + founder() + quiz_section("home") + """
+HOME = HOME_HERO + RITUAL + inside() + COMPARE + founder() + quiz_section("home") + """
 <section><div class="wrap">
   <div class="shead"><h2>Guides</h2></div>
   <div class="glist">
@@ -638,21 +638,21 @@ SHOP = """
   <div class="frame shop-main">""" + pic("lux-still", "A stoneware cup of black coffee and a scoop in front of the CoreJava bag", sizes="(max-width: 860px) 100vw, 55vw", eager=True) + """</div>
   <div class="shop-buy">
     <h1>CoreJava<span>Instant coffee with MCT powder &amp; L&#8209;theanine. 30 servings.</span></h1>
-    <p class="lead">Dark roast Colombian coffee, MCT powder from coconut, 400 mg of L-theanine and 100 mg of added natural caffeine in each scoop. Add hot water and stir.</p>
+    <p class="lead">Dark roast Colombian coffee, 100 mg natural caffeine, 400 mg L-theanine and MCT powder from coconut in each scoop. Add hot water and stir.</p>
     """ + picker() + """
     <p class="bonus" data-bonus hidden><strong>Free with your first order:</strong> the Recipe Pack, 12 drinks plus a 30-morning tracker (PDF).</p>
     <p class="fine" style="margin-top:14px">Questions? hello@themorningupgrades.com. A person answers.</p>
   </div>
   <div class="gallery">
     <figure><div class="frame">""" + pic("lux-pattern", "The copper line pattern on the CoreJava bag, close up", sizes="(max-width: 860px) 42vw, 14vw") + """</div><figcaption>The bag</figcaption></figure>
-    <figure><div class="frame">""" + pic("lux-scoop", "A level scoop of dark instant coffee over a cup", sizes="(max-width: 860px) 42vw, 14vw") + """</div><figcaption>1 scoop</figcaption></figure>
+    <figure><div class="frame">""" + pic("lux-granules", "A steel scoop heaped with instant coffee granules on travertine", sizes="(max-width: 860px) 42vw, 14vw") + """</div><figcaption>1 scoop</figcaption></figure>
     <figure><div class="frame">""" + pic("lux-iced", "Iced coffee with milk sinking through it", sizes="(max-width: 860px) 42vw, 14vw") + """</div><figcaption>Over ice</figcaption></figure>
-    <figure><div class="frame">""" + pic("shadows", "The CoreJava bag, front, in morning light", sizes="(max-width: 860px) 42vw, 14vw") + """</div><figcaption>The bag as it ships</figcaption></figure>
+    <figure><div class="frame">""" + pic("lux-pour", "Hot water pouring from a kettle into a stoneware cup", sizes="(max-width: 860px) 42vw, 14vw") + """</div><figcaption>Hot water</figcaption></figure>
   </div>
   <div class="shop-details">
     <dl class="specs">
       <div><dt>Serving</dt><dd>1 level scoop (about 6.8 g) in 8 fl oz of hot water. 30 servings in a resealable 7.2 oz (204 g) bag.</dd></div>
-      <div><dt>Ingredients</dt><dd>Coffee, L-theanine, natural caffeine, MCT powder and 4 more. See the label below or <a href="/ingredients.html">each ingredient</a>.</dd></div>
+      <div><dt>Ingredients</dt><dd>The 4 above, plus the rest of <a href="/ingredients.html">the label</a>.</dd></div>
       <div><dt>Taste</dt><dd>Dark roast, a little smoother than drip.</dd></div>
       <div><dt>Allergens</dt><dd>Contains tree nuts (coconut).</dd></div>
       <div><dt>For</dt><dd>Adults. Not for children, or if you&rsquo;re pregnant or nursing. Contains caffeine.</dd></div>
@@ -673,9 +673,9 @@ SHOP = """
 # The Supplement Facts panel as text (searchable, readable by screen readers and AI assistants).
 # Transcribed from img/supplement-facts.png; amounts only, no label claims. Keep in sync with the bag.
 PANEL_ROWS = [
-    ("Chromium (as ChromeMate&reg; chromium polynicotinate)", "600 mcg", "1700%"),
-    ("Dark Roast Colombian Instant Coffee", "3000 mg", "&dagger;"),
-    ("Garcinia cambogia", "1500 mg", "&dagger;"),
+    ("Chromium (as ChromeMate&reg; chromium polynicotinate)", "600 mcg", "1,700%"),
+    ("Dark Roast Colombian Instant Coffee", "3,000 mg", "&dagger;"),
+    ("Garcinia cambogia", "1,500 mg", "&dagger;"),
     ("L-Theanine", "400 mg", "&dagger;"),
     ("Natural Caffeine (<em>Coffea robusta</em>) (seed)", "100 mg", "&dagger;"),
     ("Paradoxine&reg; (<em>Aframomum melegueta</em>) extract", "40 mg", "&dagger;"),
@@ -691,7 +691,7 @@ def panel_table(heading="The panel in text"):
     <tr><th>Per scoop</th><th>Amount</th><th>% Daily Value</th></tr>
     {rows}
   </table></div>
-  <p><strong>Other ingredients:</strong> {PANEL_OTHER}. <strong>Contains:</strong> tree nuts (coconut). &dagger; Daily Value not established.</p>
+  <p><strong>Other ingredients:</strong> {PANEL_OTHER}. <strong>Contains:</strong> tree nuts (coconut). &dagger; Daily Value not established. Trademarks belong to their ingredient suppliers.</p>
   <p class="fine">Copied from the Supplement Facts panel on the bag. If the bag in your hands differs, the bag is right.</p>"""
 
 # ---------- INGREDIENTS ----------
@@ -699,16 +699,14 @@ ING = """
 <section class="ihero"><div class="ed">
   <div class="ihero-copy">
     <h1>Ingredients</h1>
-    <p class="lead">Every ingredient in a scoop of CoreJava, with the amount from the label and what it is. We don&rsquo;t make health claims beyond the label.</p>
+    <p class="lead">The 4 main ingredients in a scoop of CoreJava, and the full label. We don&rsquo;t make health claims beyond the label.</p>
   </div>
   <div class="frame">""" + pic("lux-ingredients", "Small dishes of instant coffee, white powder, tea leaves and coconut on stone", sizes="(max-width: 860px) 100vw, 50vw", eager=True) + """</div>
 </div></section>
 <section><div class="wrap">
   <div class="shead"><h2>The main 4</h2><p>Per scoop.</p></div>
   """ + ledger(SCOOP_ROWS) + """
-  <div class="shead" style="margin-top:clamp(48px,6vw,80px)"><h2>Also on the label</h2><p>4 more ingredients. We say what they are and make no claims for them.</p></div>
-  """ + ledger(MINOR_ROWS, "minor") + """
-  <p class="afternote">Other ingredients: natural flavor and silicon dioxide (keeps the powder flowing). Contains tree nuts (coconut). Trademarks belong to their ingredient suppliers.</p>
+  <p class="afternote">Everything else on the label, with amounts, is in <a href="#panel-text">the label below</a>. Contains tree nuts (coconut).</p>
   <div class="claim"><h3>What we say about it</h3><p>Dark roast instant coffee with MCT powder, L-theanine and added natural caffeine, made in 30 seconds. It&rsquo;s a dietary supplement, not a medicine.</p></div>
 </div></section>
 <section class="alt"><div class="wrap">
@@ -732,8 +730,8 @@ COREJAVA = """
   <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> <span aria-hidden="true">&rsaquo;</span> <span aria-current="page">CoreJava coffee</span></nav>
   <p class="eyebrow">CoreJava, explained</p>
   <h1 style="font-size:clamp(32px,4.4vw,48px)">CoreJava coffee: what&rsquo;s in it, how to make it, and what it costs</h1>
-  <p class="lead answer">CoreJava is a dark roast Colombian instant coffee made by MarketPlace Global. Each scoop has MCT powder from coconut, 400 mg of L-theanine and 100 mg of added natural caffeine, plus the instant coffee&rsquo;s own caffeine. Stir 1 level scoop into 8 fl oz of hot water. A bag holds 30 servings: $79.95, or $69.95 a month on Subscribe &amp; Save.</p>
-  <div class="frame gphoto">""" + pic("shadows", "CoreJava coffee bag with leaf shadows in morning light", sizes="(max-width: 760px) 100vw, 720px") + """</div>
+  <p class="lead answer">CoreJava is a dark roast Colombian instant coffee made by MarketPlace Global. Each scoop has dark roast Colombian coffee, 100 mg natural caffeine, 400 mg L-theanine and MCT powder from coconut. Stir 1 level scoop into 8 fl oz of hot water. A bag holds 30 servings: $79.95, or $69.95 a month on Subscribe &amp; Save.</p>
+  <div class="frame gphoto">""" + pic("lux-still", "A stoneware cup of black coffee and a scoop in front of the CoreJava bag", sizes="(max-width: 760px) 100vw, 720px") + """</div>
   <h2>CoreJava at a glance</h2>
   <div class="tbl"><table>
     <tr><th></th><th>From the label and our store</th></tr>
@@ -749,7 +747,7 @@ COREJAVA = """
   <p>People search for it as CoreJava, Core Java coffee or MarketPlace Global coffee; it&rsquo;s the same bag.</p>
 
   <h2>What&rsquo;s in it</h2>
-  <p>7 ingredients have amounts on the Supplement Facts panel: the dark roast Colombian instant coffee itself, L-theanine (the amino acid found in tea leaves), natural caffeine, ChromeMate&reg; chromium, Garcinia cambogia, Paradoxine&reg; grains of paradise extract and Saffr&rsquo;Activ&reg; saffron extract. The MCT powder, made from coconut MCT oil and acacia gum, is what makes the cup creamy without cream. <a href="/ingredients.html">Each ingredient, explained</a>.</p>
+  <p>Dark roast Colombian coffee, 100 mg natural caffeine, 400 mg L-theanine and MCT powder from coconut. The MCT powder, made from coconut MCT oil and acacia gum, makes the cup creamy without cream. Every ingredient and amount is on the label below. <a href="/ingredients.html">The ingredients</a>.</p>
   """ + panel_table() + """
 
   <h2>How to make it</h2>
@@ -780,7 +778,7 @@ COREJAVA = """
   <details><summary>Who makes CoreJava?</summary><p>MarketPlace Global makes CoreJava and ships it from Maple Grove, Minnesota. Rector &amp; Stull LLC, an independent sales representative, runs this store.</p></details>
   <details><summary>Is this the official CoreJava website?</summary><p>No. This is an independent seller&rsquo;s store. Rector &amp; Stull LLC is an Independent ISR of MarketPlace Global, which makes CoreJava.</p></details>
   <details><summary>How much caffeine is in CoreJava?</summary><p>Each scoop has 100 mg of added natural caffeine, plus the caffeine in the instant coffee itself. Count both toward your day.</p></details>
-  <details><summary>Is CoreJava dark roast?</summary><p>Yes. The panel lists Dark Roast Colombian Instant Coffee, 3000 mg per scoop.</p></details>
+  <details><summary>Is CoreJava dark roast?</summary><p>Yes. The label lists Dark Roast Colombian Instant Coffee.</p></details>
   <details><summary>How much does CoreJava cost?</summary><p>Here it&rsquo;s $79.95 for a 30-serving bag, or $69.95 a month on Subscribe &amp; Save, plus $8.95 US shipping and any sales tax.</p></details>
   <details><summary>Does CoreJava contain dairy?</summary><p>The label lists tree nuts (coconut) as its allergen, and the MCT powder is made with acacia gum. Check the bag if you have an allergy.</p></details>
 
@@ -1202,7 +1200,7 @@ def capture(source, heading="Not ready? Get the free 7 Mornings guide.", note="7
 }})();
 </script>"""
 
-START = hero_c(variants=True) + SCOOP_SECTION.replace("<section>", '<section class="alt">', 1) + RITUAL.replace('<section class="alt">', "<section>", 1) + """
+START = hero_c(variants=True) + RITUAL + SCOOP_SECTION + """
 <section class="alt"><div class="wrap">
   <div class="shead"><h2>Try it for 7 days</h2></div>
   <div class="steps">
@@ -2181,7 +2179,7 @@ PAGES = {
   "404.html": ("Page not found — The Morning Upgrade", "That page isn't here. Try the shop, the ingredients, the guides or the FAQ.", NOT_FOUND, og_img("props-og"), True),
   "index.html": ("CoreJava MCT Coffee with L-Theanine | The Morning Upgrade", "Instant coffee with MCT powder, natural caffeine and L-theanine. 1 scoop in hot water, 30 servings a bag. $69.95 a month or $79.95 a bag.", HOME, og_img("lux-og"), False),
   "shop.html": ("Buy CoreJava MCT Coffee: $69.95/mo or $79.95 a Bag", "CoreJava price: $79.95 for a 30-serving bag or $69.95 a month on Subscribe & Save. Dark roast instant coffee with MCT powder, L-theanine and natural caffeine.", SHOP, og_img("lux-og"), False),
-  "corejava-coffee.html": ("CoreJava Coffee: Ingredients, Price & How to Make It", "CoreJava is MarketPlace Global's dark roast instant coffee with MCT powder, L-theanine and 100 mg added natural caffeine. Ingredients, price and how to make it.", COREJAVA, og_img("props-og"), False),
+  "corejava-coffee.html": ("CoreJava Coffee: Ingredients, Price & How to Make It", "CoreJava is MarketPlace Global's dark roast instant coffee with MCT powder, L-theanine and 100 mg natural caffeine. Ingredients, price and how to make it.", COREJAVA, og_img("props-og"), False),
   "ingredients.html": ("CoreJava Ingredients & Supplement Facts | Morning Upgrade", "What's in a scoop of CoreJava: MCT powder, natural caffeine, L-theanine and 4 more named ingredients, plus the full Supplement Facts panel.", ING, og_img("lux-og"), False),
   "faq.html": ("Coffee FAQ: Taste, Caffeine, Shipping | The Morning Upgrade", "How it tastes, how much caffeine is in a scoop, how Subscribe & Save works, shipping, returns, and who you're buying from.", FAQ, og_img("pour"), False),
   "partner.html": ("Build with us — The Morning Upgrade", "Join our team and sell the coffee with the same videos, site and email system we use. Honest numbers first.", PARTNER, og_img("props-og"), False),

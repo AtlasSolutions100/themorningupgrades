@@ -79,6 +79,32 @@
    1600
   ]
  },
+ "lux-darkpour": {
+  "avif": true,
+  "ext": "jpg",
+  "h": 1986,
+  "src": "lux_darkpour.jpg",
+  "w": 1600,
+  "widths": [
+   480,
+   800,
+   1200,
+   1600
+  ]
+ },
+ "lux-granules": {
+  "avif": true,
+  "ext": "jpg",
+  "h": 1986,
+  "src": "lux_granules.jpg",
+  "w": 1600,
+  "widths": [
+   480,
+   800,
+   1200,
+   1600
+  ]
+ },
  "lux-hero": {
   "avif": true,
   "ext": "jpg",
@@ -192,6 +218,19 @@
    800,
    1200,
    1600
+  ]
+ },
+ "lux-stonecup": {
+  "avif": true,
+  "ext": "jpg",
+  "h": 1342,
+  "src": "lux_stonecup.jpg",
+  "w": 2000,
+  "widths": [
+   480,
+   800,
+   1200,
+   2000
   ]
  },
  "lux-table": {
