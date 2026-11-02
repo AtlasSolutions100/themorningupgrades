@@ -26,7 +26,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=Libre+Caslon+Display&family=Libre+Caslon+Text:ital@0;1&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=Libre+Caslon+Display&family=Libre+Caslon+Text:ital@0;1&display=swap" rel="stylesheet"></noscript>
 <link rel="stylesheet" href="/assets/site.css">
 <script src="/assets/site.js"></script>
-<link rel="preload" as="image" type="image/avif" imagesrcset="/img/opt/lux-still-480.avif 480w, /img/opt/lux-still-800.avif 800w, /img/opt/lux-still-1200.avif 1200w, /img/opt/lux-still-1600.avif 1600w" imagesizes="(max-width: 860px) 100vw, 52vw" fetchpriority="high">
+<link rel="preload" as="image" type="image/avif" imagesrcset="/img/opt/lux-still-480.avif 480w, /img/opt/lux-still-800.avif 800w, /img/opt/lux-still-1200.avif 1200w, /img/opt/lux-still-1600.avif 1600w" imagesizes="(max-width: 860px) 100vw, 54vw" fetchpriority="high">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -46,47 +46,53 @@
 <main id="main">
 
 <section class="hero2"><div class="wrap hero2-grid">
+  <div class="frame hero2-media"><picture><source type="image/avif" srcset="/img/opt/lux-still-480.avif 480w, /img/opt/lux-still-800.avif 800w, /img/opt/lux-still-1200.avif 1200w, /img/opt/lux-still-1600.avif 1600w" sizes="(max-width: 860px) 100vw, 54vw"><source type="image/webp" srcset="/img/opt/lux-still-480.webp 480w, /img/opt/lux-still-800.webp 800w, /img/opt/lux-still-1200.webp 1200w, /img/opt/lux-still-1600.webp 1600w" sizes="(max-width: 860px) 100vw, 54vw"><img src="/img/opt/lux-still-800.jpg" srcset="/img/opt/lux-still-480.jpg 480w, /img/opt/lux-still-800.jpg 800w, /img/opt/lux-still-1200.jpg 1200w, /img/opt/lux-still-1600.jpg 1600w" sizes="(max-width: 860px) 100vw, 54vw" width="1600" height="2000" alt="A cup of black coffee and a scoop in front of the CoreJava bag" fetchpriority="high" decoding="async"></picture></div>
   <div class="hero2-copy">
     <p class="eyebrow">CoreJava instant coffee</p>
     <h1>Dark roast coffee with MCT and L&#8209;theanine.</h1>
     <p class="lede">1 scoop in hot water. Ready in 30 seconds. 30 servings a bag.</p>
   </div>
-  <div class="frame hero2-media"><picture><source type="image/avif" srcset="/img/opt/lux-still-480.avif 480w, /img/opt/lux-still-800.avif 800w, /img/opt/lux-still-1200.avif 1200w, /img/opt/lux-still-1600.avif 1600w" sizes="(max-width: 860px) 100vw, 52vw"><source type="image/webp" srcset="/img/opt/lux-still-480.webp 480w, /img/opt/lux-still-800.webp 800w, /img/opt/lux-still-1200.webp 1200w, /img/opt/lux-still-1600.webp 1600w" sizes="(max-width: 860px) 100vw, 52vw"><img src="/img/opt/lux-still-800.jpg" srcset="/img/opt/lux-still-480.jpg 480w, /img/opt/lux-still-800.jpg 800w, /img/opt/lux-still-1200.jpg 1200w, /img/opt/lux-still-1600.jpg 1600w" sizes="(max-width: 860px) 100vw, 52vw" width="1600" height="2000" alt="A cup of black coffee and a scoop in front of the CoreJava bag" fetchpriority="high" decoding="async"></picture></div>
   <div class="hero2-buy">
     <fieldset class="picker" data-picker><legend class="sr">Choose a plan</legend>
-  <label class="opt on"><input type="radio" name="plan1" value="subscribe" checked data-cta="Subscribe for $69.95 a month" data-sticky="$2.33 a morning · $69.95 a month"><span class="radio"></span>
+  <div class="opts"><label class="opt on"><input type="radio" name="plan1" value="subscribe" checked data-cta="Subscribe for $69.95 a month" data-sticky="$2.33 a morning · $69.95 a month"><span class="radio"></span>
     <span class="ptxt"><b>Subscribe &amp; Save</b><span class="pfine">Every 30 days. Pause or cancel anytime.</span></span>
     <span class="pprice"><b>$69.95<small>/mo</small></b><em>$2.33 a morning</em></span></label>
   <label class="opt"><input type="radio" name="plan1" value="onetime" data-cta="Buy 1 bag for $79.95" data-sticky="$2.67 a morning · $79.95 for 1 bag"><span class="radio"></span>
     <span class="ptxt"><b>1 bag</b><span class="pfine">30 servings, no subscription.</span></span>
-    <span class="pprice"><b>$79.95</b><em>$2.67 a morning</em></span></label>
+    <span class="pprice"><b>$79.95</b><em>$2.67 a morning</em></span></label></div>
   <a class="btn big" data-buy="subscribe" data-picker-btn href="#"><span data-cta>Subscribe for $69.95 a month</span></a>
   <p class="fine pnote">$8.95 flat US shipping and any tax at checkout. 90-day money-back guarantee on unopened bags.</p>
 </fieldset>
     <div class="trustbar row">
-  <span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 6h11v10H3zM14 9h4l3 3v4h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg><b>Ships in about 2 business days</b><i>from Minnesota</i></span>
-  <span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg><b>90-day guarantee</b><i>on unopened bags</i></span>
-  <span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 9h16l-1-4H5zM5 9v10h14V9M10 19v-5h4v5"/></svg><b>Made by MarketPlace Global</b><i>sold by Rector &amp; Stull, an independent ISR</i></span>
+  <span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" aria-hidden="true"><path d="M3 6h11v10H3zM14 9h4l3 3v4h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg><b>Ships in about 2 business days</b><i>from Minnesota</i></span>
+  <span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg><b>90-day guarantee</b><i>on unopened bags</i></span>
+  <span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" aria-hidden="true"><path d="M4 9h16l-1-4H5zM5 9v10h14V9M10 19v-5h4v5"/></svg><b>Made by MarketPlace Global</b><i>sold by Rector &amp; Stull, an independent ISR</i></span>
 </div>
   </div>
 </div></section>
 
-<section class="alt"><div class="wrap">
-  <div class="shead"><h2>What&rsquo;s inside</h2><p>Per scoop, from the label.</p></div>
-  <div class="inside"><div><span class="amt">3,000<small>mg</small></span><h3>Dark roast coffee</h3><p>Colombian instant coffee.</p></div><div><span class="amt">400<small>mg</small></span><h3>L-theanine</h3><p>An amino acid found in tea leaves.</p></div><div><span class="amt">100<small>mg</small></span><h3>Natural caffeine</h3><p>Added to the coffee&rsquo;s own caffeine.</p></div><div><span class="amt word">Coconut</span><h3>MCT powder</h3><p>Makes the cup creamy. Stirs right in.</p></div></div>
-  <p class="afternote">The label also lists chromium, Garcinia cambogia, grains of paradise and saffron extract. We don&rsquo;t make claims for them. <a href="/ingredients.html">See every ingredient and the full label</a>.</p>
-</div></section>
-
-<section><div class="wrap">
-  <div class="shead"><h2>How to make it</h2><p>No machine, no pods. Ready in 30 seconds.</p></div>
-  <div class="ritual">
-    <figure><div class="frame"><picture><source type="image/avif" srcset="/img/opt/lux-scoop-480.avif 480w, /img/opt/lux-scoop-800.avif 800w, /img/opt/lux-scoop-1200.avif 1200w, /img/opt/lux-scoop-1600.avif 1600w" sizes="(max-width: 860px) 33vw, 33vw"><source type="image/webp" srcset="/img/opt/lux-scoop-480.webp 480w, /img/opt/lux-scoop-800.webp 800w, /img/opt/lux-scoop-1200.webp 1200w, /img/opt/lux-scoop-1600.webp 1600w" sizes="(max-width: 860px) 33vw, 33vw"><img src="/img/opt/lux-scoop-800.jpg" srcset="/img/opt/lux-scoop-480.jpg 480w, /img/opt/lux-scoop-800.jpg 800w, /img/opt/lux-scoop-1200.jpg 1200w, /img/opt/lux-scoop-1600.jpg 1600w" sizes="(max-width: 860px) 33vw, 33vw" width="1600" height="2000" alt="A level scoop of dark instant coffee held over a stoneware cup" loading="lazy" decoding="async"></picture></div><figcaption><div>1 level scoop<span>About 6.8 g.</span></div></figcaption></figure>
-    <figure><div class="frame"><picture><source type="image/avif" srcset="/img/opt/lux-pour-480.avif 480w, /img/opt/lux-pour-800.avif 800w, /img/opt/lux-pour-1200.avif 1200w, /img/opt/lux-pour-1600.avif 1600w" sizes="(max-width: 860px) 33vw, 33vw"><source type="image/webp" srcset="/img/opt/lux-pour-480.webp 480w, /img/opt/lux-pour-800.webp 800w, /img/opt/lux-pour-1200.webp 1200w, /img/opt/lux-pour-1600.webp 1600w" sizes="(max-width: 860px) 33vw, 33vw"><img src="/img/opt/lux-pour-800.jpg" srcset="/img/opt/lux-pour-480.jpg 480w, /img/opt/lux-pour-800.jpg 800w, /img/opt/lux-pour-1200.jpg 1200w, /img/opt/lux-pour-1600.jpg 1600w" sizes="(max-width: 860px) 33vw, 33vw" width="1600" height="2000" alt="Hot water pouring from a kettle into the cup" loading="lazy" decoding="async"></picture></div><figcaption><div>8 oz hot water<span>Just off the boil.</span></div></figcaption></figure>
-    <figure><div class="frame"><picture><source type="image/avif" srcset="/img/opt/lux-cup-480.avif 480w, /img/opt/lux-cup-800.avif 800w, /img/opt/lux-cup-1200.avif 1200w, /img/opt/lux-cup-1600.avif 1600w" sizes="(max-width: 860px) 33vw, 33vw"><source type="image/webp" srcset="/img/opt/lux-cup-480.webp 480w, /img/opt/lux-cup-800.webp 800w, /img/opt/lux-cup-1200.webp 1200w, /img/opt/lux-cup-1600.webp 1600w" sizes="(max-width: 860px) 33vw, 33vw"><img src="/img/opt/lux-cup-800.jpg" srcset="/img/opt/lux-cup-480.jpg 480w, /img/opt/lux-cup-800.jpg 800w, /img/opt/lux-cup-1200.jpg 1200w, /img/opt/lux-cup-1600.jpg 1600w" sizes="(max-width: 860px) 33vw, 33vw" width="1600" height="2000" alt="A finished cup of black coffee on a saucer" loading="lazy" decoding="async"></picture></div><figcaption><div>Stir 15 seconds<span>Black, with milk or iced.</span></div></figcaption></figure>
+<section class="alt"><div class="wrap howto">
+  <div class="frame howto-media"><picture><source type="image/avif" srcset="/img/opt/lux-stonecup-480.avif 480w, /img/opt/lux-stonecup-800.avif 800w, /img/opt/lux-stonecup-1200.avif 1200w, /img/opt/lux-stonecup-2000.avif 2000w" sizes="(max-width: 860px) 100vw, 58vw"><source type="image/webp" srcset="/img/opt/lux-stonecup-480.webp 480w, /img/opt/lux-stonecup-800.webp 800w, /img/opt/lux-stonecup-1200.webp 1200w, /img/opt/lux-stonecup-2000.webp 2000w" sizes="(max-width: 860px) 100vw, 58vw"><img src="/img/opt/lux-stonecup-800.jpg" srcset="/img/opt/lux-stonecup-480.jpg 480w, /img/opt/lux-stonecup-800.jpg 800w, /img/opt/lux-stonecup-1200.jpg 1200w, /img/opt/lux-stonecup-2000.jpg 2000w" sizes="(max-width: 860px) 100vw, 58vw" width="2000" height="1342" alt="A stoneware cup of black coffee on a travertine slab in long window shadows" loading="lazy" decoding="async"></picture></div>
+  <div class="howto-copy">
+    <div class="shead"><h2>How to make it</h2><p>No machine, no pods. Ready in 30 seconds.</p></div>
+    <ol class="nums">
+      <li><span>01</span><div>1 level scoop<i>About 6.8 g.</i></div></li>
+      <li><span>02</span><div>8 oz hot water<i>Just off the boil.</i></div></li>
+      <li><span>03</span><div>Stir 15 seconds<i>Black, with milk or iced.</i></div></li>
+    </ol>
   </div>
 </div></section>
 
-<section class="alt"><div class="wrap mathgrid">
+<section class="dark band"><div class="wrap band-grid">
+  <div class="band-media"><picture><source type="image/avif" srcset="/img/opt/lux-darkpour-480.avif 480w, /img/opt/lux-darkpour-800.avif 800w, /img/opt/lux-darkpour-1200.avif 1200w, /img/opt/lux-darkpour-1600.avif 1600w" sizes="(max-width: 860px) 100vw, 46vw"><source type="image/webp" srcset="/img/opt/lux-darkpour-480.webp 480w, /img/opt/lux-darkpour-800.webp 800w, /img/opt/lux-darkpour-1200.webp 1200w, /img/opt/lux-darkpour-1600.webp 1600w" sizes="(max-width: 860px) 100vw, 46vw"><img src="/img/opt/lux-darkpour-800.jpg" srcset="/img/opt/lux-darkpour-480.jpg 480w, /img/opt/lux-darkpour-800.jpg 800w, /img/opt/lux-darkpour-1200.jpg 1200w, /img/opt/lux-darkpour-1600.jpg 1600w" sizes="(max-width: 860px) 100vw, 46vw" width="1600" height="1986" alt="Coffee pouring in a thin stream into a dark stone cup" loading="lazy" decoding="async"></picture></div>
+  <div class="band-copy">
+    <div class="shead"><h2>What&rsquo;s inside</h2><p>Per scoop, from the label.</p></div>
+    <div class="inside"><div><svg width="34" height="34" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="18" cy="18" rx="9" ry="13" transform="rotate(32 18 18)"/><path d="M11.5 8.5c5 3.5 2.5 8.5 6 11.5s3.5 6 7 7.5"/></svg><h3>Dark roast Colombian coffee</h3><p>Instant. Ready in 30 seconds.</p></div><div><svg width="34" height="34" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12.5" cy="24.5" r="6"/><circle cx="24.5" cy="25.5" r="5.5"/><path d="M12.5 18.5c.5-6 4.5-10.5 10-12.5M24.5 20c-.5-5-1.5-9.5-2-14"/><path d="M22.5 6c3-1.5 6.5-.5 8 2"/></svg><h3>100 mg natural caffeine</h3><p>Added per scoop, plus the coffee&rsquo;s own.</p></div><div><svg width="34" height="34" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 29C7 16 16 7 29 7c0 13-9 22-22 22z"/><path d="M7 29L21 15"/><path d="M14 22h6M18 18v-5"/></svg><h3>400 mg L-theanine</h3><p>An amino acid found in tea leaves.</p></div><div><svg width="34" height="34" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19h26a13 13 0 0 1-26 0z"/><path d="M9.5 19a8.5 8.5 0 0 0 17 0"/><path d="M18 4.5c2.2 3.2 3.2 5 3.2 6.6a3.2 3.2 0 0 1-6.4 0c0-1.6 1-3.4 3.2-6.6z"/></svg><h3>MCT powder from coconut</h3><p>Makes the cup creamy. Stirs right in.</p></div></div>
+    <p class="afternote"><a href="/ingredients.html#panel-text">See the full label</a></p>
+  </div>
+</div></section>
+
+<section><div class="wrap mathgrid">
   <div>
     <h2>Pricing</h2>
     <p class="lead">$69.95 a month on Subscribe &amp; Save, or $79.95 for 1 bag. Each bag is 30 servings.</p>
@@ -124,12 +130,12 @@
       <h3>Our suggestion</h3>
       <p id="r-plan" class="fine" style="font-size:15px;color:var(--ink2)"></p>
       <div class="qpick"><fieldset class="picker" data-picker><legend class="sr">Choose a plan</legend>
-  <label class="opt on"><input type="radio" name="plan3" value="subscribe" checked data-cta="Subscribe for $69.95 a month" data-sticky="$2.33 a morning · $69.95 a month"><span class="radio"></span>
+  <div class="opts"><label class="opt on"><input type="radio" name="plan3" value="subscribe" checked data-cta="Subscribe for $69.95 a month" data-sticky="$2.33 a morning · $69.95 a month"><span class="radio"></span>
     <span class="ptxt"><b>Subscribe &amp; Save</b><span class="pfine">Every 30 days. Pause or cancel anytime.</span></span>
     <span class="pprice"><b>$69.95<small>/mo</small></b><em>$2.33 a morning</em></span></label>
   <label class="opt"><input type="radio" name="plan3" value="onetime" data-cta="Buy 1 bag for $79.95" data-sticky="$2.67 a morning · $79.95 for 1 bag"><span class="radio"></span>
     <span class="ptxt"><b>1 bag</b><span class="pfine">30 servings, no subscription.</span></span>
-    <span class="pprice"><b>$79.95</b><em>$2.67 a morning</em></span></label>
+    <span class="pprice"><b>$79.95</b><em>$2.67 a morning</em></span></label></div>
   <a class="btn big" data-buy="subscribe" data-picker-btn href="#"><span data-cta>Subscribe for $69.95 a month</span></a>
   <p class="fine pnote">$8.95 flat US shipping and any tax at checkout. 90-day money-back guarantee on unopened bags.</p>
 </fieldset></div>
@@ -198,12 +204,12 @@
     <p class="fine">Contains caffeine. Not for children, or if you&rsquo;re pregnant or nursing.</p>
   </div>
   <div><fieldset class="picker" data-picker><legend class="sr">Choose a plan</legend>
-  <label class="opt on"><input type="radio" name="plan4" value="subscribe" checked data-cta="Subscribe for $69.95 a month" data-sticky="$2.33 a morning · $69.95 a month"><span class="radio"></span>
+  <div class="opts"><label class="opt on"><input type="radio" name="plan4" value="subscribe" checked data-cta="Subscribe for $69.95 a month" data-sticky="$2.33 a morning · $69.95 a month"><span class="radio"></span>
     <span class="ptxt"><b>Subscribe &amp; Save</b><span class="pfine">Every 30 days. Pause or cancel anytime.</span></span>
     <span class="pprice"><b>$69.95<small>/mo</small></b><em>$2.33 a morning</em></span></label>
   <label class="opt"><input type="radio" name="plan4" value="onetime" data-cta="Buy 1 bag for $79.95" data-sticky="$2.67 a morning · $79.95 for 1 bag"><span class="radio"></span>
     <span class="ptxt"><b>1 bag</b><span class="pfine">30 servings, no subscription.</span></span>
-    <span class="pprice"><b>$79.95</b><em>$2.67 a morning</em></span></label>
+    <span class="pprice"><b>$79.95</b><em>$2.67 a morning</em></span></label></div>
   <a class="btn big" data-buy="subscribe" data-picker-btn href="#"><span data-cta>Subscribe for $69.95 a month</span></a>
   <p class="fine pnote">$8.95 flat US shipping and any tax at checkout. 90-day money-back guarantee on unopened bags.</p>
 </fieldset></div>
