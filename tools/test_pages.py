@@ -414,6 +414,7 @@ def seo_tests(b, base):
     root = os.path.join(os.path.dirname(__file__), "..")
     site = "https://themorningupgrades.com"
     home = open(os.path.join(root, "index.html")).read()
+    check('<meta name="msvalidate.01" content="97386D3157EE9C0604AE6D8A368F083C" />' in home.split("</head>")[0], "index.html head carries the Bing msvalidate.01 tag")
     org = [g for d in re.findall(r'<script type="application/ld\+json">(.*?)</script>', home, re.S) for g in json.loads(d)["@graph"] if g["@type"] == "Organization"]
     check(org and "https://www.facebook.com/profile.php?id=61595873313798" in org[0].get("sameAs", []), "Organization sameAs lists the Facebook page")
     titles, descs, indexable = {}, {}, set()
