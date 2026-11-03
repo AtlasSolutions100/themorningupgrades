@@ -186,11 +186,18 @@ def guide_tests(b, base):
         check(f'<li><a href="/{recipe}">' in h.split("Related guides")[1], f"{fn}: related list links the {recipe} recipe")
     new = ["how-much-caffeine-in-instant-coffee.html", "how-to-make-instant-coffee-taste-better.html", "does-instant-coffee-go-bad.html",
            "instant-coffee-for-travel-camping-dorm.html", "what-is-mct-powder.html", "natural-caffeine-vs-synthetic.html",
-           "caffeine-and-l-theanine-ratio.html", "instant-coffee-vs-drip-cost-per-cup.html"]
+           "caffeine-and-l-theanine-ratio.html", "instant-coffee-vs-drip-cost-per-cup.html",
+           "what-is-functional-coffee.html", "mushroom-coffee-vs-mct-coffee.html"]
     for fn in new:
         h = open(os.path.join(root, fn)).read()
         n = h.count("<details><summary>")
         check(4 <= n <= 5 and 'class="frame gphoto"' in h and "benefit" not in h.lower(), f"{fn}: {n} FAQs, a photo, no 'benefits' framing")
+    # functional coffee guides: sourced, linked both ways, label facts only for our product
+    for fn, other in (("what-is-functional-coffee.html", "mushroom-coffee-vs-mct-coffee.html"), ("mushroom-coffee-vs-mct-coffee.html", "what-is-functional-coffee.html")):
+        h = open(os.path.join(root, fn)).read()
+        rel = h.split("Related guides")[1].split("</ul>")[0]
+        check(f'href="/{other}"' in rel and h.count('<ol class="fine src">') == 1, f"{fn}: links {other} in related guides and lists sources")
+        check("100 mg natural caffeine" in _h.unescape(h) and "no mushrooms on the label" in h, f"{fn}: our product described by label facts")
     ctx = context(b, base); pg = ctx.new_page()
     pg.goto(base + "/instant-coffee-vs-drip-cost-per-cup.html")
     check("$2.33 a cup" in pg.locator(".calc-out").inner_text(), "cost calculator shows $2.33 a cup for 69.95 / 30")
