@@ -116,7 +116,7 @@
     var email=f.email.value.trim(); if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){msg.textContent='Check the email address.';return;}
     var btn=f.querySelector('button'); btn.disabled=true; msg.textContent='Sending\u2026';
     klaviyoSubscribe(TMU.KLAVIYO_LIST_QUIZ, email, '', {lead_magnet:'7 Mornings guide',source:'guide',quiz_result:'none',utm_source:q.get('utm_source')||'',utm_medium:q.get('utm_medium')||'',utm_campaign:q.get('utm_campaign')||'',utm_content:q.get('utm_content')||''}, 'themorningupgrades.com guide')
-    .then(function(r){ if(r.status===202){ track('Lead',{source:'guide'}); location.href='/thanks.html?r=guide'; } else { throw new Error(r.status); } })
+    .then(function(r){ if(r.status===202){ track('Lead',{source:'guide'}); if(window.tmuEvent) tmuEvent('lead','newsletter'); location.href='/thanks.html?r=guide'; } else { throw new Error(r.status); } })
     .catch(function(){ msg.textContent='Something went wrong. Try again in a moment.'; btn.disabled=false; });
   });
 })();

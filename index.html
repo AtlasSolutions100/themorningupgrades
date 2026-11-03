@@ -161,7 +161,9 @@
   function show(n){ box.querySelectorAll('.q').forEach(function(q){ q.classList.toggle('on', q.dataset.q==String(n)); });
     document.getElementById('quiz').scrollIntoView({behavior:'smooth',block:'start'}); step(n); }
   step(1);
-  box.querySelectorAll('.q[data-q="1"] .opt').forEach(function(b){ b.onclick=function(){ ans.quiz_result=b.dataset.v; show(2); }; });
+  var started=false;
+  box.querySelectorAll('.q[data-q="1"] .opt').forEach(function(b){ b.onclick=function(){ ans.quiz_result=b.dataset.v;
+    if(!started){ started=true; if(window.tmuEvent) tmuEvent('quiz_start'); } show(2); }; });
   box.querySelectorAll('.q[data-q="2"] .opt').forEach(function(b){ b.onclick=function(){ ans.cups=b.dataset.v; show(3); }; });
   box.querySelectorAll('.q[data-q="3"] .opt').forEach(function(b){ b.onclick=function(){ ans.want=b.dataset.v;
     var r=Q.results[ans.quiz_result]||Q.results.crash, p=Q.plan[ans.want==='simple'?'simple':'other'];
@@ -178,7 +180,7 @@
     var email=f.email.value.trim(); if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){msg.textContent='Check the email address.';return;}
     var btn=f.querySelector('button'); btn.disabled=true; msg.textContent='Sending\u2026';
     klaviyoSubscribe(TMU.KLAVIYO_LIST_QUIZ, email, f.first_name.value.trim(), {quiz_result:f.quiz_result.value||'none',cups:f.cups.value,want:f.want.value,lead_magnet:'7 Mornings guide',source:src,utm_source:q.get('utm_source')||'',utm_medium:q.get('utm_medium')||'',utm_campaign:q.get('utm_campaign')||'',utm_content:q.get('utm_content')||''}, 'themorningupgrades.com quiz')
-    .then(function(r){ if(r.status===202){ track('Lead',{source:src}); f.hidden=true; document.getElementById('tmu-done').hidden=false; } else { throw new Error(r.status); } })
+    .then(function(r){ if(r.status===202){ track('Lead',{source:src}); if(window.tmuEvent) tmuEvent('lead','quiz'); f.hidden=true; document.getElementById('tmu-done').hidden=false; } else { throw new Error(r.status); } })
     .catch(function(){ msg.textContent='Something went wrong. Try again in a moment.'; btn.disabled=false; });
   });
 })();

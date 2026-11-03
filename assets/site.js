@@ -27,7 +27,9 @@ window.TMU = {
   SNAP_PIXEL: "ed6288c4-136e-418b-9d3d-5f3cb47998d4", // Snap pixel ("Rector & Stull Pixel")
   GOOGLE_ADS_ID: "AW-18543041154",               // Google Ads account "Rector & Stull" (shared with Crowdcut)
   GOOGLE_PURCHASE: "AW-18543041154/9DvuCJSurq0dEIK1gYpF", // conversion action "TMU Purchase"
-  ANALYTICS_DOMAIN: "themorningupgrades.com"
+  ANALYTICS_DOMAIN: "themorningupgrades.com",
+  // First-party funnel events (visits, quiz starts, email sign-ups, Buy clicks) for the R&S HQ dashboard. "" turns them off.
+  COLLECT_URL: "https://dashboard.rectorandstull.com/collect/tmu"
 };
 
 (function(){
@@ -88,6 +90,37 @@ window.TMU = {
     var ut=JSON.parse(localStorage.getItem('tmu_ut')||'null');
     if (ut && Date.now()-ut.t<30*864e5) C.UT='ut__'+ut.s+'__'+ut.c+'__'+ut.n;
   }catch(e){}
+
+  // First-party funnel events for R&S HQ (COLLECT_URL): an anonymous visitor id (tmu_vid cookie, 1 year) and this
+  // browser's first touch (tmu_ft: the first visit's utm tags of any medium, ad click id, referring site; 90 days,
+  // never overwritten) ride with each step. Never an email, a name or anything typed into a form. Loads like the
+  // pixels above (the analytics notice covers both). tmu_ut above still sets the 30-day Stripe tag on its own.
+  var FT_DAYS=90, VID='', FT={};
+  try{
+    var vm=document.cookie.match(/(?:^|; )tmu_vid=([a-z0-9]{8,40})/); VID=vm?vm[1]:'';
+    if(!VID){ var rb=''; try{ var a8=new Uint8Array(10); crypto.getRandomValues(a8); for(var i=0;i<a8.length;i++) rb+=(a8[i]%36).toString(36); }catch(e){ rb=Math.random().toString(36).slice(2,12); }
+      VID=(rb+Date.now().toString(36)).replace(/[^a-z0-9]/g,'').slice(0,40);
+      document.cookie='tmu_vid='+VID+'; max-age=31536000; path=/; SameSite=Lax'+(location.protocol==='https:'?'; Secure':''); }
+  }catch(e){}
+  try{
+    var ft=null; try{ ft=JSON.parse(localStorage.getItem('tmu_ft')||'null'); }catch(e){ ft=null; }
+    if(!ft || !(Date.now()-(+ft.t||0) < FT_DAYS*864e5)){
+      var fq=new URLSearchParams(location.search); ft={t:Date.now()};
+      ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'].forEach(function(k){ var v=fq.get(k); if(v) ft[k]=v.slice(0,100); });
+      ['gclid','ttclid','fbclid'].some(function(k){ var v=fq.get(k); if(v){ ft.click_id=v.slice(0,200); ft.click_type=k; return true; } return false; });
+      try{ var rh=document.referrer?new URL(document.referrer).hostname:''; if(rh && rh!==location.hostname) ft.referrer_host=rh.slice(0,100); }catch(e){}
+      try{ localStorage.setItem('tmu_ft', JSON.stringify(ft)); }catch(e){}
+    }
+    ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','click_id','click_type','referrer_host'].forEach(function(k){ if(ft[k]) FT[k]=String(ft[k]); });
+  }catch(e){}
+  // name: lp_view | quiz_start | lead (detail quiz|popup|newsletter) | buy_click (detail stripe|mpg:onetime|subscribe)
+  window.tmuEvent = function(name, detail){ try{
+    if(!C.COLLECT_URL || !VID) return;
+    var b=JSON.stringify({name:name,vid:VID,path:location.pathname,detail:detail||null,ft:FT});
+    if(navigator.sendBeacon && navigator.sendBeacon(C.COLLECT_URL, b)) return;   // a string goes as text/plain: no preflight
+    fetch(C.COLLECT_URL,{method:'POST',body:b,keepalive:true,mode:'cors',credentials:'omit',headers:{'Content-Type':'text/plain'}}).catch(function(){});
+  }catch(e){} };
+  tmuEvent('lp_view');
 
   var TT_MAP={InitiateCheckout:'InitiateCheckout',ViewContent:'ViewContent',Lead:'CompleteRegistration',QuizComplete:'ViewContent',PartnerLead:'SubmitForm',PartnerClick:'ClickButton',Purchase:'CompletePayment'};
   var FB_STD={InitiateCheckout:1,ViewContent:1,Lead:1,Purchase:1};
@@ -196,7 +229,7 @@ window.TMU = {
     }
     document.querySelectorAll('[data-buy]').forEach(function(a){
       wire(a);
-      a.addEventListener('click', function(){ var k=a.getAttribute('data-buy'); try{ localStorage.setItem('tmu_plan', k); }catch(e){} track('InitiateCheckout',{plan:k, mode:a.dataset.mode, value:PRICE[k]||PRICE.subscribe, currency:'USD'}); });
+      a.addEventListener('click', function(){ var k=a.getAttribute('data-buy'); try{ localStorage.setItem('tmu_plan', k); }catch(e){} track('InitiateCheckout',{plan:k, mode:a.dataset.mode, value:PRICE[k]||PRICE.subscribe, currency:'USD'}); tmuEvent('buy_click', a.dataset.mode+':'+(k==='onetime'?'onetime':'subscribe')); });
     });
     promoNotes();
     // Shipping / checkout copy depends on which checkout is live. Never promise free shipping in handoff mode.
@@ -386,6 +419,7 @@ window.TMU = {
         signed=true;
         lsSet('tmu_pop', JSON.stringify({s:'signed',t:Date.now()}));
         track('Lead',{source:'popup'});
+        tmuEvent('lead','popup');
         wrap.querySelector('[data-step="form"]').hidden=true;
         wrap.querySelector('[data-step="done"]').hidden=false;
         panel.setAttribute('aria-labelledby','tp-h2'); panel.removeAttribute('aria-describedby');
@@ -394,7 +428,7 @@ window.TMU = {
       }
       var use=wrap.querySelector('.tp-use');
       wire(use);   // the normal Subscribe & Save checkout (utm tags and creator/ad credit ride along as usual)
-      use.addEventListener('click', function(){ lsSet('tmu_plan','subscribe'); track('InitiateCheckout',{plan:'subscribe',mode:use.dataset.mode,value:PRICE.subscribe,currency:'USD',source:'popup'}); });
+      use.addEventListener('click', function(){ lsSet('tmu_plan','subscribe'); track('InitiateCheckout',{plan:'subscribe',mode:use.dataset.mode,value:PRICE.subscribe,currency:'USD',source:'popup'}); tmuEvent('buy_click', use.dataset.mode+':subscribe'); });
       wrap.querySelector('.tp-dl').addEventListener('click', function(){ ga('RecipePackDownload',{source:'popup'}); });
     }
   });
