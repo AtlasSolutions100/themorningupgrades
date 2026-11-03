@@ -143,6 +143,50 @@ window.TMU = {
     if(window.plausible) plausible(name,{props:props});
   }catch(e){} };
 
+  // ---------- Klaviyo events (client API, public site key only): Started Checkout and Placed Order ----------
+  // Sent only when this browser already knows who the visitor is: they signed up here (quiz, guide capture or
+  // pop-up; tmu_kl keeps that email on this device only), they arrived from a Klaviyo email link (_kx), or
+  // Klaviyo's own __kla_id cookie names them. The email or id rides in the POST body, never in a URL. Loads
+  // like the pixels above (the analytics notice covers it), and is skipped entirely when the browser sends
+  // Global Privacy Control or Do Not Track, since it ties the click to a person.
+  var KL_DAYS=365, EMAIL_RE=/^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+  function privacySignal(){ try{ return navigator.globalPrivacyControl===true || navigator.doNotTrack==='1' || window.doNotTrack==='1'; }catch(e){ return false; } }
+  try{ var kxq=new URLSearchParams(location.search).get('_kx'); if(kxq && kxq.length<=400) localStorage.setItem('tmu_kx', JSON.stringify({k:kxq,t:Date.now()})); }catch(e){}
+  C.klRemember = function(email){ try{ email=String(email||'').trim(); if(EMAIL_RE.test(email)) localStorage.setItem('tmu_kl', JSON.stringify({e:email.slice(0,200),t:Date.now()})); }catch(e){} };
+  C.klWho = function(){
+    var who={}, fresh=function(o){ return o && Date.now()-(+o.t||0) < KL_DAYS*864e5; };
+    try{ var k=JSON.parse(localStorage.getItem('tmu_kl')||'null'); if(fresh(k) && EMAIL_RE.test(k.e||'')) who.email=k.e; }catch(e){}
+    try{ var x=JSON.parse(localStorage.getItem('tmu_kx')||'null'); if(fresh(x) && x.k) who._kx=String(x.k); }catch(e){}
+    if(!who._kx){ try{ var m=document.cookie.match(/(?:^|; )__kla_id=([^;]+)/); if(m){ var j=JSON.parse(atob(decodeURIComponent(m[1]))); if(j && j.$exchange_id) who._kx=String(j.$exchange_id); } }catch(e){} }
+    return (who.email || who._kx) ? who : null;
+  };
+  // Returns the fetch promise, or null when nothing was sent (no known visitor, a privacy signal, no site key).
+  C.klEvent = function(metric, props, value, uid){ try{
+    var who=C.klWho(); if(!who || privacySignal() || !C.KLAVIYO_COMPANY) return null;
+    var at={properties:props||{}, metric:{data:{type:'metric',attributes:{name:metric}}}, profile:{data:{type:'profile',attributes:who}}};
+    if(typeof value==='number') at.value=value;
+    if(uid) at.unique_id=String(uid);
+    return fetch('https://a.klaviyo.com/client/events/?company_id='+C.KLAVIYO_COMPANY,{method:'POST',keepalive:true,
+      headers:{'Content-Type':'application/json','revision':'2025-01-15'},body:JSON.stringify({data:{type:'event',attributes:at}})}).catch(function(){});
+  }catch(e){ return null; } };
+  // Started Checkout, from a Buy button that goes to our Stripe checkout. CheckoutURL is the plain Payment Link
+  // with email utm tags (and the same creator/ad credit the click carried), for the abandoned-checkout emails.
+  // A plain left click on a same-tab link waits for the send (at most 500 ms) so leaving the page can't drop it.
+  C.startedCheckout = function(a, plan, source, ev){ try{
+    if(!a || a.dataset.mode!=='stripe' || !PRICE[plan]) return;
+    var link = plan==='subscribe' ? C.STRIPE_SUBSCRIBE : C.STRIPE_ONETIME; if(!link) return;
+    var cr=((a.href||'').match(/[?&]client_reference_id=([A-Za-z0-9_-]{1,200})/)||[])[1];
+    var url=link+(link.indexOf('?')>-1?'&':'?')+'utm_source=klaviyo&utm_medium=email&utm_campaign=started_checkout'+(cr?'&client_reference_id='+cr:'');
+    var props={plan:plan, plan_name:plan==='subscribe'?'Subscribe & Save, 1 bag every 30 days':'1 bag',
+      value:PRICE[plan], currency:'USD', shipping:8.95, CheckoutURL:url, checkout_url:url, clicked_url:a.href,
+      ItemNames:['CoreJava Instant Coffee, 30 servings'], page:location.pathname, source:source||'site'};
+    var p=C.klEvent('Started Checkout', props, PRICE[plan], 'sc_'+plan+'_'+Math.floor(Date.now()/6e4));
+    if(!p || !ev || ev.defaultPrevented || ev.button || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || a.target==='_blank') return;
+    ev.preventDefault();
+    var href=a.href, gone=false, go=function(){ if(!gone){ gone=true; location.href=href; } };
+    p.then(go, go); setTimeout(go, 500);
+  }catch(e){} };
+
   // Which plan was bought. Order of trust: ?plan= on the Stripe redirect, then the last Buy button
   // this browser clicked (tmu_plan), then Subscribe & Save.
   C.plan = function(){
@@ -160,6 +204,7 @@ window.TMU = {
     var plan=C.plan(), value=PRICE[plan];
     try{ done.push(sid); localStorage.setItem(key, JSON.stringify(done.slice(-20))); }catch(e){}
     track('Purchase',{value:value,currency:'USD',transaction_id:sid,plan:plan});
+    C.klEvent('Placed Order',{plan:plan,value:value,currency:'USD',order_id:sid,ItemNames:['CoreJava Instant Coffee, 30 servings']},value,sid);
     if(window.gtag&&C.GA4_ID) gtag('event','purchase',{transaction_id:sid,value:value,currency:'USD',
       items:[{item_id:SKU,item_name:'MCT Instant Coffee with L-Theanine, 30 Servings',item_variant:plan,price:value,quantity:1}]});
     return true;
@@ -237,7 +282,7 @@ window.TMU = {
     }
     document.querySelectorAll('[data-buy]').forEach(function(a){
       wire(a);
-      a.addEventListener('click', function(){ var k=a.getAttribute('data-buy'); try{ localStorage.setItem('tmu_plan', k); }catch(e){} track('InitiateCheckout',{plan:k, mode:a.dataset.mode, value:PRICE[k]||PRICE.subscribe, currency:'USD'}); tmuEvent('buy_click', a.dataset.mode+':'+(k==='onetime'?'onetime':'subscribe')); });
+      a.addEventListener('click', function(ev){ var k=a.getAttribute('data-buy'); try{ localStorage.setItem('tmu_plan', k); }catch(e){} track('InitiateCheckout',{plan:k, mode:a.dataset.mode, value:PRICE[k]||PRICE.subscribe, currency:'USD'}); tmuEvent('buy_click', a.dataset.mode+':'+(k==='onetime'?'onetime':'subscribe')); C.startedCheckout(a, k, 'site', ev); });
     });
     promoNotes();
     // The sticky bar steps aside while any picker's buy button is on screen (it would duplicate it).
@@ -276,7 +321,9 @@ window.TMU = {
       var body={data:{type:'subscription',attributes:{custom_source:source||'themorningupgrades.com',
         profile:{data:{type:'profile',attributes:{email:email,first_name:firstName||'',properties:props||{}}}}},
         relationships:{list:{data:{type:'list',id:listId}}}}};
-      return fetch('https://a.klaviyo.com/client/subscriptions/?company_id='+C.KLAVIYO_COMPANY,{method:'POST',headers:{'Content-Type':'application/json','revision':'2025-01-15'},body:JSON.stringify(body)});
+      // a customer-list sign-up that Klaviyo accepted: remember the email on this device for Started Checkout
+      return fetch('https://a.klaviyo.com/client/subscriptions/?company_id='+C.KLAVIYO_COMPANY,{method:'POST',headers:{'Content-Type':'application/json','revision':'2025-01-15'},body:JSON.stringify(body)})
+        .then(function(r){ if(r && r.status===202 && listId!==C.KLAVIYO_LIST_PARTNERS) C.klRemember(email); return r; });
     };
 
     // ---------- After a pop-up sign-up: a short note next to Subscribe & Save buttons ----------
@@ -442,7 +489,7 @@ window.TMU = {
       }
       var use=wrap.querySelector('.tp-use');
       wire(use);   // the normal Subscribe & Save checkout (utm tags and creator/ad credit ride along as usual)
-      use.addEventListener('click', function(){ lsSet('tmu_plan','subscribe'); track('InitiateCheckout',{plan:'subscribe',mode:use.dataset.mode,value:PRICE.subscribe,currency:'USD',source:'popup'}); tmuEvent('buy_click', use.dataset.mode+':subscribe'); });
+      use.addEventListener('click', function(ev){ lsSet('tmu_plan','subscribe'); track('InitiateCheckout',{plan:'subscribe',mode:use.dataset.mode,value:PRICE.subscribe,currency:'USD',source:'popup'}); tmuEvent('buy_click', use.dataset.mode+':subscribe'); C.startedCheckout(use, 'subscribe', 'popup', ev); });
       wrap.querySelector('.tp-dl').addEventListener('click', function(){ ga('RecipePackDownload',{source:'popup'}); });
     }
   });
