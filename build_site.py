@@ -80,7 +80,7 @@ def facts_panel():
             f'<figcaption class="fine">The Supplement Facts panel as printed on the bag.</figcaption></figure>')
 
 # Paste the brand's Facebook Page URL here to add it to Organization sameAs. Empty = left out.
-FACEBOOK_PAGE = ""
+FACEBOOK_PAGE = "https://www.facebook.com/profile.php?id=61595873313798"
 
 # Responsive images in img/opt/ (tools/images.py writes them and this manifest).
 _MANIFEST = _json_load = None
@@ -327,8 +327,10 @@ PLAN_CTA = {"subscribe": "Subscribe for $69.95 a month", "onetime": "Buy 1 bag f
 PLAN_CTA_LP = {"subscribe": "Start Subscribe &amp; Save, $69.95 a month", "onetime": "Try 1 bag, $79.95"}
 PLAN_STICKY = {"subscribe": "$2.33 a morning &middot; $69.95 a month", "onetime": "$2.67 a morning &middot; $79.95 for 1 bag"}
 SHIP_NOTE = "$8.95 flat US shipping and any tax at checkout"
-# Guarantee, shipping and refill terms, as 3 short lines next to the buy button (/start, /shop).
-TERMS_LINES = ("90-day money-back guarantee on unopened bags.",
+# Scoop, guarantee, shipping and refill terms, as 4 short lines next to the buy button (/start, /shop).
+# The scoop line is a package fact (owner, Nov 2026: every bag ships with a scoop), not an offer.
+TERMS_LINES = ("Scoop included in every bag.",
+               "90-day money-back guarantee on unopened bags.",
                "$8.95 flat US shipping; $2.63 a morning shipped.",
                "A bag every 30 days; email reminder; pause, skip or cancel from the receipt link.")
 TERMS_HTML = '<ul class="terms">' + "".join(f"<li>{t}</li>" for t in TERMS_LINES) + "</ul>"

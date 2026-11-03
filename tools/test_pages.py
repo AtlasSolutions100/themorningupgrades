@@ -66,7 +66,7 @@ def start_tests(b, base):
               and btn.text_content().strip() == ("Try 1 bag, $79.95" if content else "Start Subscribe & Save, $69.95 a month"),
               f"/start picker defaults to {want_plan} ({'paid' if content else 'organic'}) and the button says so")
     check(pg.locator(".lphero .eyebrow").text_content().strip() == "Instant coffee with MCT powder and L\u2011theanine", "/start eyebrow is the label line")
-    check(pg.locator(".lphero .terms li").count() == 3 and pg.locator(".lphero .bonus-hero img").count() == 1, "/start: 3 terms lines and the Recipe Pack cover in the hero")
+    check(pg.locator(".lphero .terms li").count() == 4 and pg.locator(".lphero .terms li").first.inner_text().strip() == "Scoop included in every bag." and pg.locator(".lphero .bonus-hero img").count() == 1, "/start: 4 terms lines (scoop first) and the Recipe Pack cover in the hero")
     check(pg.locator(".sticky").count() == 0 and pg.locator("body[data-popup=off]").count() == 1, "/start: no sticky bar, no pop-up")
     check(pg.locator("main h2").nth(0).inner_text().strip() == "The latte math", "/start: the latte math is section 2")
     check(pg.locator(".who-text").count() == 1 and pg.locator(".who-text img").count() == 0, "/start: founder block without a photo")
@@ -124,7 +124,7 @@ def ia_tests(b, base):
     y = pg.evaluate("() => document.querySelector('[data-picker-btn]').getBoundingClientRect().top + scrollY")
     check(y < 900, f"/shop first checkout button within about 800 px at 390px (top {int(y)}px)")
     check(pg.locator("h1").inner_text().startswith("Instant coffee with MCT powder and L"), "/shop H1 is the label line")
-    check(pg.locator(".shop-buy .terms li").count() == 3 and pg.locator(".shop-buy .bonus-hero img").count() == 1, "/shop: 3 terms lines and the Recipe Pack cover next to the button")
+    check(pg.locator(".shop-buy .terms li").count() == 4 and pg.locator(".shop-buy .bonus-hero img").count() == 1, "/shop: 4 terms lines and the Recipe Pack cover next to the button")
     pg.evaluate("() => document.querySelector('[data-picker-btn]').scrollIntoView({block:'center'})"); pg.wait_for_timeout(500)
     check(pg.evaluate("() => document.querySelector('.sticky').getBoundingClientRect().top >= innerHeight - 1"), "/shop: no sticky bar while the picker button is on screen")
     pg.evaluate("() => document.querySelector('.specs').scrollIntoView()"); pg.wait_for_timeout(500)
@@ -413,6 +413,9 @@ def seo_tests(b, base):
     import os, re, glob, html as _h
     root = os.path.join(os.path.dirname(__file__), "..")
     site = "https://themorningupgrades.com"
+    home = open(os.path.join(root, "index.html")).read()
+    org = [g for d in re.findall(r'<script type="application/ld\+json">(.*?)</script>', home, re.S) for g in json.loads(d)["@graph"] if g["@type"] == "Organization"]
+    check(org and "https://www.facebook.com/profile.php?id=61595873313798" in org[0].get("sameAs", []), "Organization sameAs lists the Facebook page")
     titles, descs, indexable = {}, {}, set()
     for path in sorted(glob.glob(os.path.join(root, "*.html"))):
         fn = os.path.basename(path)
