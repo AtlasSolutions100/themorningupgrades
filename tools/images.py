@@ -28,7 +28,8 @@ PAPER = (247, 243, 236)   # --paper in assets/site.css
 #   avif:  also write AVIF (smaller than WebP; pic() lists it first). Used for the editorial stills.
 #
 # The lux_* stills (Oct 2026 redesign) are generated editorial photographs: cup, scoop, kettle,
-# light. Where the bag appears it is soft-focus, partial or secondary; never a label close-up.
+# light. The bag in lux-still and lux-pattern is the real pack shot (img/bag.png) composited in by
+# hand (Nov 2026); elsewhere the bag is soft-focus, partial or at the frame edge.
 IMAGES = {
     "hero-props":       ("hero_props.png", {"alpha": True, "aq": 60}),   # hero: bag with coconut, MCT powder, beans, tea
     "props-og":         ("hero_props.png", {"pad": (1200, 630)}),       # 1200x630 share image
@@ -47,16 +48,17 @@ IMAGES = {
     "lux-pour":         ("lux_pour.jpg", {"avif": True}),          # kettle pour, steam
     "lux-cup":          ("lux_cup.jpg", {"avif": True}),           # top-down cup, morning light
     "lux-ingredients":  ("lux_ingredients.jpg", {"avif": True}),   # coffee, powder, tea leaves, coconut
-    "lux-still":        ("lux_still.jpg", {"avif": True}),         # bag turned away, cup in focus
+    "lux-still":        ("lux_still.jpg", {"avif": True}),         # the real bag (bag.png composited in, Nov 2026), cup and scoop
     "lux-table":        ("lux_table.jpg", {"avif": True}),         # morning table, bag far and soft
     "lux-iced":         ("lux_iced.jpg", {"avif": True}),          # iced, milk sinking
-    "lux-pattern":      ("lux_pattern.jpg", {"avif": True}),       # the bag's copper line pattern, no text
+    "lux-pattern":      ("lux_pattern.jpg", {"avif": True}),       # plain pack shot: the real bag front (bag.png) on the wall colour
     "lux-linen":        ("lux_linen.jpg", {"avif": True}),         # top-down linen, cup, bag at the edge
     "lux-og":           ("lux_og.jpg", {}),                        # 1200x630 share image: the hero cup
     # Nov 2026 second design pass: generated mood stills, no bag in frame
     "lux-darkpour":     ("lux_darkpour.jpg", {"avif": True}),      # slow pour into a charcoal stone cup, dark (the one dark band)
     "lux-stonecup":     ("lux_stonecup.jpg", {"avif": True}),      # cup on travertine, long window shadows (How to make it)
     "lux-granules":     ("lux_granules.jpg", {"avif": True}),      # a scoop of instant coffee granules on travertine
+    "recipe-pack-cover": ("recipe_pack_cover.jpg", {}),            # page 1 of assets/recipe-pack.pdf (pdftoppm -r 60), the bonus thumbnail
 }
 
 

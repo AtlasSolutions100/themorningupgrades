@@ -14,8 +14,8 @@ window.TMU = {
   KLAVIYO_LIST_QUIZ: "WgctGT",
   KLAVIYO_LIST_PARTNERS: "WeMj34",   // separate list; never the customer list
   KLAVIYO_LIST_NEWSLETTER: "WgctGT", // email pop-up sign-ups. Same id as the quiz list for now; put a dedicated list id here to split them
-  // Email pop-up: the free Recipe Pack for signing up, plus "Claim $10 off with Subscribe & Save" (the $10 is the
-  // Subscribe & Save price itself, $69.95 vs $79.95 for 1 bag; there is no promo code). 0 turns the pop-up off.
+  // Email pop-up: the free Recipe Pack for signing up, and the two prices stated plainly (Subscribe & Save is
+  // $69.95 a month; 1 bag is $79.95; no promo code, no "off"). POPUP_DELAY_MS 0 turns the pop-up off.
   RECIPE_PACK: "/assets/recipe-pack.pdf",
   POPUP_DELAY_MS: 10000,             // pop-up opens after this long, at 50% scroll, or on desktop exit intent
   POPUP_SNOOZE_DAYS: 14,             // after it's closed (or seen), wait this long before showing it again
@@ -90,6 +90,9 @@ window.TMU = {
     var ut=JSON.parse(localStorage.getItem('tmu_ut')||'null');
     if (ut && Date.now()-ut.t<30*864e5) C.UT='ut__'+ut.s+'__'+ut.c+'__'+ut.n;
   }catch(e){}
+  // A paid visit: this page's utm_medium is a paid one, or the 30-day tmu_ut flag is set. The pop-up stays
+  // closed and pickers marked data-paid-default preselect that plan (1 bag first for ad traffic).
+  C.PAID=false; try{ C.PAID=!!C.UT || /^(paid|cpc|ppc|paid_social|paid-social|paidsocial|social_paid)$/i.test(new URLSearchParams(location.search).get('utm_medium')||''); }catch(e){}
 
   // First-party funnel events for R&S HQ (COLLECT_URL): an anonymous visitor id (tmu_vid cookie, 1 year) and this
   // browser's first touch (tmu_ft: the first visit's utm tags of any medium, ad click id, referring site; 90 days,
@@ -181,8 +184,11 @@ window.TMU = {
     if(b&&m) b.onclick=function(){ var open=m.classList.toggle('open'); b.setAttribute('aria-expanded', open?'true':'false'); b.setAttribute('aria-label', open?'Close menu':'Open menu'); };
     var here=location.pathname.replace(/\/index\.html$/,'/');
     document.querySelectorAll('.menu a').forEach(function(a){ var h=a.getAttribute('href'); if(h && (h===here || (h!=='/' && here.indexOf(h)===0))) a.classList.add('on'); });
-    // analytics notice (dismissable, remembered per browser)
-    try{ if(C.GA4_ID && !localStorage.getItem('tmu_notice')){ var n=document.createElement('div'); n.className='notice'; n.setAttribute('role','region'); n.setAttribute('aria-label','Analytics notice'); n.innerHTML='We use analytics and ad-measurement pixels (Google, TikTok, Meta, Snap) to see which pages and ads bring people here. <a href="/privacy.html">Privacy</a> <button type="button">OK</button>'; var nv=document.querySelector('.nav'); if(nv&&nv.parentNode) nv.parentNode.insertBefore(n, nv.nextSibling); else document.body.insertBefore(n, document.body.firstChild); var done=function(){ try{localStorage.setItem('tmu_notice','1')}catch(e){} n.remove(); window.removeEventListener('scroll',onScroll); }; var onScroll=function(){ if(window.scrollY>window.innerHeight*0.6) done(); }; n.querySelector('button').onclick=done; window.addEventListener('scroll',onScroll,{passive:true}); } }catch(e){}
+    // analytics notice: a 1-line toast at the bottom, gone on the first scroll or tap (remembered per browser)
+    try{ if(C.GA4_ID && !localStorage.getItem('tmu_notice')){ var n=document.createElement('div'); n.className='notice'; n.setAttribute('role','region'); n.setAttribute('aria-label','Analytics notice'); n.innerHTML='We use analytics and ad-measurement pixels (Google, TikTok, Meta, Snap) to see which pages and ads bring people here. <a href="/privacy.html">Privacy</a> <button type="button">OK</button>'; document.body.appendChild(n);
+      var done=function(){ try{localStorage.setItem('tmu_notice','1')}catch(e){} n.remove(); window.removeEventListener('scroll',onScroll); document.removeEventListener('pointerdown',onTap,true); };
+      var onScroll=function(){ if(window.scrollY>24) done(); }, onTap=function(e){ if(!n.contains(e.target)) done(); };
+      n.querySelector('button').onclick=done; window.addEventListener('scroll',onScroll,{passive:true}); document.addEventListener('pointerdown',onTap,true); } }catch(e){}
     // autoplay only while in view (saves bandwidth, keeps LCP clean)
     var vids=document.querySelectorAll('video[data-autoplay]');
     if('IntersectionObserver' in window){ var io=new IntersectionObserver(function(es){ es.forEach(function(e){ var v=e.target; if(e.isIntersecting){ v.play().catch(function(){}); } else { v.pause(); } }); },{threshold:.25}); vids.forEach(function(v){ io.observe(v); }); }
@@ -195,6 +201,8 @@ window.TMU = {
     // Plan picker: radio choice drives the single buy button
     document.querySelectorAll('[data-picker]').forEach(function(p){
       var btn=p.querySelector('[data-picker-btn]');
+      // paid visits start on the plan the page asks for (data-paid-default, "onetime" on /start)
+      var pd=p.getAttribute('data-paid-default'); if(pd && C.PAID){ var pr=p.querySelector('input[value="'+pd+'"]'); if(pr && !pr.checked){ pr.checked=true; setTimeout(function(){ pr.dispatchEvent(new Event('change',{bubbles:true})); },0); } }
       p.querySelectorAll('input[type=radio]').forEach(function(r){ r.addEventListener('change', function(){
         p.querySelectorAll('.opt').forEach(function(o){ o.classList.toggle('on', o.contains(r)); });
         btn.setAttribute('data-buy', r.value); wire(btn);
@@ -232,6 +240,11 @@ window.TMU = {
       a.addEventListener('click', function(){ var k=a.getAttribute('data-buy'); try{ localStorage.setItem('tmu_plan', k); }catch(e){} track('InitiateCheckout',{plan:k, mode:a.dataset.mode, value:PRICE[k]||PRICE.subscribe, currency:'USD'}); tmuEvent('buy_click', a.dataset.mode+':'+(k==='onetime'?'onetime':'subscribe')); });
     });
     promoNotes();
+    // The sticky bar steps aside while any picker's buy button is on screen (it would duplicate it).
+    var stickyEl=document.querySelector('.sticky'), pbs=document.querySelectorAll('[data-picker-btn]');
+    if(stickyEl && pbs.length && 'IntersectionObserver' in window){ var seen=new Map();
+      var sio=new IntersectionObserver(function(es){ es.forEach(function(e){ seen.set(e.target, e.isIntersecting); }); var any=false; seen.forEach(function(v){ if(v) any=true; }); stickyEl.classList.toggle('hide', any); },{threshold:0});
+      pbs.forEach(function(b){ sio.observe(b); }); }
     // Shipping / checkout copy depends on which checkout is live. Never promise free shipping in handoff mode.
     var SELF = !!(C.STRIPE_ONETIME||C.STRIPE_SUBSCRIBE);
     var SHIP = SELF ? {
@@ -268,7 +281,7 @@ window.TMU = {
 
     // ---------- After a pop-up sign-up: a short note next to Subscribe & Save buttons ----------
     // (function declarations only: promoNotes() first runs above, before any var here is assigned)
-    function noteEl(){ var n=document.createElement('p'); n.className='promo-note'; n.textContent='$10 off vs a single bag \u00b7 Cancel anytime'; return n; }
+    function noteEl(){ var n=document.createElement('p'); n.className='promo-note'; n.textContent='Subscribe & Save is $69.95 a month; 1 bag is $79.95 \u00b7 Cancel anytime'; return n; }
     function promoNotes(){
       var on=C.signedUp() && !!C.STRIPE_SUBSCRIBE;
       // plan pickers: under the buy button, only while Subscribe & Save is picked
@@ -292,19 +305,20 @@ window.TMU = {
       // the phone sticky bar: a short line under the price while it checks out Subscribe & Save
       var sb=document.querySelector('.sticky a[data-buy]'), sd=sb&&sb.parentNode.querySelector('div');
       if(sd){ var sn=sd.querySelector('.promo-sticky');
-        if(!sn && on){ sn=document.createElement('span'); sn.className='promo-sticky'; sn.textContent='$10 off vs a single bag'; sd.appendChild(sn); }
+        if(!sn && on){ sn=document.createElement('span'); sn.className='promo-sticky'; sn.textContent='$69.95 a month; 1 bag is $79.95'; sd.appendChild(sn); }
         if(sn) sn.hidden=!(on && sb.getAttribute('data-buy')==='subscribe'); }
     }
 
-    // ---------- Pop-up: the Recipe Pack free for signing up + "Claim $10 off with Subscribe & Save" ----------
+    // ---------- Pop-up: the Recipe Pack free for signing up, and the two prices stated plainly ----------
     // Opens once per visitor after POPUP_DELAY_MS, at 50% scroll, or on desktop exit intent, whichever is
     // first. Never on pages built with <body data-popup="off"> (order page, thank-you, partner/ISR, 404,
-    // the quiz page), never while the quiz is on screen or in progress, never after an order from this
-    // browser, never again after sign-up; closing it (or just seeing it) snoozes it POPUP_SNOOZE_DAYS.
+    // the quiz page, /start), never on a paid visit (C.PAID), never while the quiz is on screen or in
+    // progress, never after an order from this browser, never again after sign-up; closing it (or just
+    // seeing it) snoozes it POPUP_SNOOZE_DAYS.
     function ga(n,p){ try{ if(window.gtag&&C.GA4_ID) gtag('event',n,p||{}); }catch(e){} }
     function popEligible(){
       if(!C.STRIPE_SUBSCRIBE || !C.POPUP_DELAY_MS) return false;
-      if(document.body.getAttribute('data-popup')==='off' || C.ordered()) return false;
+      if(document.body.getAttribute('data-popup')==='off' || C.PAID || C.ordered()) return false;
       var s=lsJSON('tmu_pop'); if(s && (s.s==='signed' || Date.now()-(+s.t||0) < (C.POPUP_SNOOZE_DAYS||14)*864e5)) return false;
       return !document.querySelector('.tmu-pop');
     }
@@ -344,10 +358,10 @@ window.TMU = {
           '<div class="tp-body">'+
             '<div class="tp-step" data-step="form">'+
               '<p class="eyebrow">The Morning Upgrade list</p>'+
-              '<h2 id="tp-h">Get the Recipe Pack free.<br> Claim $10&nbsp;off with Subscribe&nbsp;&amp;&nbsp;Save.</h2>'+
+              '<h2 id="tp-h">Get the Recipe Pack free.<br> Subscribe&nbsp;&amp;&nbsp;Save is $69.95 a month.</h2>'+
               '<ol class="tp-gets" id="tp-d">'+
                 '<li><span>01</span><div><b>The Recipe Pack, free</b><i>12 drinks, hot, iced and blended, plus a 30-morning tracker. PDF.</i></div></li>'+
-                '<li><span>02</span><div><b>$10 off with autoship</b><i>$69.95 a bag instead of $79.95, 1 bag every 30 days. Pause, skip or cancel anytime.</i></div></li>'+
+                '<li><span>02</span><div><b>Subscribe &amp; Save, $69.95 a month</b><i>1 bag every 30 days. 1 bag on its own is $79.95. Pause, skip or cancel anytime.</i></div></li>'+
               '</ol>'+
               '<form class="tp-form" novalidate>'+
                 '<div class="tp-fields">'+
@@ -356,7 +370,7 @@ window.TMU = {
                 '</div>'+
                 '<button class="btn big" type="submit">Send my Recipe Pack</button>'+
                 '<p class="tp-msg" id="tp-msg" role="status" aria-live="polite"></p>'+
-                '<p class="tp-fine">The $10 off is on Subscribe &amp; Save only (1 bag every 30 days, $69.95 vs $79.95 for a single bag). Pause, skip or cancel anytime.</p>'+
+                '<p class="tp-fine">Subscribe &amp; Save is $69.95 a month (1 bag every 30 days); 1 bag on its own is $79.95. Pause, skip or cancel anytime.</p>'+
                 '<p class="tp-fine">By signing up you agree to emails from The Morning Upgrade. Unsubscribe anytime. <a href="/privacy.html">Privacy</a></p>'+
               '</form>'+
               '<button class="tp-no" type="button" data-close>No thanks</button>'+
@@ -364,10 +378,10 @@ window.TMU = {
             '<div class="tp-step" data-step="done" hidden>'+
               '<p class="eyebrow">You&rsquo;re on the list</p>'+
               '<h2 id="tp-h2" tabindex="-1">Your Recipe Pack is ready.</h2>'+
-              '<p class="tp-lede">12 drinks and a 30-morning tracker for the fridge. When you&rsquo;re ready for coffee, Subscribe &amp; Save is $10 less than a single bag.</p>'+
+              '<p class="tp-lede">12 drinks and a 30-morning tracker for the fridge. When you&rsquo;re ready for coffee, Subscribe &amp; Save is $69.95 a month; 1 bag is $79.95.</p>'+
               '<a class="btn ghost big tp-dl" href="'+pack+'" download>Download the Recipe Pack</a>'+
-              '<a class="btn big tp-use" data-buy="subscribe" href="/shop.html">Claim $10 off &mdash; start Subscribe &amp; Save</a>'+
-              '<p class="tp-fine">$69.95 every 30 days instead of $79.95 a bag, plus $8.95 shipping, until you cancel. Pause, skip or cancel anytime.</p>'+
+              '<a class="btn big tp-use" data-buy="subscribe" href="/shop.html">Start Subscribe &amp; Save, $69.95 a month</a>'+
+              '<p class="tp-fine">$69.95 every 30 days plus $8.95 shipping, until you cancel. Pause, skip or cancel anytime.</p>'+
             '</div>'+
           '</div>'+
         '</div>';
