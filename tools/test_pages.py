@@ -66,7 +66,7 @@ def start_tests(b, base):
               and btn.text_content().strip() == ("Try 1 bag, $79.95" if content else "Start Subscribe & Save, $69.95 a month"),
               f"/start picker defaults to {want_plan} ({'paid' if content else 'organic'}) and the button says so")
     check(pg.locator(".lphero .eyebrow").text_content().strip() == "Instant coffee with MCT powder and L\u2011theanine", "/start eyebrow is the label line")
-    check(pg.locator(".lphero .terms li").count() == 3 and pg.locator(".lphero .bonus-hero img").count() == 1, "/start: 3 terms lines and the Recipe Pack cover in the hero")
+    check(pg.locator(".lphero .terms li").count() == 4 and pg.locator(".lphero .terms li").first.inner_text().strip() == "Scoop included in every bag." and pg.locator(".lphero .bonus-hero img").count() == 1, "/start: 4 terms lines (scoop first) and the Recipe Pack cover in the hero")
     check(pg.locator(".sticky").count() == 0 and pg.locator("body[data-popup=off]").count() == 1, "/start: no sticky bar, no pop-up")
     check(pg.locator("main h2").nth(0).inner_text().strip() == "The latte math", "/start: the latte math is section 2")
     check(pg.locator(".who-text").count() == 1 and pg.locator(".who-text img").count() == 0, "/start: founder block without a photo")
@@ -124,7 +124,7 @@ def ia_tests(b, base):
     y = pg.evaluate("() => document.querySelector('[data-picker-btn]').getBoundingClientRect().top + scrollY")
     check(y < 900, f"/shop first checkout button within about 800 px at 390px (top {int(y)}px)")
     check(pg.locator("h1").inner_text().startswith("Instant coffee with MCT powder and L"), "/shop H1 is the label line")
-    check(pg.locator(".shop-buy .terms li").count() == 3 and pg.locator(".shop-buy .bonus-hero img").count() == 1, "/shop: 3 terms lines and the Recipe Pack cover next to the button")
+    check(pg.locator(".shop-buy .terms li").count() == 4 and pg.locator(".shop-buy .bonus-hero img").count() == 1, "/shop: 4 terms lines and the Recipe Pack cover next to the button")
     pg.evaluate("() => document.querySelector('[data-picker-btn]').scrollIntoView({block:'center'})"); pg.wait_for_timeout(500)
     check(pg.evaluate("() => document.querySelector('.sticky').getBoundingClientRect().top >= innerHeight - 1"), "/shop: no sticky bar while the picker button is on screen")
     pg.evaluate("() => document.querySelector('.specs').scrollIntoView()"); pg.wait_for_timeout(500)
@@ -413,6 +413,9 @@ def seo_tests(b, base):
     import os, re, glob, html as _h
     root = os.path.join(os.path.dirname(__file__), "..")
     site = "https://themorningupgrades.com"
+    home = open(os.path.join(root, "index.html")).read()
+    org = [g for d in re.findall(r'<script type="application/ld\+json">(.*?)</script>', home, re.S) for g in json.loads(d)["@graph"] if g["@type"] == "Organization"]
+    check(org and "https://www.facebook.com/profile.php?id=61595873313798" in org[0].get("sameAs", []), "Organization sameAs lists the Facebook page")
     titles, descs, indexable = {}, {}, set()
     for path in sorted(glob.glob(os.path.join(root, "*.html"))):
         fn = os.path.basename(path)
@@ -469,6 +472,110 @@ def seo_tests(b, base):
     check("corejava-coffee.html" in llms and "L-Theanine 400 mg" in llms, "llms.txt lists the CoreJava page and the panel")
 
 
+def klaviyo_checkout_tests(b, base):
+    """Started Checkout / Placed Order to Klaviyo: only for a visitor this browser knows (signed up here, or a
+    Klaviyo _kx link), never with a privacy signal, never with an email in a URL. Stripe is answered locally."""
+    SUB = "https://buy.stripe.com/8x228t3VN2Hsapg56k4wM01"
+    ONE = "https://buy.stripe.com/3cIbJ3fEv6XIbtk8iw4wM00"
+
+    def kctx(init=""):
+        events, nav = [], []
+        ctx = b.new_context(viewport={"width": 390, "height": 844})
+        ctx.add_init_script("try{localStorage.setItem('tmu_notice','1')}catch(e){}")
+        ctx.add_init_script(NO_POPUP_JS)
+        if init:
+            ctx.add_init_script(init)
+
+        def route(r):
+            u = r.request.url
+            if u.startswith(base):
+                return r.continue_()
+            if u.startswith("https://a.klaviyo.com/client/subscriptions/"):
+                return r.fulfill(status=202, body="")
+            if u.startswith("https://a.klaviyo.com/client/events/"):
+                events.append({"url": u, "body": json.loads(r.request.post_data or "{}"), "rev": r.request.headers.get("revision")})
+                return r.fulfill(status=202, body="")
+            if u.startswith("https://buy.stripe.com/"):
+                nav.append(u)
+                return r.fulfill(status=200, content_type="text/html", body="<html><body>checkout</body></html>")
+            return r.abort()
+        ctx.route("**/*", route)
+        return ctx, events, nav
+
+    def buy(pg, plan=None):
+        pg.goto(base + "/shop.html")
+        if plan == "onetime":
+            pg.locator("[data-picker] input[value=onetime]").first.locator("xpath=..").click()
+        with pg.expect_navigation(url="https://buy.stripe.com/**"):
+            pg.locator("[data-picker-btn]").first.click()
+
+    def settle(pg, events, n, ms=2000):
+        for _ in range(ms // 50):
+            if len(events) >= n:
+                break
+            pg.wait_for_timeout(50)
+        pg.wait_for_timeout(150)
+
+    def attrs(e):
+        return e["body"]["data"]["attributes"]
+
+    # not signed up on this browser: checkout works, nothing goes to Klaviyo
+    ctx, events, nav = kctx(); pg = ctx.new_page()
+    buy(pg); settle(pg, events, 1, 600)
+    check(not events and nav and nav[0].startswith(SUB), "Started Checkout: nothing sent for an unknown visitor, checkout still opens")
+    ctx.close()
+
+    # signed up through the guide capture, then Buy: Started Checkout with plan, value and the checkout URL
+    ctx, events, nav = kctx(); pg = ctx.new_page()
+    pg.goto(base + "/start.html")
+    f = pg.locator("form[data-capture]").first
+    f.locator("input[type=email]").fill("buyer@example.com")
+    with pg.expect_navigation():
+        f.locator("button[type=submit]").click()
+    buy(pg); settle(pg, events, 1)
+    a = attrs(events[0]) if events else {}
+    pr = a.get("properties", {})
+    check(len(events) == 1 and a["metric"]["data"]["attributes"]["name"] == "Started Checkout"
+          and a["profile"]["data"]["attributes"] == {"email": "buyer@example.com"}, "Started Checkout sent for a signed-up visitor, email in the body")
+    check(pr.get("plan") == "subscribe" and pr.get("value") == 69.95 and a.get("value") == 69.95 and pr.get("currency") == "USD"
+          and pr.get("CheckoutURL", "").startswith(SUB + "?utm_source=klaviyo&utm_medium=email") and pr.get("clicked_url", "").startswith(SUB),
+          "Started Checkout (subscribe): plan, $69.95, Stripe checkout URL")
+    check(events and events[0]["rev"] == "2025-01-15" and "company_id=Ucdz59" in events[0]["url"], "Started Checkout uses the public site key and the site's API revision")
+    urls = " ".join([e["url"] for e in events] + nav + [pr.get("CheckoutURL", ""), pr.get("clicked_url", "")])
+    check("@" not in urls and "%40" not in urls.upper() and "example.com" not in urls, "no email in any URL (Klaviyo request, checkout links)")
+    buy(pg, "onetime"); settle(pg, events, 2)
+    pr = attrs(events[1])["properties"] if len(events) > 1 else {}
+    check(pr.get("plan") == "onetime" and pr.get("value") == 79.95 and pr.get("CheckoutURL", "").startswith(ONE + "?"), "Started Checkout (1 bag): plan, $79.95, Stripe checkout URL")
+    # the order page tells Klaviyo the order happened, once per Stripe session
+    pg.goto(base + "/order-complete.html?session_id=cs_test_kl1&plan=onetime"); settle(pg, events, 3)
+    pg.reload(); pg.wait_for_timeout(300)
+    po = [attrs(e) for e in events if attrs(e)["metric"]["data"]["attributes"]["name"] == "Placed Order"]
+    check(len(po) == 1 and po[0].get("unique_id") == "cs_test_kl1" and po[0].get("value") == 79.95, "Placed Order once per session, with the plan's value")
+    # the partner list never sets the remembered email
+    pg.evaluate("() => localStorage.removeItem('tmu_kl')")
+    pg.evaluate("() => klaviyoSubscribe(TMU.KLAVIYO_LIST_PARTNERS, 'partner@example.com', '', {}, 'test')")
+    pg.wait_for_timeout(200)
+    check(pg.evaluate("() => localStorage.getItem('tmu_kl')") is None, "partner-form sign-ups are not used for Started Checkout")
+    ctx.close()
+
+    # Global Privacy Control or Do Not Track: nothing sent, checkout still opens
+    known = "try{localStorage.setItem('tmu_kl',JSON.stringify({e:'gpc@example.com',t:Date.now()}))}catch(e){}"
+    for label, sig in (("GPC", "Object.defineProperty(Navigator.prototype,'globalPrivacyControl',{get:function(){return true}});"),
+                       ("DNT", "Object.defineProperty(Navigator.prototype,'doNotTrack',{get:function(){return '1'}});")):
+        ctx, events, nav = kctx(known + sig); pg = ctx.new_page()
+        buy(pg); settle(pg, events, 1, 600)
+        check(not events and len(nav) == 1, f"{label}: no Klaviyo event, checkout still opens")
+        ctx.close()
+
+    # arrived from a Klaviyo email link (_kx): identified by that id, and _kx never rides to Stripe
+    ctx, events, nav = kctx(); pg = ctx.new_page()
+    pg.goto(base + "/?_kx=KXtest123")
+    buy(pg); settle(pg, events, 1)
+    check(len(events) == 1 and attrs(events[0])["profile"]["data"]["attributes"] == {"_kx": "KXtest123"} and "_kx" not in nav[0],
+          "Started Checkout from a Klaviyo email visit uses _kx, not forwarded to Stripe")
+    ctx.close()
+
+
 def main():
     with serve() as base, sync_playwright() as p:
         b = p.chromium.launch()
@@ -480,6 +587,7 @@ def main():
         quiz_tests(b, base)
         order_tests(b, base)
         popup_tests(b, base)
+        klaviyo_checkout_tests(b, base)
         seo_tests(b, base)
         b.close()
     print(f"\n{len(FAIL)} failure(s)")
