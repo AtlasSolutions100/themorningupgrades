@@ -3,10 +3,12 @@
 
 Checks: ViewContent on the product pages only; Purchase value follows ?plan=, then tmu_plan,
 then 69.95; Purchase fires once per Stripe session_id and never without one; GA4 gets a standard
-`purchase` with transaction_id; Buy clicks remember the plan; tmu_ut accepts the paid mediums.
+`purchase` with transaction_id; Buy clicks remember the plan; tmu_ut accepts the paid mediums; the first-party
+funnel events for R&S HQ (lp_view, quiz_start, lead, buy_click) carry the visitor id and first touch, never an email.
 
     python3 tools/test_tracking.py
 """
+import json
 import sys
 from playwright.sync_api import sync_playwright
 from testlib import serve, block_third_party
@@ -37,6 +39,118 @@ def events(page):
 
 def names(evts, key):
     return [e[0] for e in evts[key]]
+
+
+COLLECT = "https://dashboard.rectorandstull.com/collect/tmu"
+
+
+def first_party_tests(b, base):
+    """tmuEvent beacons to R&S HQ: what each step sends, the first touch, and that no email ever leaves."""
+    def ctx_with(popup=False):
+        sent, kl = [], []
+        ctx = b.new_context(viewport={"width": 1440, "height": 900})
+        ctx.add_init_script("try{localStorage.setItem('tmu_notice','1')}catch(e){}")
+        if not popup:
+            ctx.add_init_script("try{if(!localStorage.getItem('tmu_pop'))localStorage.setItem('tmu_pop',JSON.stringify({s:'closed',t:Date.now()}))}catch(e){}")
+
+        def route(r):
+            u = r.request.url
+            if u.startswith(base):
+                return r.continue_()
+            if u == COLLECT and r.request.method == "POST":
+                sent.append({"body": json.loads(r.request.post_data or "{}"),
+                             "ctype": r.request.headers.get("content-type", "")})
+                return r.fulfill(status=204, headers={"Access-Control-Allow-Origin": "*"})
+            if u.startswith("https://a.klaviyo.com/client/subscriptions/"):
+                kl.append(1)
+                return r.fulfill(status=202, body="")
+            return r.abort()
+        ctx.route("**/*", route)
+        return ctx, sent
+
+    def wait(pg, sent, n, ms=3000):
+        for _ in range(ms // 50):
+            if len(sent) >= n:
+                return
+            pg.wait_for_timeout(50)
+
+    def named(sent, name):
+        return [x["body"] for x in sent if x["body"].get("name") == name]
+
+    # landing from an organic link with a Google click id: lp_view with the visitor id and the first touch
+    ctx, sent = ctx_with(); pg = ctx.new_page()
+    pg.goto(base + "/start.html?utm_source=tiktok&utm_medium=organic&utm_campaign=bio&utm_content=pin1&gclid=G123&fbclid=F1")
+    wait(pg, sent, 1)
+    lv = named(sent, "lp_view")
+    ft = lv[0]["ft"] if lv else {}
+    vid = lv[0]["vid"] if lv else ""
+    check(len(lv) == 1 and lv[0]["path"] == "/start.html" and lv[0]["detail"] is None, "lp_view on page load")
+    check(bool(__import__("re").fullmatch(r"[a-z0-9]{8,40}", vid or "")) and ("tmu_vid=" + vid) in pg.evaluate("() => document.cookie"),
+          f"anonymous visitor id in the tmu_vid cookie ({vid})")
+    check((ft.get("utm_source"), ft.get("utm_medium"), ft.get("utm_campaign"), ft.get("utm_content"), ft.get("click_type"), ft.get("click_id"))
+          == ("tiktok", "organic", "bio", "pin1", "gclid", "G123"), f"first touch: utm tags of any medium + click id ({ft})")
+    check(pg.evaluate("() => localStorage.getItem('tmu_ut')") is None, "organic visit still sets no Stripe ut__ tag")
+    check(all(x["ctype"].startswith("text/plain") for x in sent), "beacons go as text/plain (no CORS preflight)")
+    # next page, no tags: same visitor, same first touch
+    pg.goto(base + "/shop.html?utm_source=meta&utm_medium=paid&utm_campaign=later")
+    wait(pg, sent, 2)
+    lv = named(sent, "lp_view")
+    check(len(lv) == 2 and lv[1]["vid"] == vid and lv[1]["ft"] == ft, "first touch never overwritten, same visitor id")
+    check(pg.evaluate("() => !!localStorage.getItem('tmu_ut')"), "a later paid visit still sets the 30-day Stripe tag")
+    # Buy clicks: checkout and plan
+    pg.evaluate("() => document.addEventListener('click', e => e.preventDefault())")
+    pg.locator("main a[data-buy='subscribe']").first.dispatch_event("click")
+    pg.locator("main a[data-buy='onetime']").first.dispatch_event("click")
+    wait(pg, sent, 4)
+    check([x["detail"] for x in named(sent, "buy_click")] == ["stripe:subscribe", "stripe:onetime"], "buy_click: stripe + plan")
+    # the newsletter capture on /start
+    pg.goto(base + "/start.html")
+    n0 = len(sent)
+    f = pg.locator("form[data-capture]").first
+    f.locator("input[type=email]").fill("reader@example.com")
+    f.locator("button[type=submit]").click()
+    pg.wait_for_url("**/thanks.html*")
+    wait(pg, sent, n0 + 3)
+    check([x["detail"] for x in named(sent, "lead")] == ["newsletter"], "lead: newsletter capture")
+    ctx.close()
+
+    # the quiz on the home page: quiz_start once, lead quiz
+    ctx, sent = ctx_with(); pg = ctx.new_page()
+    pg.goto(base + "/")
+    wait(pg, sent, 1)
+    pg.locator('.quiz .q[data-q="1"] .opt').first.click()
+    pg.locator('.quiz .q[data-q="2"] .opt').first.click()
+    pg.locator('.quiz .q[data-q="3"] .opt').first.click()
+    pg.fill("#q-email", "quiz@example.com"); pg.click("#tmu-form button[type=submit]")
+    pg.wait_for_selector("#tmu-done:not([hidden])")
+    wait(pg, sent, 3)
+    check(len(named(sent, "quiz_start")) == 1, "quiz_start once, on the first answer")
+    check([x["detail"] for x in named(sent, "lead")] == ["quiz"], "lead: quiz")
+    ctx.close()
+
+    # the email pop-up: lead popup, then its Subscribe & Save button is a buy_click
+    ctx, sent = ctx_with(popup=True); pg = ctx.new_page(); pg.clock.install()
+    pg.goto(base + "/shop.html"); pg.clock.run_for(11000); pg.wait_for_timeout(50)
+    pg.fill("#tp-email", "pop@example.com"); pg.click(".tp-form button[type=submit]")
+    pg.wait_for_selector('.tmu-pop [data-step="done"]:not([hidden])')
+    pg.evaluate("() => document.addEventListener('click', e => e.preventDefault())")
+    pg.locator(".tmu-pop .tp-use").dispatch_event("click")
+    pg.clock.run_for(500)
+    wait(pg, sent, 3)
+    check([x["detail"] for x in named(sent, "lead")] == ["popup"], "lead: pop-up")
+    check([x["detail"] for x in named(sent, "buy_click")] == ["stripe:subscribe"], "pop-up Subscribe & Save: buy_click")
+    allsent = json.dumps([x["body"] for x in sent])
+    check("@" not in allsent and "example.com" not in allsent, "no email in any beacon")
+    ctx.close()
+
+    # MPG hand-off mode (no Stripe links): buy_click says mpg
+    ctx, sent = ctx_with(); ctx.add_init_script("Object.defineProperty(window,'TMU',{configurable:true,set(v){v.STRIPE_ONETIME='';v.STRIPE_SUBSCRIBE='';Object.defineProperty(window,'TMU',{value:v,writable:true,configurable:true});},get(){return undefined;}})")
+    pg = ctx.new_page(); pg.goto(base + "/shop.html")
+    pg.evaluate("() => document.addEventListener('click', e => e.preventDefault())")
+    pg.locator("main a[data-buy='onetime']").first.dispatch_event("click")
+    wait(pg, sent, 2)
+    check([x["detail"] for x in named(sent, "buy_click")] == ["mpg:onetime"], "buy_click: mpg in hand-off mode")
+    ctx.close()
 
 
 def main():
@@ -142,6 +256,7 @@ def main():
         pg.wait_for_url("**/start.html*")
         check(pg.url.endswith("/start.html?ref=kasey&utm_source=creator&utm_medium=influencer&utm_campaign=kasey"), "plain creator link lands as before")
         ctx.close()
+        first_party_tests(b, base)
         b.close()
     print(f"\n{len(FAIL)} failure(s)")
     return 1 if FAIL else 0
