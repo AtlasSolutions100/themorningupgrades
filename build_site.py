@@ -118,7 +118,7 @@ def og_img(name):
 
 # Bing Webmaster Tools: paste the content="..." value of its msvalidate.01 meta tag here and
 # rebuild. Empty = no tag. (Bing can also import the site from Google Search Console.)
-BING_VERIFICATION = ""
+BING_VERIFICATION = "97386D3157EE9C0604AE6D8A368F083C"
 import json as _json, html as _html
 
 def url_for(fn):
@@ -287,7 +287,7 @@ def page(title, desc, body, og_image="/img/opt/breakfast-og-1200.jpg", noindex=F
 <link rel="apple-touch-icon" href="/img/mark.jpg">
 {'' if noindex else f'<link rel="canonical" href="{url_for(fn)}">'}
 <meta name="theme-color" content="#F3EEE5">
-{'<meta name="google-site-verification" content="7jyn0E7TYq9A_Ug0PhqrwoI0ssqQj0Z9mrlBYkPK4dw"><meta name="facebook-domain-verification" content="fplr4vshxvflcgysu4cu6j0cpwtbco">' if fn == "index.html" else ''}{f'<meta name="msvalidate.01" content="{BING_VERIFICATION}">' if fn == "index.html" and BING_VERIFICATION else ''}
+{'<meta name="google-site-verification" content="7jyn0E7TYq9A_Ug0PhqrwoI0ssqQj0Z9mrlBYkPK4dw"><meta name="facebook-domain-verification" content="fplr4vshxvflcgysu4cu6j0cpwtbco">' if fn == "index.html" else ''}{f'<meta name="msvalidate.01" content="{BING_VERIFICATION}" />' if fn == "index.html" and BING_VERIFICATION else ''}
 <meta property="og:type" content="{'article' if fn in GUIDE_META or fn in RECIPE_BY else 'website'}">
 <meta property="og:site_name" content="The Morning Upgrade">
 <meta property="og:locale" content="en_US">
