@@ -279,6 +279,15 @@
    1200
   ]
  },
+ "recipe-pack-cover": {
+  "ext": "jpg",
+  "h": 621,
+  "src": "recipe_pack_cover.jpg",
+  "w": 480,
+  "widths": [
+   480
+  ]
+ },
  "scoop": {
   "ext": "jpg",
   "h": 2150,

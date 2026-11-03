@@ -49,7 +49,7 @@
     <div class="q" data-q="4">
       <div class="prog">Your result</div>
       <div class="result"><b id="r-label">Result</b><span id="r-text"></span><span id="r-cups" class="r-line"></span><a id="r-guide" class="r-line" href="/guides.html">Read the guide</a></div>
-      <h3>Our suggestion</h3>
+      <div class="qsuggest"><h3>Our suggestion</h3>
       <p id="r-plan" class="fine" style="font-size:15px;color:var(--ink2)"></p>
       <div class="qpick"><fieldset class="picker" data-picker><legend class="sr">Choose a plan</legend>
   <div class="opts"><label class="opt on"><input type="radio" name="plan2" value="subscribe" checked data-cta="Subscribe for $69.95 a month" data-sticky="$2.33 a morning · $69.95 a month"><span class="radio"></span>
@@ -60,23 +60,22 @@
     <span class="pprice"><b>$79.95</b><em>$2.67 a morning</em></span></label></div>
   <a class="btn big" data-buy="subscribe" data-picker-btn href="#"><span data-cta>Subscribe for $69.95 a month</span></a>
   <p class="fine pnote">$8.95 flat US shipping and any tax at checkout. 90-day money-back guarantee on unopened bags.</p>
-</fieldset></div>
-      <h3 style="margin-top:22px">Get the 7 Mornings guide</h3>
+</fieldset></div></div>
+      <div class="qform" id="r-form"><h3 style="margin-top:22px">Get the 7 Mornings guide</h3>
       <form id="tmu-form" novalidate>
-        <label for="q-first">First name</label><input id="q-first" type="text" name="first_name" autocomplete="given-name">
         <label for="q-email">Email</label><input id="q-email" type="email" name="email" required autocomplete="email">
-        <input type="hidden" name="quiz_result"><input type="hidden" name="cups"><input type="hidden" name="want">
+        <input type="hidden" name="first_name"><input type="hidden" name="quiz_result"><input type="hidden" name="cups"><input type="hidden" name="want">
         <p style="margin:16px 0 8px"><button class="btn" type="submit">Send me the guide</button></p>
         <p class="fine">7 short emails on swapping 1 cup for a week, plus the recipe pack. Unsubscribe in 1 click.</p>
         <p id="tmu-msg" class="fine" role="status" style="color:var(--copper2)"></p>
       </form>
-      <p id="tmu-done" class="bonus" hidden>Sent. Check your inbox in a minute, or <a href="https://d2ol7oe51mr4n9.cloudfront.net/user_3GvdxB9gfwtge4rv79iuyoXAckR/a857aef6-954a-4e8e-b256-41205db0097f.pdf" target="_blank" rel="noopener">open the 7 Mornings guide now</a>.</p>
+      <p id="tmu-done" class="bonus" hidden>Sent. Check your inbox in a minute, or <a href="https://d2ol7oe51mr4n9.cloudfront.net/user_3GvdxB9gfwtge4rv79iuyoXAckR/a857aef6-954a-4e8e-b256-41205db0097f.pdf" target="_blank" rel="noopener">open the 7 Mornings guide now</a>.</p></div>
     </div>
   </div>
 </div></section>
 <script>
 (function(){
-  var Q={"results": {"crash": ["Make it at home in 30 seconds", "Skip the line. The guide starts with how to make it at home in 30 seconds.", "/how-to-make-mct-instant-coffee.html", "How to make it in 30 seconds"], "jitters": ["Dark and smooth", "You like it strong. Day 1 of the guide explains why caffeine and L-theanine are in 1 scoop.", "/l-theanine-and-caffeine.html", "L-theanine and caffeine, explained"], "parent": ["1 quick cup", "Busy mornings need a fast cup. It takes 30 seconds and works anywhere with hot water.", "/instant-coffee-for-travel-camping-dorm.html", "Coffee anywhere there’s hot water"], "desk": ["Coffee for the work day", "The guide starts with when to make your first cup and what’s in it.", "/how-much-caffeine-in-instant-coffee.html", "How much caffeine is in a cup"]}, "cups": {"1": "1 cup: make it this one for a week.", "2": "2 cups: swap the first one only and keep the second.", "3": "3 or more: swap the first cup only and keep the rest."}, "plan": {"simple": ["subscribe", "Subscribe & Save fits “simple”: 1 bag every 30 days, $10 less than 1 bag. Pause or cancel from any receipt."], "other": ["onetime", "Try 1 bag first: 30 servings, no subscription. Decide after a week."]}};
+  var Q={"results": {"crash": ["Skip the line", "1 scoop in hot water, 30 seconds at home. In the scoop: dark roast Colombian coffee, MCT powder, L-theanine and 100 mg natural caffeine. $2.33 a morning on Subscribe & Save, against $5 to $7 at the counter.", "/how-to-make-mct-instant-coffee.html", "How to make it in 30 seconds"], "jitters": ["Dark and smooth", "Dark roast, a little smoother than drip, and good black. Each scoop has 100 mg natural caffeine plus the coffee’s own, 400 mg L-theanine and MCT powder. $2.33 a morning; a bag is 30 mornings.", "/l-theanine-and-caffeine.html", "L-theanine and caffeine, explained"], "parent": ["1 quick cup", "30 seconds, no machine, anywhere with hot water. In the scoop: dark roast Colombian coffee, MCT powder, L-theanine and 100 mg natural caffeine. $2.33 a morning, 30 mornings a bag.", "/instant-coffee-for-travel-camping-dorm.html", "Coffee anywhere there’s hot water"], "desk": ["Coffee for the work day", "1 scoop at your desk: dark roast coffee, MCT powder, 400 mg L-theanine and 100 mg natural caffeine. The label says it supports focus and energy. $2.33 a morning, against $5 at the counter.", "/how-much-caffeine-in-instant-coffee.html", "How much caffeine is in a cup"]}, "cups": {"1": "1 cup: make it this one for a week.", "2": "2 cups: swap the first one only and keep the second.", "3": "3 or more: swap the first cup only and keep the rest."}, "plan": {"simple": ["subscribe", "Subscribe & Save fits “simple”: 1 bag every 30 days at $69.95 a month; 1 bag on its own is $79.95. Pause or cancel from any receipt."], "other": ["onetime", "Try 1 bag first: $79.95 for 30 servings, no subscription. Decide after a week; Subscribe & Save is $69.95 a month."]}};
   var box=document.querySelector('.quiz[data-source]'), src=box.getAttribute('data-source');
   var ans={}, f=document.getElementById('tmu-form'), msg=document.getElementById('tmu-msg');
   function step(n){ try{ if(window.gtag) gtag('event','QuizStep',{step:n,source:src}); }catch(e){} }
@@ -93,6 +92,8 @@
     document.getElementById('r-cups').textContent=Q.cups[ans.cups]||'';
     var g=document.getElementById('r-guide'); g.href=r[2]; g.textContent=r[3]+' \u2192';
     document.getElementById('r-plan').textContent=p[1];
+    // "simple" wants the plan first; everyone else sees the guide sign-up first, then the picker
+    var rf=document.getElementById('r-form'), sg=box.querySelector('.qsuggest'); if(rf&&sg){ sg.parentNode.insertBefore(rf, ans.want==='simple'?sg.nextSibling:sg); }
     var radio=box.querySelector('.qpick input[value="'+p[0]+'"]'); if(radio){ radio.checked=true; radio.dispatchEvent(new Event('change',{bubbles:true})); }
     f.quiz_result.value=ans.quiz_result; f.cups.value=ans.cups; f.want.value=ans.want;
     show(4); track('QuizComplete',{result:ans.quiz_result,plan:p[0],source:src}); }; });
@@ -138,8 +139,6 @@
     <div>
       <h2 class="fh">Company</h2>
       <a href="/about.html">About us</a>
-      <a href="/share.html">Share with friends</a>
-      <a href="/partner.html">Build with us</a>
       <a href="/privacy.html">Privacy</a>
       <a href="/terms.html">Terms</a>
     </div>

@@ -41,22 +41,40 @@ def context(b, base, w=390, h=844, klaviyo=None, popup=False, status=202):
 
 
 def start_tests(b, base):
-    import importlib.util, os
+    import importlib.util, os, re
     spec = importlib.util.spec_from_file_location("bs_variants", os.path.join(os.path.dirname(__file__), "..", "build_site.py"))
     # read LANDING_VARIANTS without running the build: parse the dict literal
     src = open(os.path.join(os.path.dirname(__file__), "..", "build_site.py")).read()
     block = src[src.index("LANDING_VARIANTS = {"):]
     block = block[:block.index("\n}\n") + 3]
-    ns = {}
+    ns = {"LP_SUB": re.search(r'^LP_SUB = "(.*)"$', src, re.M).group(1)}
     exec(block, ns)
     V = ns["LANDING_VARIANTS"]
     ctx = context(b, base); pg = ctx.new_page()
     for content, key in [("", "default"), ("ritual_a", "ritual"), ("swap-2", "swap"), ("label", "label"), ("COST_b", "cost"), ("day3", "default")]:
         pg.goto(base + "/start.html" + (f"?utm_source=tiktok&utm_medium=paid&utm_content={content}" if content else ""))
         h1 = pg.locator("h1").text_content().strip()
-        strip = [t.strip() for t in pg.locator("#lp-strip span:not(.rule)").all_text_contents()]
-        check(h1 == V[key][0] and strip == list(V[key][1]), f"/start utm_content={content or '(none)'} -> {key} headline")
+        sub = pg.locator("#lp-sub").text_content().strip()
+        check(h1 == V[key][0] and sub == V[key][1], f"/start utm_content={content or '(none)'} -> {key} headline")
         check(pg.locator("h1").count() == 1, f"/start has one h1 ({content or 'none'})")
+        strip = [t.strip() for t in pg.locator("#lp-strip span:not(.rule)").all_text_contents()]
+        check(strip == ["30 servings a bag", "Ships in about 2 days", "90-day guarantee on unopened bags"], f"/start trust strip ({content or 'none'})")
+        # paid visits start on 1 bag; the button follows; the eyebrow is the label line
+        want_plan = "onetime" if content else "subscribe"
+        btn = pg.locator(".lphero [data-picker-btn]")
+        check(pg.locator(".lphero [data-picker] input:checked").get_attribute("value") == want_plan and btn.get_attribute("data-buy") == want_plan
+              and btn.text_content().strip() == ("Try 1 bag, $79.95" if content else "Start Subscribe & Save, $69.95 a month"),
+              f"/start picker defaults to {want_plan} ({'paid' if content else 'organic'}) and the button says so")
+    check(pg.locator(".lphero .eyebrow").text_content().strip() == "Instant coffee with MCT powder and L\u2011theanine", "/start eyebrow is the label line")
+    check(pg.locator(".lphero .terms li").count() == 3 and pg.locator(".lphero .bonus-hero img").count() == 1, "/start: 3 terms lines and the Recipe Pack cover in the hero")
+    check(pg.locator(".sticky").count() == 0 and pg.locator("body[data-popup=off]").count() == 1, "/start: no sticky bar, no pop-up")
+    check(pg.locator("main h2").nth(0).inner_text().strip() == "The latte math", "/start: the latte math is section 2")
+    check(pg.locator(".who-text").count() == 1 and pg.locator(".who-text img").count() == 0, "/start: founder block without a photo")
+    n_faq = pg.locator(".closing-grid details").count()
+    check(9 <= n_faq <= 11, f"/start: {n_faq} FAQ items (9 to 11)")
+    pg.evaluate("() => localStorage.removeItem('tmu_ut')")
+    pg.goto(base + "/start.html")
+    check(pg.locator(".lphero [data-picker] input:checked").get_attribute("value") == "subscribe", "/start organic visit keeps Subscribe & Save first")
     check(pg.locator("header.nav.mini .brand").count() == 1 and pg.locator("header.nav.mini a[href='/faq.html']").count() == 1,
           "/start has the mini header with a Questions link")
     check(pg.locator(".burger").count() == 0, "/start has no menu")
@@ -104,7 +122,18 @@ def ia_tests(b, base):
     ctx = context(b, base); pg = ctx.new_page()
     pg.goto(base + "/shop.html")
     y = pg.evaluate("() => document.querySelector('[data-picker-btn]').getBoundingClientRect().top + scrollY")
-    check(y < 2 * 844, f"/shop first checkout button within 2 screens at 390px (top {int(y)}px)")
+    check(y < 900, f"/shop first checkout button within about 800 px at 390px (top {int(y)}px)")
+    check(pg.locator("h1").inner_text().startswith("Instant coffee with MCT powder and L"), "/shop H1 is the label line")
+    check(pg.locator(".shop-buy .terms li").count() == 3 and pg.locator(".shop-buy .bonus-hero img").count() == 1, "/shop: 3 terms lines and the Recipe Pack cover next to the button")
+    pg.evaluate("() => document.querySelector('[data-picker-btn]').scrollIntoView({block:'center'})"); pg.wait_for_timeout(500)
+    check(pg.evaluate("() => document.querySelector('.sticky').getBoundingClientRect().top >= innerHeight - 1"), "/shop: no sticky bar while the picker button is on screen")
+    pg.evaluate("() => document.querySelector('.specs').scrollIntoView()"); pg.wait_for_timeout(500)
+    check(pg.evaluate("() => document.querySelector('.sticky').getBoundingClientRect().top < innerHeight"), "/shop: sticky bar back once the picker is off screen")
+    footer = [a.strip() for a in pg.locator("footer a").all_text_contents()]
+    check("Build with us" not in footer and "Share with friends" not in footer, "footer has no partner or share links")
+    for fn in ("partner.html", "share.html"):
+        pg.goto(base + "/" + fn)
+        check(pg.locator("meta[name=robots][content=noindex]").count() == 1 and pg.locator("h1").count() == 1 and "income disclosure" in pg.content().lower(), f"/{fn} is noindex, still served with its disclosure")
     ctx.close()
 
 
@@ -150,6 +179,11 @@ def guide_tests(b, base):
         check(len(lede.split()) <= 62, f"{fn}: answer lede {len(lede.split())} words")
         check(f'href="/{fn}"' in idx, f"{fn}: on the guides index")
         check('href="/shop.html"' in h and ('data-capture="guide"' in h), f"{fn}: links the shop and has the guide capture")
+        rel = re.findall(r'<li><a href="/([a-z0-9-]+\.html)">', h.split("Related guides")[1].split("</ul>")[0])
+        check(3 <= len(rel) <= 5 and all(os.path.exists(os.path.join(root, r)) for r in rel) and fn not in rel, f"{fn}: 3 to 5 related pages, all existing ({len(rel)})")
+    for fn, recipe in (("iced-instant-coffee-recipes.html", "iced-instant-coffee-recipe.html"), ("how-to-make-mct-instant-coffee.html", "instant-coffee-latte.html")):
+        h = open(os.path.join(root, fn)).read()
+        check(f'<li><a href="/{recipe}">' in h.split("Related guides")[1], f"{fn}: related list links the {recipe} recipe")
     new = ["how-much-caffeine-in-instant-coffee.html", "how-to-make-instant-coffee-taste-better.html", "does-instant-coffee-go-bad.html",
            "instant-coffee-for-travel-camping-dorm.html", "what-is-mct-powder.html", "natural-caffeine-vs-synthetic.html",
            "caffeine-and-l-theanine-ratio.html", "instant-coffee-vs-drip-cost-per-cup.html"]
@@ -162,6 +196,21 @@ def guide_tests(b, base):
     check("$2.33 a cup" in pg.locator(".calc-out").inner_text(), "cost calculator shows $2.33 a cup for 69.95 / 30")
     pg.fill("#c-price", "12"); pg.fill("#c-cups", "60")
     check("$0.20 a cup" in pg.locator(".calc-out").inner_text(), "cost calculator recalculates ($12 / 60 = $0.20)")
+    ctx.close()
+
+
+def notice_tests(b, base):
+    ctx = b.new_context(viewport={"width": 390, "height": 844})
+    ctx.route("**/*", lambda r: r.continue_() if r.request.url.startswith(base) else r.abort())
+    pg = ctx.new_page(); pg.goto(base + "/shop.html"); pg.wait_for_timeout(100)
+    n = pg.locator(".notice")
+    box = n.bounding_box()
+    check(n.count() == 1 and box and box["height"] <= 70 and box["y"] + box["height"] <= 844 - 70, f"analytics notice is a short toast above the sticky bar ({box})")
+    pg.mouse.wheel(0, 200); pg.wait_for_timeout(200)
+    check(pg.locator(".notice").count() == 0 and pg.evaluate("() => localStorage.getItem('tmu_notice')") == "1", "notice gone on the first scroll and remembered")
+    pg.evaluate("() => localStorage.removeItem('tmu_notice')"); pg.goto(base + "/faq.html"); pg.wait_for_timeout(100)
+    pg.mouse.click(200, 300); pg.wait_for_timeout(100)
+    check(pg.locator(".notice").count() == 0, "notice gone on the first tap")
     ctx.close()
 
 
@@ -179,6 +228,10 @@ def quiz_tests(b, base):
         checked = pg.locator("#quiz .qpick input:checked").get_attribute("value")
         btn = pg.locator("#quiz .qpick [data-picker-btn]").get_attribute("data-buy")
         check(checked == plan and btn == plan, f"{path}: Q3={want} preselects {plan} in a working picker ({checked}/{btn})")
+        form_first = pg.evaluate("() => document.getElementById('r-form').compareDocumentPosition(document.querySelector('#quiz .qsuggest')) & Node.DOCUMENT_POSITION_FOLLOWING")
+        check(bool(form_first) == (want != "simple"), f"{path}: email form {'above' if want != 'simple' else 'below'} the picker for Q3={want}")
+        check(pg.locator("#tmu-form input:not([type=hidden])").count() == 1, f"{path}: email is the only field")
+        check("$2.33" in pg.locator("#r-text").text_content() and "L-theanine" in pg.locator("#r-text").text_content(), f"{path}: result restates the scoop and the latte math")
         steps = pg.evaluate("() => (window.dataLayer||[]).map(a=>Array.from(a)).filter(x=>x[0]==='event'&&x[1]==='QuizStep').map(x=>x[2].step)")
         check(steps == [1, 2, 3, 4], f"{path}: QuizStep events 1-4 ({steps})")
         pg.fill("#q-email", "test@example.com")
@@ -247,9 +300,10 @@ def popup_tests(b, base):
     check(pg.locator(".tp-panel").get_attribute("aria-modal") == "true" and pg.locator("#tp-h").count() == 1
           and pg.locator("label[for=tp-email]").count() == 1 and pg.locator("label[for=tp-first]").count() == 1, "pop-up: modal dialog with a heading and labelled fields")
     txt = pg.locator(".tp-panel").inner_text()
-    for must in ("Recipe Pack", "$10", "Subscribe & Save", "Pause, skip or cancel anytime", "By signing up you agree to emails from The Morning Upgrade. Unsubscribe anytime."):
+    for must in ("Recipe Pack", "$69.95 a month", "$79.95", "Subscribe & Save", "Pause, skip or cancel anytime", "By signing up you agree to emails from The Morning Upgrade. Unsubscribe anytime."):
         check(must in txt, f"pop-up says {must!r}")
     check("MORNING10" not in txt and "code" not in txt.lower(), "pop-up mentions no promo code")
+    check("$10" not in txt and " off" not in txt.lower() and "discount" not in txt.lower(), "pop-up states the 2 prices, no 'off' or discount wording")
     check(pg.locator(".tp-panel a[href='/privacy.html']").count() == 1, "pop-up links the privacy page")
     inside = []
     for _ in range(12):
@@ -273,17 +327,17 @@ def popup_tests(b, base):
     check(dl.get_attribute("href") == "/assets/recipe-pack.pdf" and dl.get_attribute("download") is not None and dl.is_visible(), "pop-up success: Download the Recipe Pack")
     use = pg.locator(".tmu-pop .tp-use")
     href = use.get_attribute("href") or ""
-    check(use.is_visible() and "Claim $10 off" in use.text_content() and href.startswith(SUB + "?") and "promo" not in href,
-          f"pop-up success: Claim $10 off goes to the plain Subscribe & Save checkout ({href[:70]})")
+    check(use.is_visible() and "Start Subscribe & Save, $69.95 a month" in use.text_content() and href.startswith(SUB + "?") and "promo" not in href,
+          f"pop-up success: Start Subscribe & Save goes to the plain Subscribe & Save checkout ({href[:70]})")
     check(pg.evaluate("() => document.activeElement.id") == "tp-h2", "pop-up success: focus moves to the success heading")
     pg.keyboard.press("Escape")
     check(not is_open(pg) and pg.evaluate("() => JSON.parse(localStorage.getItem('tmu_pop')).s") == "signed", "pop-up: Escape closes; sign-up remembered")
     note = pg.locator(".hero2 [data-picker] .promo-note")
-    check(note.count() == 1 and note.is_visible() and note.inner_text() == "$10 off vs a single bag \u00b7 Cancel anytime", "after sign-up: note under the Subscribe & Save button")
+    check(note.count() == 1 and note.is_visible() and note.inner_text() == "Subscribe & Save is $69.95 a month; 1 bag is $79.95 \u00b7 Cancel anytime", "after sign-up: note under the Subscribe & Save button")
     pg.goto(base + "/"); wait10(pg)
     check(not is_open(pg), "pop-up: never again after sign-up")
     note = pg.locator(".hero2 [data-picker] .promo-note")
-    check(note.is_visible() and note.inner_text().startswith("$10 off vs a single bag"), "after sign-up: the note is there on the next page view")
+    check(note.is_visible() and note.inner_text().startswith("Subscribe & Save is $69.95 a month"), "after sign-up: the note is there on the next page view")
     pg.locator(".hero2 [data-picker] input[value=onetime]").locator("xpath=..").click()
     check(not note.is_visible(), "after sign-up: no note while 1 bag is picked")
     hrefs = pg.eval_on_selector_all("a[data-buy]", "els => els.map(e => e.href)")
@@ -318,10 +372,14 @@ def popup_tests(b, base):
 
     # never on these pages, never over the quiz
     ctx = context(b, base, 1440, 900, popup=True); pg = ctx.new_page(); pg.clock.install()
-    for path in ("/quiz.html", "/order-complete.html", "/thanks.html", "/partner.html", "/share.html", "/no-such-page"):
+    for path in ("/quiz.html", "/order-complete.html", "/thanks.html", "/partner.html", "/share.html", "/no-such-page", "/start.html",
+                 "/shop.html?utm_source=tiktok&utm_medium=paid&utm_campaign=t1"):
         pg.goto(base + path); wait10(pg)
         pg.evaluate("() => window.scrollTo(0, document.documentElement.scrollHeight)"); pg.wait_for_timeout(50)
         check(not is_open(pg), f"pop-up: never on {path}")
+    pg.goto(base + "/faq.html"); wait10(pg)
+    check(not is_open(pg), "pop-up: still closed on the next page after a paid visit (tmu_ut flag)")
+    pg.evaluate("() => localStorage.removeItem('tmu_ut')")
     pg.goto(base + "/")
     pg.click('#quiz .q[data-q="1"] .opt[data-v="crash"]')
     wait10(pg); pg.clock.run_for(10000); pg.wait_for_timeout(50)
@@ -411,6 +469,7 @@ def main():
         ia_tests(b, base)
         recipe_tests(b, base)
         guide_tests(b, base)
+        notice_tests(b, base)
         quiz_tests(b, base)
         order_tests(b, base)
         popup_tests(b, base)

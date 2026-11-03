@@ -57,6 +57,10 @@ ALLOW = (
     r'\("(crash|jitters)",',                                        # same keys in the QUIZ table
     r"results\.crash",
     r"most participants earn little|most people earn little",       # required income disclosure
+    # The FAQ about the bag's printed name (owner, Nov 2026): the name is quoted once, and the answer
+    # says we make no such claims. Nothing else may use the word.
+    r"The bag says Weight Control Coffee\. Is that what this is\?",
+    r"we make no weight claims",
 )
 
 SKIP_DIRS = {".git", "node_modules", "tools", "img", "media", "assets"}
@@ -160,7 +164,8 @@ def selftest():
                  "a dietary supplement", 'data-v="crash"', '{"crash": ["The 2 PM slide"', '[("crash", "Early afternoon', "Most participants earn little",
                  "A 2022 review in the journal", "the fat content is real: read the nutrition panel",
                  "Dark roast, a little smoother", "medium heat", "medium-chain triglycerides",
-                 "steady energy", "before bed", "after lunch"]
+                 "steady energy", "before bed", "after lunch",
+                 "The bag says Weight Control Coffee. Is that what this is?", "and we make no weight claims."]
     must_fail = ["supports weight loss", "Weight control coffee", "healthy appetite control", "boosts metabolism",
                  "fat burning", "burns fat", "slimming", "Most popular", "No 2 PM crash", "the jitters",
                  "Most people stop", "★★★★★", "500 reviews", "helps you lose fat",
