@@ -243,8 +243,8 @@ details>p{margin:0 0 22px;color:var(--muted);max-width:62ch}
 /* shop */
 section.shop{padding:0 0 clamp(64px,9vw,128px)}
 .shopgrid{display:grid;grid-template-columns:1fr;grid-template-areas:"main" "buy" "gal" "details";gap:0}
-.shop-main{grid-area:main}.shop-buy{grid-area:buy;padding:28px 0 0}.gallery{grid-area:gal}.shop-details{grid-area:details}
-.shop-main{aspect-ratio:4/5;max-height:44svh;width:calc(100% + 2*var(--gut));margin-left:calc(-1*var(--gut))}
+.shop-main{grid-area:main}.shop-buy{grid-area:buy;padding:20px 0 0}.gallery{grid-area:gal}.shop-details{grid-area:details}
+.shop-main{aspect-ratio:4/5;max-height:40svh;width:calc(100% + 2*var(--gut));margin-left:calc(-1*var(--gut))}
 @media(max-width:860px){.gallery{margin-top:36px!important}}
 .shop-main img{object-position:50% 70%}
 .gallery{display:grid;grid-auto-flow:column;grid-auto-columns:42%;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;margin:10px calc(-1*var(--gut)) 0;padding:0 var(--gut);scrollbar-width:none}
@@ -252,9 +252,9 @@ section.shop{padding:0 0 clamp(64px,9vw,128px)}
 .gallery figure{margin:0;scroll-snap-align:start}
 .gallery .frame{aspect-ratio:4/5}
 .gallery figcaption{font-size:13px;color:var(--muted);margin-top:8px}
-.shop-buy h1{font-size:clamp(30px,3.6vw,46px);margin:0 0 14px;line-height:1.08}
+.shop-buy h1{font-size:clamp(26px,3.6vw,46px);margin:0 0 12px;line-height:1.08}
 .shop-buy h1 span{display:block;font-family:var(--text-serif);font-size:clamp(18px,1.7vw,21px);line-height:1.4;color:var(--ink2);margin-top:10px;letter-spacing:0}
-.shop-buy .lead{margin-bottom:22px;font-size:17px}
+.shop-buy .lead{margin-bottom:18px;font-size:16px}
 .specs{margin:40px 0 0;border-top:1px solid var(--ink)}
 .specs>div{display:grid;grid-template-columns:1fr;gap:4px;padding:18px 0;border-bottom:1px solid var(--line)}
 .specs dt{font-family:var(--text-serif);font-size:17px}

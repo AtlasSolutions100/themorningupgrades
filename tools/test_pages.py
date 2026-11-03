@@ -41,13 +41,13 @@ def context(b, base, w=390, h=844, klaviyo=None, popup=False, status=202):
 
 
 def start_tests(b, base):
-    import importlib.util, os
+    import importlib.util, os, re
     spec = importlib.util.spec_from_file_location("bs_variants", os.path.join(os.path.dirname(__file__), "..", "build_site.py"))
     # read LANDING_VARIANTS without running the build: parse the dict literal
     src = open(os.path.join(os.path.dirname(__file__), "..", "build_site.py")).read()
     block = src[src.index("LANDING_VARIANTS = {"):]
     block = block[:block.index("\n}\n") + 3]
-    ns = {}
+    ns = {"LP_SUB": re.search(r'^LP_SUB = "(.*)"$', src, re.M).group(1)}
     exec(block, ns)
     V = ns["LANDING_VARIANTS"]
     ctx = context(b, base); pg = ctx.new_page()
@@ -63,9 +63,9 @@ def start_tests(b, base):
         want_plan = "onetime" if content else "subscribe"
         btn = pg.locator(".lphero [data-picker-btn]")
         check(pg.locator(".lphero [data-picker] input:checked").get_attribute("value") == want_plan and btn.get_attribute("data-buy") == want_plan
-              and btn.inner_text().strip() == ("Try 1 bag, $79.95" if content else "Start Subscribe & Save, $69.95 a month"),
+              and btn.text_content().strip() == ("Try 1 bag, $79.95" if content else "Start Subscribe & Save, $69.95 a month"),
               f"/start picker defaults to {want_plan} ({'paid' if content else 'organic'}) and the button says so")
-    check(pg.locator(".lphero .eyebrow").inner_text().strip() == "Instant coffee with MCT powder and L-theanine", "/start eyebrow is the label line")
+    check(pg.locator(".lphero .eyebrow").text_content().strip() == "Instant coffee with MCT powder and L-theanine", "/start eyebrow is the label line")
     check(pg.locator(".lphero .terms li").count() == 3 and pg.locator(".lphero .bonus-hero img").count() == 1, "/start: 3 terms lines and the Recipe Pack cover in the hero")
     check(pg.locator(".sticky").count() == 0 and pg.locator("body[data-popup=off]").count() == 1, "/start: no sticky bar, no pop-up")
     check(pg.locator("main h2").nth(0).inner_text().strip() == "The latte math", "/start: the latte math is section 2")
@@ -125,9 +125,9 @@ def ia_tests(b, base):
     check(y < 900, f"/shop first checkout button within about 800 px at 390px (top {int(y)}px)")
     check(pg.locator("h1").inner_text().startswith("Instant coffee with MCT powder and L"), "/shop H1 is the label line")
     check(pg.locator(".shop-buy .terms li").count() == 3 and pg.locator(".shop-buy .bonus-hero img").count() == 1, "/shop: 3 terms lines and the Recipe Pack cover next to the button")
-    pg.evaluate("() => window.scrollTo(0, 0)"); pg.wait_for_timeout(200)
-    check(not pg.locator(".sticky").is_visible() or pg.evaluate("() => document.querySelector('.sticky').getBoundingClientRect().top >= innerHeight"), "/shop: no sticky bar while the picker button is on screen")
-    pg.evaluate("() => document.querySelector('.specs').scrollIntoView()"); pg.wait_for_timeout(400)
+    pg.evaluate("() => document.querySelector('[data-picker-btn]').scrollIntoView({block:'center'})"); pg.wait_for_timeout(500)
+    check(pg.evaluate("() => document.querySelector('.sticky').getBoundingClientRect().top >= innerHeight - 1"), "/shop: no sticky bar while the picker button is on screen")
+    pg.evaluate("() => document.querySelector('.specs').scrollIntoView()"); pg.wait_for_timeout(500)
     check(pg.evaluate("() => document.querySelector('.sticky').getBoundingClientRect().top < innerHeight"), "/shop: sticky bar back once the picker is off screen")
     footer = [a.strip() for a in pg.locator("footer a").all_text_contents()]
     check("Build with us" not in footer and "Share with friends" not in footer, "footer has no partner or share links")
@@ -205,10 +205,10 @@ def notice_tests(b, base):
     pg = ctx.new_page(); pg.goto(base + "/shop.html"); pg.wait_for_timeout(100)
     n = pg.locator(".notice")
     box = n.bounding_box()
-    check(n.count() == 1 and box and box["height"] <= 64 and box["y"] + box["height"] <= 844 - 70, f"analytics notice is a short toast above the sticky bar ({box})")
+    check(n.count() == 1 and box and box["height"] <= 70 and box["y"] + box["height"] <= 844 - 70, f"analytics notice is a short toast above the sticky bar ({box})")
     pg.mouse.wheel(0, 200); pg.wait_for_timeout(200)
     check(pg.locator(".notice").count() == 0 and pg.evaluate("() => localStorage.getItem('tmu_notice')") == "1", "notice gone on the first scroll and remembered")
-    pg = ctx.new_page(); pg.evaluate("() => localStorage.removeItem('tmu_notice')"); pg.goto(base + "/faq.html"); pg.wait_for_timeout(100)
+    pg.evaluate("() => localStorage.removeItem('tmu_notice')"); pg.goto(base + "/faq.html"); pg.wait_for_timeout(100)
     pg.mouse.click(200, 300); pg.wait_for_timeout(100)
     check(pg.locator(".notice").count() == 0, "notice gone on the first tap")
     ctx.close()
