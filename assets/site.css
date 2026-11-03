@@ -450,7 +450,7 @@ section:not(.alt):not(.dark):not(.hero2):not(.ihero):not(.shop)+section:not(.alt
 .hero2 .lede{font-size:16.5px;line-height:1.55;color:var(--ink2);margin:0 auto;max-width:36ch}
 .hero2 .trustbar{margin-top:22px}
 /* /start: the photo stays under 40% of the screen on phones; trust strip above the picker */
-@media(max-width:860px){.lphero .hero2-media{aspect-ratio:auto;height:40svh;max-height:40svh}.lphero .hero2-copy{padding:22px 0 14px}}
+@media(max-width:860px){.lphero .hero2-media{aspect-ratio:auto;height:40svh;max-height:40svh}.lphero .hero2-copy{padding:18px 0 12px}.lphero .lede{font-size:15.5px}}
 .lphero .hero2-buy .stripc{margin:0 0 14px}
 @media(min-width:861px){.lphero .hero2-buy .stripc{justify-content:flex-start}}
 .stripc{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px 12px;margin:0;font-family:var(--sans);font-size:11.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--brass-text)}

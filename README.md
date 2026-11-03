@@ -22,10 +22,10 @@ are no discount codes: attribution is the creator's link only, `https://themorni
 
 ## Email pop-up
 
-The offer: **the Recipe Pack PDF free for signing up** (`/assets/recipe-pack.pdf`), plus **"Claim $10 off
-with Subscribe & Save"**. There is no promo code: the $10 is the Subscribe & Save price itself ($69.95
-every 30 days vs $79.95 for 1 bag), and the pop-up says it is autoship only and can be paused, skipped or
-cancelled anytime.
+The offer: **the Recipe Pack PDF free for signing up** (`/assets/recipe-pack.pdf`), and the two prices
+stated plainly: **Subscribe & Save is $69.95 a month; 1 bag is $79.95**. There is no promo code and no
+"off", "save" or "discount" wording anywhere on the site (owner, Nov 2026); the pop-up says Subscribe &
+Save is 1 bag every 30 days and can be paused, skipped or cancelled anytime.
 
 - Code and copy: `openPopup()` in `assets/site.js`; styles at the end of `assets/site.css`. Settings in
   `window.TMU`: `KLAVIYO_LIST_NEWSLETTER` (today the quiz list id `WgctGT`; put a dedicated list id
@@ -34,14 +34,17 @@ cancelled anytime.
 - When: after 10 s, at 50% scroll, or on desktop exit intent, whichever is first. Once per visitor:
   closing it (or just seeing it) snoozes it 14 days; never again after sign-up or after an order from
   that browser. Never on pages built with `<body data-popup="off">` (`NO_POPUP` in `build_site.py`:
-  order page, thank-you, partner, share, 404, quiz), and never while the quiz is on screen or under way.
+  order page, thank-you, partner, share, 404, quiz, /start), never on a paid visit (`utm_medium` paid/cpc/
+  paid_social on the page, or the 30-day `tmu_ut` flag from one), and never while the quiz is on screen or
+  under way.
 - Sign-up: Klaviyo `custom_source` `popup`, profile properties `offer: recipe_pack_plus_autoship10`,
   `lead_magnet: Recipe Pack`, `source: popup`, `signup_page`, UTMs. Fires `Lead` (source `popup`); GA4
   also gets `PopupView`, `PopupClose` and `RecipePackDownload`.
-- Success: "Download the Recipe Pack" and "Claim $10 off — start Subscribe & Save" (the normal
-  Subscribe & Save checkout). After sign-up the browser shows "$10 off vs a single bag · Cancel anytime"
-  next to Subscribe & Save buttons (`promoNotes()` in `assets/site.js`). State lives in
-  `localStorage.tmu_pop`.
+- Success: "Download the Recipe Pack" and "Start Subscribe & Save, $69.95 a month" (the normal
+  Subscribe & Save checkout). After sign-up the browser shows "Subscribe & Save is $69.95 a month; 1 bag is
+  $79.95 · Cancel anytime" next to Subscribe & Save buttons (`promoNotes()` in `assets/site.js`). State
+  lives in `localStorage.tmu_pop`. (The Klaviyo property `offer: recipe_pack_plus_autoship10` keeps its
+  old value so flows that branch on it keep working.)
 - Tests: `popup_tests` in `tools/test_pages.py`. The other tests mark the pop-up as seen so it stays out
   of their way.
 
@@ -57,6 +60,13 @@ bag" and never transcribes the label's claims.
 
 Images: add or change a photo in `img/`, list it in `tools/images.py`, then run
 `python3 tools/images.py && python3 build_site.py` (WebP plus JPEG/PNG at 480/800/1200 px).
+The bag in the hero still (`img/lux_still.jpg`) and the shop gallery's "The bag" (`img/lux_pattern.jpg`)
+is the real pack shot `img/bag.png`, composited in by hand (Nov 2026); never an AI-drawn bag. The one
+FAQ about the label's printed name ("Weight Control Coffee") is answered from the label only and is the
+only place that word may appear (`ALLOW` in `tools/check_copy.py`; kept out of FAQ rich results).
+
+`/partner` and `/share` (the ISR pages) stay reachable by URL with their disclosures, but are noindex,
+out of the sitemap and not linked from the customer nav or footer (owner, Nov 2026).
 
 ## Tracking (what fires where)
 

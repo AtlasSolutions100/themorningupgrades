@@ -508,7 +508,7 @@ HOME_HERO = """
 </div></section>
 """
 
-LP_EYEBROW = "Instant coffee with MCT powder and L-theanine"
+LP_EYEBROW = "Instant coffee with MCT powder and L&#8209;theanine"
 LP_SUB = "Dark roast Colombian instant coffee with MCT powder, L-theanine and 100 mg natural caffeine. Supports focus and energy."
 LP_STRIP = ("30 servings a bag", "Ships in about 2 days", "90-day guarantee on unopened bags")
 

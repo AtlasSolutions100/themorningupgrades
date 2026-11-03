@@ -65,7 +65,7 @@ def start_tests(b, base):
         check(pg.locator(".lphero [data-picker] input:checked").get_attribute("value") == want_plan and btn.get_attribute("data-buy") == want_plan
               and btn.text_content().strip() == ("Try 1 bag, $79.95" if content else "Start Subscribe & Save, $69.95 a month"),
               f"/start picker defaults to {want_plan} ({'paid' if content else 'organic'}) and the button says so")
-    check(pg.locator(".lphero .eyebrow").text_content().strip() == "Instant coffee with MCT powder and L-theanine", "/start eyebrow is the label line")
+    check(pg.locator(".lphero .eyebrow").text_content().strip() == "Instant coffee with MCT powder and L\u2011theanine", "/start eyebrow is the label line")
     check(pg.locator(".lphero .terms li").count() == 3 and pg.locator(".lphero .bonus-hero img").count() == 1, "/start: 3 terms lines and the Recipe Pack cover in the hero")
     check(pg.locator(".sticky").count() == 0 and pg.locator("body[data-popup=off]").count() == 1, "/start: no sticky bar, no pop-up")
     check(pg.locator("main h2").nth(0).inner_text().strip() == "The latte math", "/start: the latte math is section 2")
