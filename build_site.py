@@ -57,7 +57,9 @@ IMG_ALT = {"flatlay": "CoreJava bag, a cup of black coffee, a coffee scoop, sung
            "desk": "Laptop, mug and a CoreJava bag on a desk",
            "breakfast": "CoreJava bag on a sunlit breakfast table",
            "pour": "Pouring hot water into a glass mug of coffee next to a CoreJava bag",
-           "patio": "Woman on a sunny patio with an iced coffee and a CoreJava bag"}
+           "patio": "Woman on a sunny patio with an iced coffee and a CoreJava bag",
+           "lux-granules": "A steel scoop heaped with instant coffee granules on travertine",
+           "lux-cup": "A cup of black coffee on a saucer with a gold spoon, in leafy window shadows"}
 
 # Supplement Facts panel (D4): the real panel from the bag, shown on /ingredients and /shop as a
 # plain image with no commentary. tools/images.py makes its WebP/PNG sizes ("supplement-facts").
@@ -156,6 +158,8 @@ GUIDE_META = {
     "instant-coffee-vs-drip-cost-per-cup.html": ("2026-10-29", "2026-10-30"),
     "instant-coffee-subscription.html": ("2026-10-30", "2026-10-30"),
     "how-late-can-you-drink-coffee.html": ("2026-10-30", "2026-10-31"),
+    "what-is-functional-coffee.html": ("2026-11-03", "2026-11-03"),
+    "mushroom-coffee-vs-mct-coffee.html": ("2026-11-03", "2026-11-03"),
 }
 
 # The single product, as the shop page states it: CoreJava (the brand/product line), made by
@@ -1305,6 +1309,8 @@ GUIDE_LINKS = {
     "instant-coffee-vs-drip-cost-per-cup.html": "Instant vs. drip: cost per cup",
     "instant-coffee-subscription.html": "Instant coffee subscriptions: what to check",
     "how-late-can-you-drink-coffee.html": "How late can you drink coffee?",
+    "what-is-functional-coffee.html": "What is functional coffee?",
+    "mushroom-coffee-vs-mct-coffee.html": "Mushroom coffee vs. MCT coffee",
 }
 # One-line blurbs for the guides index cards: (eyebrow, blurb)
 GUIDE_BLURBS = {
@@ -1323,6 +1329,8 @@ GUIDE_BLURBS = {
     "instant-coffee-vs-drip-cost-per-cup.html": ("Cost", "The formula, a calculator, and the extras people forget."),
     "instant-coffee-subscription.html": ("Subscriptions", "Cost per cup with shipping, delivery timing, and how to pause or cancel."),
     "how-late-can-you-drink-coffee.html": ("Caffeine", "How late is too late, what a sleep study found, and an afternoon break without the cup."),
+    "what-is-functional-coffee.html": ("Functional coffee", "What gets added to the coffee, food vs. supplement labels, and how to compare 2."),
+    "mushroom-coffee-vs-mct-coffee.html": ("Functional coffee", "Mushroom extract or MCT: what each adds, the caffeine, and what to read on the label."),
 }
 
 # Related guides, by topic: 3 to 5 neighbours from the guide's own cluster (MCT, caffeine and
@@ -1332,13 +1340,13 @@ GUIDE_BLURBS = {
 RELATED_RECIPES = {"instant-coffee-latte.html": "Recipe: instant coffee latte", "iced-instant-coffee-recipe.html": "Recipe: iced instant coffee",
                    "iced-oat-milk-vanilla-coffee.html": "Recipe: iced oat milk vanilla coffee", "instant-coffee-frappe.html": "Recipe: instant coffee frapp&eacute;"}
 RELATED = {
-    "what-is-mct-coffee.html": ["what-is-mct-powder.html", "mct-coffee-vs-butter-coffee.html", "how-to-make-mct-instant-coffee.html", "l-theanine-and-caffeine.html"],
+    "what-is-mct-coffee.html": ["what-is-mct-powder.html", "mct-coffee-vs-butter-coffee.html", "mushroom-coffee-vs-mct-coffee.html", "how-to-make-mct-instant-coffee.html", "l-theanine-and-caffeine.html"],
     "what-is-mct-powder.html": ["what-is-mct-coffee.html", "mct-coffee-vs-butter-coffee.html", "how-to-make-mct-instant-coffee.html", "does-instant-coffee-go-bad.html"],
-    "mct-coffee-vs-butter-coffee.html": ["what-is-mct-coffee.html", "what-is-mct-powder.html", "how-to-make-mct-instant-coffee.html", "instant-coffee-vs-drip-cost-per-cup.html"],
+    "mct-coffee-vs-butter-coffee.html": ["what-is-mct-coffee.html", "what-is-mct-powder.html", "mushroom-coffee-vs-mct-coffee.html", "how-to-make-mct-instant-coffee.html", "instant-coffee-vs-drip-cost-per-cup.html"],
     "how-to-make-mct-instant-coffee.html": ["instant-coffee-latte.html", "iced-instant-coffee-recipe.html", "how-to-make-instant-coffee-taste-better.html", "what-is-mct-powder.html", "what-is-mct-coffee.html"],
     "l-theanine-and-caffeine.html": ["caffeine-and-l-theanine-ratio.html", "natural-caffeine-vs-synthetic.html", "how-much-caffeine-in-instant-coffee.html", "how-late-can-you-drink-coffee.html", "what-is-mct-coffee.html"],
     "caffeine-and-l-theanine-ratio.html": ["l-theanine-and-caffeine.html", "how-much-caffeine-in-instant-coffee.html", "natural-caffeine-vs-synthetic.html", "how-late-can-you-drink-coffee.html"],
-    "natural-caffeine-vs-synthetic.html": ["how-much-caffeine-in-instant-coffee.html", "l-theanine-and-caffeine.html", "caffeine-and-l-theanine-ratio.html", "how-late-can-you-drink-coffee.html"],
+    "natural-caffeine-vs-synthetic.html": ["how-much-caffeine-in-instant-coffee.html", "l-theanine-and-caffeine.html", "caffeine-and-l-theanine-ratio.html", "how-late-can-you-drink-coffee.html", "what-is-functional-coffee.html"],
     "how-much-caffeine-in-instant-coffee.html": ["natural-caffeine-vs-synthetic.html", "how-late-can-you-drink-coffee.html", "l-theanine-and-caffeine.html", "caffeine-and-l-theanine-ratio.html", "how-to-make-instant-coffee-taste-better.html"],
     "how-late-can-you-drink-coffee.html": ["how-much-caffeine-in-instant-coffee.html", "l-theanine-and-caffeine.html", "natural-caffeine-vs-synthetic.html", "caffeine-and-l-theanine-ratio.html"],
     "how-to-make-instant-coffee-taste-better.html": ["how-to-make-mct-instant-coffee.html", "does-instant-coffee-go-bad.html", "iced-instant-coffee-recipes.html", "instant-coffee-for-travel-camping-dorm.html", "how-much-caffeine-in-instant-coffee.html"],
@@ -1347,6 +1355,8 @@ RELATED = {
     "iced-instant-coffee-recipes.html": ["iced-instant-coffee-recipe.html", "iced-oat-milk-vanilla-coffee.html", "instant-coffee-frappe.html", "how-to-make-instant-coffee-taste-better.html", "how-to-make-mct-instant-coffee.html"],
     "instant-coffee-vs-drip-cost-per-cup.html": ["instant-coffee-subscription.html", "how-to-make-mct-instant-coffee.html", "how-much-caffeine-in-instant-coffee.html", "mct-coffee-vs-butter-coffee.html"],
     "instant-coffee-subscription.html": ["instant-coffee-vs-drip-cost-per-cup.html", "does-instant-coffee-go-bad.html", "how-to-make-mct-instant-coffee.html", "what-is-mct-coffee.html"],
+    "what-is-functional-coffee.html": ["mushroom-coffee-vs-mct-coffee.html", "what-is-mct-coffee.html", "l-theanine-and-caffeine.html", "natural-caffeine-vs-synthetic.html", "how-much-caffeine-in-instant-coffee.html"],
+    "mushroom-coffee-vs-mct-coffee.html": ["what-is-functional-coffee.html", "what-is-mct-coffee.html", "what-is-mct-powder.html", "mct-coffee-vs-butter-coffee.html", "how-much-caffeine-in-instant-coffee.html"],
 }
 
 def guide_page(eyebrow, h1, lede, body, fn=None, faq=(), sources=(), img=None):
@@ -1956,6 +1966,94 @@ G_LATE = guide_page("Caffeine", "How late can you drink coffee?",
   ],
   sources=[SRC_DRAKE, SRC_FDA])
 
+# ---------- Functional coffee cluster (Nov 2026): neutral category guides. Our product: label facts only. ----------
+SRC_FDA_DS = ('U.S. Food and Drug Administration. <a href="https://www.fda.gov/news-events/rumor-control/facts-about-dietary-supplements" rel="noopener" target="_blank">'
+              'Facts About Dietary Supplements</a>. Accessed November 3, 2026.')
+SRC_NCI_MUSH = ('National Cancer Institute. <a href="https://www.cancer.gov/about-cancer/treatment/cam/patient/mushrooms-pdq" rel="noopener" target="_blank">'
+                'Medicinal Mushrooms (PDQ&reg;), Patient Version</a>. Updated July 11, 2024.')
+SRC_MSK_LION = ('Memorial Sloan Kettering Cancer Center. <a href="https://www.mskcc.org/cancer-care/patient-education/herbs/lions-mane-mushroom" rel="noopener" target="_blank">'
+                'Lion&rsquo;s Mane Mushroom</a>. About Herbs, updated June 5, 2024.')
+
+G_FUNCTIONAL = guide_page("Functional coffee", "What is functional coffee?",
+  "Functional coffee is coffee with something added beyond the coffee itself. MCT powder, L-theanine, extra caffeine, mushroom extracts, protein and collagen are common. There&rsquo;s no single recipe, so the name tells you little. The ingredient panel tells you more: what each serving holds, and how much.",
+  """
+  <h2>What gets added</h2>
+  <div class="tbl"><table>
+    <tr><th>Added ingredient</th><th>What it is</th><th>What to check</th></tr>
+    <tr><td>MCT oil or powder</td><td>Fats with medium-length chains, usually from coconut or palm kernel oil</td><td>Oil or powder, the carrier in a powder, grams per serving</td></tr>
+    <tr><td>L-theanine</td><td>An amino acid found naturally in tea leaves</td><td>Milligrams per serving</td></tr>
+    <tr><td>Added caffeine</td><td>Caffeine from a plant (&ldquo;natural&rdquo;) or made synthetically; the same molecule</td><td>The added milligrams, plus the coffee&rsquo;s own</td></tr>
+    <tr><td>Mushroom extracts</td><td>Powders of lion&rsquo;s mane, reishi, chaga, cordyceps and others</td><td>Which mushroom, which part, milligrams per serving</td></tr>
+    <tr><td>Protein or collagen</td><td>A protein powder mixed into the coffee</td><td>Grams of protein and where it comes from</td></tr>
+    <tr><td>Herbal extracts</td><td>Plant extracts listed by name</td><td>The plant, the part used, milligrams per serving</td></tr>
+  </table></div>
+  <p>Each has its own label to read. For the 2 most common, see <a href="/what-is-mct-coffee.html">what MCT coffee is</a> and <a href="/l-theanine-and-caffeine.html">L-theanine with caffeine</a>. For mushroom blends, see <a href="/mushroom-coffee-vs-mct-coffee.html">mushroom coffee vs. MCT coffee</a>.</p>
+  <h2>Food label or supplement label?</h2>
+  <p>Some functional coffees are sold as food and carry a Nutrition Facts panel. Others are sold as dietary supplements and carry a Supplement Facts panel. The FDA does not approve dietary supplements for safety, effectiveness or labeling before they&rsquo;re sold; it says the companies are responsible for making sure their products are safe and accurately labeled.</p>
+  <p>That&rsquo;s why a supplement label that says what a product supports also carries the line &ldquo;These statements have not been evaluated by the Food and Drug Administration.&rdquo; It means the FDA hasn&rsquo;t reviewed that wording.</p>
+  <h2>How to compare 2 functional coffees</h2>
+  <ul class="clean">
+    <li><strong>The amount of each added ingredient per serving.</strong> A &ldquo;proprietary blend&rdquo; shows only the blend&rsquo;s total, so you can&rsquo;t see how much of each is inside.</li>
+    <li><strong>Total caffeine.</strong> Added caffeine plus the coffee&rsquo;s own. <a href="/how-much-caffeine-in-instant-coffee.html">How much caffeine instant coffee has</a>.</li>
+    <li><strong>Serving size and servings per bag.</strong> Then work out the cost per serving, with shipping. <a href="/instant-coffee-vs-drip-cost-per-cup.html">Cost per cup, worked out</a>.</li>
+    <li><strong>How it mixes.</strong> Powders stir into hot water; oils need a blender or frother.</li>
+    <li><strong>The &ldquo;other ingredients&rdquo; line and the allergen statement.</strong> Carriers such as acacia gum or milk protein show up there.</li>
+  </ul>
+  <h2>Counting your caffeine</h2>
+  <p>For most healthy adults, the FDA cites 400 mg a day as an amount not generally associated with negative effects. Sensitivity varies. Count every source across the day, functional coffee included.</p>
+  <h2>What&rsquo;s in ours</h2>
+  <p>Ours is a functional instant coffee: dark roast Colombian instant coffee with MCT powder from coconut, 400 mg L-theanine and 100 mg natural caffeine per scoop, plus the instant coffee&rsquo;s own caffeine. The label says it supports focus and energy. It&rsquo;s sold as a dietary supplement, and the full Supplement Facts panel is <a href="/corejava-coffee.html#panel-text">here in text</a>.</p>
+  """,
+  fn="what-is-functional-coffee.html", img="lux-granules",
+  faq=[
+    ("Is functional coffee the same as mushroom coffee?", "No. Mushroom coffee is 1 kind of functional coffee. Others add MCT, L-theanine, extra caffeine, protein or collagen."),
+    ("Does functional coffee have caffeine?", "Most do, unless it&rsquo;s made with decaf. Some add caffeine on top of the coffee&rsquo;s own, so check the panel for the added amount and count both."),
+    ("Is functional coffee approved by the FDA?", "Functional coffees sold as dietary supplements aren&rsquo;t approved by the FDA before they&rsquo;re sold. The FDA says supplement companies are responsible for making sure their products are safe and accurately labeled."),
+    ("What is a proprietary blend?", "A group of ingredients listed under 1 name with only the blend&rsquo;s total amount in milligrams. You can see what&rsquo;s in it, but not how much of each."),
+    ("Is yours a mushroom coffee?", "No. Ours is an instant coffee with MCT powder from coconut, L-theanine and natural caffeine. There are no mushrooms on the label."),
+  ],
+  sources=[SRC_FDA_DS, SRC_MCT, SRC_LI, SRC_FDA])
+
+G_MUSHROOM = guide_page("Functional coffee", "Mushroom coffee vs. MCT coffee: what&rsquo;s the difference?",
+  "Mushroom coffee is coffee blended with powdered mushroom extracts, most often lion&rsquo;s mane, reishi, chaga or cordyceps. MCT coffee is coffee with MCT oil or powder added, a fat made from coconut or palm kernel oil. Mushrooms mostly change the flavor and the label. MCT mostly changes the texture: a smoother, creamier cup.",
+  """
+  <h2>What mushroom coffee is</h2>
+  <p>Mushroom coffee is ground or instant coffee mixed with a powdered mushroom extract. The mushrooms you&rsquo;ll see most are lion&rsquo;s mane (<em>Hericium erinaceus</em>), reishi (<em>Ganoderma lucidum</em>), chaga and cordyceps. Labels may say the extract comes from the fruiting body (the mushroom itself) or the mycelium (the root-like part), and may list each mushroom separately or inside a blend.</p>
+  <p>Some blends swap part of the coffee for mushroom powder, so a serving can hold less coffee, and less caffeine, than your usual cup. Others add caffeine. The label is the only way to know.</p>
+  <h2>What MCT coffee is</h2>
+  <p>MCT stands for medium-chain triglycerides: fats whose chains are 6 to 12 carbons long, usually made from coconut or palm kernel oil. MCT oil is blended into brewed coffee; MCT powder is the oil dried onto a carrier so it stirs in with a spoon. Either way, the cup comes out smoother and creamier without milk. <a href="/what-is-mct-coffee.html">More on MCT coffee</a>.</p>
+  <h2>Side by side</h2>
+  <div class="tbl"><table>
+    <tr><th></th><th>Mushroom coffee</th><th>MCT coffee</th></tr>
+    <tr><td>What&rsquo;s added</td><td>Powdered mushroom extract</td><td>MCT oil or MCT powder</td></tr>
+    <tr><td>Comes from</td><td>Fungi such as lion&rsquo;s mane or reishi</td><td>Coconut or palm kernel oil</td></tr>
+    <tr><td>Mainly changes</td><td>Flavor, often a little earthier</td><td>Texture, smoother and creamier</td></tr>
+    <tr><td>Caffeine</td><td>Depends on how much coffee is in a serving</td><td>The coffee&rsquo;s own, plus any added</td></tr>
+    <tr><td>Making it</td><td>Stir into hot water</td><td>Stir in a powder; blend an oil</td></tr>
+    <tr><td>On the label</td><td>Which mushroom, which part, milligrams per serving</td><td>Oil or powder, the carrier, grams per serving</td></tr>
+  </table></div>
+  <h2>What&rsquo;s known about the mushrooms</h2>
+  <p>Human research on these mushrooms is limited. Memorial Sloan Kettering&rsquo;s About Herbs page on lion&rsquo;s mane calls the clinical data limited, lists abdominal discomfort, nausea and skin rash as reported side effects, and notes it can interact with some medicines. The National Cancer Institute&rsquo;s summary on medicinal mushrooms points out that the FDA doesn&rsquo;t regularly review how supplements are made, so batches and brands may not be the same.</p>
+  <p>That doesn&rsquo;t make mushroom coffee a bad choice. It makes the label the place to look. If you take medication or have a medical condition, ask your physician first.</p>
+  <h2>Which one fits your mornings</h2>
+  <ul class="clean">
+    <li>If you want a creamier cup without milk, MCT coffee is the one built for that.</li>
+    <li>If you&rsquo;re curious about mushroom extracts, read the panel for which mushroom and how much, and check the caffeine.</li>
+    <li>Some products combine both. The same rule applies: the panel shows what a serving holds.</li>
+  </ul>
+  <h2>Ours</h2>
+  <p>Ours is an MCT coffee, not a mushroom coffee: dark roast Colombian instant coffee with MCT powder from coconut, L-theanine and 100 mg natural caffeine per scoop, plus the instant coffee&rsquo;s own. There are no mushrooms on the label. <a href="/ingredients.html">See every ingredient</a>.</p>
+  """,
+  fn="mushroom-coffee-vs-mct-coffee.html", img="lux-cup",
+  faq=[
+    ("Does mushroom coffee taste like mushrooms?", "It depends on the blend. Coffee is usually the main flavor, and some people notice an earthier note. Blends with less coffee in them taste milder."),
+    ("Does mushroom coffee have less caffeine?", "Only if a serving holds less coffee. Some blends swap part of the coffee for mushroom powder; others add caffeine. Check the label."),
+    ("Are the mushrooms in mushroom coffee psychedelic?", "No. Lion&rsquo;s mane, reishi, chaga and cordyceps are not psilocybin mushrooms."),
+    ("Can I add MCT powder to mushroom coffee?", "Yes. MCT powder stirs into hot coffee. Read both labels for the serving size and any added caffeine."),
+    ("Is MCT coffee the same as butter coffee?", "No. Butter coffee is brewed coffee blended with butter or ghee, usually plus MCT oil. MCT coffee has MCT oil or powder and no butter."),
+  ],
+  sources=[SRC_MSK_LION, SRC_NCI_MUSH, SRC_MCT])
+
 # ---------- RECIPES (programmatic: one dict per drink -> page + Recipe schema) ----------
 # Search intent here is generic ("iced instant coffee recipe"), so every recipe works with any
 # instant coffee and says so. 1 serving = 1 level scoop of ours or the serving on your jar.
@@ -2284,6 +2382,10 @@ PAGES = {
   "caffeine-and-l-theanine-ratio.html": ("Caffeine and L-Theanine Ratio in Studies | Morning Upgrade", "The caffeine and L-theanine doses small studies used, how to work out a product's ratio from its label, and what the research can't tell you.", G_RATIO, og_img("desk"), False),
   "instant-coffee-vs-drip-cost-per-cup.html": ("Instant vs. Drip Coffee: Cost per Cup | Morning Upgrade", "How to work out cost per cup for instant, drip, pods and café coffee, with a calculator and the extras people forget to count.", G_COST, og_img("kitchen-pour"), False),
   "instant-coffee-subscription.html": ("Instant Coffee Subscription: What to Check | Morning Upgrade", "How an instant coffee subscription works and what to check first: cost per cup with shipping, delivery timing, pausing and cancelling, damaged bags.", G_SUB, og_img("flatlay"), False),
+  "what-is-functional-coffee.html": ("What Is Functional Coffee? What to Check | Morning Upgrade",
+    "Functional coffee is coffee with something added: MCT, L-theanine, caffeine, mushroom extracts or protein. What each is and how to read the label.", G_FUNCTIONAL, og_img("lux-granules"), False),
+  "mushroom-coffee-vs-mct-coffee.html": ("Mushroom Coffee vs. MCT Coffee | Morning Upgrade",
+    "Mushroom coffee adds powdered mushroom extract; MCT coffee adds MCT oil or powder from coconut. How flavor, texture, caffeine and labels compare.", G_MUSHROOM, og_img("lux-cup"), False),
   "how-late-can-you-drink-coffee.html": ("How Late Can You Drink Coffee? Timing It | Morning Upgrade", "Like a cup after lunch? How late is too late for caffeine, what a sleep study found, and an afternoon break without the cup.", G_LATE, og_img("desk"), False),
 }
 
