@@ -560,9 +560,9 @@ LP_STRIP = ("30 servings a bag", "Ships in about 2 days", "90-day guarantee on u
 # all meaning is on screen; the transcript below is the same text for screen readers. The poster is
 # preloaded for first paint instead of the old hero photo; the video itself is never preloaded.
 # Reduced motion: the inline script stops autoplay and leaves the poster. A Pause button sits on it.
-LP_VIDEO_POSTER = "/assets/video/corejava-inside-poster.webp"
+LP_VIDEO_POSTER = "/assets/video/corejava-inside-v2-poster.webp"
 LP_VIDEO_TEXT = (
-    "CoreJava instant coffee: what's inside, and why it costs what it does. Not just a jar of instant: "
+    "CoreJava instant coffee: what's inside. Not just a jar of instant: "
     "1 scoop (6.8 g) holds 7 ingredients, each with an amount. Per scoop, from the label: "
     "3,000 mg dark roast Colombian instant coffee; 100 mg natural caffeine (Coffea robusta, seed); 400 mg L-theanine; "
     "600 mcg chromium as ChromeMate&reg; chromium polynicotinate; 1,500 mg Garcinia cambogia; "
@@ -570,14 +570,14 @@ LP_VIDEO_TEXT = (
     "3 trademarked, branded ingredients: ChromeMate&reg;, Paradoxine&reg; and Saffr&rsquo;Activ&reg;. "
     "Plus MCT powder from coconut: makes the cup creamy, stirs right in. 30 servings a bag, ready in 30 seconds with no machine, "
     "7.2 oz resealable bag. Contains tree nuts (coconut). Every amount is printed on the bag: the Supplement Facts panel. "
-    "What a morning costs: caf&eacute; latte $5 to $7 (typical US price); CoreJava $2.33 to $2.67, before $8.95 shipping and tax. "
+    "Price per morning. What a morning costs: caf&eacute; latte $5 to $7 (typical US price); CoreJava $2.33 to $2.67, before $8.95 shipping and tax. "
     "Subscribe &amp; Save $69.95 a month, 1 bag every 30 days, pause, skip or cancel anytime; or $79.95 for 1 bag of 30 servings. "
     "90-day guarantee on unopened bags from the maker, MarketPlace Global. Ships from Minnesota in about 2 business days. "
     "Sold by Rector &amp; Stull LLC, an independent ISR.")
 LP_VIDEO = f"""<div class="frame hero2-media lpvid">
     <video id="lp-video" autoplay muted loop playsinline preload="metadata" width="1080" height="1350" poster="{LP_VIDEO_POSTER}" aria-label="Video: what&rsquo;s inside CoreJava, 43 seconds, no sound" aria-describedby="lp-video-text">
-      <source src="/assets/video/corejava-inside.webm" type="video/webm">
-      <source src="/assets/video/corejava-inside.mp4" type="video/mp4">
+      <source src="/assets/video/corejava-inside-v2.webm" type="video/webm">
+      <source src="/assets/video/corejava-inside-v2.mp4" type="video/mp4">
     </video>
     <button type="button" class="vbtn" aria-controls="lp-video">Pause</button>
     <script>(function(){{var v=document.getElementById('lp-video'),b=v.parentNode.querySelector('.vbtn');
