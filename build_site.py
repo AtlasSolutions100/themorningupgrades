@@ -533,8 +533,10 @@ def founder(img="lux-table", alt="A cup of coffee, an open notebook and reading 
 
 HERO_SIZES = "(max-width: 860px) 100vw, 54vw"   # home hero photo: full width on phones, the left half on desktop
 LP_SIZES = "(max-width: 860px) 100vw, 50vw"
-HERO_IMG = "lux-still"
-HERO_ALT = "The CoreJava bag on a stone ledge behind a cup of black coffee and a scoop of beans"
+# Studio pack shot (Nov 2026): the real bag cutout img/bag.png, scaled only, on a backdrop drawn by
+# tools/packshot.py. Replaced the lux-still composite (bag pasted behind a generated cup).
+HERO_IMG = "packshot"
+HERO_ALT = "The CoreJava bag standing on a plain warm backdrop"
 
 HOME_HERO = """
 <section class="hero2"><div class="wrap hero2-grid">
@@ -748,6 +750,57 @@ HOME = HOME_HERO + RITUAL + inside() + COMPARE + founder() + quiz_section("home"
 </div></section>
 """
 
+# ---------- /shop product gallery ----------
+# A stage (fixed 4:5, no layout shift) and a row of thumbnail buttons. Click, tap, arrow keys between
+# the thumbs, or a swipe on the stage swaps the stage (site.js, [data-gallery]). Only the first slide
+# (the pack shot, the LCP image) loads up front; the others are hidden and lazy until shown. The video
+# slide never autoplays: it has no src until its thumb is chosen, then plays from that click (muted, it
+# has no audio track) and pauses when another thumb is chosen. /start keeps its own autoplaying hero.
+SHOP_STAGE_SIZES = "(max-width: 860px) 100vw, 55vw"
+SHOP_THUMB_SIZES = "(max-width: 860px) 24vw, 9vw"
+SHOP_SLIDES = [  # (image name, alt, thumb caption)
+    (HERO_IMG, HERO_ALT, "The bag"),
+    ("lux-pattern", "The front of the CoreJava bag", "Front"),
+    ("lux-granules", "A steel scoop heaped with instant coffee granules on travertine", "1 scoop"),
+    ("lux-iced", "Iced coffee with milk sinking through it", "Over ice"),
+    ("lux-pour", "Hot water pouring from a kettle into a stoneware cup", "Hot water"),
+]
+SHOP_VIDEO_CAP = "What&rsquo;s inside, 43&nbsp;s"
+_n = len(SHOP_SLIDES) + 1
+
+def _shop_stage():
+    slides = []
+    for i, (img, alt, cap) in enumerate(SHOP_SLIDES):
+        hid = "" if i == 0 else " hidden"
+        slides.append(f'<div class="pslide" id="pslide-{i}" role="group" aria-roledescription="slide" aria-label="{i + 1} of {_n}: {cap}"{hid}>'
+                      + pic(img, alt, sizes=SHOP_STAGE_SIZES, eager=(i == 0)) + "</div>")
+    i = len(SHOP_SLIDES)
+    slides.append(f'<div class="pslide pvid" id="pslide-{i}" role="group" aria-roledescription="slide" aria-label="{i + 1} of {_n}: {SHOP_VIDEO_CAP}" hidden>'
+                  f'<video id="shop-video" controls playsinline muted preload="none" width="1080" height="1350" poster="{LP_VIDEO_POSTER}" '
+                  f'aria-label="Video: what&rsquo;s inside CoreJava, 43 seconds, no sound" aria-describedby="shop-video-text">'
+                  '<source data-src="/assets/video/corejava-inside-v2.webm" type="video/webm">'
+                  '<source data-src="/assets/video/corejava-inside-v2.mp4" type="video/mp4"></video>'
+                  f'<p class="sr" id="shop-video-text">{LP_VIDEO_TEXT}</p></div>')
+    dots = "".join('<i class="on"></i>' if k == 0 else "<i></i>" for k in range(len(SHOP_SLIDES))) + '<i class="vid"></i>'
+    return ('<div class="frame shop-main pstage" data-gallery-stage data-current="0" aria-roledescription="carousel" aria-label="CoreJava photos and video">\n    '
+            + "\n    ".join(slides) + f'\n    <span class="pdots" aria-hidden="true">{dots}</span>\n  </div>')
+
+def _shop_thumbs():
+    btns = []
+    for i, (img, alt, cap) in enumerate(SHOP_SLIDES):
+        on = "true" if i == 0 else "false"
+        btns.append(f'<button type="button" class="pthumb" data-i="{i}" aria-controls="pslide-{i}" aria-pressed="{on}">'
+                    f'<span class="frame">{pic(img, "", sizes=SHOP_THUMB_SIZES)}</span><span class="pcap">{cap}</span></button>')
+    i = len(SHOP_SLIDES)
+    btns.append(f'<button type="button" class="pthumb pthumb-vid" data-i="{i}" aria-controls="pslide-{i}" aria-pressed="false">'
+                f'<span class="frame"><img src="{LP_VIDEO_POSTER}" alt="" width="1080" height="1350" loading="lazy" decoding="async">'
+                f'<span class="pplay" aria-hidden="true"></span></span><span class="pcap">{SHOP_VIDEO_CAP}</span></button>')
+    return ('<div class="gallery pthumbs" role="group" aria-label="Choose a photo or the video" data-gallery-thumbs>\n    '
+            + "\n    ".join(btns) + "\n  </div>")
+
+SHOP_GALLERY_STAGE = _shop_stage()
+SHOP_GALLERY_THUMBS = _shop_thumbs()
+
 # ---------- SHOP ----------
 # Phones: photo, then the buy block (first checkout button inside 2 screens), then the gallery and details.
 # /shop: a small, separate pointer to the house coffees. None of CoreJava's terms apply to them.
@@ -765,19 +818,14 @@ HOUSE_TEASER = """
 
 SHOP = """
 <section class="shop"><div class="wrap shopgrid">
-  <div class="frame shop-main">""" + pic("lux-still", HERO_ALT, sizes="(max-width: 860px) 100vw, 55vw", eager=True) + """</div>
+  """ + SHOP_GALLERY_STAGE + """
   <div class="shop-buy">
     <h1>Instant coffee with MCT powder and L&#8209;theanine<span>CoreJava, made by MarketPlace Global. 30 servings a bag.</span></h1>
     <p class="lead">Dark roast Colombian coffee, 100 mg natural caffeine, 400 mg L-theanine and MCT powder from coconut in each scoop. Add hot water and stir.</p>
     """ + picker(cta=PLAN_CTA_LP, terms=True) + bonus_block(ship=False) + """
     <p class="fine" style="margin-top:14px">Questions? hello@themorningupgrades.com. A person answers.</p>
   </div>
-  <div class="gallery">
-    <figure><div class="frame">""" + pic("lux-pattern", "The front of the CoreJava bag", sizes="(max-width: 860px) 42vw, 14vw") + """</div><figcaption>The bag</figcaption></figure>
-    <figure><div class="frame">""" + pic("lux-granules", "A steel scoop heaped with instant coffee granules on travertine", sizes="(max-width: 860px) 42vw, 14vw") + """</div><figcaption>1 scoop</figcaption></figure>
-    <figure><div class="frame">""" + pic("lux-iced", "Iced coffee with milk sinking through it", sizes="(max-width: 860px) 42vw, 14vw") + """</div><figcaption>Over ice</figcaption></figure>
-    <figure><div class="frame">""" + pic("lux-pour", "Hot water pouring from a kettle into a stoneware cup", sizes="(max-width: 860px) 42vw, 14vw") + """</div><figcaption>Hot water</figcaption></figure>
-  </div>
+  """ + SHOP_GALLERY_THUMBS + """
   <div class="shop-details">
     <dl class="specs">
       <div><dt>Serving</dt><dd>1 level scoop (about 6.8 g) in 8 fl oz of hot water. 30 servings in a resealable 7.2 oz (204 g) bag.</dd></div>
@@ -860,7 +908,7 @@ COREJAVA = """
   <p class="eyebrow">CoreJava, explained</p>
   <h1 style="font-size:clamp(32px,4.4vw,48px)">CoreJava coffee: what&rsquo;s in it, how to make it, and what it costs</h1>
   <p class="lead answer">CoreJava is a dark roast Colombian instant coffee made by MarketPlace Global. Each scoop has dark roast Colombian coffee, 100 mg natural caffeine, 400 mg L-theanine and MCT powder from coconut. Stir 1 level scoop into 8 fl oz of hot water. A bag holds 30 servings: $79.95, or $69.95 a month on Subscribe &amp; Save.</p>
-  <div class="frame gphoto">""" + pic("lux-still", HERO_ALT, sizes="(max-width: 760px) 100vw, 720px") + """</div>
+  <div class="frame gphoto gpack">""" + pic(HERO_IMG, HERO_ALT, sizes="(max-width: 760px) 100vw, 720px") + """</div>
   <h2>CoreJava at a glance</h2>
   <div class="tbl"><table>
     <tr><th></th><th>From the label and our store</th></tr>
@@ -2570,7 +2618,7 @@ STICKY.update({"order-complete.html": None, "thanks.html": None, "start.html": N
 # LCP image preloads
 PRELOAD = {"index.html": preload(HERO_IMG, HERO_SIZES), "start.html": f'<link rel="preload" as="image" type="image/webp" href="{LP_VIDEO_POSTER}" fetchpriority="high">',
            "ingredients.html": preload("lux-ingredients", "(max-width: 860px) 100vw, 50vw"),
-           "shop.html": preload("lux-still", "(max-width: 860px) 100vw, 55vw")}
+           "shop.html": preload(HERO_IMG, SHOP_STAGE_SIZES)}
 
 PAGES["90-mornings.html"] = ("90 Mornings — The Morning Upgrade", "A chapter-by-chapter email series for your first 90 mornings with the coffee. Coming soon.", NINETY, og_img("props-og"), True)
 PAGES["quiz.html"] = ("Which Morning Are You? A 3-Question Quiz | Morning Upgrade",

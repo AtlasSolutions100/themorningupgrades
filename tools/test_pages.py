@@ -704,11 +704,74 @@ def start_video_tests(b, base):
     ctx.close()
 
 
+def shop_gallery_tests(b, base):
+    """/shop gallery: 6 thumb buttons (5 photos + the video), clicking or arrow keys swap the stage,
+    the video has no src until chosen, never autoplays, plays from the click and pauses on leaving.
+    Home and /shop lead with the pack shot (img/bag.png on a drawn backdrop); lux-still is gone."""
+    ctx = context(b, base, 1280, 900); pg = ctx.new_page()
+    pg.goto(base + "/shop.html")
+    thumbs = pg.locator("[data-gallery-thumbs] button.pthumb")
+    slides = pg.locator("[data-gallery-stage] .pslide")
+    check(thumbs.count() == 6 and slides.count() == 6, "/shop gallery has 6 thumb buttons and 6 slides")
+    vis = lambda: [i for i in range(slides.count()) if slides.nth(i).is_visible()]
+    pressed = lambda: [i for i in range(thumbs.count()) if thumbs.nth(i).get_attribute("aria-pressed") == "true"]
+    check(vis() == [0] and pressed() == [0], "/shop stage starts on the first slide, first thumb pressed")
+    first = slides.nth(0).locator("img")
+    check("/img/opt/packshot-" in (first.get_attribute("src") or "") and first.get_attribute("fetchpriority") == "high"
+          and first.get_attribute("loading") != "lazy", "/shop stage leads with the eager pack shot")
+    v = pg.locator("#shop-video")
+    st = v.evaluate("v => ({pre: v.getAttribute('preload'), auto: v.hasAttribute('autoplay') || v.autoplay, src: v.currentSrc, "
+                    "srcs: [...v.querySelectorAll('source')].filter(s => s.getAttribute('src')).length, desc: v.getAttribute('aria-describedby'), ctl: v.controls})")
+    check(st["pre"] == "none" and not st["auto"] and st["srcs"] == 0 and not st["src"] and st["ctl"],
+          "/shop video: preload none, no autoplay, no src until chosen, has controls")
+    check(pg.locator("#" + st["desc"]).count() == 1 and "Supplement Facts" in pg.locator("#" + st["desc"]).text_content(),
+          "/shop video has the screen-reader text version")
+    for i in range(5):
+        thumbs.nth(i).click()
+        check(vis() == [i] and pressed() == [i], f"/shop thumb {i + 1} swaps the stage")
+    thumbs.nth(5).click(); pg.wait_for_timeout(800)
+    st = v.evaluate("v => ({paused: v.paused, src: v.currentSrc, muted: v.muted})")
+    check(vis() == [5] and pressed() == [5] and "corejava-inside-v2" in st["src"], "/shop video thumb shows the video and loads it")
+    check(not st["paused"], "/shop video plays from the click")
+    thumbs.nth(0).click()
+    check(v.evaluate("v => v.paused") and vis() == [0], "/shop video pauses when another thumb is chosen")
+    thumbs.nth(0).focus(); pg.keyboard.press("ArrowRight")
+    check(vis() == [1] and pg.evaluate("document.activeElement.dataset.i") == "1", "/shop ArrowRight moves to the next thumb and slide")
+    pg.keyboard.press("ArrowLeft"); pg.keyboard.press("ArrowLeft")
+    check(vis() == [5], "/shop ArrowLeft wraps to the video thumb")
+    check(v.evaluate("v => v.paused"), "/shop arrow keys never start the video")
+    html = pg.content()
+    check("lux-still" not in html and 'imagesrcset="/img/opt/packshot-' in html, "/shop preloads the pack shot; lux-still is gone")
+    ctx.close()
+    # phone: swipe on the stage
+    ctx = b.new_context(viewport={"width": 390, "height": 844}, has_touch=True, is_mobile=True, reduced_motion="reduce"); pg = ctx.new_page()
+    ctx.add_init_script("try{localStorage.setItem('tmu_notice','1')}catch(e){}"); ctx.add_init_script(NO_POPUP_JS)
+    pg.goto(base + "/shop.html")
+    stage = pg.locator("[data-gallery-stage]")
+    bb = stage.bounding_box()
+    sw = lambda x0, x1: stage.evaluate("""(s, a) => { const y = a[2]; const mk = (t, x) => s.dispatchEvent(new PointerEvent(t, {bubbles: true, pointerType: 'touch', clientX: x, clientY: y}));
+        mk('pointerdown', a[0]); mk('pointerup', a[1]); }""", [x0, x1, bb["y"] + bb["height"] / 2])
+    sw(bb["x"] + 300, bb["x"] + 80)
+    check(stage.get_attribute("data-current") == "1", "/shop swipe left on the stage shows the next slide")
+    sw(bb["x"] + 80, bb["x"] + 300)
+    check(stage.get_attribute("data-current") == "0", "/shop swipe right goes back")
+    check(pg.locator("#shop-video").evaluate("v => v.paused && !v.autoplay"), "/shop video does not autoplay (reduced motion)")
+    ctx.close()
+    # home: the pack shot is the hero
+    ctx = context(b, base, 1280, 900); pg = ctx.new_page(); pg.goto(base + "/")
+    img = pg.locator(".hero2-media img")
+    html = pg.content()
+    check("/img/opt/packshot-" in (img.get_attribute("src") or "") and "lux-still" not in html
+          and 'imagesrcset="/img/opt/packshot-' in html, "home hero is the pack shot (preloaded); lux-still is gone")
+    ctx.close()
+
+
 def main():
     with serve() as base, sync_playwright() as p:
         b = p.chromium.launch()
         start_tests(b, base)
         start_video_tests(b, base)
+        shop_gallery_tests(b, base)
         ia_tests(b, base)
         recipe_tests(b, base)
         guide_tests(b, base)

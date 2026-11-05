@@ -240,19 +240,6 @@
    1600
   ]
  },
- "lux-still": {
-  "avif": true,
-  "ext": "jpg",
-  "h": 2000,
-  "src": "lux_still.jpg",
-  "w": 1600,
-  "widths": [
-   480,
-   800,
-   1200,
-   1600
-  ]
- },
  "lux-stonecup": {
   "avif": true,
   "ext": "jpg",
@@ -271,6 +258,19 @@
   "ext": "jpg",
   "h": 1062,
   "src": "lux_table.jpg",
+  "w": 1600,
+  "widths": [
+   480,
+   800,
+   1200,
+   1600
+  ]
+ },
+ "packshot": {
+  "avif": true,
+  "ext": "jpg",
+  "h": 2000,
+  "src": "packshot.jpg",
   "w": 1600,
   "widths": [
    480,
