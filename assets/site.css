@@ -681,3 +681,31 @@ footer .cols>div+div .fh{font-family:var(--sans);font-style:normal;font-size:11.
 /* "Most popular" tag on the Subscribe & Save option (owner, Nov 2026: it is the plan most customers choose) */
 .picker .ptag{position:absolute;top:-11px;left:16px;background:var(--espresso);color:#fff;font-family:var(--sans);font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;padding:4px 9px;line-height:1.2;pointer-events:none}
 .picker .opts{padding-top:6px}
+
+/* house coffees (/house-coffee.html, and the pointer on /shop): separate from the CoreJava picker */
+.hc-grid{display:grid;grid-template-columns:1fr;gap:40px}
+@media(min-width:861px){.hc-grid{grid-template-columns:1fr 1fr;gap:clamp(36px,4vw,64px)}}
+.hc-card{display:flex;flex-direction:column;background:var(--paper);border:1px solid var(--line2);scroll-margin-top:80px}
+.hc-img{aspect-ratio:4/5;background:#F7F3EC}
+.hc-img img{object-fit:contain}
+.hc-body{display:flex;flex-direction:column;flex:1;padding:26px 22px 28px}
+@media(min-width:861px){.hc-body{padding:32px 34px 36px}}
+.hc-body h2{font-size:clamp(26px,2.6vw,34px);margin-bottom:10px}
+.hc-line{color:var(--ink2);margin-bottom:14px}
+.hc-price{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin:0 0 20px;color:var(--ink2)}
+.hc-price b{font-family:var(--serif);font-weight:400;font-size:30px;color:var(--ink)}
+.hc-price span{flex-basis:100%;font-size:14px;color:var(--muted)}
+.hc-h{font-family:var(--sans);font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--brass-text);font-weight:600;margin:0 0 10px}
+.hc-roasts{margin:0 0 6px;border-top:1px solid var(--line)}
+.hc-roasts>div{display:grid;grid-template-columns:1fr;gap:2px;padding:10px 0;border-bottom:1px solid var(--line)}
+@media(min-width:480px){.hc-roasts>div{grid-template-columns:150px 1fr;gap:14px}}
+.hc-roasts dt{font-family:var(--text-serif);font-size:16px}
+.hc-roasts dd{margin:0;color:var(--muted);font-size:15px}
+.hc-pick{margin:8px 0 0}
+.hc-notes{color:var(--muted);margin:0 0 6px}
+.hc-details{margin:20px 0 24px;max-width:none}
+.hc-body .btn{margin-top:auto;width:100%}
+.hc-teaser{border-top:1px solid var(--line)}
+.hc-tgrid{display:grid;grid-template-columns:1fr;gap:28px;align-items:center}
+@media(min-width:861px){.hc-tgrid{grid-template-columns:5fr 6fr;gap:clamp(40px,5vw,80px)}}
+.hc-tgrid .frame{aspect-ratio:1200/630;background:#F7F3EC}

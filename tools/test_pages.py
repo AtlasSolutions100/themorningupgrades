@@ -106,7 +106,7 @@ def ia_tests(b, base):
     ctx = context(b, base, w=1440, h=900); pg = ctx.new_page()
     pg.goto(base + "/")
     nav = [a.strip() for a in pg.locator("nav.nav .menu a").all_text_contents()]
-    check(nav == ["Shop", "Ingredients", "Guides", "FAQ", "Get CoreJava"], f"top nav is Shop/Ingredients/Guides/FAQ/Get CoreJava ({nav})")
+    check(nav == ["Shop", "House coffee", "Ingredients", "Guides", "FAQ", "Get CoreJava"], f"top nav is Shop/House coffee/Ingredients/Guides/FAQ/Get CoreJava ({nav})")
     home_links = set(pg.eval_on_selector_all("a[href]", "els => els.map(e => e.getAttribute('href'))"))
     pg.goto(base + "/guides.html")
     idx_links = set(pg.eval_on_selector_all("main a[href]", "els => els.map(e => e.getAttribute('href'))"))
@@ -286,6 +286,91 @@ def order_tests(b, base):
     ctx.close()
 
 
+HOUSE_LINKS = {"cupofjoe": "https://buy.stripe.com/4gMeVffEv5TEfJA42g4wM02", "mushroom": "https://buy.stripe.com/00w5kF77Z1Do9lccyM4wM03"}
+HEALTH_WORDS = r"\b(focus\w*|immun\w*|energ\w*|adaptogen\w*|brain\w*|calm\w*|nootropic\w*|cognit\w*|stress\w*|wellness|boost\w*|health\w*|benefit\w*)\b"
+
+
+def house_tests(b, base):
+    """/house-coffee: the 2 house coffees. Buy buttons go to their own Payment Links with the same creator/ad
+    credit as CoreJava's; no health words, no Roastify, none of CoreJava's terms; the order page knows the plans."""
+    import re
+    ctx = context(b, base, w=390, h=844); pg = ctx.new_page()
+    r = pg.goto(base + "/house-coffee.html")
+    check(r.status == 200 and pg.locator("h1").count() == 1, "/house-coffee.html exists with one h1")
+    for k, link in HOUSE_LINKS.items():
+        href = pg.locator(f"a[data-buy={k}]").get_attribute("href") or ""
+        check(pg.locator(f"a[data-buy={k}]").count() == 1 and href.startswith(link + "?utm_source=site") and "client_reference_id" not in href,
+              f"house buy button {k} -> its Payment Link with utm tags ({href[:70]})")
+    main = pg.locator("main").inner_text()
+    html = pg.content()
+    check(not re.search(HEALTH_WORDS, main, re.I), "no health or function words on the house coffee page: " + str(re.findall(HEALTH_WORDS, main, re.I)))
+    check("roastify" not in html.lower(), "house coffee page never names Roastify")
+    low = main.lower()
+    check(all(w not in low for w in ("90-day", "guarantee", "marketplace global", "minnesota", "supplement facts", "corejava")),
+          "no CoreJava terms (guarantee, MarketPlace Global, Minnesota, supplement panel) in the house coffee page body")
+    check(all(w in main for w in ("$27.95", "$33.95", "+ $5.95 US shipping", "Light", "Medium (Colombia)", "Dark", "You pick the roast at checkout",
+                                  "Full ingredient list coming soon", "Dark chocolate, nougat, mild acidity")), "house page shows prices, shipping, 3 roasts and the mushroom placeholder")
+    check(pg.locator(".sticky").count() == 0 and pg.locator("[data-picker]").count() == 0, "no CoreJava picker or sticky bar on the house page")
+    ld = " ".join(pg.locator("script[type='application/ld+json']").all_text_contents())
+    check(ld.count('"@type":"Product"') == 2 and "AggregateRating" not in ld and '"price":"27.95"' in ld and '"price":"33.95"' in ld, "house page: 2 Product entries, prices, no ratings")
+    ctx.close()
+    # creator and paid-ad credit ride along exactly like the CoreJava buttons
+    ctx = context(b, base); pg = ctx.new_page()
+    pg.goto(base + "/house-coffee.html?ref=kasey&utm_source=creator&utm_medium=influencer")
+    for k, link in HOUSE_LINKS.items():
+        href = pg.locator(f"a[data-buy={k}]").get_attribute("href") or ""
+        check(href.startswith(link + "?") and href.endswith("&client_reference_id=cr_kasey") and "utm_medium=influencer" in href, f"house {k}: creator credit cr_kasey rides to Stripe")
+    pg.goto(base + "/shop.html")
+    core = pg.locator("[data-picker-btn]").first.get_attribute("href") or ""
+    check(core.endswith("&client_reference_id=cr_kasey"), "CoreJava button carries the same creator credit")
+    ctx.close()
+    ctx = context(b, base); pg = ctx.new_page()
+    pg.goto(base + "/house-coffee.html?utm_source=tiktok&utm_medium=paid&utm_campaign=hc&utm_content=v1")
+    href = pg.locator("a[data-buy=mushroom]").get_attribute("href") or ""
+    check(href.endswith("&client_reference_id=ut__tiktok__hc__v1"), f"house mushroom: paid-ad credit rides to Stripe ({href[-40:]})")
+    # click remembers the plan, and lands on Stripe
+    nav = []
+    def stripe(r):
+        nav.append(r.request.url); r.fulfill(status=200, content_type="text/html", body="<html><body>checkout</body></html>")
+    ctx.route("https://buy.stripe.com/**", stripe)
+    with pg.expect_navigation(url="https://buy.stripe.com/**"):
+        pg.locator("a[data-buy=cupofjoe]").click()
+    check(nav and nav[0].startswith(HOUSE_LINKS["cupofjoe"]), "clicking Buy Cup of Joe opens its Stripe Payment Link")
+    pg.goto(base + "/house-coffee.html")
+    check(pg.evaluate("() => localStorage.getItem('tmu_plan')") == "cupofjoe", "Buy Cup of Joe remembers plan cupofjoe")
+    ctx.close()
+    # /shop points to it, separately; /start doesn't
+    ctx = context(b, base, w=1440, h=900); pg = ctx.new_page()
+    pg.goto(base + "/shop.html")
+    t = pg.locator(".hc-teaser")
+    check(t.count() == 1 and t.locator("a[href='/house-coffee.html']").count() == 1 and t.locator("[data-buy]").count() == 0, "/shop has a separate house coffee section linking to the page")
+    tt = t.inner_text().lower()
+    check("guarantee" not in tt and "marketplace" not in tt and "roastify" not in tt, "/shop house section carries no CoreJava terms")
+    pg.goto(base + "/start.html")
+    check("house" not in pg.locator("main").inner_html().lower(), "/start doesn't mention house coffee (site footer aside)")
+    for fn in ("shipping-returns.html", "faq.html", "terms.html", "privacy.html"):
+        pg.goto(base + "/" + fn)
+        c = (pg.locator("main").text_content() or "").lower()
+        check("house coffee" in c and "roasting partner" in c and "roastify" not in c, f"/{fn} has a house coffee section (roasting partner, not named)")
+    pg.goto(base + "/sitemap.xml")
+    check("/house-coffee.html" in pg.content(), "sitemap lists /house-coffee.html")
+    ctx.close()
+    # order page: house coffee thank-you, none of CoreJava's account/bonus/refill text
+    for plan, name in (("cupofjoe", "Cup of Joe Everyday Coffee"), ("mushroom", "Mushroom Coffee Blend")):
+        ctx = context(b, base); pg = ctx.new_page()
+        pg.goto(base + f"/order-complete.html?session_id=cs_test_hc_{plan}&plan={plan}")
+        vis = pg.locator("main").inner_text()
+        check(name in vis and "roasting partner" in vis and "MarketPlace Global" not in vis and "Recipe Pack" not in vis
+              and not pg.locator("#sms-form").is_visible() and not pg.locator(".plan-one").is_visible() and not pg.locator(".plan-sub").is_visible(),
+              f"order page plan={plan}: house coffee thank-you only")
+        ctx.close()
+    ctx = context(b, base); pg = ctx.new_page()
+    pg.goto(base + "/order-complete.html?session_id=cs_test_hc_core&plan=onetime")
+    vis = pg.locator("main").inner_text()
+    check("MarketPlace Global" in vis and "roasting partner" not in vis, "order page plan=onetime: CoreJava text, no house coffee text")
+    ctx.close()
+
+
 def popup_tests(b, base):
     """Email pop-up: when it opens, where it never opens, keyboard and focus, the Klaviyo sign-up and
     the success state, and the Subscribe & Save note afterwards. Timers run on Playwright's clock."""
@@ -446,6 +531,12 @@ def seo_tests(b, base):
             check(bool(bc) and names[0] == "Home" and bc[0]["itemListElement"][-1]["item"] == url and all(len(n) <= 60 for n in names),
                   f"{fn}: BreadcrumbList ends at the page with short names ({names})")
         for g in graph:
+            if g["@type"] == "Product" and fn == "house-coffee.html":
+                o = g["offers"]
+                check(g["brand"]["name"] == "The Morning Upgrade" and "manufacturer" not in g and o["price"] in ("27.95", "33.95") and o["priceCurrency"] == "USD"
+                      and o["shippingDetails"]["shippingRate"]["value"] == "5.95" and "hasMerchantReturnPolicy" not in o and "aggregateRating" not in g,
+                      f"{fn}: house Product {g['name']}: own brand, no MarketPlace Global, $5.95 shipping, no CoreJava return policy")
+                continue
             if g["@type"] == "Product":
                 offers = g["offers"]
                 ok = g["brand"]["name"] == "CoreJava" and g["manufacturer"]["name"] == "MarketPlace Global" and len(offers) == 2 and all(
@@ -624,6 +715,7 @@ def main():
         notice_tests(b, base)
         quiz_tests(b, base)
         order_tests(b, base)
+        house_tests(b, base)
         popup_tests(b, base)
         klaviyo_checkout_tests(b, base)
         seo_tests(b, base)

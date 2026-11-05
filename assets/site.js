@@ -4,6 +4,10 @@ window.TMU = {
   // Stripe Payment Links (create in Stripe Dashboard → Payment Links). Leave "" until they exist.
   STRIPE_ONETIME: "https://buy.stripe.com/3cIbJ3fEv6XIbtk8iw4wM00",          // one bag, $79.95, ships from us
   STRIPE_SUBSCRIBE: "https://buy.stripe.com/8x228t3VN2Hsapg56k4wM01",        // one bag a month, $69.95, ships from us
+  // House coffees (Nov 2026), roasted to order and shipped by our roasting partner. One-time only; $5.95 flat US
+  // shipping and the roast picker (Cup of Joe) live on the Payment Link. Redirect: /order-complete.html?plan=<key>
+  STRIPE_CUPOFJOE: "https://buy.stripe.com/4gMeVffEv5TEfJA42g4wM02",         // Cup of Joe Everyday Coffee, 12 oz, $27.95
+  STRIPE_MUSHROOM: "https://buy.stripe.com/00w5kF77Z1Do9lccyM4wM03",         // The Morning Upgrade Mushroom Coffee Blend, 12 oz, $33.95
   // MarketPlace Global replicated product page (handoff fallback while Stripe is empty)
   MPG_PRODUCT: "https://marketplaceglobal.com/rectorandstull/product/coffee/mpgxtreme-1-bag-corejava-coffee-skucl805-us-id194",
   // Partner side
@@ -130,16 +134,25 @@ window.TMU = {
   var SNAP_MAP={InitiateCheckout:'START_CHECKOUT',ViewContent:'VIEW_CONTENT',Lead:'SIGN_UP',QuizComplete:'VIEW_CONTENT',PartnerLead:'SIGN_UP',Purchase:'PURCHASE'};
   var GA_SKIP={ViewContent:1};   // GA4 already has page_view; ViewContent is for the ad pixels
   // Plan prices (coffee subtotal, before shipping and tax). Purchase/InitiateCheckout values use these.
-  var PRICE={subscribe:69.95,onetime:79.95}, SKU='CL805';
-  C.PRICE=PRICE;
+  // cupofjoe / mushroom: the house coffees (1 bag each, one-time). ITEM: what each plan key is, for pixels and Klaviyo.
+  var PRICE={subscribe:69.95,onetime:79.95,cupofjoe:27.95,mushroom:33.95}, SKU='CL805';
+  var ITEM={
+    subscribe:{sku:SKU, name:'CoreJava Instant Coffee, 30 servings', ga:'MCT Instant Coffee with L-Theanine, 30 Servings', plan:'Subscribe & Save, 1 bag every 30 days', ship:8.95, link:'STRIPE_SUBSCRIBE'},
+    onetime:{sku:SKU, name:'CoreJava Instant Coffee, 30 servings', ga:'MCT Instant Coffee with L-Theanine, 30 Servings', plan:'1 bag', ship:8.95, link:'STRIPE_ONETIME'},
+    cupofjoe:{sku:'TMU-CUPOFJOE-12', name:'Cup of Joe Everyday Coffee, 12 oz', ga:'Cup of Joe Everyday Coffee, 12 oz', plan:'Cup of Joe, 1 bag', ship:5.95, link:'STRIPE_CUPOFJOE', house:1},
+    mushroom:{sku:'TMU-MUSHROOM-12', name:'The Morning Upgrade Mushroom Coffee Blend, 12 oz', ga:'The Morning Upgrade Mushroom Coffee Blend, 12 oz', plan:'Mushroom Coffee Blend, 1 bag', ship:5.95, link:'STRIPE_MUSHROOM', house:1}
+  };
+  C.PRICE=PRICE; C.ITEM=ITEM;
+  function skuOf(props){ return (props && ITEM[props.plan]) ? ITEM[props.plan].sku : SKU; }
+  function linkOf(plan){ return ITEM[plan] ? (C[ITEM[plan].link]||'') : C.STRIPE_ONETIME; }
   window.track = function(name, props){ try{
     props=props||{};
-    var isP=name==='Purchase', val=(typeof props.value==='number')?props.value:PRICE.subscribe, eid=props.transaction_id||'';
+    var isP=name==='Purchase', val=(typeof props.value==='number')?props.value:PRICE.subscribe, eid=props.transaction_id||'', sku=skuOf(props);
     if(window.gtag&&C.GA4_ID&&!GA_SKIP[name]) gtag('event', name, props);
-    if(window.ttq&&C.TIKTOK_PIXEL&&TT_MAP[name]) ttq.track(TT_MAP[name], (isP||name==='ViewContent'||name==='InitiateCheckout')?{value:val,currency:'USD',content_type:'product',content_id:SKU}:props, eid?{event_id:eid}:undefined);
-    if(window.fbq&&C.PIXEL_ID){ if(FB_STD[name]) fbq('track',name,(isP||name==='ViewContent'||name==='InitiateCheckout')?Object.assign({},props,{value:val,currency:'USD',content_ids:[SKU],content_type:'product'}):props, eid?{eventID:eid}:undefined); else fbq('trackCustom',name,props); }
+    if(window.ttq&&C.TIKTOK_PIXEL&&TT_MAP[name]) ttq.track(TT_MAP[name], (isP||name==='ViewContent'||name==='InitiateCheckout')?{value:val,currency:'USD',content_type:'product',content_id:sku}:props, eid?{event_id:eid}:undefined);
+    if(window.fbq&&C.PIXEL_ID){ if(FB_STD[name]) fbq('track',name,(isP||name==='ViewContent'||name==='InitiateCheckout')?Object.assign({},props,{value:val,currency:'USD',content_ids:[sku],content_type:'product'}):props, eid?{eventID:eid}:undefined); else fbq('trackCustom',name,props); }
     if(window.gtag&&C.GOOGLE_PURCHASE&&isP) gtag('event','conversion',{send_to:C.GOOGLE_PURCHASE,value:val,currency:'USD',transaction_id:eid});
-    if(window.snaptr&&C.SNAP_PIXEL&&SNAP_MAP[name]) snaptr('track',SNAP_MAP[name],(isP||name==='ViewContent'||name==='InitiateCheckout')?Object.assign({price:val,currency:'USD',item_ids:[SKU],number_items:1},eid?{transaction_id:eid}:{}):{});
+    if(window.snaptr&&C.SNAP_PIXEL&&SNAP_MAP[name]) snaptr('track',SNAP_MAP[name],(isP||name==='ViewContent'||name==='InitiateCheckout')?Object.assign({price:val,currency:'USD',item_ids:[sku],number_items:1},eid?{transaction_id:eid}:{}):{});
     if(window.plausible) plausible(name,{props:props});
   }catch(e){} };
 
@@ -174,12 +187,12 @@ window.TMU = {
   // A plain left click on a same-tab link waits for the send (at most 500 ms) so leaving the page can't drop it.
   C.startedCheckout = function(a, plan, source, ev){ try{
     if(!a || a.dataset.mode!=='stripe' || !PRICE[plan]) return;
-    var link = plan==='subscribe' ? C.STRIPE_SUBSCRIBE : C.STRIPE_ONETIME; if(!link) return;
+    var link = linkOf(plan); if(!link) return;
     var cr=((a.href||'').match(/[?&]client_reference_id=([A-Za-z0-9_-]{1,200})/)||[])[1];
     var url=link+(link.indexOf('?')>-1?'&':'?')+'utm_source=klaviyo&utm_medium=email&utm_campaign=started_checkout'+(cr?'&client_reference_id='+cr:'');
-    var props={plan:plan, plan_name:plan==='subscribe'?'Subscribe & Save, 1 bag every 30 days':'1 bag',
-      value:PRICE[plan], currency:'USD', shipping:8.95, CheckoutURL:url, checkout_url:url, clicked_url:a.href,
-      ItemNames:['CoreJava Instant Coffee, 30 servings'], page:location.pathname, source:source||'site'};
+    var props={plan:plan, plan_name:ITEM[plan].plan,
+      value:PRICE[plan], currency:'USD', shipping:ITEM[plan].ship, CheckoutURL:url, checkout_url:url, clicked_url:a.href,
+      ItemNames:[ITEM[plan].name], page:location.pathname, source:source||'site'};
     var p=C.klEvent('Started Checkout', props, PRICE[plan], 'sc_'+plan+'_'+Math.floor(Date.now()/6e4));
     if(!p || !ev || ev.defaultPrevented || ev.button || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || a.target==='_blank') return;
     ev.preventDefault();
@@ -204,9 +217,9 @@ window.TMU = {
     var plan=C.plan(), value=PRICE[plan];
     try{ done.push(sid); localStorage.setItem(key, JSON.stringify(done.slice(-20))); }catch(e){}
     track('Purchase',{value:value,currency:'USD',transaction_id:sid,plan:plan});
-    C.klEvent('Placed Order',{plan:plan,value:value,currency:'USD',order_id:sid,ItemNames:['CoreJava Instant Coffee, 30 servings']},value,sid);
+    C.klEvent('Placed Order',{plan:plan,value:value,currency:'USD',order_id:sid,ItemNames:[ITEM[plan].name]},value,sid);
     if(window.gtag&&C.GA4_ID) gtag('event','purchase',{transaction_id:sid,value:value,currency:'USD',
-      items:[{item_id:SKU,item_name:'MCT Instant Coffee with L-Theanine, 30 Servings',item_variant:plan,price:value,quantity:1}]});
+      items:[{item_id:ITEM[plan].sku,item_name:ITEM[plan].ga,item_variant:plan,price:value,quantity:1}]});
     return true;
   }catch(e){ return false; } };
 
@@ -258,7 +271,7 @@ window.TMU = {
         promoNotes();
       }); });
     });
-    // Buy buttons: data-buy="onetime|subscribe"
+    // Buy buttons: data-buy="onetime|subscribe", or a house coffee: data-buy="cupofjoe|mushroom" (Stripe only)
     var utm = location.search ? location.search.replace(/^\?/,'') : '';
     // Only the page's utm_* tags ride to Stripe (utm_source defaults to "site"). Anything else in the
     // landing URL (client_reference_id, prefilled_email, promo codes, click ids) is never forwarded, so
@@ -268,7 +281,8 @@ window.TMU = {
       if(!has.utm_source) o.unshift('utm_source=site'); return o.join('&'); })();
     function wire(a){
       var kind=a.getAttribute('data-buy');
-      var link = kind==='subscribe' ? C.STRIPE_SUBSCRIBE : C.STRIPE_ONETIME;
+      var link = linkOf(kind);
+      if (ITEM[kind] && ITEM[kind].house && !link) { a.dataset.mode='none'; return; }   // no MarketPlace Global fallback for house coffee
       if (link) {
         a.href = link + (link.indexOf('?')>-1?'&':'?') + stripeQs
           + (C.REF ? '&client_reference_id=cr_' + C.REF : (C.UT ? '&client_reference_id=' + C.UT : ''));
@@ -282,7 +296,7 @@ window.TMU = {
     }
     document.querySelectorAll('[data-buy]').forEach(function(a){
       wire(a);
-      a.addEventListener('click', function(ev){ var k=a.getAttribute('data-buy'); try{ localStorage.setItem('tmu_plan', k); }catch(e){} track('InitiateCheckout',{plan:k, mode:a.dataset.mode, value:PRICE[k]||PRICE.subscribe, currency:'USD'}); tmuEvent('buy_click', a.dataset.mode+':'+(k==='onetime'?'onetime':'subscribe')); C.startedCheckout(a, k, 'site', ev); });
+      a.addEventListener('click', function(ev){ var k=a.getAttribute('data-buy'); try{ localStorage.setItem('tmu_plan', k); }catch(e){} track('InitiateCheckout',{plan:k, mode:a.dataset.mode, value:PRICE[k]||PRICE.subscribe, currency:'USD'}); tmuEvent('buy_click', a.dataset.mode+':'+(ITEM[k]&&ITEM[k].house?k:(k==='onetime'?'onetime':'subscribe'))); C.startedCheckout(a, k, 'site', ev); });
     });
     promoNotes();
     // The sticky bar steps aside while any picker's buy button is on screen (it would duplicate it).

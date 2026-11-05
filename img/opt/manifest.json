@@ -55,6 +55,39 @@
    1300
   ]
  },
+ "house-cupofjoe": {
+  "ext": "jpg",
+  "h": 1500,
+  "src": "house_cupofjoe.jpg",
+  "w": 1200,
+  "widths": [
+   480,
+   800,
+   1200
+  ]
+ },
+ "house-mushroom": {
+  "ext": "jpg",
+  "h": 1500,
+  "src": "house_mushroom.jpg",
+  "w": 1200,
+  "widths": [
+   480,
+   800,
+   1200
+  ]
+ },
+ "house-og": {
+  "ext": "jpg",
+  "h": 630,
+  "src": "house_og.jpg",
+  "w": 1200,
+  "widths": [
+   480,
+   800,
+   1200
+  ]
+ },
  "kitchen-pour": {
   "ext": "jpg",
   "h": 1800,

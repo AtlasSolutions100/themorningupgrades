@@ -179,7 +179,10 @@ def main():
                  ("?session_id=cs_test_a1b2c3d6", "onetime", 79.95),
                  ("?session_id=cs_test_a1b2c3d7", "subscribe", 69.95),
                  ("?session_id=cs_test_a1b2c3d8", None, 69.95),
-                 ("?session_id=cs_test_a1b2c3d9&plan=bogus", None, 69.95)]
+                 ("?session_id=cs_test_a1b2c3d9&plan=bogus", None, 69.95),
+                 ("?session_id=cs_test_a1b2c3e1&plan=cupofjoe", None, 27.95),     # house coffees
+                 ("?session_id=cs_test_a1b2c3e2&plan=mushroom", "onetime", 33.95)]
+        SKUS = {27.95: "TMU-CUPOFJOE-12", 33.95: "TMU-MUSHROOM-12"}
         for qs, stored, value in cases:
             ctx, pg = fresh()
             pg.goto(base + "/shop.html")
@@ -193,7 +196,7 @@ def main():
             ads = [x for x in e["ga"] if x[0] == "conversion"]
             label = f"{qs} stored={stored}"
             check(len(ga_p) == 1 and ga_p[0][1].get("value") == value and ga_p[0][1].get("transaction_id") == sid
-                  and ga_p[0][1].get("items", [{}])[0].get("item_id") == "CL805", f"GA4 purchase {value} once, transaction_id=session_id ({label})")
+                  and ga_p[0][1].get("items", [{}])[0].get("item_id") == SKUS.get(value, "CL805"), f"GA4 purchase {value} once, transaction_id=session_id ({label})")
             check(len(fb_p) == 1 and fb_p[0][1].get("value") == value and fb_p[0][2].get("eventID") == sid, f"Meta Purchase {value} with eventID ({label})")
             check(len(tt_p) == 1 and tt_p[0][1].get("value") == value and tt_p[0][2].get("event_id") == sid, f"TikTok CompletePayment {value} with event_id ({label})")
             check(len(sn_p) == 1 and sn_p[0][1].get("price") == value and sn_p[0][1].get("transaction_id") == sid, f"Snap PURCHASE {value} ({label})")
