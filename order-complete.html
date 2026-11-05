@@ -42,7 +42,7 @@
     <a class="top" href="/faq.html">FAQ</a>
     <a class="top mo" href="/shipping-returns.html">Shipping &amp; returns</a>
     <a class="top mo" href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00" rel="noopener">Manage subscription</a>
-    <a class="btn sm" href="/corejava.html">Get CoreJava</a>
+    <a class="btn sm" href="/shop.html">Shop</a>
   </div>
 </div></nav>
 
@@ -62,6 +62,21 @@
         <li>If a bag arrives damaged or wrong, email us within 30 days of delivery and we&rsquo;ll replace it.</li>
       </ul>
       <p style="margin-top:22px"><a class="btn ghost" href="/shop.html#house">Our coffees</a> <a class="btn ghost" href="/">Back to the site</a></p>
+    </div>
+    <div data-line="bundle" hidden>
+      <p>Thanks for ordering the <b data-bundle-name>bundle</b>. Stripe has emailed your receipt. Your order ships in 2 packages:</p>
+      <ul class="clean">
+        <li><b>CoreJava</b> ships from MarketPlace Global, the maker, in Maple Grove, Minnesota, within about 2 business days. We set up your CoreJava customer account with them.</li>
+        <li><b data-bundle-house>Your house coffee</b> is roasted to order by our roasting partner and ships in about 2 to 3 business days.</li>
+      </ul>
+      <p>You&rsquo;ll get a tracking email for each package. If anything looks wrong, reply to the receipt or write hello@themorningupgrades.com.</p>
+      <h3 style="margin-top:26px">Making them</h3>
+      <ul class="clean">
+        <li>CoreJava: 1 level scoop into 8 oz of hot water. Stir for about 15 seconds.</li>
+        <li>House coffee: 2 tbsp (10 g) of ground coffee per 8 fl oz of water, for drip, pour-over or French press.</li>
+        <li>CoreJava contains caffeine. Not for children, or if you&rsquo;re pregnant or nursing.</li>
+      </ul>
+      <p style="margin-top:22px"><a class="btn ghost" href="/shop.html">Our coffees</a> <a class="btn ghost" href="/">Back to the site</a></p>
     </div>
     <div data-line="corejava">
     <p>Stripe has emailed your receipt. We set up your CoreJava customer account with MarketPlace Global, the maker, who ships from Maple Grove, Minnesota within about 2 business days; you'll get a tracking email when it leaves. If anything looks wrong, reply to the receipt or write hello@themorningupgrades.com.</p>
@@ -127,12 +142,15 @@
   </div>
 </div></section>
 <script>tmuPurchase();</script>
-<script>(function(){ var p=(window.TMU&&TMU.plan)?TMU.plan():''; var known=/[?&]plan=(subscribe|onetime|cupofjoe|mushroom)\b/.test(location.search); try{ known=known||!!localStorage.getItem('tmu_plan'); }catch(e){}
+<script>(function(){ var p=(window.TMU&&TMU.plan)?TMU.plan():''; var known=/[?&]plan=(subscribe|onetime|cupofjoe|mushroom|bundle_cupofjoe|bundle_mushroom)\b/.test(location.search); try{ known=known||!!localStorage.getItem('tmu_plan'); }catch(e){}
   if(!known) return;
   // house coffee (cupofjoe / mushroom): its own thank-you; none of CoreJava's account, scoop, bonus or refill text
-  var it=TMU.ITEM&&TMU.ITEM[p], house=!!(it&&it.house);
-  document.querySelectorAll('[data-line]').forEach(function(e){ e.hidden = (e.getAttribute('data-line')==='house')!==house; });
-  if(house) document.querySelectorAll('[data-house-name]').forEach(function(e){ e.textContent=it.name; });
+  // bundles: CoreJava + a house coffee, 2 packages
+  var it=TMU.ITEM&&TMU.ITEM[p], line=(it&&it.bundle)?'bundle':(it&&it.house)?'house':'corejava';
+  document.querySelectorAll('[data-line]').forEach(function(e){ e.hidden = e.getAttribute('data-line')!==line; });
+  if(line==='house') document.querySelectorAll('[data-house-name]').forEach(function(e){ e.textContent=it.name; });
+  if(line==='bundle'){ document.querySelectorAll('[data-bundle-name]').forEach(function(e){ e.textContent=it.name; });
+    document.querySelectorAll('[data-bundle-house]').forEach(function(e){ e.textContent=it.house_name; }); }
   document.querySelectorAll('[data-plan-block]').forEach(function(e){ e.hidden = e.getAttribute('data-plan-block')!==p; }); })();</script>
 
 </main>

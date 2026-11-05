@@ -69,7 +69,10 @@ IMAGES = {
     "house-cupofjoe-dark":  ("house_cupofjoe_dark.jpg", {}),    # same mockup, Dark label
     "house-cupofjoe-side":  ("house_cupofjoe_side.jpg", {}),    # the side panel of the label artwork (its text), cropped flat
     "house-mushroom":   ("house_mushroom.jpg", {}),
-    "house-og":         ("house_og.jpg", {}),            # page 1 of assets/recipe-pack.pdf (pdftoppm -r 60), the bonus thumbnail
+    "house-og":         ("house_og.jpg", {}),
+    # Bundles (Nov 2026): the real CoreJava bag photo and a house coffee bag design side by side; tools/bundle_shot.py
+    "bundle-cupofjoe":  ("bundle_cupofjoe.jpg", {}),
+    "bundle-mushroom":  ("bundle_mushroom.jpg", {}),            # page 1 of assets/recipe-pack.pdf (pdftoppm -r 60), the bonus thumbnail
 }
 
 

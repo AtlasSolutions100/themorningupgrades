@@ -8,6 +8,10 @@ window.TMU = {
   // shipping and the roast picker (Cup of Joe) live on the Payment Link. Redirect: /order-complete.html?plan=<key>
   STRIPE_CUPOFJOE: "https://buy.stripe.com/4gMeVffEv5TEfJA42g4wM02",         // Cup of Joe Everyday Coffee, 12 oz, $27.95
   STRIPE_MUSHROOM: "https://buy.stripe.com/00w5kF77Z1Do9lccyM4wM03",         // The Morning Upgrade Mushroom Coffee Blend, 12 oz, $33.95
+  // Bundles (Nov 5 2026): 1 bag CoreJava + 1 house coffee, $8.95 shipping line on the link, ships in 2 packages.
+  // Redirect: /order-complete.html?session_id=...&plan=bundle_cupofjoe | bundle_mushroom
+  STRIPE_BUNDLE_CUPOFJOE: "https://buy.stripe.com/cNi9AV2RJ5TEcxodCQ4wM04",  // CoreJava + Cup of Joe, $89.95 (roast picked at checkout)
+  STRIPE_BUNDLE_MUSHROOM: "https://buy.stripe.com/5kQaEZeArci22WOeGU4wM05",  // CoreJava + Mushroom Coffee Blend, $94.95
   // MarketPlace Global replicated product page (handoff fallback while Stripe is empty)
   MPG_PRODUCT: "https://marketplaceglobal.com/rectorandstull/product/coffee/mpgxtreme-1-bag-corejava-coffee-skucl805-us-id194",
   // Partner side
@@ -135,12 +139,15 @@ window.TMU = {
   var GA_SKIP={ViewContent:1};   // GA4 already has page_view; ViewContent is for the ad pixels
   // Plan prices (coffee subtotal, before shipping and tax). Purchase/InitiateCheckout values use these.
   // cupofjoe / mushroom: the house coffees (1 bag each, one-time). ITEM: what each plan key is, for pixels and Klaviyo.
-  var PRICE={subscribe:69.95,onetime:79.95,cupofjoe:27.95,mushroom:33.95}, SKU='CL805';
+  // bundle_*: CoreJava + a house coffee (bundle:1, Stripe only, like the house coffees).
+  var PRICE={subscribe:69.95,onetime:79.95,cupofjoe:27.95,mushroom:33.95,bundle_cupofjoe:89.95,bundle_mushroom:94.95}, SKU='CL805';
   var ITEM={
     subscribe:{sku:SKU, name:'CoreJava Instant Coffee, 30 servings', ga:'MCT Instant Coffee with L-Theanine, 30 Servings', plan:'Subscribe & Save, 1 bag every 30 days', ship:8.95, link:'STRIPE_SUBSCRIBE'},
     onetime:{sku:SKU, name:'CoreJava Instant Coffee, 30 servings', ga:'MCT Instant Coffee with L-Theanine, 30 Servings', plan:'1 bag', ship:8.95, link:'STRIPE_ONETIME'},
     cupofjoe:{sku:'TMU-CUPOFJOE-12', name:'Cup of Joe Everyday Coffee, 12 oz', ga:'Cup of Joe Everyday Coffee, 12 oz', plan:'Cup of Joe, 1 bag', ship:5.95, link:'STRIPE_CUPOFJOE', house:1},
-    mushroom:{sku:'TMU-MUSHROOM-12', name:'The Morning Upgrade Mushroom Coffee Blend, 12 oz', ga:'The Morning Upgrade Mushroom Coffee Blend, 12 oz', plan:'Mushroom Coffee Blend, 1 bag', ship:5.95, link:'STRIPE_MUSHROOM', house:1}
+    mushroom:{sku:'TMU-MUSHROOM-12', name:'The Morning Upgrade Mushroom Coffee Blend, 12 oz', ga:'The Morning Upgrade Mushroom Coffee Blend, 12 oz', plan:'Mushroom Coffee Blend, 1 bag', ship:5.95, link:'STRIPE_MUSHROOM', house:1},
+    bundle_cupofjoe:{sku:'TMU-BUNDLE-CJ-CUPOFJOE', name:'CoreJava + Cup of Joe bundle', ga:'CoreJava + Cup of Joe Everyday Coffee bundle', plan:'Bundle: CoreJava + Cup of Joe', ship:8.95, link:'STRIPE_BUNDLE_CUPOFJOE', bundle:1, house_name:'Cup of Joe Everyday Coffee'},
+    bundle_mushroom:{sku:'TMU-BUNDLE-CJ-MUSHROOM', name:'CoreJava + Mushroom Coffee Blend bundle', ga:'CoreJava + The Morning Upgrade Mushroom Coffee Blend bundle', plan:'Bundle: CoreJava + Mushroom Coffee Blend', ship:8.95, link:'STRIPE_BUNDLE_MUSHROOM', bundle:1, house_name:'The Morning Upgrade Mushroom Coffee Blend'}
   };
   C.PRICE=PRICE; C.ITEM=ITEM;
   function skuOf(props){ return (props && ITEM[props.plan]) ? ITEM[props.plan].sku : SKU; }
@@ -329,7 +336,8 @@ window.TMU = {
         promoNotes();
       }); });
     });
-    // Buy buttons: data-buy="onetime|subscribe", or a house coffee: data-buy="cupofjoe|mushroom" (Stripe only)
+    // Buy buttons: data-buy="onetime|subscribe", a house coffee: data-buy="cupofjoe|mushroom", or a bundle:
+    // data-buy="bundle_cupofjoe|bundle_mushroom" (house coffees and bundles: Stripe only)
     var utm = location.search ? location.search.replace(/^\?/,'') : '';
     // Only the page's utm_* tags ride to Stripe (utm_source defaults to "site"). Anything else in the
     // landing URL (client_reference_id, prefilled_email, promo codes, click ids) is never forwarded, so
@@ -340,7 +348,7 @@ window.TMU = {
     function wire(a){
       var kind=a.getAttribute('data-buy');
       var link = linkOf(kind);
-      if (ITEM[kind] && ITEM[kind].house && !link) { a.dataset.mode='none'; return; }   // no MarketPlace Global fallback for house coffee
+      if (ITEM[kind] && (ITEM[kind].house || ITEM[kind].bundle) && !link) { a.dataset.mode='none'; return; }   // no MarketPlace Global fallback for house coffee or bundles
       if (link) {
         a.href = link + (link.indexOf('?')>-1?'&':'?') + stripeQs
           + (C.REF ? '&client_reference_id=cr_' + C.REF : (C.UT ? '&client_reference_id=' + C.UT : ''));
@@ -354,7 +362,7 @@ window.TMU = {
     }
     document.querySelectorAll('[data-buy]').forEach(function(a){
       wire(a);
-      a.addEventListener('click', function(ev){ var k=a.getAttribute('data-buy'); try{ localStorage.setItem('tmu_plan', k); }catch(e){} track('InitiateCheckout',{plan:k, mode:a.dataset.mode, value:PRICE[k]||PRICE.subscribe, currency:'USD'}); tmuEvent('buy_click', a.dataset.mode+':'+(ITEM[k]&&ITEM[k].house?k:(k==='onetime'?'onetime':'subscribe'))); C.startedCheckout(a, k, 'site', ev); });
+      a.addEventListener('click', function(ev){ var k=a.getAttribute('data-buy'); try{ localStorage.setItem('tmu_plan', k); }catch(e){} track('InitiateCheckout',{plan:k, mode:a.dataset.mode, value:PRICE[k]||PRICE.subscribe, currency:'USD'}); tmuEvent('buy_click', a.dataset.mode+':'+(ITEM[k]&&(ITEM[k].house||ITEM[k].bundle)?k:(k==='onetime'?'onetime':'subscribe'))); C.startedCheckout(a, k, 'site', ev); });
     });
     promoNotes();
     // The sticky bar steps aside while any picker's buy button is on screen (it would duplicate it).

@@ -10,6 +10,30 @@
    1200
   ]
  },
+ "bundle-cupofjoe": {
+  "ext": "jpg",
+  "h": 2000,
+  "src": "bundle_cupofjoe.jpg",
+  "w": 1600,
+  "widths": [
+   480,
+   800,
+   1200,
+   1600
+  ]
+ },
+ "bundle-mushroom": {
+  "ext": "jpg",
+  "h": 2000,
+  "src": "bundle_mushroom.jpg",
+  "w": 1600,
+  "widths": [
+   480,
+   800,
+   1200,
+   1600
+  ]
+ },
  "desk": {
   "ext": "jpg",
   "h": 2150,

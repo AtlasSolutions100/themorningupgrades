@@ -114,9 +114,9 @@ def first_party_tests(b, base):
     check([x["detail"] for x in named(sent, "lead")] == ["newsletter"], "lead: newsletter capture")
     ctx.close()
 
-    # the quiz on the home page: quiz_start once, lead quiz
+    # the quiz (on /quiz since Nov 5 2026; home has no quiz): quiz_start once, lead quiz
     ctx, sent = ctx_with(); pg = ctx.new_page()
-    pg.goto(base + "/")
+    pg.goto(base + "/quiz.html")
     wait(pg, sent, 1)
     pg.locator('.quiz .q[data-q="1"] .opt').first.click()
     pg.locator('.quiz .q[data-q="2"] .opt').first.click()
@@ -182,8 +182,12 @@ def main():
                  ("?session_id=cs_test_a1b2c3d8", None, 69.95),
                  ("?session_id=cs_test_a1b2c3d9&plan=bogus", None, 69.95),
                  ("?session_id=cs_test_a1b2c3e1&plan=cupofjoe", None, 27.95),     # house coffees
-                 ("?session_id=cs_test_a1b2c3e2&plan=mushroom", "onetime", 33.95)]
-        SKUS = {27.95: "TMU-CUPOFJOE-12", 33.95: "TMU-MUSHROOM-12"}
+                 ("?session_id=cs_test_a1b2c3e2&plan=mushroom", "onetime", 33.95),
+                 ("?session_id=cs_test_a1b2c3e3&plan=bundle_cupofjoe", None, 89.95),   # bundles
+                 ("?session_id=cs_test_a1b2c3e4&plan=bundle_mushroom", "subscribe", 94.95),
+                 ("?session_id=cs_test_a1b2c3e5", "bundle_cupofjoe", 89.95)]
+        SKUS = {27.95: "TMU-CUPOFJOE-12", 33.95: "TMU-MUSHROOM-12", 89.95: "TMU-BUNDLE-CJ-CUPOFJOE", 94.95: "TMU-BUNDLE-CJ-MUSHROOM"}
+        NAMES = {89.95: "CoreJava + Cup of Joe Everyday Coffee bundle", 94.95: "CoreJava + The Morning Upgrade Mushroom Coffee Blend bundle"}
         for qs, stored, value in cases:
             ctx, pg = fresh()
             pg.goto(base + "/shop.html")
@@ -198,6 +202,8 @@ def main():
             label = f"{qs} stored={stored}"
             check(len(ga_p) == 1 and ga_p[0][1].get("value") == value and ga_p[0][1].get("transaction_id") == sid
                   and ga_p[0][1].get("items", [{}])[0].get("item_id") == SKUS.get(value, "CL805"), f"GA4 purchase {value} once, transaction_id=session_id ({label})")
+            if value in NAMES:
+                check(ga_p and ga_p[0][1]["items"][0].get("item_name") == NAMES[value], f"GA4 purchase item name for the bundle ({label})")
             check(len(fb_p) == 1 and fb_p[0][1].get("value") == value and fb_p[0][2].get("eventID") == sid, f"Meta Purchase {value} with eventID ({label})")
             check(len(tt_p) == 1 and tt_p[0][1].get("value") == value and tt_p[0][2].get("event_id") == sid, f"TikTok CompletePayment {value} with event_id ({label})")
             check(len(sn_p) == 1 and sn_p[0][1].get("price") == value and sn_p[0][1].get("transaction_id") == sid, f"Snap PURCHASE {value} ({label})")

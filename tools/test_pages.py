@@ -106,7 +106,8 @@ def ia_tests(b, base):
     ctx = context(b, base, w=1440, h=900); pg = ctx.new_page()
     pg.goto(base + "/")
     nav = [a.strip() for a in pg.locator("nav.nav .menu .ddb").all_text_contents()] + [a.strip() for a in pg.locator("nav.nav .menu > a:visible").all_text_contents()]
-    check(nav == ["Shop", "Learn", "FAQ", "Get CoreJava"], f"top nav is Shop/Learn/FAQ/Get CoreJava ({nav})")
+    check(nav == ["Shop", "Learn", "FAQ", "Shop"] and pg.locator("nav.nav .menu > a.btn").get_attribute("href") == "/shop.html",
+          f"top nav is Shop/Learn/FAQ and a Shop button to /shop ({nav})")
     home_links = set(pg.eval_on_selector_all("a[href]", "els => els.map(e => e.getAttribute('href'))"))
     pg.goto(base + "/guides.html")
     idx_links = set(pg.eval_on_selector_all("main a[href]", "els => els.map(e => e.getAttribute('href'))"))
@@ -222,7 +223,7 @@ def notice_tests(b, base):
 
 
 def quiz_tests(b, base):
-    for path, want, plan in [("/quiz.html", "simple", "subscribe"), ("/", "focus", "onetime")]:
+    for path, want, plan in [("/quiz.html", "simple", "subscribe"), ("/quiz.html", "focus", "onetime")]:   # the quiz left home (Nov 5 2026)
         sent = []
         ctx = context(b, base, klaviyo=sent); pg = ctx.new_page()
         pg.goto(base + path)
@@ -397,13 +398,13 @@ def shop_ia_tests(b, base):
     ctx = context(b, base, w=1280, h=900); pg = ctx.new_page()
     pg.goto(base + "/shop.html")
     cards = pg.locator("main .pcard")
-    check(cards.count() == 3 and pg.locator("h1").inner_text().strip() == "Shop our coffee", "/shop lists 3 product cards")
+    check(cards.count() == 5 and pg.locator("h1").inner_text().strip() == "Shop our coffee", "/shop lists 5 product cards (3 coffees, 2 bundles)")
     for fn, (name, key, link) in PRODUCT_PAGES.items():
-        c = pg.locator(f"main .pcard:has(a[href='/{fn}'])")
+        c = pg.locator(f"main #pc-{fn[:-5]}:has(a[href='/{fn}'])")   # by id: the bundle cards link the product pages too
         href = c.locator(f"a[data-buy={key}]").get_attribute("href") or ""
         check(c.count() == 1 and href.startswith(link + "?"), f"/shop card for {fn}: View link and quick Buy -> {key} checkout")
     check((pg.locator("main a[data-buy=onetime]").get_attribute("href") or "").startswith("https://buy.stripe.com/3cIbJ3fEv6XIbtk8iw4wM00"), "/shop CoreJava card also offers 1 bag")
-    check(pg.locator("#house").count() == 1 and pg.locator(".cmp3 tbody tr").count() == 6, "/shop has the #house group and a 6-row comparison")
+    check(pg.locator("#house").count() == 1 and pg.locator("#bundles").count() == 1 and pg.locator(".cmp3 tbody tr").count() == 6, "/shop has the #house and #bundles groups and a 6-row comparison")
     check(pg.locator(".sticky").count() == 0, "/shop has no sticky CoreJava checkout bar")
     ctx.close()
     for fn, (name, key, link) in PRODUCT_PAGES.items():
@@ -472,6 +473,118 @@ def shop_ia_tests(b, base):
     ctx.close()
 
 
+BUNDLE_LINKS = {"bundle_cupofjoe": "https://buy.stripe.com/cNi9AV2RJ5TEcxodCQ4wM04", "bundle_mushroom": "https://buy.stripe.com/5kQaEZeArci22WOeGU4wM05"}
+# Price order, low to high (owner, Nov 5 2026): /shop cards and the home row
+SHOP_ORDER = ["pc-cup-of-joe", "pc-mushroom-coffee-blend", "pc-corejava", "pc-bundle-cupofjoe", "pc-bundle-mushroom"]
+
+
+def bundle_tests(b, base):
+    """Home lists the 3 coffees with one call to action, Shop; /shop has the 2 bundles in price order with their
+    own Payment Links (same creator/ad credit); site.js maps the keys; the order page knows the bundles."""
+    import os, re
+    root = os.path.join(os.path.dirname(__file__), "..")
+    js = open(os.path.join(root, "assets", "site.js")).read()
+    for k, cfg in (("bundle_cupofjoe", "STRIPE_BUNDLE_CUPOFJOE"), ("bundle_mushroom", "STRIPE_BUNDLE_MUSHROOM")):
+        m = re.search(cfg + r': "([^"]*)"', js)
+        check(bool(m) and m.group(1) == BUNDLE_LINKS[k] and re.search(k + r":\{[^}]*link:'" + cfg + "'", js), f"site.js maps {k} -> {BUNDLE_LINKS[k]}")
+    check("bundle_cupofjoe:89.95" in js and "bundle_mushroom:94.95" in js, "site.js prices the bundles at 89.95 and 94.95")
+    # home: the 3 coffees in price order, linked to their pages; no checkout anywhere; every button says Shop
+    raw = open(os.path.join(root, "index.html")).read()
+    check("data-buy" not in raw and "buy.stripe.com" not in raw and "data-picker" not in raw and 'id="quiz"' not in raw, "home HTML has no data-buy, Stripe link, plan picker or quiz")
+    for w, h in ((390, 844), (1280, 900)):
+        ctx = context(b, base, w, h); pg = ctx.new_page(); pg.goto(base + "/")
+        ids = pg.eval_on_selector_all(".ourc .pcard", "els => els.map(e => e.id)")
+        check(ids == SHOP_ORDER[:3], f"home at {w}: 3 coffees in price order ({ids})")
+        for i, fn in enumerate(("cup-of-joe.html", "mushroom-coffee-blend.html", "corejava.html")):
+            check(pg.locator(".ourc .pcard").nth(i).locator(f"h3 a[href='/{fn}']").count() == 1, f"home at {w}: card {i + 1} links /{fn}")
+        if w == 1280:
+            xs = [pg.locator(f"#{i}").bounding_box()["x"] for i in ids]
+            check(xs == sorted(xs) and len(set(round(x) for x in xs)) == 3, f"home at 1280: coffees left to right in price order ({[round(x) for x in xs]})")
+        btns = pg.eval_on_selector_all(".btn:visible, a[data-buy], button.btn", "els => els.map(e => [e.textContent.trim(), e.getAttribute('href')])")
+        check(btns and all(t == "Shop" and h == "/shop.html" for t, h in btns), f"home at {w}: every button is Shop -> /shop.html ({btns})")
+        check(pg.locator(".hero2 .btn").count() == 1 and pg.locator(".ourc .btn").count() == 1 and pg.locator(".ourc .pc-acts").count() == 0,
+              f"home at {w}: one Shop button in the hero, one under the coffees, no per-card buttons")
+        hrefs = pg.eval_on_selector_all("a[href]", "els => els.map(e => e.href)")
+        check(not any("buy.stripe.com" in u for u in hrefs), f"home at {w}: no link goes to Stripe")
+        check(pg.evaluate("() => document.documentElement.scrollWidth - innerWidth") <= 1, f"home at {w}: no horizontal overflow")
+        ctx.close()
+    # /shop: price order, bundle cards, their buttons
+    for w, h in ((390, 844), (1280, 900)):
+        ctx = context(b, base, w, h); pg = ctx.new_page(); pg.goto(base + "/shop.html")
+        ids = pg.eval_on_selector_all("main .pcard", "els => els.map(e => e.id)")
+        check(ids == SHOP_ORDER, f"/shop at {w}: cards in price order ({ids})")
+        boxes = [pg.locator(f"#{i}").bounding_box() for i in SHOP_ORDER]
+        if w == 1280:
+            row1 = [bx["x"] for bx in boxes[:3]]
+            check(row1 == sorted(row1) and len({round(bx["y"]) for bx in boxes[:3]}) == 1, f"/shop at 1280: Cup of Joe, Mushroom, CoreJava left to right in 1 row ({[round(x) for x in row1]})")
+            check(boxes[3]["y"] > boxes[2]["y"] + boxes[2]["height"] - 1 and boxes[3]["x"] < boxes[4]["x"] and round(boxes[3]["y"]) == round(boxes[4]["y"]),
+                  "/shop at 1280: the 2 bundles in the next row, $89.95 then $94.95")
+        else:
+            ys = [bx["y"] for bx in boxes]
+            check(ys == sorted(ys), "/shop at 390: cards stack in price order")
+        check(pg.evaluate("() => document.documentElement.scrollWidth - innerWidth") <= 1, f"/shop at {w}: no horizontal overflow")
+        ctx.close()
+    ctx = context(b, base, 1280, 900); pg = ctx.new_page(); pg.goto(base + "/shop.html")
+    for k, name, price, house, extra in (("bundle_cupofjoe", "CoreJava + Cup of Joe", "$89.95", "cup-of-joe.html", "Choose light, medium or dark at checkout"),
+                                         ("bundle_mushroom", "CoreJava + Mushroom Coffee Blend", "$94.95", "mushroom-coffee-blend.html", "Mushroom Coffee Blend")):
+        c = pg.locator(f"#pc-{k.replace('_', '-')}")
+        t = c.inner_text()
+        btn = c.locator(f"a[data-buy={k}]")
+        href = btn.get_attribute("href") or ""
+        check(btn.count() == 1 and href.startswith(BUNDLE_LINKS[k] + "?utm_source=site"), f"/shop {name}: Buy -> its Payment Link ({href[:60]})")
+        check(name in t and price in t and "+ $8.95 shipping" in t and "Ships in 2 packages." in t and "1 bag CoreJava, 30 servings" in t and extra in t,
+              f"/shop {name}: name, price, $8.95 shipping, 2 packages, what's included")
+        check(c.locator("a[href='/corejava.html']").count() == 1 and c.locator(f"a[href='/{house}']").count() == 1 and c.locator("img").count() == 1,
+              f"/shop {name}: links both product pages and has 1 image")
+        low = t.lower()
+        check(not re.search(r"\bsave\b|\bsaving|discount|\boff\b|\bfree\b", low) and c.locator("s, del, strike").count() == 0, f"/shop {name}: no save/discount wording, no strikethrough price")
+        check(not re.search(HEALTH_WORDS, t, re.I) and "roastify" not in low and "\u2014" not in t and "\u2013" not in t, f"/shop {name}: no health words, no Roastify, no em/en dashes")
+    ld = " ".join(pg.locator("script[type='application/ld+json']").all_text_contents())
+    il = [g for d in [json.loads(x) for x in pg.locator("script[type='application/ld+json']").all_text_contents()] for g in d["@graph"] if g["@type"] == "ItemList"]
+    names = [i["name"] for i in il[0]["itemListElement"]] if il else []
+    check(names[:2] == ["Cup of Joe Everyday Coffee", "The Morning Upgrade Mushroom Coffee Blend"] and names[3:] == ["CoreJava + Cup of Joe", "CoreJava + Mushroom Coffee Blend"] and "AggregateRating" not in ld,
+          f"/shop ItemList in price order with the bundles, no ratings ({names})")
+    ctx.close()
+    # creator credit rides along; clicking Buy opens the bundle's Payment Link and remembers the plan
+    ctx = context(b, base); pg = ctx.new_page()
+    pg.goto(base + "/shop.html?ref=kasey&utm_source=creator&utm_medium=influencer")
+    pg.goto(base + "/shop.html")
+    for k in BUNDLE_LINKS:
+        href = pg.locator(f"a[data-buy={k}]").get_attribute("href") or ""
+        check(href.startswith(BUNDLE_LINKS[k] + "?") and href.endswith("&client_reference_id=cr_kasey"), f"{k}: creator credit cr_kasey rides to Stripe")
+    nav = []
+    def stripe(r):
+        nav.append(r.request.url); r.fulfill(status=200, content_type="text/html", body="<html><body>checkout</body></html>")
+    ctx.route("https://buy.stripe.com/**", stripe)
+    for k in BUNDLE_LINKS:
+        pg.goto(base + "/shop.html")
+        with pg.expect_navigation(url="https://buy.stripe.com/**"):
+            pg.locator(f"a[data-buy={k}]").click()
+        check(nav and nav[-1].startswith(BUNDLE_LINKS[k] + "?"), f"clicking Buy on {k} opens {BUNDLE_LINKS[k]}")
+        pg.goto(base + "/shop.html")
+        check(pg.evaluate("() => localStorage.getItem('tmu_plan')") == k, f"Buy {k} remembers plan {k}")
+    ctx.close()
+    ctx = context(b, base); pg = ctx.new_page()
+    pg.goto(base + "/shop.html?utm_source=tiktok&utm_medium=paid&utm_campaign=bd&utm_content=v1")
+    href = pg.locator("a[data-buy=bundle_mushroom]").get_attribute("href") or ""
+    check(href.endswith("&client_reference_id=ut__tiktok__bd__v1"), f"bundle_mushroom: paid-ad credit rides to Stripe ({href[-40:]})")
+    ctx.close()
+    # order page: the bundle thank-you (2 packages), none of the single-product blocks
+    for plan, name, house in (("bundle_cupofjoe", "CoreJava + Cup of Joe bundle", "Cup of Joe Everyday Coffee"),
+                              ("bundle_mushroom", "CoreJava + Mushroom Coffee Blend bundle", "The Morning Upgrade Mushroom Coffee Blend")):
+        ctx = context(b, base); pg = ctx.new_page()
+        pg.goto(base + f"/order-complete.html?session_id=cs_test_bd_{plan}&plan={plan}")
+        vis = pg.locator("main").inner_text()
+        check(name in vis and house in vis and "2 packages" in vis and "roasting partner" in vis and "MarketPlace Global" in vis
+              and not pg.locator(".plan-one").is_visible() and not pg.locator(".plan-sub").is_visible() and not pg.locator("#sms-form").is_visible()
+              and not pg.locator("[data-line=house]").is_visible() and not pg.locator("[data-line=corejava]").is_visible(),
+              f"order page plan={plan}: bundle thank-you, ships in 2 packages")
+        ctx.close()
+    # /start stays as it was: no bundles, no Shop button, its own picker
+    st = open(os.path.join(root, "start.html")).read()
+    check("bundle" not in st.lower() and 'class="btn sm" href="/shop.html"' not in st and st.count("data-picker-btn") == 2, "/start unchanged: no bundles, mini header, its 2 pickers")
+
+
 def popup_tests(b, base):
     """Email pop-up: when it opens, where it never opens, keyboard and focus, the Klaviyo sign-up and
     the success state, and the Subscribe & Save note afterwards. Timers run on Playwright's clock."""
@@ -525,13 +638,12 @@ def popup_tests(b, base):
     check(pg.evaluate("() => document.activeElement.id") == "tp-h2", "pop-up success: focus moves to the success heading")
     pg.keyboard.press("Escape")
     check(not is_open(pg) and pg.evaluate("() => JSON.parse(localStorage.getItem('tmu_pop')).s") == "signed", "pop-up: Escape closes; sign-up remembered")
-    note = pg.locator(".hero2 [data-picker] .promo-note")
-    check(note.count() == 1 and note.is_visible() and note.inner_text() == "Subscribe & Save is $69.95 a month; 1 bag is $79.95 \u00b7 Cancel anytime", "after sign-up: note under the Subscribe & Save button")
     pg.goto(base + "/"); wait10(pg)
     check(not is_open(pg), "pop-up: never again after sign-up")
-    note = pg.locator(".hero2 [data-picker] .promo-note")
-    check(note.is_visible() and note.inner_text().startswith("Subscribe & Save is $69.95 a month"), "after sign-up: the note is there on the next page view")
-    pg.locator(".hero2 [data-picker] input[value=onetime]").locator("xpath=..").click()
+    pg.goto(base + "/corejava.html")   # home has no picker since Nov 5 2026: the note shows next to CoreJava's
+    note = pg.locator(".shop-buy [data-picker] .promo-note")
+    check(note.count() == 1 and note.is_visible() and note.inner_text() == "Subscribe & Save is $69.95 a month; 1 bag is $79.95 \u00b7 Cancel anytime", "after sign-up: note under the Subscribe & Save button")
+    pg.locator(".shop-buy [data-picker] input[value=onetime]").locator("xpath=..").click()
     check(not note.is_visible(), "after sign-up: no note while 1 bag is picked")
     hrefs = pg.eval_on_selector_all("a[data-buy]", "els => els.map(e => e.href)")
     check(hrefs and not any("promo" in h for h in hrefs), "no checkout link carries a promo code")
@@ -573,10 +685,6 @@ def popup_tests(b, base):
     pg.goto(base + "/faq.html"); wait10(pg)
     check(not is_open(pg), "pop-up: still closed on the next page after a paid visit (tmu_ut flag)")
     pg.evaluate("() => localStorage.removeItem('tmu_ut')")
-    pg.goto(base + "/")
-    pg.click('#quiz .q[data-q="1"] .opt[data-v="crash"]')
-    wait10(pg); pg.clock.run_for(10000); pg.wait_for_timeout(50)
-    check(not is_open(pg), "pop-up: not while the quiz is under way")
     pg.evaluate("() => localStorage.setItem('tmu_purchased', JSON.stringify(['cs_test_x']))")
     pg.goto(base + "/"); wait10(pg)
     check(not is_open(pg), "pop-up: not after an order from this browser")
@@ -904,6 +1012,7 @@ def main():
         order_tests(b, base)
         house_tests(b, base)
         shop_ia_tests(b, base)
+        bundle_tests(b, base)
         popup_tests(b, base)
         klaviyo_checkout_tests(b, base)
         seo_tests(b, base)
