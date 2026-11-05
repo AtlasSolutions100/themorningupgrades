@@ -55,6 +55,19 @@
    1300
   ]
  },
+ "hero-scene": {
+  "avif": true,
+  "ext": "jpg",
+  "h": 2000,
+  "src": "hero_scene.jpg",
+  "w": 1600,
+  "widths": [
+   480,
+   800,
+   1200,
+   1600
+  ]
+ },
  "house-cupofjoe": {
   "ext": "jpg",
   "h": 1500,

@@ -578,10 +578,14 @@ LP_SIZES = "(max-width: 860px) 100vw, 50vw"
 # tools/packshot.py. Replaced the lux-still composite (bag pasted behind a generated cup).
 HERO_IMG = "packshot"
 HERO_ALT = "The CoreJava bag standing on a plain warm backdrop"
+# Home hero only (Nov 2026): the same real bag photo, composited by tools/hero_scene.py onto a generated
+# still-life plate (stone counter, cup, window light). /shop and /corejava-coffee keep the plain pack shot.
+HOME_HERO_IMG = "hero-scene"
+HOME_HERO_ALT = "The CoreJava bag on a stone counter beside a cup of black coffee in morning light"
 
 HOME_HERO = """
 <section class="hero2"><div class="wrap hero2-grid">
-  <div class="frame hero2-media">""" + pic(HERO_IMG, HERO_ALT, sizes=HERO_SIZES, eager=True) + """</div>
+  <div class="frame hero2-media">""" + pic(HOME_HERO_IMG, HOME_HERO_ALT, sizes=HERO_SIZES, eager=True) + """</div>
   <div class="hero2-copy">
     <p class="eyebrow">CoreJava instant coffee</p>
     <h1>Dark roast coffee with MCT and L&#8209;theanine.</h1>
@@ -2860,7 +2864,7 @@ STICKY.update({"order-complete.html": None, "thanks.html": None, "start.html": N
                "cup-of-joe.html": "cupofjoe", "mushroom-coffee-blend.html": "mushroom"})   # house coffee: its own checkout bar, never CoreJava's
 
 # LCP image preloads
-PRELOAD = {"index.html": preload(HERO_IMG, HERO_SIZES), "start.html": f'<link rel="preload" as="image" type="image/webp" href="{LP_VIDEO_POSTER}" fetchpriority="high">',
+PRELOAD = {"index.html": preload(HOME_HERO_IMG, HERO_SIZES), "start.html": f'<link rel="preload" as="image" type="image/webp" href="{LP_VIDEO_POSTER}" fetchpriority="high">',
            "ingredients.html": preload("lux-ingredients", "(max-width: 860px) 100vw, 50vw"),
            "corejava.html": preload(HERO_IMG, SHOP_STAGE_SIZES), "shop.html": preload(HERO_IMG, CARD_SIZES),
            "cup-of-joe.html": preload("house-cupofjoe", SHOP_STAGE_SIZES), "mushroom-coffee-blend.html": preload("house-mushroom", SHOP_STAGE_SIZES)}
