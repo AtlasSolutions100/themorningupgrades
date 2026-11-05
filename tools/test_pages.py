@@ -841,8 +841,8 @@ def shop_gallery_tests(b, base):
     pressed = lambda: [i for i in range(thumbs.count()) if thumbs.nth(i).get_attribute("aria-pressed") == "true"]
     check(vis() == [0] and pressed() == [0], "/corejava stage starts on the first slide, first thumb pressed")
     first = slides.nth(0).locator("img")
-    check("/img/opt/packshot-" in (first.get_attribute("src") or "") and first.get_attribute("fetchpriority") == "high"
-          and first.get_attribute("loading") != "lazy", "/corejava stage leads with the eager pack shot")
+    check("/img/opt/hero-scene-" in (first.get_attribute("src") or "") and first.get_attribute("fetchpriority") == "high"
+          and first.get_attribute("loading") != "lazy", "/corejava stage leads with the eager hero scene (real bag)")
     v = pg.locator("#shop-video")
     st = v.evaluate("v => ({pre: v.getAttribute('preload'), auto: v.hasAttribute('autoplay') || v.autoplay, src: v.currentSrc, "
                     "srcs: [...v.querySelectorAll('source')].filter(s => s.getAttribute('src')).length, desc: v.getAttribute('aria-describedby'), ctl: v.controls})")
@@ -865,7 +865,7 @@ def shop_gallery_tests(b, base):
     check(vis() == [5], "/corejava ArrowLeft wraps to the video thumb")
     check(v.evaluate("v => v.paused"), "/corejava arrow keys never start the video")
     html = pg.content()
-    check("lux-still" not in html and 'imagesrcset="/img/opt/packshot-' in html, "/corejava preloads the pack shot; lux-still is gone")
+    check("lux-still" not in html and "lux-pattern" not in html and 'imagesrcset="/img/opt/hero-scene-' in html, "/corejava preloads the hero scene; old bag renders are gone")
     ctx.close()
     # phone: swipe on the stage
     ctx = b.new_context(viewport={"width": 390, "height": 844}, has_touch=True, is_mobile=True, reduced_motion="reduce"); pg = ctx.new_page()
