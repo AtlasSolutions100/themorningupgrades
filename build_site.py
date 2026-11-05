@@ -518,6 +518,39 @@ LP_EYEBROW = "Instant coffee with MCT powder and L&#8209;theanine"
 LP_SUB = "Dark roast Colombian instant coffee with MCT powder, L-theanine and 100 mg natural caffeine. Supports focus and energy."
 LP_STRIP = ("30 servings a bag", "Ships in about 2 days", "90-day guarantee on unopened bags")
 
+# /start hero video (left column): "What's inside" explainer, made in Remotion from the real bag
+# photo, the real Supplement Facts panel and the panel's amounts (label claims only). Muted, loops,
+# all meaning is on screen; the transcript below is the same text for screen readers. The poster is
+# preloaded for first paint instead of the old hero photo; the video itself is never preloaded.
+# Reduced motion: the inline script stops autoplay and leaves the poster. A Pause button sits on it.
+LP_VIDEO_POSTER = "/assets/video/corejava-inside-poster.webp"
+LP_VIDEO_TEXT = (
+    "CoreJava instant coffee: what's inside, and why it costs what it does. Not just a jar of instant: "
+    "1 scoop (6.8 g) holds 7 ingredients, each with an amount. Per scoop, from the label: "
+    "3,000 mg dark roast Colombian instant coffee; 100 mg natural caffeine (Coffea robusta, seed); 400 mg L-theanine; "
+    "600 mcg chromium as ChromeMate&reg; chromium polynicotinate; 1,500 mg Garcinia cambogia; "
+    "40 mg Paradoxine&reg; extract (Aframomum melegueta); 30 mg Saffr&rsquo;Activ&reg; extract (Crocus sativus L., saffron). "
+    "3 trademarked, branded ingredients: ChromeMate&reg;, Paradoxine&reg; and Saffr&rsquo;Activ&reg;. "
+    "Plus MCT powder from coconut: makes the cup creamy, stirs right in. 30 servings a bag, ready in 30 seconds with no machine, "
+    "7.2 oz resealable bag. Contains tree nuts (coconut). Every amount is printed on the bag: the Supplement Facts panel. "
+    "What a morning costs: caf&eacute; latte $5 to $7 (typical US price); CoreJava $2.33 to $2.67, before $8.95 shipping and tax. "
+    "Subscribe &amp; Save $69.95 a month, 1 bag every 30 days, pause, skip or cancel anytime; or $79.95 for 1 bag of 30 servings. "
+    "90-day guarantee on unopened bags from the maker, MarketPlace Global. Ships from Minnesota in about 2 business days. "
+    "Sold by Rector &amp; Stull LLC, an independent ISR.")
+LP_VIDEO = f"""<div class="frame hero2-media lpvid">
+    <video id="lp-video" autoplay muted loop playsinline preload="metadata" width="1080" height="1350" poster="{LP_VIDEO_POSTER}" aria-label="Video: what&rsquo;s inside CoreJava, 43 seconds, no sound" aria-describedby="lp-video-text">
+      <source src="/assets/video/corejava-inside.webm" type="video/webm">
+      <source src="/assets/video/corejava-inside.mp4" type="video/mp4">
+    </video>
+    <button type="button" class="vbtn" aria-controls="lp-video">Pause</button>
+    <script>(function(){{var v=document.getElementById('lp-video'),b=v.parentNode.querySelector('.vbtn');
+      var set=function(){{b.textContent=v.paused?'Play':'Pause';b.setAttribute('aria-label',(v.paused?'Play':'Pause')+' the video');}};
+      try{{if(matchMedia('(prefers-reduced-motion: reduce)').matches){{v.removeAttribute('autoplay');v.autoplay=false;v.pause();}}}}catch(e){{}}
+      b.onclick=function(){{if(v.paused){{v.play().catch(function(){{}});}}else{{v.pause();}}}};
+      v.addEventListener('play',set);v.addEventListener('pause',set);set();}})();</script>
+    <p class="sr" id="lp-video-text">{LP_VIDEO_TEXT}</p>
+  </div>"""
+
 def hero_c(variants=True):
     """/start first screen: eyebrow, the headline that matches the ad (LANDING_VARIANTS by utm_content),
     the label line, then the trust strip, the plan picker (1 bag first on paid visits) and the bonus."""
@@ -531,7 +564,7 @@ def hero_c(variants=True):
                 + "document.documentElement.setAttribute('data-variant',c);})();</script>")
     return f"""
 <section class="hero2 lphero"><div class="wrap hero2-grid">
-  <div class="frame hero2-media">{pic(HERO_IMG, HERO_ALT, sizes=LP_SIZES, eager=True)}</div>
+  {LP_VIDEO}
   <div class="hero2-copy">
     <p class="eyebrow">{LP_EYEBROW}</p>
     <h1 class="h1c lp" id="lp-h1">{h1}</h1>
@@ -2397,7 +2430,7 @@ STICKY = {fn: "shop" for fn in list(GUIDE_META) + ["guides.html", "404.html", "a
 STICKY.update({"order-complete.html": None, "thanks.html": None, "start.html": None})   # /start: the picker is the page
 
 # LCP image preloads
-PRELOAD = {"index.html": preload(HERO_IMG, HERO_SIZES), "start.html": preload(HERO_IMG, LP_SIZES),
+PRELOAD = {"index.html": preload(HERO_IMG, HERO_SIZES), "start.html": f'<link rel="preload" as="image" type="image/webp" href="{LP_VIDEO_POSTER}" fetchpriority="high">',
            "ingredients.html": preload("lux-ingredients", "(max-width: 860px) 100vw, 50vw"),
            "shop.html": preload("lux-still", "(max-width: 860px) 100vw, 55vw")}
 
