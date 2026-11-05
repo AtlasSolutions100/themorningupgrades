@@ -703,7 +703,7 @@ footer .cols>div+div .fh{font-family:var(--sans);font-style:normal;font-size:11.
 .hc-roasts dd{margin:0;color:var(--muted);font-size:15px}
 .hc-pick{margin:8px 0 0}
 .hc-notes{color:var(--muted);margin:0 0 6px}
-.hc-details{margin:20px 0 24px}
+.hc-details{margin:20px 0 24px;max-width:none}
 .hc-body .btn{margin-top:auto;width:100%}
 .hc-teaser{border-top:1px solid var(--line)}
 .hc-tgrid{display:grid;grid-template-columns:1fr;gap:28px;align-items:center}
