@@ -66,6 +66,39 @@
    1200
   ]
  },
+ "house-cupofjoe-dark": {
+  "ext": "jpg",
+  "h": 1500,
+  "src": "house_cupofjoe_dark.jpg",
+  "w": 1200,
+  "widths": [
+   480,
+   800,
+   1200
+  ]
+ },
+ "house-cupofjoe-light": {
+  "ext": "jpg",
+  "h": 1500,
+  "src": "house_cupofjoe_light.jpg",
+  "w": 1200,
+  "widths": [
+   480,
+   800,
+   1200
+  ]
+ },
+ "house-cupofjoe-side": {
+  "ext": "jpg",
+  "h": 1500,
+  "src": "house_cupofjoe_side.jpg",
+  "w": 1200,
+  "widths": [
+   480,
+   800,
+   1200
+  ]
+ },
  "house-mushroom": {
   "ext": "jpg",
   "h": 1500,

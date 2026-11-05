@@ -63,6 +63,9 @@ IMAGES = {
     # House coffees (Nov 2026): flat bag mockups made from the FRONT panel of the label artwork (bag designs,
     # not photos of a printed bag); house_og is both bag designs side by side, 1200x630.
     "house-cupofjoe":   ("house_cupofjoe.jpg", {}),
+    "house-cupofjoe-light": ("house_cupofjoe_light.jpg", {}),   # same mockup, Light label (Cup of Joe gallery)
+    "house-cupofjoe-dark":  ("house_cupofjoe_dark.jpg", {}),    # same mockup, Dark label
+    "house-cupofjoe-side":  ("house_cupofjoe_side.jpg", {}),    # the side panel of the label artwork (its text), cropped flat
     "house-mushroom":   ("house_mushroom.jpg", {}),
     "house-og":         ("house_og.jpg", {}),            # page 1 of assets/recipe-pack.pdf (pdftoppm -r 60), the bonus thumbnail
 }

@@ -42,7 +42,8 @@ PAGE_JS = r"""() => {
 
 
 def pages():
-    out = sorted(os.path.basename(p) for p in glob.glob(os.path.join(ROOT, "*.html")))
+    # redirect pages (a moved URL: meta refresh + JS) leave before they can be measured
+    out = sorted(os.path.basename(p) for p in glob.glob(os.path.join(ROOT, "*.html")) if 'http-equiv="refresh"' not in open(p).read())
     return out
 
 
