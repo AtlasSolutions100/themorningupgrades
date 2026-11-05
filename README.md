@@ -88,6 +88,16 @@ composited in by hand (Nov 2026). Never an AI-drawn or altered bag. The one
 FAQ about the label's printed name ("Weight Control Coffee") is answered from the label only and is the
 only place that word may appear (`ALLOW` in `tools/check_copy.py`; kept out of FAQ rich results).
 
+Home and the shop (owner, Nov 5 2026): the only call to action on `/` is **Shop** (hero button, one button under
+"Our coffees", the phone sticky bar and the header button, all to `/shop.html`); no plan picker, buy button or quiz on
+home (the quiz lives on `/quiz`). `/shop` and the home row list the coffees from least to most expensive (`PRICE_ORDER`
+in `build_site.py`: Cup of Joe, Mushroom Coffee Blend, CoreJava), then the 2 bundles (`BUNDLES`): CoreJava + Cup of Joe
+$89.95 and CoreJava + Mushroom Coffee Blend $94.95, $8.95 shipping, ship in 2 packages, Payment Links
+`STRIPE_BUNDLE_CUPOFJOE` / `STRIPE_BUNDLE_MUSHROOM` in `assets/site.js` (`data-buy="bundle_cupofjoe"` /
+`"bundle_mushroom"`, same creator/ad credit as every Buy button; Stripe redirects to `order-complete.html?plan=<key>`).
+Bundle images are the real bag photo and the house bag design side by side, scaled only (`tools/bundle_shot.py`).
+Just the price on bundles: no "save" wording or strikethrough prices. Tests: `bundle_tests` in `tools/test_pages.py`.
+
 `/partner` and `/share` (the ISR pages) stay reachable by URL with their disclosures, but are noindex,
 out of the sitemap and not linked from the customer nav or footer (owner, Nov 2026).
 

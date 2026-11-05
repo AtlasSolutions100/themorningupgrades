@@ -14,6 +14,7 @@ PRODUCTS = [
      "navsub": "Ground coffee with mushroom powder", "group": "House coffee, ground"},
 ]
 PRODUCT_BY_FN = {p["fn"]: p for p in PRODUCTS}
+PRODUCT_BY_KEY = {p["key"]: p for p in PRODUCTS}
 MANAGE_SUB = "https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00"
 
 # Header: Shop and Learn are disclosure buttons on desktop (site.js: click or Enter opens, Esc / a click
@@ -35,7 +36,7 @@ NAV = f"""
     <a class="top" href="/faq.html">FAQ</a>
     <a class="top mo" href="/shipping-returns.html">Shipping &amp; returns</a>
     <a class="top mo" href="{MANAGE_SUB}" rel="noopener">Manage subscription</a>
-    <a class="btn sm" href="/corejava.html">Get CoreJava</a>
+    <a class="btn sm" href="/shop.html">Shop</a>
   </div>
 </div></nav>
 """
@@ -295,8 +296,9 @@ def structured_data(fn, title, desc, body, og_image):
         graph.extend(house_ld(PRODUCT_BY_FN[fn]["key"]))
     if fn == "shop.html":
         graph.append({"@type": "ItemList", "@id": SITE + "/shop.html#products", "name": "Coffee from The Morning Upgrade",
-                      "itemListElement": [{"@type": "ListItem", "position": i + 1, "name": _html.unescape(p["name"]), "url": url_for(p["fn"])}
-                                          for i, p in enumerate(PRODUCTS)]})
+                      "itemListElement": [{"@type": "ListItem", "position": i + 1, "name": _html.unescape(n), "url": u} for i, (n, u) in enumerate(
+                          [(PRODUCT_BY_KEY[k]["name"], url_for(PRODUCT_BY_KEY[k]["fn"])) for k in PRICE_ORDER]
+                          + [(b["name"], url_for("shop.html") + "#pc-" + b["id"]) for b in BUNDLES])]})
     if fn in GUIDE_META:
         pub, mod = GUIDE_META[fn]
         graph.append({"@type": "Article", "@id": url_for(fn) + "#article", "headline": title.split(" | ")[0],
@@ -338,6 +340,8 @@ def sticky_bar(mode):
         return f'<aside class="sticky" aria-label="Quick buy"><div><b>CoreJava &middot; 30 servings</b><span data-sticky-price>{PLAN_STICKY["subscribe"]}</span></div><a class="btn" data-buy="subscribe" href="#">Checkout</a></aside>'
     if mode == "shop":
         return '<aside class="sticky" aria-label="See the coffee"><div><b>Our instant MCT coffee</b><span>30 servings &middot; from $69.95/mo</span></div><a class="btn" href="/corejava.html">See the coffee &rarr;</a></aside>'
+    if mode == "shopall":   # home: the only call to action is the shop
+        return '<aside class="sticky" aria-label="Shop"><div><b>3 coffees and 2 bundles</b><span>From $27.95 a bag</span></div><a class="btn" href="/shop.html">Shop</a></aside>'
     if mode in ("cupofjoe", "mushroom"):   # house coffee pages: their own checkout, steps aside while the page's buy button shows
         h = _HC[mode]
         return (f'<aside class="sticky" aria-label="Quick buy"><div><b>{h["short"]} &middot; 12 oz</b><span>${h["price"]} + $5.95 US shipping</span></div>'
@@ -583,6 +587,7 @@ HERO_ALT = "The CoreJava bag standing on a plain warm backdrop"
 HOME_HERO_IMG = "hero-scene"
 HOME_HERO_ALT = "The CoreJava bag on a stone counter beside a cup of black coffee in morning light"
 
+_PICKERS[0] += 1   # the home hero no longer has a picker; keep later pages' radio group names as they were
 HOME_HERO = """
 <section class="hero2"><div class="wrap hero2-grid">
   <div class="frame hero2-media">""" + pic(HOME_HERO_IMG, HOME_HERO_ALT, sizes=HERO_SIZES, eager=True) + """</div>
@@ -592,7 +597,7 @@ HOME_HERO = """
     <p class="lede">1 scoop in hot water. Ready in 30 seconds. 30 servings a bag.</p>
   </div>
   <div class="hero2-buy">
-    """ + picker() + """
+    <p class="hero2-shop"><a class="btn big" href="/shop.html">Shop</a></p>
     """ + trust_row() + """
   </div>
 </div></section>
@@ -777,8 +782,10 @@ CLOSING_FAQ = """
     <details><summary>Can I cancel the subscription?</summary><p>Anytime, from the link in your receipt or <a href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00">the subscription portal</a>. No calls.</p></details>"""
 
 # ---------- HOME ----------
-HOME = HOME_HERO + RITUAL + inside() + COMPARE + founder() + quiz_section("home") + """
-<!--OUR_COFFEES-->
+# Home (Nov 5 2026, owner): list all 3 coffees; the only call to action on "/" is Shop (no plan picker, no
+# buy buttons, no quiz: the quiz has its own picker and lives on /quiz).
+_PICKERS[0] += 2   # home's quiz and closing pickers are gone; keep later pages' radio group names as they were
+HOME = HOME_HERO + """<!--OUR_COFFEES-->""" + RITUAL + inside() + COMPARE + founder() + """
 <section><div class="wrap">
   <div class="shead"><h2>Guides</h2></div>
   <div class="glist">
@@ -788,13 +795,10 @@ HOME = HOME_HERO + RITUAL + inside() + COMPARE + founder() + quiz_section("home"
   </div>
   <p style="margin-top:24px"><a href="/corejava-coffee.html">CoreJava: label, price and how to make it</a><br><a href="/guides.html">All guides and recipes</a></p>
 </div></section>
-<section class="alt"><div class="wrap closing-grid">
-  <div>
-    <h2>Questions</h2>""" + CLOSING_FAQ + """
-    <p style="margin-top:20px"><a href="/faq.html">All questions</a></p>
-    <p class="fine">Contains caffeine. Not for children, or if you&rsquo;re pregnant or nursing.</p>
-  </div>
-  <div>""" + picker() + """</div>
+<section class="alt"><div class="wrap" style="max-width:820px">
+  <h2>Questions</h2>""" + CLOSING_FAQ + """
+  <p style="margin-top:20px"><a href="/faq.html">All questions</a> &middot; <a href="/quiz.html">Take the 3-question quiz</a></p>
+  <p class="fine">CoreJava contains caffeine. Not for children, or if you&rsquo;re pregnant or nursing.</p>
 </div></section>
 """
 
@@ -1247,9 +1251,15 @@ CARD = {
 }
 CARD_SIZES = "(max-width: 600px) 100vw, (max-width: 860px) 50vw, 30vw"
 
-def product_card(key, h="h3", eager=False, cls=""):
+# Price order, low to high (owner, Nov 5 2026): /shop and the home row list the coffees in this order, then the bundles.
+PRICE_ORDER = ["cupofjoe", "mushroom", "corejava"]
+
+def product_card(key, h="h3", eager=False, cls="", acts=True):
+    """acts=False: no buttons (home: the section has one Shop button instead)."""
     p = next(x for x in PRODUCTS if x["key"] == key); c = CARD[key]
-    alt_buy = (f'<p class="pc-alt"><a data-buy="{c["alt_buy"][0]}" href="#">{c["alt_buy"][1]}</a></p>' if c.get("alt_buy") else "")
+    alt_buy = (f'<p class="pc-alt"><a data-buy="{c["alt_buy"][0]}" href="#">{c["alt_buy"][1]}</a></p>' if c.get("alt_buy") and acts else "")
+    btns = (f'<div class="pc-acts"><a class="btn ghost" href="/{p['fn']}">View<span class="sr"> {p['nav']}</span></a><a class="btn" data-buy="{c['buy'][0]}" href="#">{c['buy'][1]}</a></div>'
+            if acts else "")
     return f"""<article class="pcard{(" " + cls) if cls else ""}" id="pc-{p['fn'][:-5]}" aria-labelledby="pc-{key}-h">
   <a class="frame pc-img" href="/{p['fn']}" tabindex="-1">{pic(c['img'], c['alt'], sizes=CARD_SIZES, eager=eager)}</a>
   <div class="pc-body">
@@ -1257,8 +1267,37 @@ def product_card(key, h="h3", eager=False, cls=""):
     <{h} id="pc-{key}-h"><a href="/{p['fn']}">{p['name']}</a></{h}>
     <p class="pc-line">{c['line']}</p>
     <p class="pc-price">{c['price']}</p>
-    <div class="pc-acts"><a class="btn ghost" href="/{p['fn']}">View<span class="sr"> {p['nav']}</span></a><a class="btn" data-buy="{c['buy'][0]}" href="#">{c['buy'][1]}</a></div>
+    {btns}
     {alt_buy}
+  </div>
+</article>"""
+
+# Bundles (Nov 5 2026): CoreJava + a house coffee, one Stripe Payment Link each (assets/site.js data-buy
+# bundle_cupofjoe / bundle_mushroom), $8.95 shipping, ships in 2 packages. Just the price: no "save" wording.
+BUNDLES = [
+    {"key": "bundle_cupofjoe", "id": "bundle-cupofjoe", "img": "bundle-cupofjoe", "house": "cupofjoe", "price": "89.95",
+     "name": "CoreJava + Cup of Joe",
+     "alt": "The CoreJava bag and the Cup of Joe Everyday Coffee bag design side by side",
+     "items": ['1 bag <a href="/corejava.html">CoreJava</a>, 30 servings',
+               '1 bag <a href="/cup-of-joe.html">Cup of Joe Everyday Coffee</a>, 12 oz. Choose light, medium or dark at checkout']},
+    {"key": "bundle_mushroom", "id": "bundle-mushroom", "img": "bundle-mushroom", "house": "mushroom", "price": "94.95",
+     "name": "CoreJava + Mushroom Coffee Blend",
+     "alt": "The CoreJava bag and The Morning Upgrade Mushroom Coffee Blend bag design side by side",
+     "items": ['1 bag <a href="/corejava.html">CoreJava</a>, 30 servings',
+               '1 bag <a href="/mushroom-coffee-blend.html">The Morning Upgrade Mushroom Coffee Blend</a>, 12 oz']},
+]
+
+def bundle_card(b, cls=""):
+    items = "".join(f"<li>{i}</li>" for i in b["items"])
+    return f"""<article class="pcard bcard{(" " + cls) if cls else ""}" id="pc-{b['id']}" aria-labelledby="pc-{b['key']}-h">
+  <div class="frame pc-img">{pic(b['img'], b['alt'], sizes=CARD_SIZES)}</div>
+  <div class="pc-body">
+    <p class="eyebrow">Bundle &middot; 2 bags</p>
+    <h3 id="pc-{b['key']}-h">{b['name']}</h3>
+    <ul class="bc-items">{items}</ul>
+    <p class="bc-ship">Ships in 2 packages.</p>
+    <p class="pc-price"><b>${b['price']}</b><span>+ $8.95 shipping</span></p>
+    <div class="pc-acts one"><a class="btn" data-buy="{b['key']}" href="#">Buy, ${b['price']}</a></div>
   </div>
 </article>"""
 
@@ -1268,41 +1307,45 @@ def xsell(key):
             + "".join(product_card(k) for k in others) + '</div>\n  <p class="allc"><a href="/shop.html">See all 3 coffees</a></p>\n</div></section>\n')
 
 # ---------- /shop.html: all products ----------
-_CMP3 = [  # (row, CoreJava, Cup of Joe, Mushroom Coffee Blend)
-    ("What it is", "Instant coffee with MCT powder, L&#8209;theanine and caffeine", "100% roasted coffee", "Medium roast coffee with mushroom powder"),
-    ("Format", "Instant: 1 scoop in hot water", "Ground: drip, pour-over or French press", "Ground: drip, pour-over or French press"),
-    ("Size", "30 servings, 7.5 oz (213 g)", "12 oz (340 g), about 34 cups", "12 oz (340 g), about 34 cups"),
-    ("Price per bag", "$79.95, or $69.95 a month on Subscribe &amp; Save", "$27.95", "$33.95"),
-    ("Shipping", "$8.95 flat; ships in about 2 business days", "$5.95 flat; roasted to order, ships in 2 to 3 business days", "$5.95 flat; roasted to order, ships in 2 to 3 business days"),
-    ("Returns", "90-day guarantee on unopened bags", "Damaged or wrong bags replaced within 30 days", "Damaged or wrong bags replaced within 30 days"),
+_CMP3 = [  # (row, Cup of Joe, Mushroom Coffee Blend, CoreJava): price order, like the cards
+    ("What it is", "100% roasted coffee", "Medium roast coffee with mushroom powder", "Instant coffee with MCT powder, L&#8209;theanine and caffeine"),
+    ("Format", "Ground: drip, pour-over or French press", "Ground: drip, pour-over or French press", "Instant: 1 scoop in hot water"),
+    ("Size", "12 oz (340 g), about 34 cups", "12 oz (340 g), about 34 cups", "30 servings, 7.5 oz (213 g)"),
+    ("Price per bag", "$27.95", "$33.95", "$79.95, or $69.95 a month on Subscribe &amp; Save"),
+    ("Shipping", "$5.95 flat; roasted to order, ships in 2 to 3 business days", "$5.95 flat; roasted to order, ships in 2 to 3 business days", "$8.95 flat; ships in about 2 business days"),
+    ("Returns", "Damaged or wrong bags replaced within 30 days", "Damaged or wrong bags replaced within 30 days", "90-day guarantee on unopened bags"),
 ]
-_CMP3_NAMES = ["CoreJava", "Cup of Joe", "Mushroom Coffee Blend"]
+_CMP3_NAMES = ["Cup of Joe", "Mushroom Coffee Blend", "CoreJava"]
+_CMP3_PRODUCTS = [next(p for p in PRODUCTS if p["key"] == k) for k in PRICE_ORDER]
 SHOP_COMPARE = ('<div class="cmp-m">' + "".join(
     f'<div><h3>{n}</h3><dl>' + "".join(f"<div><dt>{r[0]}</dt><dd>{r[k + 1]}</dd></div>" for r in _CMP3) + "</dl></div>"
     for k, n in enumerate(_CMP3_NAMES)) + '</div>'
     + '<div class="tbl cmp-t"><table class="cmp cmp3"><thead><tr><th scope="col"><span class="sr">Compare</span></th>'
-    + "".join(f'<th scope="col"><a href="/{p["fn"]}">{n}</a></th>' for n, p in zip(_CMP3_NAMES, PRODUCTS)) + "</tr></thead><tbody>"
+    + "".join(f'<th scope="col"><a href="/{p["fn"]}">{n}</a></th>' for n, p in zip(_CMP3_NAMES, _CMP3_PRODUCTS)) + "</tr></thead><tbody>"
     + "".join(f'<tr><th scope="row">{r[0]}</th><td>{r[1]}</td><td>{r[2]}</td><td>{r[3]}</td></tr>' for r in _CMP3) + "</tbody></table></div>")
 
 SHOP = """
 <section class="cat-hero"><div class="wrap">
   <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> <span aria-hidden="true">&rsaquo;</span> <span aria-current="page">Shop</span></nav>
   <h1>Shop our coffee</h1>
-  <p class="lead">3 coffees: CoreJava, our instant coffee with MCT powder and L&#8209;theanine, and 2 ground house coffees roasted to order.</p>
+  <p class="lead">3 coffees and 2 bundles: 2 ground house coffees roasted to order, CoreJava, our instant coffee with MCT powder and L&#8209;theanine, and CoreJava with a house coffee.</p>
 </div></section>
 <section class="cat"><div class="wrap">
   <div class="catgrid">
-    <h2 class="cg-h cg-a" id="instant">Functional instant coffee</h2>
-    """ + product_card("corejava", eager=True, cls="cg-1") + """
     <h2 class="cg-h cg-b" id="house">House coffees, ground</h2>
-    """ + product_card("cupofjoe", cls="cg-2") + """
+    """ + product_card("cupofjoe", eager=True, cls="cg-2") + """
     """ + product_card("mushroom", cls="cg-3") + """
+    <h2 class="cg-h cg-a" id="instant">Functional instant coffee</h2>
+    """ + product_card("corejava", cls="cg-1") + """
+    <h2 class="cg-h cg-c" id="bundles">Bundles</h2>
+    """ + bundle_card(BUNDLES[0], cls="cg-4") + """
+    """ + bundle_card(BUNDLES[1], cls="cg-5") + """
   </div>
 </div></section>
 <section class="alt"><div class="wrap">
   <div class="shead"><h2>Which one?</h2><p>The 3 side by side.</p></div>
   """ + SHOP_COMPARE + """
-  <p class="fine" style="margin-top:16px">Prices are before shipping and any tax. CoreJava is made by MarketPlace Global and sold by us as an independent ISR; the house coffees are ours, roasted to order by our roasting partner. <a href="/shipping-returns.html">Shipping &amp; returns</a> for each.</p>
+  <p class="fine" style="margin-top:16px">Prices are before shipping and any tax. CoreJava is made by MarketPlace Global and sold by us as an independent ISR; the house coffees are ours, roasted to order by our roasting partner. A bundle ships in 2 packages, CoreJava and the house coffee each from its own place, for $8.95 shipping in all. <a href="/shipping-returns.html">Shipping &amp; returns</a> for each.</p>
 </div></section>
 <section class="tight"><div class="wrap cat-help">
   <p>Questions? Read the <a href="/faq.html">FAQ</a>, see <a href="/ingredients.html">what&rsquo;s in CoreJava</a>, or email hello@themorningupgrades.com. A person answers.</p>
@@ -1459,9 +1502,10 @@ def redirect_page(dest, canonical, title, hashmap=None):
 <p><a href="{dest}">This page has moved. Continue to the shop</a></p></body></html>
 """
 # Home: the 3 coffees, after the quiz (the hero and picker above stay CoreJava's)
-HOME = HOME.replace("<!--OUR_COFFEES-->", """<section class="tight ourc" aria-labelledby="ourc-h"><div class="wrap">
-  <div class="shead"><h2 id="ourc-h">Our coffees</h2><p>CoreJava, and 2 ground house coffees. <a href="/shop.html">Shop all 3</a>.</p></div>
-  <div class="pgrid three">""" + "".join(product_card(p["key"]) for p in PRODUCTS) + """</div>
+HOME = HOME.replace("<!--OUR_COFFEES-->", """<section class="ourc" aria-labelledby="ourc-h"><div class="wrap">
+  <div class="shead"><h2 id="ourc-h">Our coffees</h2><p>2 ground house coffees and CoreJava, our instant coffee. Bundles of CoreJava and a house coffee are in the shop.</p></div>
+  <div class="pgrid three">""" + "".join(product_card(k, acts=False) for k in PRICE_ORDER) + """</div>
+  <p class="ourc-cta"><a class="btn" href="/shop.html">Shop</a></p>
 </div></section>""")
 
 REDIRECTS = {"house-coffee.html": redirect_page("/shop.html#house", "/shop.html", "House coffee: moved to the shop | The Morning Upgrade",
@@ -1586,6 +1630,21 @@ ORDER_COMPLETE = """
       </ul>
       <p style="margin-top:22px"><a class="btn ghost" href="/shop.html#house">Our coffees</a> <a class="btn ghost" href="/">Back to the site</a></p>
     </div>
+    <div data-line="bundle" hidden>
+      <p>Thanks for ordering the <b data-bundle-name>bundle</b>. Stripe has emailed your receipt. Your order ships in 2 packages:</p>
+      <ul class="clean">
+        <li><b>CoreJava</b> ships from MarketPlace Global, the maker, in Maple Grove, Minnesota, within about 2 business days. We set up your CoreJava customer account with them.</li>
+        <li><b data-bundle-house>Your house coffee</b> is roasted to order by our roasting partner and ships in about 2 to 3 business days.</li>
+      </ul>
+      <p>You&rsquo;ll get a tracking email for each package. If anything looks wrong, reply to the receipt or write hello@themorningupgrades.com.</p>
+      <h3 style="margin-top:26px">Making them</h3>
+      <ul class="clean">
+        <li>CoreJava: 1 level scoop into 8 oz of hot water. Stir for about 15 seconds.</li>
+        <li>House coffee: 2 tbsp (10 g) of ground coffee per 8 fl oz of water, for drip, pour-over or French press.</li>
+        <li>CoreJava contains caffeine. Not for children, or if you&rsquo;re pregnant or nursing.</li>
+      </ul>
+      <p style="margin-top:22px"><a class="btn ghost" href="/shop.html">Our coffees</a> <a class="btn ghost" href="/">Back to the site</a></p>
+    </div>
     <div data-line="corejava">
     <p>Stripe has emailed your receipt. We set up your CoreJava customer account with MarketPlace Global, the maker, who ships from Maple Grove, Minnesota within about 2 business days; you'll get a tracking email when it leaves. If anything looks wrong, reply to the receipt or write hello@themorningupgrades.com.</p>
     <h3 style="margin-top:26px">Your first cup</h3>
@@ -1619,12 +1678,15 @@ ORDER_COMPLETE = """
   </div>
 </div></section>
 <script>tmuPurchase();</script>
-<script>(function(){ var p=(window.TMU&&TMU.plan)?TMU.plan():''; var known=/[?&]plan=(subscribe|onetime|cupofjoe|mushroom)\\b/.test(location.search); try{ known=known||!!localStorage.getItem('tmu_plan'); }catch(e){}
+<script>(function(){ var p=(window.TMU&&TMU.plan)?TMU.plan():''; var known=/[?&]plan=(subscribe|onetime|cupofjoe|mushroom|bundle_cupofjoe|bundle_mushroom)\\b/.test(location.search); try{ known=known||!!localStorage.getItem('tmu_plan'); }catch(e){}
   if(!known) return;
   // house coffee (cupofjoe / mushroom): its own thank-you; none of CoreJava's account, scoop, bonus or refill text
-  var it=TMU.ITEM&&TMU.ITEM[p], house=!!(it&&it.house);
-  document.querySelectorAll('[data-line]').forEach(function(e){ e.hidden = (e.getAttribute('data-line')==='house')!==house; });
-  if(house) document.querySelectorAll('[data-house-name]').forEach(function(e){ e.textContent=it.name; });
+  // bundles: CoreJava + a house coffee, 2 packages
+  var it=TMU.ITEM&&TMU.ITEM[p], line=(it&&it.bundle)?'bundle':(it&&it.house)?'house':'corejava';
+  document.querySelectorAll('[data-line]').forEach(function(e){ e.hidden = e.getAttribute('data-line')!==line; });
+  if(line==='house') document.querySelectorAll('[data-house-name]').forEach(function(e){ e.textContent=it.name; });
+  if(line==='bundle'){ document.querySelectorAll('[data-bundle-name]').forEach(function(e){ e.textContent=it.name; });
+    document.querySelectorAll('[data-bundle-house]').forEach(function(e){ e.textContent=it.house_name; }); }
   document.querySelectorAll('[data-plan-block]').forEach(function(e){ e.hidden = e.getAttribute('data-plan-block')!==p; }); })();</script>
 """
 
@@ -2818,7 +2880,7 @@ NOT_FOUND = """
 PAGES = {
   "404.html": ("Page not found — The Morning Upgrade", "That page isn't here. Try the shop, the ingredients, the guides or the FAQ.", NOT_FOUND, og_img("props-og"), True),
   "index.html": ("CoreJava MCT Coffee with L-Theanine | The Morning Upgrade", "Instant coffee with MCT powder, natural caffeine and L-theanine. 1 scoop in hot water, 30 servings a bag. $69.95 a month or $79.95 a bag.", HOME, og_img("lux-og"), False),
-  "shop.html": ("Shop Coffee: CoreJava, Cup of Joe & Mushroom Blend", "All 3 coffees: CoreJava instant coffee with MCT and L-theanine ($69.95/mo or $79.95), Cup of Joe ($27.95) and our Mushroom Coffee Blend ($33.95).", SHOP, og_img("lux-og"), False),
+  "shop.html": ("Shop Coffee: CoreJava, Cup of Joe & Mushroom Blend", "Cup of Joe ($27.95), Mushroom Coffee Blend ($33.95), CoreJava instant coffee ($69.95/mo or $79.95) and 2 CoreJava bundles ($89.95, $94.95).", SHOP, og_img("lux-og"), False),
   "corejava.html": ("Buy CoreJava MCT Coffee: $69.95/mo or $79.95 a Bag", "CoreJava price: $79.95 for a 30-serving bag or $69.95 a month on Subscribe & Save. Dark roast instant coffee with MCT powder, L-theanine and natural caffeine.", COREJAVA_PAGE, og_img("lux-og"), False),
   "cup-of-joe.html": ("Cup of Joe Everyday Coffee: Ground, 12 oz | Morning Upgrade", "Cup of Joe Everyday Coffee: 100% roasted coffee, ground, in light, medium (Colombia) or dark. 12 oz bag, about 34 cups. $27.95, roasted to order.", CUPOFJOE_PAGE, og_img("house-cupofjoe"), False),
   "mushroom-coffee-blend.html": ("Mushroom Coffee Blend, Ground, 12 oz | Morning Upgrade", "The Morning Upgrade Mushroom Coffee Blend: medium roast coffee with mushroom powder, ground. Dark chocolate and nougat notes. 12 oz, $33.95.", MUSHROOM_PAGE, og_img("house-mushroom"), False),
@@ -2860,13 +2922,14 @@ PAGES = {
 # Sticky bar: checkout on the buy pages; a link to the shop on guides and the 404; none after a
 # purchase or sign-up.
 STICKY = {fn: "shop" for fn in list(GUIDE_META) + ["guides.html", "404.html", "about.html", "privacy.html", "terms.html"]}
+STICKY["index.html"] = "shopall"   # home: Shop only
 STICKY.update({"order-complete.html": None, "thanks.html": None, "start.html": None, "shop.html": None,   # /start: the picker is the page; /shop: every card has its own buy
                "cup-of-joe.html": "cupofjoe", "mushroom-coffee-blend.html": "mushroom"})   # house coffee: its own checkout bar, never CoreJava's
 
 # LCP image preloads
 PRELOAD = {"index.html": preload(HOME_HERO_IMG, HERO_SIZES), "start.html": f'<link rel="preload" as="image" type="image/webp" href="{LP_VIDEO_POSTER}" fetchpriority="high">',
            "ingredients.html": preload("lux-ingredients", "(max-width: 860px) 100vw, 50vw"),
-           "corejava.html": preload(HOME_HERO_IMG, SHOP_STAGE_SIZES), "shop.html": preload(HOME_HERO_IMG, CARD_SIZES),
+           "corejava.html": preload(HOME_HERO_IMG, SHOP_STAGE_SIZES), "shop.html": preload("house-cupofjoe", CARD_SIZES),
            "cup-of-joe.html": preload("house-cupofjoe", SHOP_STAGE_SIZES), "mushroom-coffee-blend.html": preload("house-mushroom", SHOP_STAGE_SIZES)}
 
 PAGES["90-mornings.html"] = ("90 Mornings — The Morning Upgrade", "A chapter-by-chapter email series for your first 90 mornings with the coffee. Coming soon.", NINETY, og_img("props-og"), True)
