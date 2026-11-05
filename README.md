@@ -78,8 +78,10 @@ bag" and never transcribes the label's claims.
 
 Images: add or change a photo in `img/`, list it in `tools/images.py`, then run
 `python3 tools/images.py && python3 build_site.py` (WebP plus JPEG/PNG at 480/800/1200 px).
-The bag in the hero still (`img/lux_still.jpg`) and the shop gallery's "The bag" (`img/lux_pattern.jpg`)
-is the real pack shot `img/bag.png`, composited in by hand (Nov 2026); never an AI-drawn bag. The one
+The main product image (`img/packshot.jpg`: home hero, the first /shop slide, /corejava-coffee) is the real
+pack shot `img/bag.png`, only scaled, on a backdrop and contact shadow drawn by `tools/packshot.py`
+(`python3 tools/packshot.py` rebuilds it). The shop gallery's "Front" (`img/lux_pattern.jpg`) is `img/bag.png`
+composited in by hand (Nov 2026). Never an AI-drawn or altered bag. The one
 FAQ about the label's printed name ("Weight Control Coffee") is answered from the label only and is the
 only place that word may appear (`ALLOW` in `tools/check_copy.py`; kept out of FAQ rich results).
 

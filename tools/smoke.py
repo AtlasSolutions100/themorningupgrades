@@ -2,7 +2,7 @@
 """Playwright smoke test for every generated page, at 390 px and 1440 px.
 
 Per page and width: no horizontal overflow; exactly one <h1>; every <img> has alt text (alt=""
-only for a decorative image inside a link that has its own text); every visible .btn has text
+only for a decorative image inside a link or button that has its own text); every visible .btn has text
 contrast >= 4.5:1 against what is behind it. Once per site: every internal link returns 200;
 choosing a plan in a picker moves the sticky bar to the same plan (when the page has both).
 Third-party requests are blocked, so nothing is sent anywhere.
@@ -30,7 +30,7 @@ PAGE_JS = r"""() => {
   function bgOf(el){ let e=el; while(e){ const c=rgb(getComputedStyle(e).backgroundColor); if(c&&c.a>0.5) return c; e=e.parentElement; } return {r:255,g:255,b:255,a:1}; }
   function ratio(a,b){ const x=lum(a),y=lum(b); return (Math.max(x,y)+0.05)/(Math.min(x,y)+0.05); }
   const out={overflow: document.documentElement.scrollWidth - window.innerWidth, h1: document.querySelectorAll('h1').length, imgs: [], btns: []};
-  document.querySelectorAll('img').forEach(i=>{ const alt=i.getAttribute('alt'); const a=i.closest('a');
+  document.querySelectorAll('img').forEach(i=>{ const alt=i.getAttribute('alt'); const a=i.closest('a,button');
     const deco = alt==='' && a && a.textContent.trim().length>0;
     if(alt===null || (alt.trim()==='' && !deco)) out.imgs.push(i.getAttribute('src')); });
   document.querySelectorAll('.btn').forEach(b=>{ const r=b.getBoundingClientRect(); if(!r.width||!r.height||getComputedStyle(b).visibility==='hidden') return;
