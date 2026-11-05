@@ -262,7 +262,7 @@ window.TMU = {
         i=(i+slides.length)%slides.length;
         slides.forEach(function(s,k){ s.hidden=(k!==i); var v=s.querySelector('video'); if(v&&k!==i&&!v.paused) v.pause(); });
         thumbs.forEach(function(t,k){ t.setAttribute('aria-pressed', k===i?'true':'false'); t.tabIndex=(k===i?0:-1); });
-        cur=i; stage.setAttribute('data-current', String(i));
+        cur=i; stage.setAttribute('data-current', String(i)); [].forEach.call(stage.querySelectorAll('.pdots i'),function(d,k){ d.classList.toggle('on',k===i); });
         var v=slides[i].querySelector('video');
         if(v){ if(!v.getAttribute('data-loaded')){ [].forEach.call(v.querySelectorAll('source[data-src]'),function(s){ s.src=s.getAttribute('data-src'); }); v.setAttribute('data-loaded','1'); v.load(); }
           if(play){ v.muted=true; var p=v.play(); if(p&&p.catch) p.catch(function(){}); } }

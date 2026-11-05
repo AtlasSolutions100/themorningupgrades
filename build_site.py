@@ -781,8 +781,9 @@ def _shop_stage():
                   '<source data-src="/assets/video/corejava-inside-v2.webm" type="video/webm">'
                   '<source data-src="/assets/video/corejava-inside-v2.mp4" type="video/mp4"></video>'
                   f'<p class="sr" id="shop-video-text">{LP_VIDEO_TEXT}</p></div>')
-    return ('<div class="frame shop-main pstage" data-gallery-stage aria-roledescription="carousel" aria-label="CoreJava photos and video">\n    '
-            + "\n    ".join(slides) + "\n  </div>")
+    dots = "".join('<i class="on"></i>' if k == 0 else "<i></i>" for k in range(len(SHOP_SLIDES))) + '<i class="vid"></i>'
+    return ('<div class="frame shop-main pstage" data-gallery-stage data-current="0" aria-roledescription="carousel" aria-label="CoreJava photos and video">\n    '
+            + "\n    ".join(slides) + f'\n    <span class="pdots" aria-hidden="true">{dots}</span>\n  </div>')
 
 def _shop_thumbs():
     btns = []
