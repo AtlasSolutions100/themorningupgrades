@@ -765,7 +765,7 @@ SHOP_SLIDES = [  # (image name, alt, thumb caption)
     ("lux-iced", "Iced coffee with milk sinking through it", "Over ice"),
     ("lux-pour", "Hot water pouring from a kettle into a stoneware cup", "Hot water"),
 ]
-SHOP_VIDEO_CAP = "What&rsquo;s inside, 43 s"
+SHOP_VIDEO_CAP = "What&rsquo;s inside, 43&nbsp;s"
 _n = len(SHOP_SLIDES) + 1
 
 def _shop_stage():

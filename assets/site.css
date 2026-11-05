@@ -727,12 +727,12 @@ footer .cols>div+div .fh{font-family:var(--sans);font-style:normal;font-size:11.
 .pstage .pslide:not(:first-child) img{object-position:50% 50%}
 .pstage .pvid{background:var(--espresso)}
 .pstage .pvid video{width:100%;height:100%;object-fit:contain;background:var(--espresso)}
-.pthumbs{grid-auto-columns:21%;gap:8px}
-.pthumb{display:block;margin:0;padding:0;border:0;background:none;font:inherit;color:inherit;text-align:left;cursor:pointer;scroll-snap-align:start;min-width:0}
-.pthumb .frame{aspect-ratio:4/5;outline:1px solid transparent;outline-offset:-1px;transition:outline-color .2s var(--ease)}
+.pthumbs{grid-auto-columns:21%;gap:8px;scroll-padding-inline:var(--gut)}
+.pthumb{display:block;align-self:start;margin:0;padding:0;border:0;background:none;font:inherit;color:inherit;text-align:left;cursor:pointer;scroll-snap-align:start;min-width:0}
+.pthumb .frame{display:block;aspect-ratio:4/5;outline:1px solid transparent;outline-offset:-1px;transition:outline-color .2s var(--ease)}
 .pthumb img{opacity:.78;transition:opacity .2s var(--ease)}
 .pthumb:hover img,.pthumb[aria-pressed="true"] img{opacity:1}
-.pthumb[aria-pressed="true"] .frame{outline:2px solid var(--ink);outline-offset:-2px}
+.pthumb[aria-pressed="true"] .frame::after{content:"";position:absolute;inset:0;border:2px solid var(--ink);box-shadow:inset 0 0 0 1px var(--paper);pointer-events:none}
 .pthumb:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
 .pthumb .pcap{display:block;font-size:12.5px;line-height:1.3;color:var(--muted);margin-top:6px}
 .pthumb[aria-pressed="true"] .pcap{color:var(--ink)}
