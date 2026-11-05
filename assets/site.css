@@ -671,3 +671,7 @@ footer .cols>div+div .fh{font-family:var(--sans);font-style:normal;font-size:11.
 @media(max-width:860px){.hero2 .picker .promo-note{justify-content:center}}
 .dark .promo-note{color:var(--on-dark2)}
 .sticky .promo-sticky{color:var(--brass-text);font-size:12px;font-weight:500}
+
+/* "Most popular" tag on the Subscribe & Save option (owner, Nov 2026: it is the plan most customers choose) */
+.picker .ptag{position:absolute;top:-11px;left:16px;background:var(--espresso);color:#fff;font-family:var(--sans);font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;padding:4px 9px;line-height:1.2;pointer-events:none}
+.picker .opts{padding-top:6px}

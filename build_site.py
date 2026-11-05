@@ -34,7 +34,7 @@ FOOTER = """
       <a href="/shipping-returns.html">Shipping &amp; returns</a>
       <a href="/guides.html">Guides</a>
       <a href="/recipes.html">Recipes</a>
-      <a href="/start.html">Try it for 7 days</a>
+      <a href="/start.html">Get started</a>
       <a href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00" rel="noopener">Manage subscription</a>
     </div>
     <div>
@@ -364,7 +364,7 @@ def picker(note=True, cta=None, terms=False, paid_default=None):
     after = TERMS_HTML if terms else (f'<p class="fine pnote">{SHIP_NOTE}. 90-day money-back guarantee on unopened bags.</p>' if note else '')
     pd = f' data-paid-default="{paid_default}"' if paid_default else ''
     return f"""<fieldset class="picker" data-picker{pd}><legend class="sr">Choose a plan</legend>
-  <div class="opts"><label class="opt on"><input type="radio" name="{name}" value="subscribe" checked data-cta="{_html.unescape(cta['subscribe'])}" data-sticky="{_html.unescape(PLAN_STICKY['subscribe'])}"><span class="radio"></span>
+  <div class="opts"><label class="opt on"><span class="ptag">Most popular</span><input type="radio" name="{name}" value="subscribe" checked data-cta="{_html.unescape(cta['subscribe'])}" data-sticky="{_html.unescape(PLAN_STICKY['subscribe'])}"><span class="radio"></span>
     <span class="ptxt"><b>Subscribe &amp; Save</b><span class="pfine">Every 30 days. Pause or cancel anytime.</span></span>
     <span class="pprice"><b>$69.95<small>/mo</small></b><em>$2.33 a morning</em></span></label>
   <label class="opt"><input type="radio" name="{name}" value="onetime" data-cta="{_html.unescape(cta['onetime'])}" data-sticky="{_html.unescape(PLAN_STICKY['onetime'])}"><span class="radio"></span>
@@ -1259,7 +1259,7 @@ LATTE_MATH = """
 
 START = hero_c() + LATTE_MATH + RITUAL + SCOOP_SECTION + """
 <section class="alt"><div class="wrap">
-  <div class="shead"><h2>Try it for 7 days</h2></div>
+  <div class="shead"><h2>Your first week with it</h2></div>
   <div class="steps">
     <div><h3>Days 1&ndash;2</h3><p>Swap only your first cup.</p></div>
     <div><h3>Days 3&ndash;5</h3><p>See if you still want a second cup.</p></div>
