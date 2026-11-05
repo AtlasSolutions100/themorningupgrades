@@ -58,7 +58,12 @@ IMAGES = {
     "lux-darkpour":     ("lux_darkpour.jpg", {"avif": True}),      # slow pour into a charcoal stone cup, dark (the one dark band)
     "lux-stonecup":     ("lux_stonecup.jpg", {"avif": True}),      # cup on travertine, long window shadows (How to make it)
     "lux-granules":     ("lux_granules.jpg", {"avif": True}),      # a scoop of instant coffee granules on travertine
-    "recipe-pack-cover": ("recipe_pack_cover.jpg", {}),            # page 1 of assets/recipe-pack.pdf (pdftoppm -r 60), the bonus thumbnail
+    "recipe-pack-cover": ("recipe_pack_cover.jpg", {}),
+    # House coffees (Nov 2026): flat bag mockups made from the FRONT panel of the label artwork (bag designs,
+    # not photos of a printed bag); house_og is both bag designs side by side, 1200x630.
+    "house-cupofjoe":   ("house_cupofjoe.jpg", {}),
+    "house-mushroom":   ("house_mushroom.jpg", {}),
+    "house-og":         ("house_og.jpg", {}),            # page 1 of assets/recipe-pack.pdf (pdftoppm -r 60), the bonus thumbnail
 }
 
 

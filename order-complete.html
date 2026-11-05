@@ -36,6 +36,7 @@
   <button class="burger" aria-label="Open menu" aria-expanded="false" aria-controls="menu">Menu</button>
   <div class="menu" id="menu">
     <a href="/shop.html">Shop</a>
+    <a href="/house-coffee.html">House coffee</a>
     <a href="/ingredients.html">Ingredients</a>
     <a href="/guides.html">Guides</a>
     <a href="/faq.html">FAQ</a>
@@ -49,6 +50,18 @@
   <div class="card" style="padding:34px 30px">
     <p class="eyebrow">Order received</p>
     <h1 style="font-size:clamp(30px,4vw,44px)">Your coffee is on its way.</h1>
+    <div data-line="house" hidden>
+      <p>Thanks for ordering <b data-house-name>our house coffee</b>. Stripe has emailed your receipt. Our roasting partner roasts your coffee to order and ships it in about 2 to 3 business days, then 3 to 6 days in transit; you'll get a tracking email when it leaves. If anything looks wrong, reply to the receipt or write hello@themorningupgrades.com.</p>
+      <h3 style="margin-top:26px">Brewing it</h3>
+      <ul class="clean">
+        <li>2 tbsp (10 g) of ground coffee per 8 fl oz of water.</li>
+        <li>Drip, pour-over or French press. A 12 oz bag makes about 34 cups.</li>
+        <li>Keep the bag sealed, somewhere cool and dark.</li>
+        <li>If a bag arrives damaged or wrong, email us within 30 days of delivery and we&rsquo;ll replace it.</li>
+      </ul>
+      <p style="margin-top:22px"><a class="btn ghost" href="/house-coffee.html">House coffees</a> <a class="btn ghost" href="/">Back to the site</a></p>
+    </div>
+    <div data-line="corejava">
     <p>Stripe has emailed your receipt. We set up your CoreJava customer account with MarketPlace Global, the maker, who ships from Maple Grove, Minnesota within about 2 business days; you'll get a tracking email when it leaves. If anything looks wrong, reply to the receipt or write hello@themorningupgrades.com.</p>
     <h3 style="margin-top:26px">Your first cup</h3>
     <ul class="clean">
@@ -108,11 +121,17 @@
 })();
 </script>
     <p style="margin-top:22px"><a class="btn ghost" href="/recipes.html">Recipes to try</a> <a class="btn ghost" href="/">Back to the site</a></p>
+    </div>
   </div>
 </div></section>
 <script>tmuPurchase();</script>
-<script>(function(){ var p=(window.TMU&&TMU.plan)?TMU.plan():''; var known=/[?&]plan=(subscribe|onetime)\b/.test(location.search); try{ known=known||!!localStorage.getItem('tmu_plan'); }catch(e){}
-  if(!known) return; document.querySelectorAll('[data-plan-block]').forEach(function(e){ e.hidden = e.getAttribute('data-plan-block')!==p; }); })();</script>
+<script>(function(){ var p=(window.TMU&&TMU.plan)?TMU.plan():''; var known=/[?&]plan=(subscribe|onetime|cupofjoe|mushroom)\b/.test(location.search); try{ known=known||!!localStorage.getItem('tmu_plan'); }catch(e){}
+  if(!known) return;
+  // house coffee (cupofjoe / mushroom): its own thank-you; none of CoreJava's account, scoop, bonus or refill text
+  var it=TMU.ITEM&&TMU.ITEM[p], house=!!(it&&it.house);
+  document.querySelectorAll('[data-line]').forEach(function(e){ e.hidden = (e.getAttribute('data-line')==='house')!==house; });
+  if(house) document.querySelectorAll('[data-house-name]').forEach(function(e){ e.textContent=it.name; });
+  document.querySelectorAll('[data-plan-block]').forEach(function(e){ e.hidden = e.getAttribute('data-plan-block')!==p; }); })();</script>
 
 </main>
 
@@ -126,6 +145,7 @@
     <div>
       <h2 class="fh">Shop</h2>
       <a href="/shop.html">CoreJava coffee</a>
+      <a href="/house-coffee.html">House coffee</a>
       <a href="/corejava-coffee.html">CoreJava, explained</a>
       <a href="/ingredients.html">What's in it</a>
       <a href="/faq.html">Questions</a>

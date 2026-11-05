@@ -9,6 +9,7 @@ NAV = """
   <button class="burger" aria-label="Open menu" aria-expanded="false" aria-controls="menu">Menu</button>
   <div class="menu" id="menu">
     <a href="/shop.html">Shop</a>
+    <a href="/house-coffee.html">House coffee</a>
     <a href="/ingredients.html">Ingredients</a>
     <a href="/guides.html">Guides</a>
     <a href="/faq.html">FAQ</a>
@@ -28,6 +29,7 @@ FOOTER = """
     <div>
       <h2 class="fh">Shop</h2>
       <a href="/shop.html">CoreJava coffee</a>
+      <a href="/house-coffee.html">House coffee</a>
       <a href="/corejava-coffee.html">CoreJava, explained</a>
       <a href="/ingredients.html">What's in it</a>
       <a href="/faq.html">Questions</a>
@@ -135,7 +137,7 @@ def _strip(h):
 FAQ_SKIP = {"What does it do?", "Who are the people in your videos?", "The bag says Weight Control Coffee. Is that what this is?"}
 
 # Breadcrumb (BreadcrumbList) names for pages whose <title> is a sentence. Guides use GUIDE_LINKS.
-CRUMB_NAME = {"shop.html": "Shop", "ingredients.html": "CoreJava ingredients", "faq.html": "FAQ",
+CRUMB_NAME = {"shop.html": "Shop", "house-coffee.html": "House coffee", "ingredients.html": "CoreJava ingredients", "faq.html": "FAQ",
               "guides.html": "Guides", "recipes.html": "Recipes", "corejava-coffee.html": "CoreJava coffee",
               "about.html": "About", "shipping-returns.html": "Shipping & returns", "privacy.html": "Privacy",
               "terms.html": "Terms of sale", "partner.html": "Build with us", "share.html": "Share with friends"}
@@ -202,6 +204,39 @@ def product_ld():
                              {"priceSpecification": {"@type": "UnitPriceSpecification", "price": "69.95", "priceCurrency": "USD",
                                                      "billingDuration": {"@type": "QuantitativeValue", "value": 30, "unitCode": "DAY"}}})]}
 
+# The house coffees (Nov 2026): ground coffee under our own name, roasted to order and shipped by our
+# roasting partner (not named on the site). One-time Payment Links in assets/site.js (data-buy="cupofjoe" /
+# "mushroom"). Terms differ from CoreJava: $5.95 flat US shipping, ships in 2-3 business days, no returns on
+# opened coffee, damaged or wrong bags replaced within 30 days. No 90-day guarantee, no rating markup.
+HOUSE = [
+    {"key": "cupofjoe", "id": "cup-of-joe", "img": "house-cupofjoe",
+     "name": "Cup of Joe Everyday Coffee", "price": "27.95", "sku": "TMU-CUPOFJOE-12",
+     "ld_desc": "100% roasted coffee, ground. 12 oz (340 g) bag, about 34 cups at 2 tbsp (10 g) per 8 fl oz. "
+                "Choose Light, Medium (Colombia) or Dark at checkout."},
+    {"key": "mushroom", "id": "mushroom-blend", "img": "house-mushroom",
+     "name": "The Morning Upgrade Mushroom Coffee Blend", "price": "33.95", "sku": "TMU-MUSHROOM-12",
+     "ld_desc": "Medium roast coffee with mushroom powder. Tasting notes: dark chocolate, nougat, mild acidity. 12 oz (340 g) bag."},
+]
+
+def house_ld():
+    ship = {"@type": "OfferShippingDetails",
+            "shippingRate": {"@type": "MonetaryAmount", "value": "5.95", "currency": "USD"},
+            "shippingDestination": {"@type": "DefinedRegion", "addressCountry": "US"},
+            "deliveryTime": {"@type": "ShippingDeliveryTime",
+                             "handlingTime": {"@type": "QuantitativeValue", "minValue": 2, "maxValue": 3, "unitCode": "DAY"},
+                             "transitTime": {"@type": "QuantitativeValue", "minValue": 3, "maxValue": 6, "unitCode": "DAY"}}}
+    out = []
+    for h in HOUSE:
+        url = SITE + "/house-coffee.html#" + h["id"]
+        out.append({"@type": "Product", "@id": url, "name": h["name"], "description": h["ld_desc"],
+                    "brand": {"@type": "Brand", "name": "The Morning Upgrade"}, "url": url, "sku": h["sku"],
+                    "image": [SITE + og_img(h["img"])], "category": "Ground coffee",
+                    "weight": {"@type": "QuantitativeValue", "value": 340, "unitCode": "GRM"},
+                    "offers": {"@type": "Offer", "price": h["price"], "priceCurrency": "USD",
+                               "availability": "https://schema.org/InStock", "itemCondition": "https://schema.org/NewCondition",
+                               "url": url, "seller": SELLER, "shippingDetails": ship}})
+    return out
+
 # Named author (D7). Facts only; keep in sync with the About page.
 AUTHOR = {"name": "Koby Stull", "city": "Dallas", "region": "TX",
           "bio": "Koby Stull is a partner in Rector &amp; Stull LLC and runs The Morning Upgrade&rsquo;s website and guides from Dallas, Texas. His background is in sales leadership and software development. He writes the guides from the label and published sources, and he isn&rsquo;t a doctor or dietitian, so nothing here is medical advice."}
@@ -228,6 +263,8 @@ def structured_data(fn, title, desc, body, og_image):
                       "inLanguage": "en-US", "publisher": {"@id": SITE + "/#org"}})
     if fn in ("shop.html", "index.html", "corejava-coffee.html"):
         graph.append(product_ld())
+    if fn == "house-coffee.html":
+        graph.extend(house_ld())
     if fn in GUIDE_META:
         pub, mod = GUIDE_META[fn]
         graph.append({"@type": "Article", "@id": url_for(fn) + "#article", "headline": title.split(" | ")[0],
@@ -270,9 +307,9 @@ def sticky_bar(mode):
     return ""
 
 # The email pop-up (assets/site.js) never opens on these: after an order or sign-up, the partner/ISR
-# pages, the 404, the quiz page (it would cover the quiz) and the ad landing page (/start: the page
-# is the offer). site.js also keeps it closed on paid visits (utm_medium paid/cpc or the tmu_ut flag).
-NO_POPUP = {"order-complete.html", "thanks.html", "partner.html", "share.html", "404.html", "quiz.html", "start.html"}
+# pages, the 404, the quiz page (it would cover the quiz), the ad landing page (/start: the page
+# is the offer) and the house coffee page (the pop-up's offer is CoreJava's). site.js also keeps it closed on paid visits (utm_medium paid/cpc or the tmu_ut flag).
+NO_POPUP = {"order-complete.html", "thanks.html", "partner.html", "share.html", "404.html", "quiz.html", "start.html", "house-coffee.html"}
 
 def page(title, desc, body, og_image="/img/opt/breakfast-og-1200.jpg", noindex=False, extra_head="", nav=True, fn="index.html", sticky="buy"):
     return f"""<!DOCTYPE html>
@@ -713,6 +750,19 @@ HOME = HOME_HERO + RITUAL + inside() + COMPARE + founder() + quiz_section("home"
 
 # ---------- SHOP ----------
 # Phones: photo, then the buy block (first checkout button inside 2 screens), then the gallery and details.
+# /shop: a small, separate pointer to the house coffees. None of CoreJava's terms apply to them.
+HOUSE_TEASER = """
+<section class="tight hc-teaser" aria-labelledby="hc-teaser-h"><div class="wrap hc-tgrid">
+  <div class="frame">""" + pic("house-og", "The Cup of Joe and Mushroom Coffee Blend bag designs side by side", sizes="(max-width: 860px) 100vw, 40vw") + """</div>
+  <div>
+    <p class="eyebrow">Also from The Morning Upgrade</p>
+    <h2 id="hc-teaser-h">Our house coffees</h2>
+    <p>2 ground coffees under our own name, roasted to order by our roasting partner: Cup of Joe Everyday Coffee ($27.95, light, medium or dark) and our Mushroom Coffee Blend ($33.95). 12 oz bags, $5.95 flat US shipping. Their own shipping and return terms apply.</p>
+    <p style="margin:0"><a class="btn ghost" href="/house-coffee.html">See the house coffees</a></p>
+  </div>
+</div></section>
+"""
+
 SHOP = """
 <section class="shop"><div class="wrap shopgrid">
   <div class="frame shop-main">""" + pic("lux-still", HERO_ALT, sizes="(max-width: 860px) 100vw, 55vw", eager=True) + """</div>
@@ -741,7 +791,7 @@ SHOP = """
     """ + facts_panel() + """
   </div>
 </div></section>
-""" + RITUAL + COMPARE + PLEDGES + """
+""" + RITUAL + COMPARE + PLEDGES + HOUSE_TEASER + """
 <section class="alt" style="text-align:center"><div class="wrap">
   <h2>Ready to order?</h2>
   <p class="lead" style="margin:0 auto 28px">$69.95 a month on Subscribe &amp; Save, or $79.95 for 1 bag.</p>
@@ -882,6 +932,11 @@ FAQ = """
   <details><summary>Where does it ship from, how fast, and what does shipping cost?</summary><p><span data-ship="policy">Orders are fulfilled by the maker, MarketPlace Global, from Maple Grove, Minnesota, usually within 2 business days, then 3&ndash;6 days in transit. US shipping is a flat $8.95 a bag.</span> US addresses only for now. Tracking arrives by email.</p></details>
   <details><summary>Returns?</summary><p>If a bag arrives damaged or wrong, email hello@themorningupgrades.com within 30 days of delivery and we'll replace it or refund it. Unopened bags are covered by a 90-day money-back guarantee. Full policy on the <a href="/shipping-returns.html">Shipping &amp; returns</a> page.</p></details>
   <details><summary>Who am I buying from?</summary><p>Rector &amp; Stull LLC, Independent ISR of MarketPlace Global products and services. MarketPlace Global makes CoreJava; we sell it.</p></details>
+  <h2>House coffee</h2>
+  <details><summary>What are your house coffees?</summary><p>2 ground coffees under our own name, sold on the <a href="/house-coffee.html">house coffee page</a>: Cup of Joe Everyday Coffee ($27.95 for a 12 oz bag; you pick light, medium (Colombia) or dark at checkout) and The Morning Upgrade Mushroom Coffee Blend ($33.95 for a 12 oz bag). They&rsquo;re separate from CoreJava and have their own terms.</p></details>
+  <details><summary>How does house coffee ship?</summary><p>Our roasting partner roasts it to order and ships it in about 2 to 3 business days, then 3 to 6 days in transit. US shipping is a flat $5.95. Tracking arrives by email.</p></details>
+  <details><summary>Can I return house coffee?</summary><p>We can&rsquo;t take returns on opened coffee. If a bag arrives damaged or wrong, email hello@themorningupgrades.com within 30 days of delivery and we&rsquo;ll replace it. The 90-day guarantee covers CoreJava only.</p></details>
+  <details><summary>What&rsquo;s in the Mushroom Coffee Blend?</summary><p>Medium roast coffee with mushroom powder. The full ingredient list is coming soon; we&rsquo;ll post it here once we have the spec sheet.</p></details>
   <h2>The business</h2>
   <details><summary>Who are the people in your videos?</summary><p>AI presenters we make for the brand. We say so here and in the platform AI labels. They show the coffee, the scoop and the label; they never claim results, because they haven't used it. Real answers come from a real inbox: hello@themorningupgrades.com.</p></details>
 </div></section>
@@ -1049,7 +1104,7 @@ ABOUT = """
   <div>
     <p class="eyebrow">About</p>
     <h1 style="font-size:clamp(30px,4vw,46px)">About us</h1>
-    <p class="lead">Rector &amp; Stull LLC is a small company run by 2 partners, 1 in Idaho and 1 in Texas. We're Independent Sales Representatives (ISRs) for MarketPlace Global, and CoreJava is the product we drink ourselves, which is why it's the one we sell.</p>
+    <p class="lead">Rector &amp; Stull LLC is a small company run by 2 partners, 1 in Idaho and 1 in Texas. We're Independent Sales Representatives (ISRs) for MarketPlace Global, and CoreJava is the product we drink ourselves, which is why we sell it. We also sell 2 <a href="/house-coffee.html">house coffees</a> under our own name, roasted to order by our roasting partner.</p>
     <p>We started The Morning Upgrade because most coffee marketing is either a lifestyle fantasy or a wall of supplement jargon. We wanted a page that tells you what's in the bag, what it costs per cup, and how to find out in a week whether it's for you.</p>
     <p>Everything on this site that earns us money says so. The people in our videos are AI presenters; we say so here and in the platform AI labels. If something's unclear, email us and a human will answer: hello@themorningupgrades.com.</p>
     <p><a class="btn" href="/shop.html">Buy CoreJava</a> &nbsp; <a class="btn ghost" href="/partner.html">Partner with us</a></p>
@@ -1065,6 +1120,62 @@ ABOUT = """
 </div></section>
 """
 
+
+# ---------- HOUSE COFFEE (/house-coffee.html) ----------
+# Copy rules for this page (owner, Nov 4 2026): no health or function words for the mushroom blend (it is
+# "medium roast coffee with mushroom powder" plus tasting notes until the spec sheet is in), no CoreJava
+# terms (guarantee, MarketPlace Global, Minnesota, supplement panel), the roaster is "our roasting partner".
+HC_ROASTS = [("Light", "Fresh fruit, citrus, light body."),
+             ("Medium (Colombia)", "Cherry, plum, chocolate, cane sugar."),
+             ("Dark", "Deep body, baker&rsquo;s chocolate, caramelized sugar.")]
+HC_SIZE = "12 oz (340 g), about 34 cups at 2 tbsp (10 g) per 8 fl oz"
+
+def hc_card(h, line, notes, details, cta):
+    rows = "".join(f"<li>{d}</li>" for d in details)
+    return f"""<article class="hc-card" id="{h['id']}" aria-labelledby="{h['id']}-h">
+  <div class="frame hc-img">{pic(h['img'], h['alt'], sizes="(max-width: 860px) 100vw, 45vw")}</div>
+  <div class="hc-body">
+    <h2 id="{h['id']}-h">{h['name']}</h2>
+    <p class="hc-line">{line}</p>
+    <p class="hc-price"><b>${h['price']}</b> / 12 oz bag<span>+ $5.95 US shipping</span></p>
+    {notes}
+    <ul class="terms hc-details">{rows}</ul>
+    <a class="btn big" data-buy="{h['key']}" href="#">{cta}</a>
+  </div>
+</article>"""
+
+_HC = {h["key"]: dict(h) for h in HOUSE}
+_HC["cupofjoe"]["alt"] = "The Cup of Joe Everyday Coffee bag design (front of the 12 oz bag, Medium label shown)"
+_HC["mushroom"]["alt"] = "The Morning Upgrade Mushroom Coffee Blend bag design (front of the 12 oz bag)"
+
+HOUSE_COFFEE = """
+<section style="padding-top:36px;padding-bottom:28px"><div class="wrap" style="max-width:860px">
+  <p class="eyebrow">House coffee</p>
+  <h1 style="font-size:clamp(34px,4.6vw,54px)">Our house coffees</h1>
+  <p class="lead">2 ground coffees under our own name, roasted to order by our roasting partner and shipped in 12 oz bags. One-time orders, $5.95 flat US shipping.</p>
+</div></section>
+<section style="padding-top:0"><div class="wrap hc-grid">
+""" + hc_card(_HC["cupofjoe"], "Good coffee. No fuss. 3 roasts; you pick yours at checkout.",
+    '<h3 class="hc-h">The roasts</h3><dl class="hc-roasts">' + "".join(f"<div><dt>{r}</dt><dd>{n}</dd></div>" for r, n in HC_ROASTS) + '</dl>'
+    + '<p class="fine hc-pick">You pick the roast at checkout.</p>',
+    ["100% roasted coffee, ground.", HC_SIZE + ".", "For drip, pour-over or French press.", "Roasted to order; ships in about 2 to 3 business days."],
+    "Buy Cup of Joe, $27.95") + hc_card(_HC["mushroom"], "Medium roast coffee with mushroom powder.",
+    '<h3 class="hc-h">Tasting notes</h3><p class="hc-notes">Dark chocolate, nougat, mild acidity.</p>',
+    ["Medium roast coffee with mushroom powder, ground.", HC_SIZE + ".", "Full ingredient list coming soon.", "Roasted to order; ships in about 2 to 3 business days."],
+    "Buy the Mushroom Blend, $33.95") + """
+</div></section>
+<section class="alt tight"><div class="wrap legal" style="max-width:860px">
+  <h2>Shipping and returns for house coffee</h2>
+  <ul class="clean">
+    <li>Roasted to order by our roasting partner. Ships in about 2 to 3 business days, then 3 to 6 days in transit.</li>
+    <li>$5.95 flat US shipping, added at checkout. US addresses only.</li>
+    <li>We can&rsquo;t take returns on opened coffee. If a bag arrives damaged or wrong, email hello@themorningupgrades.com within 30 days of delivery and we&rsquo;ll replace it.</li>
+    <li>One-time purchases; there&rsquo;s no house coffee subscription yet.</li>
+  </ul>
+  <p class="fine">Sold by Rector &amp; Stull LLC under The Morning Upgrade name. Secure checkout by Stripe. Full terms on <a href="/shipping-returns.html#house-coffee">Shipping &amp; returns</a>. Questions? hello@themorningupgrades.com.</p>
+</div></section>
+"""
+
 # ---------- LEGAL ----------
 SHIPPING = """
 <section style="padding-top:36px"><div class="wrap legal">
@@ -1076,9 +1187,15 @@ SHIPPING = """
   <p>A new bag ships every 30 days and your card is charged $69.95 each time. You can pause a month or cancel from the link in any receipt, or at <a href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00">the subscription portal</a>, up to the day before your next shipment. There are no cancellation fees.</p>
   <h2>Returns and refunds</h2>
   <p>MarketPlace Global, the maker, backs every customer order with a 90-day money-back guarantee on unopened product in resalable condition, and replaces anything that arrives damaged, defective or incorrect if you tell us within 30 calendar days of delivery. Email hello@themorningupgrades.com with your order number (and a photo if it&rsquo;s damaged) and we handle the return authorization for you. Return shipping on change-of-mind returns is paid by the customer; original shipping isn&rsquo;t refunded. Opened bags can&rsquo;t be returned for a change of mind, for food-safety reasons.</p>
+  <h2 id="house-coffee">House coffee</h2>
+  <p>Our <a href="/house-coffee.html">house coffees</a> (Cup of Joe Everyday Coffee and The Morning Upgrade Mushroom Coffee Blend) have their own terms. Everything above is for CoreJava.</p>
+  <ul class="clean"><li><strong>Shipping:</strong> roasted to order by our roasting partner, then shipped in about 2 to 3 business days, then 3 to 6 days in transit. $5.95 flat US shipping. US addresses only.</li>
+  <li><strong>Returns:</strong> we can&rsquo;t take returns on opened coffee. If a bag arrives damaged or wrong, email hello@themorningupgrades.com within 30 days of delivery with your order number (and a photo) and we&rsquo;ll replace it.</li>
+  <li><strong>Guarantee:</strong> the 90-day money-back guarantee is CoreJava&rsquo;s and doesn&rsquo;t cover house coffee.</li>
+  <li><strong>Orders:</strong> one-time purchases only; there is no house coffee subscription.</li></ul>
   <h2>Questions</h2>
   <p>hello@themorningupgrades.com. A real person answers, usually the same business day.</p>
-  <p class="fine">Rector &amp; Stull LLC, 30 N Gould St Ste R, Sheridan, WY 82801. Independent ISR of MarketPlace Global products and services. Last updated October 2026.</p>
+  <p class="fine">Rector &amp; Stull LLC, 30 N Gould St Ste R, Sheridan, WY 82801. Independent ISR of MarketPlace Global products and services. Last updated November 2026.</p>
 </div></section>
 """
 
@@ -1088,9 +1205,9 @@ PRIVACY = """
   <h1 style="font-size:clamp(30px,4vw,46px)">Privacy</h1>
   <p>This is the privacy policy for themorningupgrades.com, operated by Rector &amp; Stull LLC ("we"). It's written to be read.</p>
   <h2>What we collect</h2>
-  <ul><li><strong>If you take the quiz:</strong> your answers, first name and email, so we can send you the guide and the follow-up emails.</li><li><strong>If you sign up in the email pop-up:</strong> your email, your first name if you give it, the page you signed up on and the offer you signed up for (the free Recipe Pack), so we can send you our emails. Every email has an unsubscribe link.</li><li><strong>If you&rsquo;ve signed up and then click a Buy button:</strong> your browser keeps the email you signed up with, on your device only. When you click a Buy button, we tell Klaviyo that you started checkout (the plan, its price and the checkout link) so we can follow up by email if you don&rsquo;t finish, and if you order, we tell Klaviyo that too so the follow-up stops. Your email goes in the request itself, never in a web address. We skip this if your browser sends a Global Privacy Control or Do Not Track signal.</li><li><strong>If you buy:</strong> your name, shipping address, email and phone. Payment details go to Stripe; we never see your card number. To fulfil your order we create a customer account for you with MarketPlace Global, the maker, and pass them your name, address, email and phone so they can ship to you and honor their guarantee. Their <a href="https://marketplaceglobal.com/rectorandstull/privacy-policy">privacy policy</a> covers what they do with it.</li><li><strong>If you ask about partnering:</strong> what you type into the form.</li><li><strong>If you opt in to refill-reminder texts:</strong> your mobile number and a record of your consent (the wording you agreed to, when, and on which page). We haven&rsquo;t started sending texts; reply STOP to any text to opt out.</li><li><strong>Automatically:</strong> Google Analytics records pages viewed, where visitors came from, and button clicks, with IP addresses anonymized. TikTok, Meta, Snapchat and Google Ads tags record page views, sign-ups and purchases so we can measure which ads work. Our own measurement keeps an anonymous visitor id and the link that first brought you here (its utm tags, ad click id and referring site) and counts page views, quiz starts, email sign-ups and Buy-button clicks; it never includes your name, email or anything you type. Your browser also keeps a note, on your device only, of whether you&rsquo;ve seen, closed or used the email pop-up, so it doesn&rsquo;t keep asking.</li></ul>
+  <ul><li><strong>If you take the quiz:</strong> your answers, first name and email, so we can send you the guide and the follow-up emails.</li><li><strong>If you sign up in the email pop-up:</strong> your email, your first name if you give it, the page you signed up on and the offer you signed up for (the free Recipe Pack), so we can send you our emails. Every email has an unsubscribe link.</li><li><strong>If you&rsquo;ve signed up and then click a Buy button:</strong> your browser keeps the email you signed up with, on your device only. When you click a Buy button, we tell Klaviyo that you started checkout (the plan, its price and the checkout link) so we can follow up by email if you don&rsquo;t finish, and if you order, we tell Klaviyo that too so the follow-up stops. Your email goes in the request itself, never in a web address. We skip this if your browser sends a Global Privacy Control or Do Not Track signal.</li><li><strong>If you buy:</strong> your name, shipping address, email and phone. Payment details go to Stripe; we never see your card number. To fulfil your order we create a customer account for you with MarketPlace Global, the maker, and pass them your name, address, email and phone so they can ship to you and honor their guarantee. Their <a href="https://marketplaceglobal.com/rectorandstull/privacy-policy">privacy policy</a> covers what they do with it.</li><li><strong>If you buy house coffee:</strong> your name, shipping address, email and phone go to our roasting partner, who roasts your coffee and ships it to you. Payment details go to Stripe, as above.</li><li><strong>If you ask about partnering:</strong> what you type into the form.</li><li><strong>If you opt in to refill-reminder texts:</strong> your mobile number and a record of your consent (the wording you agreed to, when, and on which page). We haven&rsquo;t started sending texts; reply STOP to any text to opt out.</li><li><strong>Automatically:</strong> Google Analytics records pages viewed, where visitors came from, and button clicks, with IP addresses anonymized. TikTok, Meta, Snapchat and Google Ads tags record page views, sign-ups and purchases so we can measure which ads work. Our own measurement keeps an anonymous visitor id and the link that first brought you here (its utm tags, ad click id and referring site) and counts page views, quiz starts, email sign-ups and Buy-button clicks; it never includes your name, email or anything you type. Your browser also keeps a note, on your device only, of whether you&rsquo;ve seen, closed or used the email pop-up, so it doesn&rsquo;t keep asking.</li></ul>
   <h2>What we do with it</h2>
-  <p>Fulfil orders, send the emails you signed up for, answer your questions, and measure which of our posts bring people here. We don't sell your data. We don't share it except with the services that make the site work: Stripe (payments), MarketPlace Global (the maker, who fulfils and ships orders), Klaviyo (email), GitHub (hosting), and analytics providers.</p>
+  <p>Fulfil orders, send the emails you signed up for, answer your questions, and measure which of our posts bring people here. We don't sell your data. We don't share it except with the services that make the site work: Stripe (payments), MarketPlace Global (the maker, who fulfils and ships CoreJava orders), our roasting partner (who roasts and ships house coffee orders), Klaviyo (email), GitHub (hosting), and analytics providers.</p>
   <h2>Your choices</h2>
   <p>Every email has an unsubscribe link. To see, correct or delete what we hold about you, email hello@themorningupgrades.com and we'll do it within 30 days.</p>
   <h2>Cookies</h2>
@@ -1112,11 +1229,13 @@ TERMS = """
   <p>CoreJava is a dietary supplement containing caffeine, for adults. It is not intended to diagnose, treat, cure or prevent any disease. Read the label. Do not use if pregnant or nursing. Ask a physician if you take medication or have a medical condition. Keep out of reach of children.</p>
   <h2>Returns</h2>
   <p>See <a href="/shipping-returns.html">Shipping &amp; returns</a>.</p>
+  <h2>House coffee</h2>
+  <p>Cup of Joe Everyday Coffee and The Morning Upgrade Mushroom Coffee Blend are ground coffees sold by Rector &amp; Stull LLC under The Morning Upgrade name and roasted to order by our roasting partner. They are not MarketPlace Global products. They are one-time purchases (no subscription), ship to US addresses for a flat $5.95, and are covered by the house coffee terms on <a href="/shipping-returns.html#house-coffee">Shipping &amp; returns</a>, not by the CoreJava guarantee.</p>
   <h2>Liability</h2>
   <p>To the extent the law allows, our liability for any order is limited to the amount you paid for it.</p>
   <h2>Partner opportunity</h2>
   <p>Information on the Partner page describes an Independent Sales Representative (ISR) opportunity with MarketPlace Global and is governed by MarketPlace Global's own agreement and policies, which you accept when you enroll with them. We make no guarantee of income.</p>
-  <p class="fine">Rector &amp; Stull LLC, 30 N Gould St Ste R, Sheridan, WY 82801 &middot; hello@themorningupgrades.com. Governing law: Wyoming. Last updated October 2026.</p>
+  <p class="fine">Rector &amp; Stull LLC, 30 N Gould St Ste R, Sheridan, WY 82801 &middot; hello@themorningupgrades.com. Governing law: Wyoming. Last updated November 2026.</p>
 </div></section>
 """
 
@@ -1165,6 +1284,18 @@ ORDER_COMPLETE = """
   <div class="card" style="padding:34px 30px">
     <p class="eyebrow">Order received</p>
     <h1 style="font-size:clamp(30px,4vw,44px)">Your coffee is on its way.</h1>
+    <div data-line="house" hidden>
+      <p>Thanks for ordering <b data-house-name>our house coffee</b>. Stripe has emailed your receipt. Our roasting partner roasts your coffee to order and ships it in about 2 to 3 business days, then 3 to 6 days in transit; you'll get a tracking email when it leaves. If anything looks wrong, reply to the receipt or write hello@themorningupgrades.com.</p>
+      <h3 style="margin-top:26px">Brewing it</h3>
+      <ul class="clean">
+        <li>2 tbsp (10 g) of ground coffee per 8 fl oz of water.</li>
+        <li>Drip, pour-over or French press. A 12 oz bag makes about 34 cups.</li>
+        <li>Keep the bag sealed, somewhere cool and dark.</li>
+        <li>If a bag arrives damaged or wrong, email us within 30 days of delivery and we&rsquo;ll replace it.</li>
+      </ul>
+      <p style="margin-top:22px"><a class="btn ghost" href="/house-coffee.html">House coffees</a> <a class="btn ghost" href="/">Back to the site</a></p>
+    </div>
+    <div data-line="corejava">
     <p>Stripe has emailed your receipt. We set up your CoreJava customer account with MarketPlace Global, the maker, who ships from Maple Grove, Minnesota within about 2 business days; you'll get a tracking email when it leaves. If anything looks wrong, reply to the receipt or write hello@themorningupgrades.com.</p>
     <h3 style="margin-top:26px">Your first cup</h3>
     <ul class="clean">
@@ -1193,11 +1324,17 @@ ORDER_COMPLETE = """
     </div>
     """ + SMS_FORM + """
     <p style="margin-top:22px"><a class="btn ghost" href="/recipes.html">Recipes to try</a> <a class="btn ghost" href="/">Back to the site</a></p>
+    </div>
   </div>
 </div></section>
 <script>tmuPurchase();</script>
-<script>(function(){ var p=(window.TMU&&TMU.plan)?TMU.plan():''; var known=/[?&]plan=(subscribe|onetime)\\b/.test(location.search); try{ known=known||!!localStorage.getItem('tmu_plan'); }catch(e){}
-  if(!known) return; document.querySelectorAll('[data-plan-block]').forEach(function(e){ e.hidden = e.getAttribute('data-plan-block')!==p; }); })();</script>
+<script>(function(){ var p=(window.TMU&&TMU.plan)?TMU.plan():''; var known=/[?&]plan=(subscribe|onetime|cupofjoe|mushroom)\\b/.test(location.search); try{ known=known||!!localStorage.getItem('tmu_plan'); }catch(e){}
+  if(!known) return;
+  // house coffee (cupofjoe / mushroom): its own thank-you; none of CoreJava's account, scoop, bonus or refill text
+  var it=TMU.ITEM&&TMU.ITEM[p], house=!!(it&&it.house);
+  document.querySelectorAll('[data-line]').forEach(function(e){ e.hidden = (e.getAttribute('data-line')==='house')!==house; });
+  if(house) document.querySelectorAll('[data-house-name]').forEach(function(e){ e.textContent=it.name; });
+  document.querySelectorAll('[data-plan-block]').forEach(function(e){ e.hidden = e.getAttribute('data-plan-block')!==p; }); })();</script>
 """
 
 NINETY = """
@@ -2391,11 +2528,12 @@ PAGES = {
   "shop.html": ("Buy CoreJava MCT Coffee: $69.95/mo or $79.95 a Bag", "CoreJava price: $79.95 for a 30-serving bag or $69.95 a month on Subscribe & Save. Dark roast instant coffee with MCT powder, L-theanine and natural caffeine.", SHOP, og_img("lux-og"), False),
   "corejava-coffee.html": ("CoreJava Coffee: Ingredients, Price & How to Make It", "CoreJava is MarketPlace Global's dark roast instant coffee with MCT powder, L-theanine and 100 mg natural caffeine. Ingredients, price and how to make it.", COREJAVA, og_img("props-og"), False),
   "ingredients.html": ("CoreJava Ingredients & Supplement Facts | Morning Upgrade", "What's in a scoop of CoreJava: MCT powder, natural caffeine, L-theanine and 4 more named ingredients, plus the full Supplement Facts panel.", ING, og_img("lux-og"), False),
+  "house-coffee.html": ("House Coffee: Cup of Joe & Mushroom Blend | Morning Upgrade", "2 house coffees, roasted to order: Cup of Joe Everyday Coffee ($27.95; light, medium or dark) and our Mushroom Coffee Blend ($33.95). 12 oz bags.", HOUSE_COFFEE, og_img("house-og"), False),
   "faq.html": ("Coffee FAQ: Taste, Caffeine, Shipping | The Morning Upgrade", "How it tastes, how much caffeine is in a scoop, how Subscribe & Save works, shipping, returns, and who you're buying from.", FAQ, og_img("pour"), False),
   # ISR pages: reachable by URL, noindex, not linked from the customer nav or footer (owner, Nov 2026)
   "partner.html": ("Build with us — The Morning Upgrade", "Join our team and sell the coffee with the same videos, site and email system we use. Honest numbers first.", PARTNER, og_img("props-og"), True),
   "share.html": ("Share with friends — The Morning Upgrade", "Love it? Share your link with friends. The referral program, explained in plain language.", SHARE, og_img("props-og"), True),
-  "about.html": ("About — The Morning Upgrade", "The Morning Upgrade is run by Rector & Stull LLC, 2 partners in Idaho and Texas who sell 1 instant MCT coffee and say plainly what is in it.", ABOUT, og_img("props-og"), False),
+  "about.html": ("About — The Morning Upgrade", "The Morning Upgrade is run by Rector & Stull LLC, 2 partners in Idaho and Texas who sell CoreJava and 2 house coffees, and say plainly what is in them.", ABOUT, og_img("props-og"), False),
   "shipping-returns.html": ("Shipping & returns — The Morning Upgrade", "$8.95 flat US shipping, Subscribe & Save terms, damaged-item replacement and the 90-day money-back guarantee on unopened bags.", SHIPPING, og_img("props-og"), False),
   "privacy.html": ("Privacy — The Morning Upgrade", "What The Morning Upgrade collects (quiz answers, orders, analytics), what we do with it, who we share it with, and how to opt out or delete it.", PRIVACY, og_img("props-og"), False),
   "terms.html": ("Terms of sale — The Morning Upgrade", "Terms of sale for The Morning Upgrade: prices, Subscribe & Save renewals, use of the product, returns and liability.", TERMS, og_img("props-og"), False),
@@ -2427,7 +2565,7 @@ PAGES = {
 # Sticky bar: checkout on the buy pages; a link to the shop on guides and the 404; none after a
 # purchase or sign-up.
 STICKY = {fn: "shop" for fn in list(GUIDE_META) + ["guides.html", "404.html", "about.html", "privacy.html", "terms.html"]}
-STICKY.update({"order-complete.html": None, "thanks.html": None, "start.html": None})   # /start: the picker is the page
+STICKY.update({"order-complete.html": None, "thanks.html": None, "start.html": None, "house-coffee.html": None})   # house coffee: the CoreJava checkout bar doesn't belong   # /start: the picker is the page
 
 # LCP image preloads
 PRELOAD = {"index.html": preload(HERO_IMG, HERO_SIZES), "start.html": f'<link rel="preload" as="image" type="image/webp" href="{LP_VIDEO_POSTER}" fetchpriority="high">',
@@ -2493,7 +2631,7 @@ print("wrote creator links:", ", ".join(f"/c/{c}" for c in CREATORS))
 import datetime as _dt
 _today = _dt.date.today().isoformat()
 _indexable = [fn for fn,(t,d,b,og,ni) in PAGES.items() if not ni]
-_prio = {"index.html": "1.0", "shop.html": "0.9", "corejava-coffee.html": "0.8", "ingredients.html": "0.8", "faq.html": "0.7"}
+_prio = {"index.html": "1.0", "shop.html": "0.9", "house-coffee.html": "0.7", "corejava-coffee.html": "0.8", "ingredients.html": "0.8", "faq.html": "0.7"}
 _prio.update({fn: "0.6" for fn in GUIDE_META})
 _prio.update({fn: "0.5" for fn in RECIPE_BY})
 _old_lastmod = {}
@@ -2520,7 +2658,7 @@ def _llm_link(fn):
     return f"- [{_html.unescape(t.split(' | ')[0].split(' — ')[0])}]({url_for(fn)}): {_html.unescape(d)}"
 LLMS = f"""# The Morning Upgrade
 
-> The Morning Upgrade (themorningupgrades.com) sells 1 product in the United States: CoreJava, an instant coffee made by MarketPlace Global with MCT powder from coconut, natural caffeine and L-theanine among its ingredients (the full Supplement Facts panel is on the ingredients page). 1 level scoop in 8 fl oz of hot water makes a cup, and a bag holds 30 servings. The site is run by Rector & Stull LLC, an independent sales representative (ISR) of MarketPlace Global; Rector & Stull is not the manufacturer.
+> The Morning Upgrade (themorningupgrades.com) sells CoreJava in the United States, an instant coffee made by MarketPlace Global with MCT powder from coconut, natural caffeine and L-theanine among its ingredients (the full Supplement Facts panel is on the ingredients page). 1 level scoop in 8 fl oz of hot water makes a cup, and a bag holds 30 servings. The site is run by Rector & Stull LLC, an independent sales representative (ISR) of MarketPlace Global; Rector & Stull is not the manufacturer.
 
 Facts as stated on the site (updated {_today}):
 
@@ -2534,11 +2672,13 @@ Facts as stated on the site (updated {_today}):
 - Contains caffeine. For adults; not for children or anyone pregnant or nursing. Ask a physician first if you take medication or have a medical condition.
 - Product copy quotes the label rather than adding claims of its own. The guides are general information, not medical advice.
 - People shown in the site's videos are AI presenters, and the site says so.
+- House coffees (separate from CoreJava, not MarketPlace Global products): Cup of Joe Everyday Coffee, 100% ground coffee, 12 oz (340 g), $27.95 a bag, roast chosen at checkout (Light, Medium from Colombia, or Dark); and The Morning Upgrade Mushroom Coffee Blend, medium roast coffee with mushroom powder, 12 oz (340 g), $33.95 a bag. One-time orders only. Roasted to order by a roasting partner; ships in about 2-3 business days, then 3-6 days in transit; $5.95 flat US shipping. No returns on opened coffee; damaged or wrong bags replaced within 30 days. The CoreJava 90-day guarantee does not apply.
 - Contact: hello@themorningupgrades.com. Rector & Stull LLC, 30 N Gould St Ste R, Sheridan, WY 82801.
 
 ## Product
 
 {_llm_link("shop.html")}
+{_llm_link("house-coffee.html")}
 {_llm_link("corejava-coffee.html")}
 {_llm_link("ingredients.html")}
 {_llm_link("faq.html")}
