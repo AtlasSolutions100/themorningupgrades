@@ -881,12 +881,12 @@ def shop_gallery_tests(b, base):
     check(stage.get_attribute("data-current") == "0", "/corejava swipe right goes back")
     check(pg.locator("#shop-video").evaluate("v => v.paused && !v.autoplay"), "/corejava video does not autoplay (reduced motion)")
     ctx.close()
-    # home: the pack shot is the hero
+    # home: the real bag in the generated scene is the hero
     ctx = context(b, base, 1280, 900); pg = ctx.new_page(); pg.goto(base + "/")
     img = pg.locator(".hero2-media img")
     html = pg.content()
-    check("/img/opt/packshot-" in (img.get_attribute("src") or "") and "lux-still" not in html
-          and 'imagesrcset="/img/opt/packshot-' in html, "home hero is the pack shot (preloaded); lux-still is gone")
+    check("/img/opt/hero-scene-" in (img.get_attribute("src") or "") and "lux-still" not in html
+          and 'imagesrcset="/img/opt/hero-scene-' in html, "home hero is the bag scene (preloaded); lux-still is gone")
     ctx.close()
 
 

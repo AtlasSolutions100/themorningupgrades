@@ -446,7 +446,7 @@ section:not(.alt):not(.dark):not(.hero2):not(.ihero):not(.shop)+section:not(.alt
 .hero2-grid{display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"media" "copy" "buy";row-gap:0}
 .hero2-copy{grid-area:copy;text-align:center;padding:26px 0 18px}
 .hero2-media{grid-area:media;margin:0 calc(-1*var(--gut));aspect-ratio:16/10;border-radius:0;background:var(--linen)}
-.hero2-media img{object-position:50% 62%}
+.hero2-media img{object-position:50% 45%}
 .hero2-buy{grid-area:buy;min-width:0}
 .hero2 .eyebrow{margin-bottom:10px}
 .hero2 h1,.hero2 .h1c{font-size:clamp(33px,8.6vw,58px);line-height:1.06;letter-spacing:-.02em;margin:0 auto 12px;max-width:16ch}

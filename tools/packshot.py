@@ -8,7 +8,7 @@ recolouring or label edits; his counter and tiles are gone). BAG_SRC can point b
 Nothing about the bag is changed: it is only scaled (down, so it stays sharp) and placed. The backdrop,
 the light falloff and the contact shadow are drawn here in code; there are no props.
 The frame is 1600x2000 (4:5). The bag sits in the lower middle so the phone crops still show all of it:
-home hero 16:10 at object-position 50% 62% (rows 620 to 1620), /shop stage 50% 70%.
+/shop stage at object-position 50% 70%, /corejava-coffee 50% 58% (the home hero is now tools/hero_scene.py).
 
 Run:  python3 tools/packshot.py && python3 tools/images.py && python3 build_site.py
 """
