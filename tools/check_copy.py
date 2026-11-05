@@ -47,7 +47,7 @@ FAT_NEAR = r"burn\w*|los[es]\w*|loss|body|belly|melt\w*|shed\w*|reduc\w*|torch\w
 # Exact contexts stripped before testing. Keep each one narrow.
 ALLOW = (
     r'"weight":\s*\{\s*"@type":\s*"QuantitativeValue"',             # Product schema net weight key
-    r"\bnet (wt\.?|weight)\b[^<\n]{0,24}?\d",                       # "net wt 7.2 oz"
+    r"\bnet (wt\.?|weight)\b[^<\n]{0,24}?\d",                       # "net wt 7.5 oz"
     r"\d[\d.,]*\s*(oz|g|lb)\b[^<\n]{0,12}?\bnet (wt\.?|weight)\b",
     r"\bshipping weight\b[^<\n]{0,24}?\d",
     r"assets/ads/[\w./-]+",                                         # ad file paths
@@ -66,6 +66,18 @@ ALLOW = (
     # House coffee (owner, Nov 4 2026): the Mushroom Coffee Blend bag says "Medium roast coffee with mushroom
     # powder", and that is the only way the site describes it. Only this exact phrase; CoreJava stays Dark Roast.
     r"medium roast coffee with mushroom powder",
+    # The bag's own printed statements (owner, Koby, Nov 4 2026: verbatim label quotes allowed on info pages,
+    # never on ad landing pages). Exact strings only, capitals as printed, case-sensitive; tools/test_pages.py
+    # checks they appear only on /ingredients and /corejava-coffee. Everything else stays banned.
+    r"(?-i:WEIGHT CONTROL COFFEE&dagger;)",
+    r"(?-i:SUPPORTS HEALTHY APPETITE CONTROL \| FOCUS \| ENERGY&dagger;)",
+    r"(?-i:HELPS BOOST METABOLISM, ENERGY &amp; FOCUS&dagger;)",
+    # The Supplement Facts panel transcribed as printed (Nov 4 2026 bag): its Calories row and its
+    # Daily Value footnote. Only these exact forms.
+    r'(?-i:\("Calories", "25", ""\))',
+    r"(?-i:<td>Calories</td><td>25</td>)",
+    r"(?-i:Calories 25)",
+    r"(?-i:\* Percent Daily Values are based on a 2,000 calorie diet\.)",
 )
 
 SKIP_DIRS = {".git", "node_modules", "tools", "img", "media", "assets"}
@@ -164,21 +176,26 @@ def drift():
 
 def selftest():
     ok = True
-    must_pass = ['"weight":{"@type":"QuantitativeValue","value":204}', "Net Wt 7.2 oz (204 g)", "net weight 204 g",
+    must_pass = ['"weight":{"@type":"QuantitativeValue","value":213}', "Net Wt 7.5 oz (213 g)", "net weight 213 g",
                  "MCTs are a type of fat, usually made from coconut", "assets/ads/tmu_flatlay_4x5.jpg",
                  "a dietary supplement", 'data-v="crash"', '{"crash": ["The 2 PM slide"', '[("crash", "Early afternoon', "Most participants earn little",
                  "A 2022 review in the journal", "the fat content is real: read the nutrition panel",
                  "Dark roast, a little smoother", "medium heat", "medium-chain triglycerides",
                  "steady energy", "before bed", "after lunch",
                  "The bag says Weight Control Coffee. Is that what this is?", "and we make no weight claims.",
-                 "Medium roast coffee with mushroom powder."]
+                 "Medium roast coffee with mushroom powder.",
+                 "&ldquo;WEIGHT CONTROL COFFEE&dagger;&rdquo;", "SUPPORTS HEALTHY APPETITE CONTROL | FOCUS | ENERGY&dagger;",
+                 "HELPS BOOST METABOLISM, ENERGY &amp; FOCUS&dagger;", "<td>Calories</td><td>25</td>",
+                 "* Percent Daily Values are based on a 2,000 calorie diet."]
     must_fail = ["supports weight loss", "Weight control coffee", "healthy appetite control", "boosts metabolism",
                  "fat burning", "burns fat", "slimming", "Most popular", "No 2 PM crash", "the jitters",
                  "Most people stop", "★★★★★", "500 reviews", "helps you lose fat",
                  "keto friendly", "curbs cravings", "weight",
                  "Medium roast", "medium-roast instant coffee", "a medium-dark roast",
                  "the afternoon slump", "no more energy drops", "before-and-after", "before/after",
-                 "a medium roast coffee", "Medium roast coffee with MCT"]
+                 "a medium roast coffee", "Medium roast coffee with MCT",
+                 "WEIGHT CONTROL COFFEE", "Supports healthy appetite control | focus | energy&dagger;",
+                 "helps boost metabolism, energy &amp; focus&dagger;", "HELPS BOOST METABOLISM", "low calorie", "Calories 30"]
     for s in must_pass:
         if scan_text(s):
             print("selftest FAIL (should pass):", s, scan_text(s)); ok = False

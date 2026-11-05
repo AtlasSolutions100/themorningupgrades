@@ -197,7 +197,7 @@ def guide_tests(b, base):
         h = open(os.path.join(root, fn)).read()
         rel = h.split("Related guides")[1].split("</ul>")[0]
         check(f'href="/{other}"' in rel and h.count('<ol class="fine src">') == 1, f"{fn}: links {other} in related guides and lists sources")
-        check("100 mg natural caffeine" in _h.unescape(h) and "no mushrooms on the label" in h, f"{fn}: our product described by label facts")
+        check("150 mg caffeine" in _h.unescape(h) and "no mushrooms on the label" in h, f"{fn}: our product described by label facts")
     ctx = context(b, base); pg = ctx.new_page()
     pg.goto(base + "/instant-coffee-vs-drip-cost-per-cup.html")
     check("$2.33 a cup" in pg.locator(".calc-out").inner_text(), "cost calculator shows $2.33 a cup for 69.95 / 30")
@@ -552,7 +552,7 @@ def seo_tests(b, base):
     # the CoreJava page: label facts, disclosure, no claims, and linked from the pages that matter
     h = open(os.path.join(root, "corejava-coffee.html")).read()
     txt = _h.unescape(re.sub(r"<[^>]+>", " ", h))
-    for must in ("100 mg of added natural caffeine", "the instant coffee’s own", "$79.95", "$69.95", "Independent ISR of MarketPlace Global",
+    for must in ("150 mg per scoop in total", "1,500 mg MCTs from coconut", "7.5 oz (213 g)", "1 level scoop (7 g)", "$79.95", "$69.95", "Independent ISR of MarketPlace Global",
                  "not an independent review", "Dark Roast Colombian Instant Coffee", "400 mg"):
         check(must in txt, f"corejava-coffee.html says {must!r}")
     check('"@type":"Product"' in h and '"@type":"FAQPage"' in h, "corejava-coffee.html has Product and FAQPage markup")
@@ -562,6 +562,29 @@ def seo_tests(b, base):
     check('id="panel-text"' in ing and "L-Theanine" in ing and "400 mg" in ing, "ingredients.html has the Supplement Facts panel as text")
     llms = open(os.path.join(root, "llms.txt")).read()
     check("corejava-coffee.html" in llms and "L-Theanine 400 mg" in llms, "llms.txt lists the CoreJava page and the panel")
+    # the current bag (Koby's photos, Nov 4 2026): no page may carry the old label's figures
+    every = sorted(glob.glob(os.path.join(root, "*.html")) + glob.glob(os.path.join(root, "c", "**", "*.html"), recursive=True))
+    for path in every + [os.path.join(root, "llms.txt")]:
+        txt = _h.unescape(open(path, encoding="utf-8").read())
+        for old in ("100 mg natural caffeine", "100 mg of added natural caffeine", "6.8 g", "7.2 oz", "204 g", "1,700%"):
+            check(old not in txt, f"{os.path.relpath(path, root)}: no old-label figure {old!r}")
+    for must in ("Medium-Chain Triglycerides (Coconut MCT Oil and Acacia Fiber)", "1710%", "Caffeine (from Dark Roast Colombian Instant Coffee",
+                 "Serving size: 1 level scoop (7 g)", "Natural Flavors, Silicon Dioxide", "Contains:</strong> tree nuts (coconut)"):
+        check(must in ing, f"ingredients.html panel text has {must!r}")
+    # the bag's printed statements (owner, Koby, Nov 4 2026): quoted on the 2 info pages only, with the FDA notice
+    quotes = ("WEIGHT CONTROL COFFEE&dagger;", "SUPPORTS HEALTHY APPETITE CONTROL | FOCUS | ENERGY&dagger;", "HELPS BOOST METABOLISM, ENERGY &amp; FOCUS&dagger;")
+    fda = "These statements have not been evaluated by the Food and Drug Administration."
+    for path in every + [os.path.join(root, "llms.txt")]:
+        rel = os.path.relpath(path, root); raw = open(path, encoding="utf-8").read()
+        has = [q for q in quotes if q in raw or _h.unescape(q) in _h.unescape(re.sub(r"<[^>]+>", " ", raw))]
+        if rel in ("ingredients.html", "corejava-coffee.html"):
+            sec = raw.split('id="label-says"')[1].split("</div>")[0] if 'id="label-says"' in raw else ""
+            check(len(has) == 3 and all(q in sec for q in quotes) and fda in sec and "quoted as printed" in sec,
+                  f"{rel}: 'What the label says' quotes the 3 label statements with the FDA notice")
+        else:
+            check(not has, f"{rel}: no label benefit quotes ({has})")
+    for page in ("start.html", "shop.html", "index.html", "house-coffee.html"):
+        check('id="label-says"' not in open(os.path.join(root, page)).read(), f"{page}: no 'What the label says' section")
 
 
 def klaviyo_checkout_tests(b, base):
@@ -731,7 +754,7 @@ def shop_gallery_tests(b, base):
         check(vis() == [i] and pressed() == [i], f"/shop thumb {i + 1} swaps the stage")
     thumbs.nth(5).click(); pg.wait_for_timeout(800)
     st = v.evaluate("v => ({paused: v.paused, src: v.currentSrc, muted: v.muted})")
-    check(vis() == [5] and pressed() == [5] and "corejava-inside-v2" in st["src"], "/shop video thumb shows the video and loads it")
+    check(vis() == [5] and pressed() == [5] and "corejava-inside-v3" in st["src"], "/shop video thumb shows the video and loads it")
     check(not st["paused"], "/shop video plays from the click")
     thumbs.nth(0).click()
     check(v.evaluate("v => v.paused") and vis() == [0], "/shop video pauses when another thumb is chosen")
