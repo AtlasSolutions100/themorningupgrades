@@ -854,3 +854,4 @@ section.cat{padding-top:clamp(24px,3vw,40px)}
 }
 body:has(.menu.open) .sticky{display:none}
 @media(max-width:860px){.pcrumbs{margin:8px 0 6px;font-size:13px}}
+@media(max-width:599px){.pc-img{aspect-ratio:1/1}.pc-img img{object-position:50% 60%}}
