@@ -80,6 +80,39 @@ ALLOW = (
     r"(?-i:\* Percent Daily Values are based on a 2,000 calorie diet\.)",
 )
 
+# No discounts (owner): no price-saving or discount wording and no struck-through prices anywhere, including
+# CoreJava's pages, cards and the plan picker. "Subscribe & Save" is the plan's name, not a saving claim.
+# The one exception (owner, Koby, Nov 5 2026): the 2 bundle cards on /shop may say "Save $X vs buying
+# separately" and strike the separate total, computed from the price constants in build_site.py. The exception
+# is scoped to the bundle card markup (<article class="pcard bcard ...">...</article>) and, in build_site.py, to
+# the bundle_card() function that writes it. Everything else stays banned.
+PROMO = (
+    r"\bsav(e|es|ing|ings)\s+(up to\s+|over\s+)?(\$|\d)",                # "save $17.95", "saves 20"
+    r"\bsav(e|es|ing|ings)\b[^<\n]{0,30}?\b(vs\.?|versus|separately|off)\b", # "save vs buying separately"
+    r"\bsavings?\s+of\b", r"\byou save\b",
+    r"\d+\s*%\s*off\b", r"\$[\d.,]+\s+off\b",
+    r"\bdiscount(s|ed)?\b",
+    r"<(s|del|strike)[\s>]", r"line-through",
+)
+PROMO_ALLOW = (
+    r"Subscribe(&nbsp;|\s)*(&amp;|&|and)(&nbsp;|\s)*Save",              # the plan's name
+    r"not the headline discount",                                       # the subscription guide's advice, no offer
+    r'<article class="pcard bcard[^"]*"[\s\S]*?</article>',            # the bundle cards (Koby, Nov 5 2026)
+    r"\ndef bundle_card\([\s\S]*?\n(?=def )",                         # the function that writes them
+)
+
+
+def promo_scan(text):
+    masked = text
+    for a in PROMO_ALLOW:
+        masked = re.sub(a, lambda m: re.sub(r"[^\n]", " ", m.group(0)), masked, flags=re.I)
+    hits = []
+    for p in PROMO:
+        for m in re.finditer(p, masked, re.I):
+            hits.append((m.start(), m.group(0), "price-saving, discount or strikethrough outside the bundle cards"))
+    return hits
+
+
 SKIP_DIRS = {".git", "node_modules", "tools", "img", "media", "assets"}
 
 
@@ -138,7 +171,7 @@ def check(paths):
             continue
         chunks = js_strings(text) if path.endswith(".js") else [(1, text)]
         for base_line, chunk in chunks:
-            for off, word, rule in scan_text(chunk):
+            for off, word, rule in sorted(set(scan_text(chunk) + promo_scan(chunk))):
                 line = base_line + chunk.count("\n", 0, off)
                 ctx = chunk[max(0, off - 40):off + 40].replace("\n", " ")
                 problems.append(f"{rel}:{line}: {word!r} ({rule}) ... {ctx} ...")
@@ -202,6 +235,18 @@ def selftest():
     for s in must_fail:
         if not scan_text(s):
             print("selftest FAIL (should flag):", s); ok = False
+    promo_pass = ["Subscribe &amp; Save", "Subscribe&nbsp;&amp;&nbsp;Save is $69.95 a month", "Save my number", "A hand mixer saves your wrist: about 2 minutes",
+                  "isn't a saving", "not the headline discount",
+                  '<article class="pcard bcard cg-4" id="pc-bundle-cupofjoe"><s>$107.90</s> Save $17.95 vs buying separately</article>']
+    promo_fail = ["Save $10", "save 20% today", "$10 off", "20% off", "a discount", "discounted price", "<s>$79.95</s>", "<del>$79.95</del>",
+                  "you save", "Save vs buying separately", "savings of $5", "text-decoration:line-through",
+                  '<article class="pcard" id="pc-corejava">Save $10 vs 1 bag</article>']
+    for s in promo_pass:
+        if promo_scan(s):
+            print("selftest FAIL (promo should pass):", s, promo_scan(s)); ok = False
+    for s in promo_fail:
+        if not promo_scan(s):
+            print("selftest FAIL (promo should flag):", s); ok = False
     print("selftest", "ok" if ok else "FAILED")
     return ok
 

@@ -96,7 +96,9 @@ $89.95 and CoreJava + Mushroom Coffee Blend $94.95, $8.95 shipping, ship in 2 pa
 `STRIPE_BUNDLE_CUPOFJOE` / `STRIPE_BUNDLE_MUSHROOM` in `assets/site.js` (`data-buy="bundle_cupofjoe"` /
 `"bundle_mushroom"`, same creator/ad credit as every Buy button; Stripe redirects to `order-complete.html?plan=<key>`).
 Bundle images are the real bag photo and the house bag design side by side, scaled only (`tools/bundle_shot.py`).
-Just the price on bundles: no "save" wording or strikethrough prices. Tests: `bundle_tests` in `tools/test_pages.py`.
+Bundle savings (Koby, Nov 5 2026): each bundle card says "Save $X vs buying separately" and strikes the separate
+total, both computed from `COREJAVA_BAG_PRICE` and the house coffee prices (shipping excluded); that is the only save
+wording or struck price on the site (`PROMO` / `PROMO_ALLOW` in `tools/check_copy.py`), never on CoreJava alone. Tests: `bundle_tests` in `tools/test_pages.py`.
 
 `/partner` and `/share` (the ISR pages) stay reachable by URL with their disclosures, but are noindex,
 out of the sitemap and not linked from the customer nav or footer (owner, Nov 2026).
