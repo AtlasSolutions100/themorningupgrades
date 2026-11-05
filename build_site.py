@@ -399,8 +399,9 @@ def page(title, desc, body, og_image="/img/opt/breakfast-og-1200.jpg", noindex=F
 # ---------- Shared blocks (design v4: "considered morning", made plainer) ----------
 # Voice: short, plain sentences. Say what it is, what's in it, how to make it, what it costs and how
 # to order. Numbers as digits ("30 seconds", "1 scoop"). Nothing past the label (tools/check_copy.py
-# lists the words that stay out). No badges, no discount shouting.
+# lists the words that stay out). No badges, no sale shouting.
 
+COREJAVA_BAG_PRICE = "79.95"   # 1 bag, one-time: the "separately" price in the bundle savings
 PLAN_CTA = {"subscribe": "Subscribe for $69.95 a month", "onetime": "Buy 1 bag for $79.95"}
 # /start and /shop: the button names the plan and its price, and follows the radio
 PLAN_CTA_LP = {"subscribe": "Start Subscribe &amp; Save, $69.95 a month", "onetime": "Try 1 bag, $79.95"}
@@ -1273,7 +1274,11 @@ def product_card(key, h="h3", eager=False, cls="", acts=True):
 </article>"""
 
 # Bundles (Nov 5 2026): CoreJava + a house coffee, one Stripe Payment Link each (assets/site.js data-buy
-# bundle_cupofjoe / bundle_mushroom), $8.95 shipping, ships in 2 packages. Just the price: no "save" wording.
+# bundle_cupofjoe / bundle_mushroom), $8.95 shipping, ships in 2 packages.
+# Savings (owner, Koby, Nov 5 2026): the bundle cards state the saving against buying the 2 bags
+# separately and strike the separate total. Honest comparison only: CoreJava 1 bag (COREJAVA_BAG_PRICE) + the house coffee's price (HOUSE), shipping
+# excluded, minus the bundle price. The only place on the site with save wording or a struck price
+# (tools/check_copy.py scopes the exception to these cards); CoreJava on its own never gets either.
 BUNDLES = [
     {"key": "bundle_cupofjoe", "id": "bundle-cupofjoe", "img": "bundle-cupofjoe", "house": "cupofjoe", "price": "89.95",
      "name": "CoreJava + Cup of Joe",
@@ -1287,8 +1292,15 @@ BUNDLES = [
                '1 bag <a href="/mushroom-coffee-blend.html">The Morning Upgrade Mushroom Coffee Blend</a>, 12 oz']},
 ]
 
+def bundle_prices(b):
+    """(separate total, savings) as strings with 2 decimals, from the price constants."""
+    from decimal import Decimal
+    sep = Decimal(COREJAVA_BAG_PRICE) + Decimal(_HC[b["house"]]["price"])
+    return f"{sep:.2f}", f"{sep - Decimal(b['price']):.2f}"
+
 def bundle_card(b, cls=""):
     items = "".join(f"<li>{i}</li>" for i in b["items"])
+    sep, save = bundle_prices(b)
     return f"""<article class="pcard bcard{(" " + cls) if cls else ""}" id="pc-{b['id']}" aria-labelledby="pc-{b['key']}-h">
   <div class="frame pc-img">{pic(b['img'], b['alt'], sizes=CARD_SIZES)}</div>
   <div class="pc-body">
@@ -1296,7 +1308,7 @@ def bundle_card(b, cls=""):
     <h3 id="pc-{b['key']}-h">{b['name']}</h3>
     <ul class="bc-items">{items}</ul>
     <p class="bc-ship">Ships in 2 packages.</p>
-    <p class="pc-price"><b>${b['price']}</b><span>+ $8.95 shipping</span></p>
+    <p class="pc-price"><b>${b['price']}</b><span class="sr">Separately: </span><s class="bc-was">${sep}</s><span class="bc-save">Save ${save} vs buying separately</span><span>+ $8.95 shipping</span></p>
     <div class="pc-acts one"><a class="btn" data-buy="{b['key']}" href="#">Buy, ${b['price']}</a></div>
   </div>
 </article>"""

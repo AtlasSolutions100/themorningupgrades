@@ -820,6 +820,8 @@ section.cat{padding-top:clamp(24px,3vw,40px)}
 .bc-items{margin:0 0 10px;padding-left:18px;color:var(--ink2);font-size:15px}
 .bc-items li{margin:0 0 4px}
 .bc-items a{color:var(--ink)}
+.pc-price .bc-was{font-size:16px;color:var(--muted);margin-left:6px}
+.pc-price .bc-save{color:var(--brass-text);font-weight:600;font-size:14px;margin-top:4px}
 .bc-ship{margin:0 0 14px;color:var(--ink2);font-size:14.5px}
 .pc-acts.one{grid-template-columns:1fr}
 .ourc-cta{text-align:center;margin:clamp(24px,3vw,36px) 0 0}

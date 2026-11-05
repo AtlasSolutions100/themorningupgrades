@@ -537,8 +537,22 @@ def bundle_tests(b, base):
         check(c.locator("a[href='/corejava.html']").count() == 1 and c.locator(f"a[href='/{house}']").count() == 1 and c.locator("img").count() == 1,
               f"/shop {name}: links both product pages and has 1 image")
         low = t.lower()
-        check(not re.search(r"\bsave\b|\bsaving|discount|\boff\b|\bfree\b", low) and c.locator("s, del, strike").count() == 0, f"/shop {name}: no save/discount wording, no strikethrough price")
+        # savings (Koby, Nov 5 2026): separate prices (CoreJava 1 bag + the house coffee, shipping excluded) minus the bundle price
+        from decimal import Decimal as D
+        house_price = D(re.search(r"cupofjoe:([\d.]+)" if "cupofjoe" in k else r"mushroom:([\d.]+)", js.split("var PRICE=")[1]).group(1))
+        one_bag = D(re.search(r"onetime:([\d.]+)", js.split("var PRICE=")[1]).group(1))
+        house_card = D(re.search(r"\$([\d.]+)", pg.locator(f"#pc-{house[:-5]} .pc-price b").inner_text()).group(1))
+        sep, bundle = one_bag + house_price, D(price[1:])
+        was = c.locator("s.bc-was").inner_text().strip()
+        save = c.locator(".bc-save").inner_text().strip()
+        check(house_card == house_price and was == f"${sep}" and save == f"Save ${sep - bundle} vs buying separately",
+              f"/shop {name}: struck separate total {was} = $79.95 + ${house_price}; '{save}' = separate minus {price}")
+        check(c.locator("s, del, strike").count() == 1 and not re.search(r"discount|% off|\bfree\b", low), f"/shop {name}: 1 struck price, no discount or free wording")
         check(not re.search(HEALTH_WORDS, t, re.I) and "roastify" not in low and "\u2014" not in t and "\u2013" not in t, f"/shop {name}: no health words, no Roastify, no em/en dashes")
+    # outside the 2 bundle cards: no price-saving or discount wording and no struck price (CoreJava cards, picker, house cards)
+    rest = re.sub(r"Subscribe\s*&\s*Save", "", pg.locator("main").evaluate("m => { const c = m.cloneNode(true); c.querySelectorAll('.bcard').forEach(e => e.remove()); return c.innerText; }"))
+    check(not re.search(r"\bsav(e|es|ing|ings)\b|discount|% off|\$[\d.]+ off", rest, re.I)
+          and pg.locator("main s:not(.bcard s), main del, main strike").count() == 0, "/shop: save/discount wording and struck prices only inside the bundle cards")
     ld = " ".join(pg.locator("script[type='application/ld+json']").all_text_contents())
     il = [g for d in [json.loads(x) for x in pg.locator("script[type='application/ld+json']").all_text_contents()] for g in d["@graph"] if g["@type"] == "ItemList"]
     names = [i["name"] for i in il[0]["itemListElement"]] if il else []
@@ -580,6 +594,21 @@ def bundle_tests(b, base):
               and not pg.locator("[data-line=house]").is_visible() and not pg.locator("[data-line=corejava]").is_visible(),
               f"order page plan={plan}: bundle thank-you, ships in 2 packages")
         ctx.close()
+    # every generated page: price-saving/discount wording and struck prices only inside the bundle cards
+    import glob, importlib.util
+    spec = importlib.util.spec_from_file_location("check_copy", os.path.join(os.path.dirname(__file__), "check_copy.py"))
+    cc = importlib.util.module_from_spec(spec); spec.loader.exec_module(cc)
+    pages = sorted(glob.glob(os.path.join(root, "*.html")) + glob.glob(os.path.join(root, "c", "**", "*.html"), recursive=True))
+    bad = {os.path.relpath(f, root): [h[1] for h in cc.promo_scan(open(f).read())] for f in pages}
+    bad = {k: v for k, v in bad.items() if v}
+    check(not bad, f"no save/discount wording or struck price outside the bundle cards, on any page ({bad})")
+    shop = open(os.path.join(root, "shop.html")).read()
+    cards = re.findall(r'<article class="pcard bcard[\s\S]*?</article>', shop)
+    check(len(cards) == 2 and all("Save $" in c and "<s " in c for c in cards) and shop.count("Save $") == 2 and shop.count("<s ") == 2,
+          "/shop: the 2 save lines and 2 struck prices are inside the 2 bundle cards")
+    for fn in ("corejava.html", "index.html", "start.html", "cup-of-joe.html", "mushroom-coffee-blend.html", "corejava-coffee.html"):
+        h = open(os.path.join(root, fn)).read()
+        check("Save $" not in h and "<s " not in h and "<s>" not in h and "bcard" not in h, f"/{fn}: no bundle savings, no struck price")
     # /start stays as it was: no bundles, no Shop button, its own picker
     st = open(os.path.join(root, "start.html")).read()
     check("bundle" not in st.lower() and 'class="btn sm" href="/shop.html"' not in st and st.count("data-picker-btn") == 2, "/start unchanged: no bundles, mini header, its 2 pickers")
