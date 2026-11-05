@@ -400,7 +400,7 @@ def shop_ia_tests(b, base):
     cards = pg.locator("main .pcard")
     check(cards.count() == 5 and pg.locator("h1").inner_text().strip() == "Shop our coffee", "/shop lists 5 product cards (3 coffees, 2 bundles)")
     for fn, (name, key, link) in PRODUCT_PAGES.items():
-        c = pg.locator(f"main .pcard:has(a[href='/{fn}'])")
+        c = pg.locator(f"main #pc-{fn[:-5]}:has(a[href='/{fn}'])")   # by id: the bundle cards link the product pages too
         href = c.locator(f"a[data-buy={key}]").get_attribute("href") or ""
         check(c.count() == 1 and href.startswith(link + "?"), f"/shop card for {fn}: View link and quick Buy -> {key} checkout")
     check((pg.locator("main a[data-buy=onetime]").get_attribute("href") or "").startswith("https://buy.stripe.com/3cIbJ3fEv6XIbtk8iw4wM00"), "/shop CoreJava card also offers 1 bag")
