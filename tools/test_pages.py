@@ -607,7 +607,7 @@ def bundle_tests(b, base):
     check(len(cards) == 2 and all("Save $" in c and "<s " in c for c in cards) and shop.count("Save $") == 2 and shop.count("<s ") == 2,
           "/shop: the 2 save lines and 2 struck prices are inside the 2 bundle cards")
     for fn in ("corejava.html", "index.html", "start.html", "cup-of-joe.html", "mushroom-coffee-blend.html", "corejava-coffee.html"):
-        h = open(os.path.join(root, fn)).read()
+        h = re.sub(r"Subscribe(&nbsp;|\s)*(&amp;|&)(&nbsp;|\s)*Save", "", open(os.path.join(root, fn)).read())   # the plan's name
         check("Save $" not in h and "<s " not in h and "<s>" not in h and "bcard" not in h, f"/{fn}: no bundle savings, no struck price")
     # /start stays as it was: no bundles, no Shop button, its own picker
     st = open(os.path.join(root, "start.html")).read()
