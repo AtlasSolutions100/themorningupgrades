@@ -807,8 +807,8 @@ HOME = HOME_HERO + RITUAL + inside() + COMPARE + founder() + quiz_section("home"
 SHOP_STAGE_SIZES = "(max-width: 860px) 100vw, 55vw"
 SHOP_THUMB_SIZES = "(max-width: 860px) 24vw, 9vw"
 SHOP_SLIDES = [  # (image name, alt, thumb caption)
+    (HOME_HERO_IMG, HOME_HERO_ALT, "Morning"),
     (HERO_IMG, HERO_ALT, "The bag"),
-    ("lux-pattern", "The front of the CoreJava bag", "Front"),
     ("lux-granules", "A steel scoop heaped with instant coffee granules on travertine", "1 scoop"),
     ("lux-iced", "Iced coffee with milk sinking through it", "Over ice"),
     ("lux-pour", "Hot water pouring from a kettle into a stoneware cup", "Hot water"),
@@ -941,7 +941,7 @@ COREJAVA = """
   <p class="eyebrow">CoreJava, explained</p>
   <h1 style="font-size:clamp(32px,4.4vw,48px)">CoreJava coffee: what&rsquo;s in it, how to make it, and what it costs</h1>
   <p class="lead answer">CoreJava is a dark roast Colombian instant coffee made by MarketPlace Global. Each scoop has dark roast Colombian coffee, 150 mg caffeine, 400 mg L-theanine and 1,500 mg MCTs from coconut. Stir 1 level scoop into 8 fl oz of hot water. A bag holds 30 servings: $79.95, or $69.95 a month on Subscribe &amp; Save.</p>
-  <div class="frame gphoto gpack">""" + pic(HERO_IMG, HERO_ALT, sizes="(max-width: 760px) 100vw, 720px") + """</div>
+  <div class="frame gphoto gpack">""" + pic(HOME_HERO_IMG, HOME_HERO_ALT, sizes="(max-width: 760px) 100vw, 720px") + """</div>
   <h2>CoreJava at a glance</h2>
   <div class="tbl"><table>
     <tr><th></th><th>From the label and our store</th></tr>
@@ -1234,7 +1234,7 @@ def crumbs(name):
 
 # One card per product, used on /shop, on home and in "You might also like". View + a quick Buy.
 CARD = {
-    "corejava": {"img": HERO_IMG, "alt": "The CoreJava bag", "eyebrow": "Instant &middot; 30 servings",
+    "corejava": {"img": HOME_HERO_IMG, "alt": HOME_HERO_ALT, "eyebrow": "Instant &middot; 30 servings",
                  "line": "Dark roast Colombian instant coffee with MCT powder, L&#8209;theanine and 150 mg caffeine per scoop.",
                  "price": "<b>$69.95</b> a month<span>Subscribe &amp; Save, or $79.95 for 1 bag</span>",
                  "buy": ("subscribe", "Subscribe, $69.95/mo"), "alt_buy": ("onetime", "or buy 1 bag, $79.95")},
@@ -2866,7 +2866,7 @@ STICKY.update({"order-complete.html": None, "thanks.html": None, "start.html": N
 # LCP image preloads
 PRELOAD = {"index.html": preload(HOME_HERO_IMG, HERO_SIZES), "start.html": f'<link rel="preload" as="image" type="image/webp" href="{LP_VIDEO_POSTER}" fetchpriority="high">',
            "ingredients.html": preload("lux-ingredients", "(max-width: 860px) 100vw, 50vw"),
-           "corejava.html": preload(HERO_IMG, SHOP_STAGE_SIZES), "shop.html": preload(HERO_IMG, CARD_SIZES),
+           "corejava.html": preload(HOME_HERO_IMG, SHOP_STAGE_SIZES), "shop.html": preload(HOME_HERO_IMG, CARD_SIZES),
            "cup-of-joe.html": preload("house-cupofjoe", SHOP_STAGE_SIZES), "mushroom-coffee-blend.html": preload("house-mushroom", SHOP_STAGE_SIZES)}
 
 PAGES["90-mornings.html"] = ("90 Mornings — The Morning Upgrade", "A chapter-by-chapter email series for your first 90 mornings with the coffee. Coming soon.", NINETY, og_img("props-og"), True)
