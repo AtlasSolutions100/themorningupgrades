@@ -816,6 +816,7 @@ section.cat{padding-top:clamp(24px,3vw,40px)}
   .cg-c{grid-row:3;grid-column:1/-1;margin-top:clamp(28px,3vw,44px)}.cg-4{grid-row:4;grid-column:1/4}.cg-5{grid-row:4;grid-column:4/7}
   .bcard{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr)}
   .bcard .pc-img{aspect-ratio:auto;height:100%;min-height:360px}
+  .bcard .pc-img{background:#F7F2EC}.bcard .pc-img img{object-fit:contain}   /* both bags whole in the narrow column */
 }
 .bc-items{margin:0 0 10px;padding-left:18px;color:var(--ink2);font-size:15px}
 .bc-items li{margin:0 0 4px}
