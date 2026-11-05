@@ -43,7 +43,7 @@ IMAGES = {
     "flatlay":          ("flatlay.jpg", {}),
     "gym":              ("gym.jpg", {}),
     "patio":            ("patio_iced.jpg", {}),
-    "supplement-facts": ("supplement-facts.png", {"png": True, "q": 90}),
+    "supplement-facts": ("supplement-facts.png", {"q": 85}),   # photo of the printed panel (Nov 4 2026 bag)
     "lux-hero":         ("lux_hero.jpg", {"avif": True}),          # cup and steam, bag soft at the frame edge
     "lux-scoop":        ("lux_scoop.jpg", {"avif": True}),         # a scoop over the cup
     "lux-pour":         ("lux_pour.jpg", {"avif": True}),          # kettle pour, steam

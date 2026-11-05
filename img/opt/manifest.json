@@ -344,14 +344,14 @@
   ]
  },
  "supplement-facts": {
-  "ext": "png",
-  "h": 812,
+  "ext": "jpg",
+  "h": 1474,
   "src": "supplement-facts.png",
-  "w": 1000,
+  "w": 836,
   "widths": [
    480,
    800,
-   1000
+   836
   ]
  }
 }
