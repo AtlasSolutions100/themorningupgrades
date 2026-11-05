@@ -26,7 +26,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=Libre+Caslon+Display&family=Libre+Caslon+Text:ital@0;1&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=Libre+Caslon+Display&family=Libre+Caslon+Text:ital@0;1&display=swap" rel="stylesheet"></noscript>
 <link rel="stylesheet" href="/assets/site.css">
 <script src="/assets/site.js"></script>
-<link rel="preload" as="image" type="image/avif" imagesrcset="/img/opt/lux-still-480.avif 480w, /img/opt/lux-still-800.avif 800w, /img/opt/lux-still-1200.avif 1200w, /img/opt/lux-still-1600.avif 1600w" imagesizes="(max-width: 860px) 100vw, 50vw" fetchpriority="high">
+<link rel="preload" as="image" type="image/webp" href="/assets/video/corejava-inside-poster.webp" fetchpriority="high">
 </head>
 <body data-popup="off">
 <a class="skip" href="#main">Skip to content</a>
@@ -39,7 +39,19 @@
 <main id="main">
 
 <section class="hero2 lphero"><div class="wrap hero2-grid">
-  <div class="frame hero2-media"><picture><source type="image/avif" srcset="/img/opt/lux-still-480.avif 480w, /img/opt/lux-still-800.avif 800w, /img/opt/lux-still-1200.avif 1200w, /img/opt/lux-still-1600.avif 1600w" sizes="(max-width: 860px) 100vw, 50vw"><source type="image/webp" srcset="/img/opt/lux-still-480.webp 480w, /img/opt/lux-still-800.webp 800w, /img/opt/lux-still-1200.webp 1200w, /img/opt/lux-still-1600.webp 1600w" sizes="(max-width: 860px) 100vw, 50vw"><img src="/img/opt/lux-still-800.jpg" srcset="/img/opt/lux-still-480.jpg 480w, /img/opt/lux-still-800.jpg 800w, /img/opt/lux-still-1200.jpg 1200w, /img/opt/lux-still-1600.jpg 1600w" sizes="(max-width: 860px) 100vw, 50vw" width="1600" height="2000" alt="The CoreJava bag on a stone ledge behind a cup of black coffee and a scoop of beans" fetchpriority="high" decoding="async"></picture></div>
+  <div class="frame hero2-media lpvid">
+    <video id="lp-video" autoplay muted loop playsinline preload="metadata" width="1080" height="1350" poster="/assets/video/corejava-inside-poster.webp" aria-label="Video: what&rsquo;s inside CoreJava, 43 seconds, no sound" aria-describedby="lp-video-text">
+      <source src="/assets/video/corejava-inside.webm" type="video/webm">
+      <source src="/assets/video/corejava-inside.mp4" type="video/mp4">
+    </video>
+    <button type="button" class="vbtn" aria-controls="lp-video">Pause</button>
+    <script>(function(){var v=document.getElementById('lp-video'),b=v.parentNode.querySelector('.vbtn');
+      var set=function(){b.textContent=v.paused?'Play':'Pause';b.setAttribute('aria-label',(v.paused?'Play':'Pause')+' the video');};
+      try{if(matchMedia('(prefers-reduced-motion: reduce)').matches){v.removeAttribute('autoplay');v.autoplay=false;v.pause();}}catch(e){}
+      b.onclick=function(){if(v.paused){v.play().catch(function(){});}else{v.pause();}};
+      v.addEventListener('play',set);v.addEventListener('pause',set);set();})();</script>
+    <p class="sr" id="lp-video-text">CoreJava instant coffee: what's inside, and why it costs what it does. Not just a jar of instant: 1 scoop (6.8 g) holds 7 ingredients, each with an amount. Per scoop, from the label: 3,000 mg dark roast Colombian instant coffee; 100 mg natural caffeine (Coffea robusta, seed); 400 mg L-theanine; 600 mcg chromium as ChromeMate&reg; chromium polynicotinate; 1,500 mg Garcinia cambogia; 40 mg Paradoxine&reg; extract (Aframomum melegueta); 30 mg Saffr&rsquo;Activ&reg; extract (Crocus sativus L., saffron). 3 trademarked, branded ingredients: ChromeMate&reg;, Paradoxine&reg; and Saffr&rsquo;Activ&reg;. Plus MCT powder from coconut: makes the cup creamy, stirs right in. 30 servings a bag, ready in 30 seconds with no machine, 7.2 oz resealable bag. Contains tree nuts (coconut). Every amount is printed on the bag: the Supplement Facts panel. What a morning costs: caf&eacute; latte $5 to $7 (typical US price); CoreJava $2.33 to $2.67, before $8.95 shipping and tax. Subscribe &amp; Save $69.95 a month, 1 bag every 30 days, pause, skip or cancel anytime; or $79.95 for 1 bag of 30 servings. 90-day guarantee on unopened bags from the maker, MarketPlace Global. Ships from Minnesota in about 2 business days. Sold by Rector &amp; Stull LLC, an independent ISR.</p>
+  </div>
   <div class="hero2-copy">
     <p class="eyebrow">Instant coffee with MCT powder and L&#8209;theanine</p>
     <h1 class="h1c lp" id="lp-h1">Your $5 latte, for $2.33 a morning.</h1>

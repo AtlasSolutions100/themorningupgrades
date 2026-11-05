@@ -577,10 +577,47 @@ def klaviyo_checkout_tests(b, base):
     ctx.close()
 
 
+def start_video_tests(b, base):
+    """/start hero: the explainer video in the left column, muted/inline with a poster, the poster
+    preloaded (not the video), a text version for screen readers, reduced motion keeps it still,
+    and no star rating or Trustpilot score anywhere on the page."""
+    import re
+    ctx = context(b, base, 1280, 900); pg = ctx.new_page()
+    pg.goto(base + "/start.html")
+    v = pg.locator(".lphero .hero2-media video")
+    check(v.count() == 1, "/start hero has 1 video in the media column")
+    a = v.evaluate("v => ({muted: v.muted, inline: v.hasAttribute('playsinline'), loop: v.loop, poster: v.getAttribute('poster'), "
+                   "w: v.getAttribute('width'), h: v.getAttribute('height'), pre: v.getAttribute('preload'), "
+                   "desc: v.getAttribute('aria-describedby'), label: v.getAttribute('aria-label'), "
+                   "srcs: [...v.querySelectorAll('source')].map(s => s.getAttribute('src'))})")
+    check(a["muted"] and a["inline"] and a["loop"], "/start video is muted, playsinline and loops")
+    check(bool(a["poster"]) and a["w"] == "1080" and a["h"] == "1350", "/start video has a poster and width/height")
+    check(a["pre"] in ("metadata", "none"), "/start video is not fully preloaded")
+    check(bool(a["label"]) and pg.locator("#" + a["desc"]).count() == 1 and "Supplement Facts" in pg.locator("#" + a["desc"]).text_content(),
+          "/start video has a label and a text version")
+    check(all(pg.request.get(base + u).ok for u in a["srcs"] + [a["poster"]]), "/start video sources and poster exist")
+    html = pg.content()
+    check(f'rel="preload" as="image" type="image/webp" href="{a["poster"]}"' in html and 'as="video"' not in html,
+          "/start preloads the poster, not the video")
+    check(pg.locator(".lphero .hero2-media picture").count() == 0, "/start hero photo replaced by the video")
+    text = pg.locator("body").inner_text()
+    check(not re.search(r"trustpilot|\u2605|\bstars?\b|\d(\.\d)? out of 5", text + html, re.I), "/start has no Trustpilot or star rating")
+    ctx.close()
+    # reduced motion: no autoplay, poster stays; the button can still start it
+    ctx = b.new_context(viewport={"width": 390, "height": 844}, reduced_motion="reduce"); pg = ctx.new_page()
+    ctx.add_init_script("try{localStorage.setItem('tmu_notice','1')}catch(e){}"); ctx.add_init_script(NO_POPUP_JS)
+    pg.goto(base + "/start.html"); pg.wait_for_timeout(600)
+    st = pg.evaluate("() => {var v=document.getElementById('lp-video'); return {paused: v.paused, auto: v.hasAttribute('autoplay')}}")
+    check(st["paused"] and not st["auto"], "/start video does not autoplay with reduced motion")
+    check(pg.locator(".lpvid .vbtn").text_content().strip() == "Play", "/start video button offers Play when paused")
+    ctx.close()
+
+
 def main():
     with serve() as base, sync_playwright() as p:
         b = p.chromium.launch()
         start_tests(b, base)
+        start_video_tests(b, base)
         ia_tests(b, base)
         recipe_tests(b, base)
         guide_tests(b, base)
