@@ -57,6 +57,8 @@ ALLOW = (
     r'\("(crash|jitters)",',                                        # same keys in the QUIZ table
     r"results\.crash",
     r"most participants earn little|most people earn little",       # required income disclosure
+    # The Subscribe & Save plan tag (owner, Nov 4 2026: it is the plan most customers choose). Only this exact tag.
+    r'<span class="ptag">Most popular</span>',
     # The FAQ about the bag's printed name (owner, Nov 2026): the name is quoted once, and the answer
     # says we make no such claims. Nothing else may use the word.
     r"The bag says Weight Control Coffee\. Is that what this is\?",
