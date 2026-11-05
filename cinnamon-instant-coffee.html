@@ -33,14 +33,16 @@
 
 <nav class="nav" aria-label="Main"><div class="wrap">
   <a class="brand" href="/"><b>The Morning Upgrade</b></a>
-  <button class="burger" aria-label="Open menu" aria-expanded="false" aria-controls="menu">Menu</button>
+  <button class="burger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="menu">Menu</button>
   <div class="menu" id="menu">
-    <a href="/shop.html">Shop</a>
-    <a href="/house-coffee.html">House coffee</a>
-    <a href="/ingredients.html">Ingredients</a>
-    <a href="/guides.html">Guides</a>
-    <a href="/faq.html">FAQ</a>
-    <a class="btn sm" href="/shop.html">Get CoreJava</a>
+    <div class="dd"><button class="ddb" type="button" aria-expanded="false" aria-controls="dd-shop">Shop</button><span class="mh">Shop</span>
+      <div class="ddp" id="dd-shop"><a href="/shop.html">All coffees</a><a href="/corejava.html">CoreJava<small>Instant coffee with MCT and L&#8209;theanine</small></a><a href="/cup-of-joe.html">Cup of Joe<small>Ground coffee. Light, medium or dark</small></a><a href="/mushroom-coffee-blend.html">Mushroom Coffee Blend<small>Ground coffee with mushroom powder</small></a></div></div>
+    <div class="dd"><button class="ddb" type="button" aria-expanded="false" aria-controls="dd-learn">Learn</button><span class="mh">Learn</span>
+      <div class="ddp" id="dd-learn"><a href="/ingredients.html">What&rsquo;s in CoreJava</a><a href="/corejava-coffee.html">CoreJava, explained</a><a href="/guides.html">Guides</a><a href="/recipes.html">Recipes</a></div></div>
+    <a class="top" href="/faq.html">FAQ</a>
+    <a class="top mo" href="/shipping-returns.html">Shipping &amp; returns</a>
+    <a class="top mo" href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00" rel="noopener">Manage subscription</a>
+    <a class="btn sm" href="/corejava.html">Get CoreJava</a>
   </div>
 </div></nav>
 
@@ -65,7 +67,8 @@
   <div class="card" style="margin-top:28px;padding:24px;background:var(--tint);box-shadow:none">
     <h2 style="font-size:22px;margin:0 0 8px">The instant coffee we use</h2>
     <p>Dark-roast instant coffee with MCT powder from coconut, natural caffeine and L-theanine. 1 level scoop in hot water, 30 servings a bag. <a href="/ingredients.html">See every ingredient</a>.</p>
-    <p style="margin:0"><a class="btn" href="/shop.html">See the coffee</a></p>
+    <p style="margin:0"><a class="btn" href="/corejava.html">See the coffee</a></p>
+    <p class="fine" style="margin:12px 0 0">For drip or French press, see our ground house coffees: <a href="/shop.html#house">all 3 coffees</a>.</p>
   </div>
   <h2>More recipes</h2>
   <ul class="clean"><li><a href="/instant-coffee-latte.html">Instant coffee latte</a></li><li><a href="/instant-coffee-mocha.html">Mocha with instant coffee</a></li><li><a href="/instant-coffee-affogato.html">Instant coffee affogato</a></li><li><a href="/iced-instant-coffee-recipe.html">Iced instant coffee</a></li></ul>
@@ -79,21 +82,26 @@
   <div class="cols">
     <div>
       <h2 class="fh">The Morning Upgrade</h2>
-      <p>Dark roast Colombian instant coffee with MCT powder, L-theanine and natural caffeine. 1 scoop, hot water, 30 seconds; 30 servings a bag. Sold by Rector &amp; Stull LLC, Independent ISR of MarketPlace Global products and services.</p>
+      <p>CoreJava, a dark roast Colombian instant coffee with MCT powder, L-theanine and natural caffeine (1 scoop, hot water, 30 seconds; 30 servings a bag), and 2 ground house coffees roasted to order. Sold by Rector &amp; Stull LLC, Independent ISR of MarketPlace Global products and services.</p>
       <p>hello@themorningupgrades.com</p>
     </div>
     <div>
       <h2 class="fh">Shop</h2>
-      <a href="/shop.html">CoreJava coffee</a>
-      <a href="/house-coffee.html">House coffee</a>
-      <a href="/corejava-coffee.html">CoreJava, explained</a>
-      <a href="/ingredients.html">What's in it</a>
-      <a href="/faq.html">Questions</a>
+      <a href="/shop.html">All coffees</a>
+      <a href="/corejava.html">CoreJava</a>
+      <a href="/cup-of-joe.html">Cup of Joe</a>
+      <a href="/mushroom-coffee-blend.html">Mushroom Coffee Blend</a>
       <a href="/shipping-returns.html">Shipping &amp; returns</a>
-      <a href="/guides.html">Guides</a>
-      <a href="/recipes.html">Recipes</a>
       <a href="/start.html">Get started</a>
       <a href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00" rel="noopener">Manage subscription</a>
+    </div>
+    <div>
+      <h2 class="fh">Learn</h2>
+      <a href="/corejava-coffee.html">CoreJava, explained</a>
+      <a href="/ingredients.html">What's in it</a>
+      <a href="/guides.html">Guides</a>
+      <a href="/recipes.html">Recipes</a>
+      <a href="/faq.html">Questions</a>
     </div>
     <div>
       <h2 class="fh">Company</h2>
@@ -107,6 +115,6 @@
   <p>&copy; <span class="yr"></span> Rector &amp; Stull LLC &middot; 30 N Gould St Ste R, Sheridan, WY 82801</p>
 </div></footer>
 
-<aside class="sticky" aria-label="See the coffee"><div><b>Our instant MCT coffee</b><span>30 servings &middot; from $69.95/mo</span></div><a class="btn" href="/shop.html">See the coffee &rarr;</a></aside>
+<aside class="sticky" aria-label="See the coffee"><div><b>Our instant MCT coffee</b><span>30 servings &middot; from $69.95/mo</span></div><a class="btn" href="/corejava.html">See the coffee &rarr;</a></aside>
 </body>
 </html>

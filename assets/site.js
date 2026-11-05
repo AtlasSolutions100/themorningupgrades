@@ -232,16 +232,31 @@ window.TMU = {
 
   // ViewContent on the product pages, for TikTok / Meta / Snap optimisation.
   // GitHub Pages also serves /shop and /start without .html: count those too (ad URLs often drop it).
-  if (/^\/((index|shop|start)(\.html)?)?$/.test(location.pathname)) track('ViewContent',{value:PRICE.subscribe,currency:'USD'});
+  // Each product page reports its own product (value and SKU); home, /shop and /start report CoreJava as before.
+  var VC_PAGE={'corejava':'subscribe','cup-of-joe':'cupofjoe','mushroom-coffee-blend':'mushroom'};
+  var vcm=location.pathname.match(/^\/([a-z-]+?)(\.html)?$/), vcp=vcm&&VC_PAGE[vcm[1]];
+  if (vcp) track('ViewContent',{value:PRICE[vcp],currency:'USD',plan:vcp});
+  else if (/^\/((index|shop|start)(\.html)?)?$/.test(location.pathname)) track('ViewContent',{value:PRICE.subscribe,currency:'USD'});
 
   if (qref) track('CreatorVisit',{creator:qref});
 
   document.addEventListener('DOMContentLoaded', function(){
     // nav
     var b=document.querySelector('.burger'), m=document.querySelector('.menu');
-    if(b&&m) b.onclick=function(){ var open=m.classList.toggle('open'); b.setAttribute('aria-expanded', open?'true':'false'); b.setAttribute('aria-label', open?'Close menu':'Open menu'); };
+    var setMenu=function(open){ m.classList.toggle('open',open); b.setAttribute('aria-expanded', open?'true':'false'); b.setAttribute('aria-label', open?'Close menu':'Open menu'); };
+    if(b&&m){ b.onclick=function(){ setMenu(!m.classList.contains('open')); };
+      document.addEventListener('keydown',function(e){ if((e.key==='Escape'||e.key==='Esc') && m.classList.contains('open') && !document.querySelector('.dd.open')){ setMenu(false); b.focus(); } }); }
+    // Shop / Learn disclosure buttons (desktop): click or Enter toggles; Esc, a click outside or tabbing away closes.
+    var dds=[].slice.call(document.querySelectorAll('.menu .dd'));
+    var ddSet=function(dd,open){ dd.classList.toggle('open',open); var bt=dd.querySelector('.ddb'); if(bt) bt.setAttribute('aria-expanded',open?'true':'false'); };
+    dds.forEach(function(dd){ var bt=dd.querySelector('.ddb'); if(!bt) return;
+      bt.addEventListener('click',function(){ var open=!dd.classList.contains('open'); dds.forEach(function(o){ if(o!==dd) ddSet(o,false); }); ddSet(dd,open); });
+      dd.addEventListener('keydown',function(e){ if((e.key==='Escape'||e.key==='Esc') && dd.classList.contains('open')){ e.stopPropagation(); ddSet(dd,false); bt.focus(); } });
+      dd.addEventListener('focusout',function(e){ if(e.relatedTarget && !dd.contains(e.relatedTarget)) ddSet(dd,false); });
+    });
+    document.addEventListener('click',function(e){ dds.forEach(function(dd){ if(dd.classList.contains('open') && !dd.contains(e.target)) ddSet(dd,false); }); });
     var here=location.pathname.replace(/\/index\.html$/,'/');
-    document.querySelectorAll('.menu a').forEach(function(a){ var h=a.getAttribute('href'); if(h && (h===here || (h!=='/' && here.indexOf(h)===0))) a.classList.add('on'); });
+    document.querySelectorAll('.menu a').forEach(function(a){ var h=a.getAttribute('href'); if(h && (h===here || (h!=='/' && here.indexOf(h)===0))){ a.classList.add('on'); var dd=a.closest('.dd'); if(dd) dd.classList.add('on'); } });
     // analytics notice: a 1-line toast at the bottom, gone on the first scroll or tap (remembered per browser)
     try{ if(C.GA4_ID && !localStorage.getItem('tmu_notice')){ var n=document.createElement('div'); n.className='notice'; n.setAttribute('role','region'); n.setAttribute('aria-label','Analytics notice'); n.innerHTML='We use analytics and ad-measurement pixels (Google, TikTok, Meta, Snap) to see which pages and ads bring people here. <a href="/privacy.html">Privacy</a> <button type="button">OK</button>'; document.body.appendChild(n);
       var done=function(){ try{localStorage.setItem('tmu_notice','1')}catch(e){} n.remove(); window.removeEventListener('scroll',onScroll); document.removeEventListener('pointerdown',onTap,true); };
@@ -267,7 +282,9 @@ window.TMU = {
         if(v){ if(!v.getAttribute('data-loaded')){ [].forEach.call(v.querySelectorAll('source[data-src]'),function(s){ s.src=s.getAttribute('data-src'); }); v.setAttribute('data-loaded','1'); v.load(); }
           if(play){ v.muted=true; var p=v.play(); if(p&&p.catch) p.catch(function(){}); } }
         var t=thumbs[i], pr=t.parentNode; if(pr.scrollWidth>pr.clientWidth) pr.scrollLeft=t.offsetLeft-pr.clientWidth/2+t.offsetWidth/2;
+        var rk=slides[i].getAttribute('data-roast'); if(rk) roastPick(rk, false);
       };
+      stage.tmuShow=show;
       thumbs.forEach(function(t,k){ t.tabIndex=(k===0?0:-1);
         t.addEventListener('click',function(){ show(k, true); });
         t.addEventListener('keydown',function(e){ var d={ArrowRight:1,ArrowDown:1,ArrowLeft:-1,ArrowUp:-1}[e.key], j=null;
@@ -281,6 +298,19 @@ window.TMU = {
         if(Math.abs(dx)>=40&&Math.abs(dx)>Math.abs(dy)*1.3) show(cur+(dx<0?1:-1), false); });
       stage.addEventListener('pointercancel',function(){ x0=null; });
     });
+    // Cup of Joe roast picker: shows that roast's tasting notes and its bag in the gallery. The roast itself is
+    // chosen on the Stripe checkout page (a Payment Link can't be prefilled with a custom field).
+    function roastPick(k, moveGallery){
+      var box=document.querySelector('[data-roast-pick]'); if(!box) return;
+      var r=box.querySelector('input[value="'+k+'"]'); if(!r) return;
+      r.checked=true;
+      box.querySelectorAll('.ropt').forEach(function(o){ o.classList.toggle('on', o.contains(r)); });
+      var nm=box.querySelector('[data-roast-name]'), nt=box.querySelector('[data-roast-notes]');
+      if(nm) nm.textContent=r.parentNode.textContent.trim(); if(nt) nt.textContent=r.getAttribute('data-notes')||'';
+      if(moveGallery){ var st=document.querySelector('[data-gallery-stage]'), sl=st&&st.querySelector('.pslide[data-roast="'+k+'"]');
+        if(st&&st.tmuShow&&sl){ st.tmuShow([].indexOf.call(st.querySelectorAll('.pslide'), sl), false); } }
+    }
+    document.querySelectorAll('[data-roast-pick] input[type=radio]').forEach(function(r){ r.addEventListener('change',function(){ roastPick(r.value, true); }); });
     // year
     document.querySelectorAll('.yr').forEach(function(e){ e.textContent=new Date().getFullYear(); });
 
@@ -328,7 +358,7 @@ window.TMU = {
     });
     promoNotes();
     // The sticky bar steps aside while any picker's buy button is on screen (it would duplicate it).
-    var stickyEl=document.querySelector('.sticky'), pbs=document.querySelectorAll('[data-picker-btn]');
+    var stickyEl=document.querySelector('.sticky'), pbs=document.querySelectorAll('[data-picker-btn],[data-buy-main]');
     if(stickyEl && pbs.length && 'IntersectionObserver' in window){ var seen=new Map();
       var sio=new IntersectionObserver(function(es){ es.forEach(function(e){ seen.set(e.target, e.isIntersecting); }); var any=false; seen.forEach(function(v){ if(v) any=true; }); stickyEl.classList.toggle('hide', any); },{threshold:0});
       pbs.forEach(function(b){ sio.observe(b); }); }
@@ -469,7 +499,7 @@ window.TMU = {
               '<h2 id="tp-h2" tabindex="-1">Your Recipe Pack is ready.</h2>'+
               '<p class="tp-lede">12 drinks and a 30-morning tracker for the fridge. When you&rsquo;re ready for coffee, Subscribe &amp; Save is $69.95 a month; 1 bag is $79.95.</p>'+
               '<a class="btn ghost big tp-dl" href="'+pack+'" download>Download the Recipe Pack</a>'+
-              '<a class="btn big tp-use" data-buy="subscribe" href="/shop.html">Start Subscribe &amp; Save, $69.95 a month</a>'+
+              '<a class="btn big tp-use" data-buy="subscribe" href="/corejava.html">Start Subscribe &amp; Save, $69.95 a month</a>'+
               '<p class="tp-fine">$69.95 every 30 days plus $8.95 shipping, until you cancel. Pause, skip or cancel anytime.</p>'+
             '</div>'+
           '</div>'+

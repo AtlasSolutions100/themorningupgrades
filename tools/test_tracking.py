@@ -145,7 +145,7 @@ def first_party_tests(b, base):
 
     # MPG hand-off mode (no Stripe links): buy_click says mpg
     ctx, sent = ctx_with(); ctx.add_init_script("Object.defineProperty(window,'TMU',{configurable:true,set(v){v.STRIPE_ONETIME='';v.STRIPE_SUBSCRIBE='';Object.defineProperty(window,'TMU',{value:v,writable:true,configurable:true});},get(){return undefined;}})")
-    pg = ctx.new_page(); pg.goto(base + "/shop.html")
+    pg = ctx.new_page(); pg.goto(base + "/corejava.html")
     pg.evaluate("() => document.addEventListener('click', e => e.preventDefault())")
     pg.locator("main a[data-buy='onetime']").first.dispatch_event("click")
     wait(pg, sent, 2)
@@ -164,7 +164,8 @@ def main():
             return ctx, ctx.new_page()
 
         # 1. ViewContent on home/shop/start for the ad pixels, not on other pages, not to GA4
-        for path, want in [("/", True), ("/index.html", True), ("/shop.html", True), ("/start.html", True),
+        for path, want in [("/", True), ("/index.html", True), ("/shop.html", True), ("/start.html", True), ("/corejava.html", True), ("/corejava", True),
+                           ("/cup-of-joe.html", True), ("/mushroom-coffee-blend.html", True), ("/corejava-coffee.html", False),
                            ("/start?utm_source=tiktok", True), ("/shop", True), ("/faq", False),
                            ("/faq.html", False), ("/what-is-mct-coffee.html", False)]:
             ctx, pg = fresh(); pg.goto(base + path); e = events(pg)
@@ -214,7 +215,7 @@ def main():
             ctx.close()
 
         # 3. Buy clicks remember the plan; wire() still points at Stripe
-        ctx, pg = fresh(); pg.goto(base + "/shop.html")
+        ctx, pg = fresh(); pg.goto(base + "/corejava.html")
         pg.evaluate("() => document.addEventListener('click', e => e.preventDefault())")
         for kind in ("onetime", "subscribe"):
             a = pg.locator(f"main a[data-buy='{kind}']").first
@@ -236,7 +237,7 @@ def main():
             ctx.close()
         # 5. Stripe links carry the page's utm tags once, and nothing else from the landing URL
         ctx, pg = fresh()
-        pg.goto(base + "/shop.html?utm_source=tiktok&utm_medium=paid&utm_campaign=c1&client_reference_id=cr_evil&prefilled_promo_code=X&ttclid=T1")
+        pg.goto(base + "/corejava.html?utm_source=tiktok&utm_medium=paid&utm_campaign=c1&client_reference_id=cr_evil&prefilled_promo_code=X&ttclid=T1")
         href = pg.locator("main a[data-buy='subscribe']").first.get_attribute("href") or ""
         qs = __import__("urllib.parse").parse.parse_qs(href.split("?", 1)[1])
         check(qs.get("utm_source") == ["tiktok"] and qs.get("utm_campaign") == ["c1"], f"Stripe link has the page's utm_source once ({qs.get('utm_source')})")

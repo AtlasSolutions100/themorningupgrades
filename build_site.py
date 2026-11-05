@@ -3,17 +3,39 @@
 import os, re
 HERE = os.path.dirname(os.path.abspath(__file__))
 
-NAV = """
+# The 3 products (Nov 2026 shop pass): /shop.html lists them all; each has its own page.
+# key: the data-buy key in assets/site.js for the product's main checkout (CoreJava: Subscribe & Save).
+PRODUCTS = [
+    {"key": "corejava", "fn": "corejava.html", "name": "CoreJava", "nav": "CoreJava",
+     "navsub": "Instant coffee with MCT and L&#8209;theanine", "group": "Functional instant coffee"},
+    {"key": "cupofjoe", "fn": "cup-of-joe.html", "name": "Cup of Joe Everyday Coffee", "nav": "Cup of Joe",
+     "navsub": "Ground coffee. Light, medium or dark", "group": "House coffee, ground"},
+    {"key": "mushroom", "fn": "mushroom-coffee-blend.html", "name": "The Morning Upgrade Mushroom Coffee Blend", "nav": "Mushroom Coffee Blend",
+     "navsub": "Ground coffee with mushroom powder", "group": "House coffee, ground"},
+]
+PRODUCT_BY_FN = {p["fn"]: p for p in PRODUCTS}
+MANAGE_SUB = "https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00"
+
+# Header: Shop and Learn are disclosure buttons on desktop (site.js: click or Enter opens, Esc / a click
+# outside / tabbing away closes). On phones the burger opens one list: Shop > the 3 products, Learn, then
+# FAQ, Shipping & returns and Manage subscription (.mo links show on phones only).
+_SHOP_LINKS = '<a href="/shop.html">All coffees</a>' + "".join(
+    f'<a href="/{p["fn"]}">{p["nav"]}<small>{p["navsub"]}</small></a>' for p in PRODUCTS)
+_LEARN_LINKS = ('<a href="/ingredients.html">What&rsquo;s in CoreJava</a><a href="/corejava-coffee.html">CoreJava, explained</a>'
+                '<a href="/guides.html">Guides</a><a href="/recipes.html">Recipes</a>')
+NAV = f"""
 <nav class="nav" aria-label="Main"><div class="wrap">
   <a class="brand" href="/"><b>The Morning Upgrade</b></a>
-  <button class="burger" aria-label="Open menu" aria-expanded="false" aria-controls="menu">Menu</button>
+  <button class="burger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="menu">Menu</button>
   <div class="menu" id="menu">
-    <a href="/shop.html">Shop</a>
-    <a href="/house-coffee.html">House coffee</a>
-    <a href="/ingredients.html">Ingredients</a>
-    <a href="/guides.html">Guides</a>
-    <a href="/faq.html">FAQ</a>
-    <a class="btn sm" href="/shop.html">Get CoreJava</a>
+    <div class="dd"><button class="ddb" type="button" aria-expanded="false" aria-controls="dd-shop">Shop</button><span class="mh">Shop</span>
+      <div class="ddp" id="dd-shop">{_SHOP_LINKS}</div></div>
+    <div class="dd"><button class="ddb" type="button" aria-expanded="false" aria-controls="dd-learn">Learn</button><span class="mh">Learn</span>
+      <div class="ddp" id="dd-learn">{_LEARN_LINKS}</div></div>
+    <a class="top" href="/faq.html">FAQ</a>
+    <a class="top mo" href="/shipping-returns.html">Shipping &amp; returns</a>
+    <a class="top mo" href="{MANAGE_SUB}" rel="noopener">Manage subscription</a>
+    <a class="btn sm" href="/corejava.html">Get CoreJava</a>
   </div>
 </div></nav>
 """
@@ -23,21 +45,24 @@ FOOTER = """
   <div class="cols">
     <div>
       <h2 class="fh">The Morning Upgrade</h2>
-      <p>Dark roast Colombian instant coffee with MCT powder, L-theanine and natural caffeine. 1 scoop, hot water, 30 seconds; 30 servings a bag. Sold by Rector &amp; Stull LLC, Independent ISR of MarketPlace Global products and services.</p>
+      <p>CoreJava, a dark roast Colombian instant coffee with MCT powder, L-theanine and natural caffeine (1 scoop, hot water, 30 seconds; 30 servings a bag), and 2 ground house coffees roasted to order. Sold by Rector &amp; Stull LLC, Independent ISR of MarketPlace Global products and services.</p>
       <p>hello@themorningupgrades.com</p>
     </div>
     <div>
       <h2 class="fh">Shop</h2>
-      <a href="/shop.html">CoreJava coffee</a>
-      <a href="/house-coffee.html">House coffee</a>
+      <a href="/shop.html">All coffees</a>
+      """ + "\n      ".join(f'<a href="/{p["fn"]}">{p["nav"]}</a>' for p in PRODUCTS) + """
+      <a href="/shipping-returns.html">Shipping &amp; returns</a>
+      <a href="/start.html">Get started</a>
+      <a href=\"""" + MANAGE_SUB + """\" rel="noopener">Manage subscription</a>
+    </div>
+    <div>
+      <h2 class="fh">Learn</h2>
       <a href="/corejava-coffee.html">CoreJava, explained</a>
       <a href="/ingredients.html">What's in it</a>
-      <a href="/faq.html">Questions</a>
-      <a href="/shipping-returns.html">Shipping &amp; returns</a>
       <a href="/guides.html">Guides</a>
       <a href="/recipes.html">Recipes</a>
-      <a href="/start.html">Get started</a>
-      <a href="https://billing.stripe.com/p/login/3cIbJ3fEv6XIbtk8iw4wM00" rel="noopener">Manage subscription</a>
+      <a href="/faq.html">Questions</a>
     </div>
     <div>
       <h2 class="fh">Company</h2>
@@ -137,7 +162,7 @@ def _strip(h):
 FAQ_SKIP = {"What does it do?", "Who are the people in your videos?", "The bag says Weight Control Coffee. Is that what this is?"}
 
 # Breadcrumb (BreadcrumbList) names for pages whose <title> is a sentence. Guides use GUIDE_LINKS.
-CRUMB_NAME = {"shop.html": "Shop", "house-coffee.html": "House coffee", "ingredients.html": "CoreJava ingredients", "faq.html": "FAQ",
+CRUMB_NAME = {"shop.html": "Shop", "corejava.html": "CoreJava", "cup-of-joe.html": "Cup of Joe Everyday Coffee", "mushroom-coffee-blend.html": "Mushroom Coffee Blend", "ingredients.html": "CoreJava ingredients", "faq.html": "FAQ",
               "guides.html": "Guides", "recipes.html": "Recipes", "corejava-coffee.html": "CoreJava coffee",
               "about.html": "About", "shipping-returns.html": "Shipping & returns", "privacy.html": "Privacy",
               "terms.html": "Terms of sale", "partner.html": "Build with us", "share.html": "Share with friends"}
@@ -184,18 +209,18 @@ def product_ld():
     def offer(name, price, extra=None):
         o = {"@type": "Offer", "name": name, "price": price, "priceCurrency": "USD",
              "availability": "https://schema.org/InStock", "itemCondition": "https://schema.org/NewCondition",
-             "url": SITE + "/shop.html", "seller": SELLER, "offeredBy": SELLER,
+             "url": SITE + "/corejava.html", "seller": SELLER, "offeredBy": SELLER,
              "shippingDetails": ship, "hasMerchantReturnPolicy": returns}
         o.update(extra or {})
         return o
-    return {"@type": "Product", "@id": SITE + "/shop.html#product",
+    return {"@type": "Product", "@id": SITE + "/corejava.html#product",
             "name": PRODUCT_NAME,
             "brand": {"@type": "Brand", "name": "CoreJava"},
             "manufacturer": {"@type": "Organization", "name": "MarketPlace Global"},
             "description": "Dark roast Colombian instant coffee with 1,500 mg MCTs from coconut, 400 mg L-theanine and 150 mg caffeine per scoop. "
                            "1 level scoop (7 g) in 8 fl oz of hot water. 30 servings per 7.5 oz (213 g) bag. Contains caffeine.",
-            "url": SITE + "/shop.html",
-            "image": [SITE + og_img("hero-props"), SITE + og_img("shadows"), SITE + og_img("breakfast")],
+            "url": SITE + "/corejava.html",
+            "image": [SITE + og_img("packshot"), SITE + og_img("hero-props"), SITE + og_img("shadows"), SITE + og_img("breakfast")],
             "sku": "CL805",
             "category": "Instant coffee",
             "weight": {"@type": "QuantitativeValue", "value": 213, "unitCode": "GRM"},
@@ -209,16 +234,17 @@ def product_ld():
 # "mushroom"). Terms differ from CoreJava: $5.95 flat US shipping, ships in 2-3 business days, no returns on
 # opened coffee, damaged or wrong bags replaced within 30 days. No 90-day guarantee, no rating markup.
 HOUSE = [
-    {"key": "cupofjoe", "id": "cup-of-joe", "img": "house-cupofjoe",
+    {"key": "cupofjoe", "id": "cup-of-joe", "fn": "cup-of-joe.html", "img": "house-cupofjoe",
+     "imgs": ["house-cupofjoe", "house-cupofjoe-light", "house-cupofjoe-dark", "house-cupofjoe-side"],
      "name": "Cup of Joe Everyday Coffee", "price": "27.95", "sku": "TMU-CUPOFJOE-12",
      "ld_desc": "100% roasted coffee, ground. 12 oz (340 g) bag, about 34 cups at 2 tbsp (10 g) per 8 fl oz. "
                 "Choose Light, Medium (Colombia) or Dark at checkout."},
-    {"key": "mushroom", "id": "mushroom-blend", "img": "house-mushroom",
+    {"key": "mushroom", "id": "mushroom-blend", "fn": "mushroom-coffee-blend.html", "img": "house-mushroom", "imgs": ["house-mushroom"],
      "name": "The Morning Upgrade Mushroom Coffee Blend", "price": "33.95", "sku": "TMU-MUSHROOM-12",
      "ld_desc": "Medium roast coffee with mushroom powder. Tasting notes: dark chocolate, nougat, mild acidity. 12 oz (340 g) bag."},
 ]
 
-def house_ld():
+def house_ld(only=None):
     ship = {"@type": "OfferShippingDetails",
             "shippingRate": {"@type": "MonetaryAmount", "value": "5.95", "currency": "USD"},
             "shippingDestination": {"@type": "DefinedRegion", "addressCountry": "US"},
@@ -227,10 +253,12 @@ def house_ld():
                              "transitTime": {"@type": "QuantitativeValue", "minValue": 3, "maxValue": 6, "unitCode": "DAY"}}}
     out = []
     for h in HOUSE:
-        url = SITE + "/house-coffee.html#" + h["id"]
-        out.append({"@type": "Product", "@id": url, "name": h["name"], "description": h["ld_desc"],
+        if only and h["key"] != only:
+            continue
+        url = SITE + "/" + h["fn"]
+        out.append({"@type": "Product", "@id": url + "#product", "name": h["name"], "description": h["ld_desc"],
                     "brand": {"@type": "Brand", "name": "The Morning Upgrade"}, "url": url, "sku": h["sku"],
-                    "image": [SITE + og_img(h["img"])], "category": "Ground coffee",
+                    "image": [SITE + og_img(i) for i in h["imgs"]], "category": "Ground coffee",
                     "weight": {"@type": "QuantitativeValue", "value": 340, "unitCode": "GRM"},
                     "offers": {"@type": "Offer", "price": h["price"], "priceCurrency": "USD",
                                "availability": "https://schema.org/InStock", "itemCondition": "https://schema.org/NewCondition",
@@ -261,10 +289,14 @@ def structured_data(fn, title, desc, body, og_image):
         graph.append({"@type": "WebSite", "@id": SITE + "/#site", "url": SITE + "/", "name": "The Morning Upgrade",
                       "description": "Instant coffee with MCT powder, natural caffeine and L-theanine, plus plain-language guides.",
                       "inLanguage": "en-US", "publisher": {"@id": SITE + "/#org"}})
-    if fn in ("shop.html", "index.html", "corejava-coffee.html"):
+    if fn in ("corejava.html", "index.html", "corejava-coffee.html"):
         graph.append(product_ld())
-    if fn == "house-coffee.html":
-        graph.extend(house_ld())
+    if fn in ("cup-of-joe.html", "mushroom-coffee-blend.html"):
+        graph.extend(house_ld(PRODUCT_BY_FN[fn]["key"]))
+    if fn == "shop.html":
+        graph.append({"@type": "ItemList", "@id": SITE + "/shop.html#products", "name": "Coffee from The Morning Upgrade",
+                      "itemListElement": [{"@type": "ListItem", "position": i + 1, "name": _html.unescape(p["name"]), "url": url_for(p["fn"])}
+                                          for i, p in enumerate(PRODUCTS)]})
     if fn in GUIDE_META:
         pub, mod = GUIDE_META[fn]
         graph.append({"@type": "Article", "@id": url_for(fn) + "#article", "headline": title.split(" | ")[0],
@@ -286,6 +318,8 @@ def structured_data(fn, title, desc, body, og_image):
         crumbs = [("Home", SITE + "/")]
         if fn in GUIDE_META:
             crumbs.append(("Guides", url_for("guides.html")))
+        if fn in PRODUCT_BY_FN:
+            crumbs.append(("Shop", url_for("shop.html")))
         if fn in RECIPE_BY:
             crumbs.append(("Recipes", url_for("recipes.html")))
             crumbs.append((RECIPE_BY[fn]["name"], url_for(fn)))
@@ -303,13 +337,17 @@ def sticky_bar(mode):
     if mode == "buy":
         return f'<aside class="sticky" aria-label="Quick buy"><div><b>CoreJava &middot; 30 servings</b><span data-sticky-price>{PLAN_STICKY["subscribe"]}</span></div><a class="btn" data-buy="subscribe" href="#">Checkout</a></aside>'
     if mode == "shop":
-        return '<aside class="sticky" aria-label="See the coffee"><div><b>Our instant MCT coffee</b><span>30 servings &middot; from $69.95/mo</span></div><a class="btn" href="/shop.html">See the coffee &rarr;</a></aside>'
+        return '<aside class="sticky" aria-label="See the coffee"><div><b>Our instant MCT coffee</b><span>30 servings &middot; from $69.95/mo</span></div><a class="btn" href="/corejava.html">See the coffee &rarr;</a></aside>'
+    if mode in ("cupofjoe", "mushroom"):   # house coffee pages: their own checkout, steps aside while the page's buy button shows
+        h = _HC[mode]
+        return (f'<aside class="sticky" aria-label="Quick buy"><div><b>{h["short"]} &middot; 12 oz</b><span>${h["price"]} + $5.95 US shipping</span></div>'
+                f'<a class="btn" data-buy="{mode}" href="#">Buy</a></aside>')
     return ""
 
 # The email pop-up (assets/site.js) never opens on these: after an order or sign-up, the partner/ISR
 # pages, the 404, the quiz page (it would cover the quiz), the ad landing page (/start: the page
-# is the offer) and the house coffee page (the pop-up's offer is CoreJava's). site.js also keeps it closed on paid visits (utm_medium paid/cpc or the tmu_ut flag).
-NO_POPUP = {"order-complete.html", "thanks.html", "partner.html", "share.html", "404.html", "quiz.html", "start.html", "house-coffee.html"}
+# is the offer) and the house coffee product pages (the pop-up's offer is CoreJava's). site.js also keeps it closed on paid visits (utm_medium paid/cpc or the tmu_ut flag).
+NO_POPUP = {"order-complete.html", "thanks.html", "partner.html", "share.html", "404.html", "quiz.html", "start.html", "cup-of-joe.html", "mushroom-coffee-blend.html"}
 
 def page(title, desc, body, og_image="/img/opt/breakfast-og-1200.jpg", noindex=False, extra_head="", nav=True, fn="index.html", sticky="buy"):
     return f"""<!DOCTYPE html>
@@ -375,6 +413,9 @@ TERMS_HTML = '<ul class="terms">' + "".join(f"<li>{t}</li>" for t in TERMS_LINES
 CTA_BLOCK = """
 <div class="ctab"><a class="btn" data-buy="subscribe" href="#">Subscribe for $69.95 a month</a><a class="btn ghost" data-buy="onetime" href="#">Buy 1 bag for $79.95</a><p class="fine"><span data-ship="short">Ships to all 50 states</span>. Pause or cancel anytime. <span data-ship="checkout">Secure checkout</span>.</p></div>
 """
+# Under a closing CTA on the learn pages: the way to the other coffees
+ALLC = '<p class="allc"><a href="/corejava.html">CoreJava, plans and photos</a> &middot; <a href="/shop.html">See all 3 coffees</a></p>'
+
 
 _ICON = {
     "truck": '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" aria-hidden="true"><path d="M3 6h11v10H3zM14 9h4l3 3v4h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg>',
@@ -733,6 +774,7 @@ CLOSING_FAQ = """
 
 # ---------- HOME ----------
 HOME = HOME_HERO + RITUAL + inside() + COMPARE + founder() + quiz_section("home") + """
+<!--OUR_COFFEES-->
 <section><div class="wrap">
   <div class="shead"><h2>Guides</h2></div>
   <div class="glist">
@@ -768,86 +810,48 @@ SHOP_SLIDES = [  # (image name, alt, thumb caption)
     ("lux-pour", "Hot water pouring from a kettle into a stoneware cup", "Hot water"),
 ]
 SHOP_VIDEO_CAP = "What&rsquo;s inside, 43&nbsp;s"
-_n = len(SHOP_SLIDES) + 1
 
-def _shop_stage():
-    slides = []
-    for i, (img, alt, cap) in enumerate(SHOP_SLIDES):
+def gallery_stage(slides, label, video=False, cls=""):
+    """slides: (image name, alt, caption[, data-roast]). video: CoreJava's explainer as the last slide."""
+    n = len(slides) + (1 if video else 0)
+    out = []
+    for i, sl in enumerate(slides):
+        img, alt, cap = sl[:3]
+        roast = f' data-roast="{sl[3]}"' if len(sl) > 3 else ""
         hid = "" if i == 0 else " hidden"
-        slides.append(f'<div class="pslide" id="pslide-{i}" role="group" aria-roledescription="slide" aria-label="{i + 1} of {_n}: {cap}"{hid}>'
-                      + pic(img, alt, sizes=SHOP_STAGE_SIZES, eager=(i == 0)) + "</div>")
-    i = len(SHOP_SLIDES)
-    slides.append(f'<div class="pslide pvid" id="pslide-{i}" role="group" aria-roledescription="slide" aria-label="{i + 1} of {_n}: {SHOP_VIDEO_CAP}" hidden>'
-                  f'<video id="shop-video" controls playsinline muted preload="none" width="1080" height="1350" poster="{LP_VIDEO_POSTER}" '
-                  f'aria-label="Video: what&rsquo;s inside CoreJava, 43 seconds, no sound" aria-describedby="shop-video-text">'
-                  '<source data-src="/assets/video/corejava-inside-v3.webm" type="video/webm">'
-                  '<source data-src="/assets/video/corejava-inside-v3.mp4" type="video/mp4"></video>'
-                  f'<p class="sr" id="shop-video-text">{LP_VIDEO_TEXT}</p></div>')
-    dots = "".join('<i class="on"></i>' if k == 0 else "<i></i>" for k in range(len(SHOP_SLIDES))) + '<i class="vid"></i>'
-    return ('<div class="frame shop-main pstage" data-gallery-stage data-current="0" aria-roledescription="carousel" aria-label="CoreJava photos and video">\n    '
-            + "\n    ".join(slides) + f'\n    <span class="pdots" aria-hidden="true">{dots}</span>\n  </div>')
+        out.append(f'<div class="pslide" id="pslide-{i}" role="group" aria-roledescription="slide" aria-label="{i + 1} of {n}: {cap}"{roast}{hid}>'
+                   + pic(img, alt, sizes=SHOP_STAGE_SIZES, eager=(i == 0)) + "</div>")
+    if video:
+        i = len(slides)
+        out.append(f'<div class="pslide pvid" id="pslide-{i}" role="group" aria-roledescription="slide" aria-label="{i + 1} of {n}: {SHOP_VIDEO_CAP}" hidden>'
+                   f'<video id="shop-video" controls playsinline muted preload="none" width="1080" height="1350" poster="{LP_VIDEO_POSTER}" '
+                   f'aria-label="Video: what&rsquo;s inside CoreJava, 43 seconds, no sound" aria-describedby="shop-video-text">'
+                   '<source data-src="/assets/video/corejava-inside-v3.webm" type="video/webm">'
+                   '<source data-src="/assets/video/corejava-inside-v3.mp4" type="video/mp4"></video>'
+                   f'<p class="sr" id="shop-video-text">{LP_VIDEO_TEXT}</p></div>')
+    dots = "".join('<i class="on"></i>' if k == 0 else "<i></i>" for k in range(len(slides))) + ('<i class="vid"></i>' if video else "")
+    return (f'<div class="frame shop-main pstage{(" " + cls) if cls else ""}" data-gallery-stage data-current="0" aria-roledescription="carousel" aria-label="{label}">\n    '
+            + "\n    ".join(out) + f'\n    <span class="pdots" aria-hidden="true">{dots}</span>\n  </div>')
 
-def _shop_thumbs():
+def gallery_thumbs(slides, video=False):
     btns = []
-    for i, (img, alt, cap) in enumerate(SHOP_SLIDES):
+    for i, sl in enumerate(slides):
+        img, cap = sl[0], sl[2]
         on = "true" if i == 0 else "false"
         btns.append(f'<button type="button" class="pthumb" data-i="{i}" aria-controls="pslide-{i}" aria-pressed="{on}">'
                     f'<span class="frame">{pic(img, "", sizes=SHOP_THUMB_SIZES)}</span><span class="pcap">{cap}</span></button>')
-    i = len(SHOP_SLIDES)
-    btns.append(f'<button type="button" class="pthumb pthumb-vid" data-i="{i}" aria-controls="pslide-{i}" aria-pressed="false">'
-                f'<span class="frame"><img src="{LP_VIDEO_POSTER}" alt="" width="1080" height="1350" loading="lazy" decoding="async">'
-                f'<span class="pplay" aria-hidden="true"></span></span><span class="pcap">{SHOP_VIDEO_CAP}</span></button>')
-    return ('<div class="gallery pthumbs" role="group" aria-label="Choose a photo or the video" data-gallery-thumbs>\n    '
+    if video:
+        i = len(slides)
+        btns.append(f'<button type="button" class="pthumb pthumb-vid" data-i="{i}" aria-controls="pslide-{i}" aria-pressed="false">'
+                    f'<span class="frame"><img src="{LP_VIDEO_POSTER}" alt="" width="1080" height="1350" loading="lazy" decoding="async">'
+                    f'<span class="pplay" aria-hidden="true"></span></span><span class="pcap">{SHOP_VIDEO_CAP}</span></button>')
+    return ('<div class="gallery pthumbs" role="group" aria-label="Choose a photo' + (' or the video' if video else '') + '" data-gallery-thumbs>\n    '
             + "\n    ".join(btns) + "\n  </div>")
 
-SHOP_GALLERY_STAGE = _shop_stage()
-SHOP_GALLERY_THUMBS = _shop_thumbs()
+SHOP_GALLERY_STAGE = gallery_stage(SHOP_SLIDES, "CoreJava photos and video", video=True)
+SHOP_GALLERY_THUMBS = gallery_thumbs(SHOP_SLIDES, video=True)
 
-# ---------- SHOP ----------
-# Phones: photo, then the buy block (first checkout button inside 2 screens), then the gallery and details.
-# /shop: a small, separate pointer to the house coffees. None of CoreJava's terms apply to them.
-HOUSE_TEASER = """
-<section class="tight hc-teaser" aria-labelledby="hc-teaser-h"><div class="wrap hc-tgrid">
-  <div class="frame">""" + pic("house-og", "The Cup of Joe and Mushroom Coffee Blend bag designs side by side", sizes="(max-width: 860px) 100vw, 40vw") + """</div>
-  <div>
-    <p class="eyebrow">Also from The Morning Upgrade</p>
-    <h2 id="hc-teaser-h">Our house coffees</h2>
-    <p>2 ground coffees under our own name, roasted to order by our roasting partner: Cup of Joe Everyday Coffee ($27.95, light, medium or dark) and our Mushroom Coffee Blend ($33.95). 12 oz bags, $5.95 flat US shipping. Their own shipping and return terms apply.</p>
-    <p style="margin:0"><a class="btn ghost" href="/house-coffee.html">See the house coffees</a></p>
-  </div>
-</div></section>
-"""
-
-SHOP = """
-<section class="shop"><div class="wrap shopgrid">
-  """ + SHOP_GALLERY_STAGE + """
-  <div class="shop-buy">
-    <h1>Instant coffee with MCT powder and L&#8209;theanine<span>CoreJava, made by MarketPlace Global. 30 servings a bag.</span></h1>
-    <p class="lead">Dark roast Colombian coffee, 150 mg caffeine, 400 mg L-theanine and 1,500 mg MCTs from coconut in each scoop. Add hot water and stir.</p>
-    """ + picker(cta=PLAN_CTA_LP, terms=True) + bonus_block(ship=False) + """
-    <p class="fine" style="margin-top:14px">Questions? hello@themorningupgrades.com. A person answers.</p>
-  </div>
-  """ + SHOP_GALLERY_THUMBS + """
-  <div class="shop-details">
-    <dl class="specs">
-      <div><dt>Serving</dt><dd>1 level scoop (7 g) in 8 fl oz of hot water. 30 servings in a resealable 7.5 oz (213 g) bag.</dd></div>
-      <div><dt>Ingredients</dt><dd>The 4 above, plus the rest of <a href="/ingredients.html">the label</a>.</dd></div>
-      <div><dt>Taste</dt><dd>Dark roast, a little smoother than drip.</dd></div>
-      <div><dt>Allergens</dt><dd>Contains tree nuts (coconut).</dd></div>
-      <div><dt>For</dt><dd>Adults. Not for children, or if you&rsquo;re pregnant or nursing. Contains caffeine.</dd></div>
-      <div><dt>Made by</dt><dd>MarketPlace Global. Sold by Rector &amp; Stull LLC, Independent MarketPlace Global ISR. <a href="/corejava-coffee.html">More about CoreJava</a>.</dd></div>
-      <div><dt>Shipping</dt><dd><span data-ship="policy">Ships from Minnesota within about 2 business days, then 3&ndash;6 days in transit. $8.95 flat US shipping.</span> <a href="/shipping-returns.html">Shipping &amp; returns</a>.</dd></div>
-    </dl>
-    """ + facts_panel() + """
-  </div>
-</div></section>
-""" + RITUAL + COMPARE + PLEDGES + HOUSE_TEASER + """
-<section class="alt" style="text-align:center"><div class="wrap">
-  <h2>Ready to order?</h2>
-  <p class="lead" style="margin:0 auto 28px">$69.95 a month on Subscribe &amp; Save, or $79.95 for 1 bag.</p>
-""" + CTA_BLOCK + """
-</div></section>
-"""
+# ---------- SHOP (/shop.html) and the product pages: see PRODUCT PAGES below (they need the house coffee data) ----------
 
 # The Supplement Facts panel as text (searchable, readable by screen readers and AI assistants).
 # Transcribed from the bag (photo, Nov 4 2026; img/supplement-facts.png is that panel); amounts only, no label claims. Keep in sync with the bag.
@@ -920,7 +924,7 @@ ING = """
 <section class="dark" style="text-align:center"><div class="wrap">
   <h2>Ready to order?</h2>
   <p style="margin:0 auto 28px;max-width:46ch">$69.95 a month on Subscribe &amp; Save, or $79.95 for 1 bag.</p>
-""" + CTA_BLOCK + """
+""" + CTA_BLOCK + ALLC + """
 </div></section>
 """
 
@@ -969,6 +973,7 @@ COREJAVA = """
   </table></div>
   <p>Sales tax is added at checkout where it applies. The subscription can be paused, skipped or cancelled from the link in any receipt. <a href="/instant-coffee-subscription.html">What to check in any coffee subscription</a>.</p>
   """ + picker() + """
+  <p>Photos, the video and both plans: <a href="/corejava.html">the CoreJava page</a>. Our other coffees: <a href="/shop.html">the shop</a>.</p>
 
   <h2>Who sells it</h2>
   <p>CoreJava is a product of MarketPlace Global, a direct-sales company. This store, The Morning Upgrade, is run by Rector &amp; Stull LLC, Independent ISR of MarketPlace Global products and services. We are not the manufacturer and not MarketPlace Global itself; we earn income on the coffee we sell. Orders are fulfilled by MarketPlace Global from Maple Grove, Minnesota, usually within 2 business days. Unopened bags have the maker&rsquo;s 90-day money-back guarantee. <a href="/shipping-returns.html">Shipping &amp; returns</a> &middot; <a href="/about.html">About us</a>.</p>
@@ -1007,7 +1012,7 @@ FAQ = """
   <details><summary>Returns?</summary><p>If a bag arrives damaged or wrong, email hello@themorningupgrades.com within 30 days of delivery and we'll replace it or refund it. Unopened bags are covered by a 90-day money-back guarantee. Full policy on the <a href="/shipping-returns.html">Shipping &amp; returns</a> page.</p></details>
   <details><summary>Who am I buying from?</summary><p>Rector &amp; Stull LLC, Independent ISR of MarketPlace Global products and services. MarketPlace Global makes CoreJava; we sell it.</p></details>
   <h2>House coffee</h2>
-  <details><summary>What are your house coffees?</summary><p>2 ground coffees under our own name, sold on the <a href="/house-coffee.html">house coffee page</a>: Cup of Joe Everyday Coffee ($27.95 for a 12 oz bag; you pick light, medium (Colombia) or dark at checkout) and The Morning Upgrade Mushroom Coffee Blend ($33.95 for a 12 oz bag). They&rsquo;re separate from CoreJava and have their own terms.</p></details>
+  <details><summary>What are your house coffees?</summary><p>2 ground coffees under our own name, sold on <a href="/shop.html#house">our shop</a>: <a href="/cup-of-joe.html">Cup of Joe Everyday Coffee</a> ($27.95 for a 12 oz bag; you pick light, medium (Colombia) or dark at checkout) and <a href="/mushroom-coffee-blend.html">The Morning Upgrade Mushroom Coffee Blend</a> ($33.95 for a 12 oz bag). They&rsquo;re separate from CoreJava and have their own terms.</p></details>
   <details><summary>How does house coffee ship?</summary><p>Our roasting partner roasts it to order and ships it in about 2 to 3 business days, then 3 to 6 days in transit. US shipping is a flat $5.95. Tracking arrives by email.</p></details>
   <details><summary>Can I return house coffee?</summary><p>We can&rsquo;t take returns on opened coffee. If a bag arrives damaged or wrong, email hello@themorningupgrades.com within 30 days of delivery and we&rsquo;ll replace it. The 90-day guarantee covers CoreJava only.</p></details>
   <details><summary>What&rsquo;s in the Mushroom Coffee Blend?</summary><p>Medium roast coffee with mushroom powder. The full ingredient list is coming soon; we&rsquo;ll post it here once we have the spec sheet.</p></details>
@@ -1122,7 +1127,7 @@ SHARE = """
       <h3>Sip</h3>
       <p class="tag2">Just drink it</p>
       <p>1 bag, or Subscribe &amp; Save. Enjoy your mornings. That&rsquo;s it; you can stay right here, and that&rsquo;s fine.</p>
-      <a class="btn ghost sm" href="/shop.html">Get the coffee</a>
+      <a class="btn ghost sm" href="/corejava.html">Get the coffee</a>
     </div>
     <div class="lvl best">
       <span class="num">2</span>
@@ -1178,10 +1183,10 @@ ABOUT = """
   <div>
     <p class="eyebrow">About</p>
     <h1 style="font-size:clamp(30px,4vw,46px)">About us</h1>
-    <p class="lead">Rector &amp; Stull LLC is a small company run by 2 partners, 1 in Idaho and 1 in Texas. We're Independent Sales Representatives (ISRs) for MarketPlace Global, and CoreJava is the product we drink ourselves, which is why we sell it. We also sell 2 <a href="/house-coffee.html">house coffees</a> under our own name, roasted to order by our roasting partner.</p>
+    <p class="lead">Rector &amp; Stull LLC is a small company run by 2 partners, 1 in Idaho and 1 in Texas. We're Independent Sales Representatives (ISRs) for MarketPlace Global, and CoreJava is the product we drink ourselves, which is why we sell it. We also sell 2 house coffees under our own name, <a href="/cup-of-joe.html">Cup of Joe Everyday Coffee</a> and <a href="/mushroom-coffee-blend.html">the Mushroom Coffee Blend</a>,, roasted to order by our roasting partner.</p>
     <p>We started The Morning Upgrade because most coffee marketing is either a lifestyle fantasy or a wall of supplement jargon. We wanted a page that tells you what's in the bag, what it costs per cup, and how to find out in a week whether it's for you.</p>
     <p>Everything on this site that earns us money says so. The people in our videos are AI presenters; we say so here and in the platform AI labels. If something's unclear, email us and a human will answer: hello@themorningupgrades.com.</p>
-    <p><a class="btn" href="/shop.html">Buy CoreJava</a> &nbsp; <a class="btn ghost" href="/partner.html">Partner with us</a></p>
+    <p><a class="btn" href="/corejava.html">Buy CoreJava</a> &nbsp; <a class="btn ghost" href="/shop.html">See all 3 coffees</a></p>
   </div>
   <div class="frame p45">""" + pic("pour", "Pouring hot water next to a bag of CoreJava") + """</div>
   <p class="fine" style="margin-top:18px">The people in our videos are AI presenters we produce for the brand. They demonstrate the product; they never speak as customers or describe results.</p>
@@ -1195,50 +1200,183 @@ ABOUT = """
 """
 
 
-# ---------- HOUSE COFFEE (/house-coffee.html) ----------
-# Copy rules for this page (owner, Nov 4 2026): no health or function words for the mushroom blend (it is
-# "medium roast coffee with mushroom powder" plus tasting notes until the spec sheet is in), no CoreJava
-# terms (guarantee, MarketPlace Global, Minnesota, supplement panel), the roaster is "our roasting partner".
-HC_ROASTS = [("Light", "Fresh fruit, citrus, light body."),
-             ("Medium (Colombia)", "Cherry, plum, chocolate, cane sugar."),
-             ("Dark", "Deep body, baker&rsquo;s chocolate, caramelized sugar.")]
+# ---------- PRODUCT PAGES (Nov 2026 shop pass) ----------
+# /shop.html lists all 3 coffees; each has its own page in one layout family (gallery, buy box, details,
+# "You might also like" with the other 2, breadcrumbs Home > Shop > product).
+#   /corejava.html               CoreJava (the old /shop product page, gallery with the video, plan picker)
+#   /cup-of-joe.html             Cup of Joe Everyday Coffee (roast picker; the roast itself is chosen at Stripe checkout)
+#   /mushroom-coffee-blend.html  The Morning Upgrade Mushroom Coffee Blend
+#   /house-coffee.html           redirect to /shop.html#house (or the product page for its old #anchors)
+# House coffee copy rules (owner, Nov 4 2026): no health or function words (the mushroom blend is described only
+# by the exact label phrase plus tasting notes until the spec sheet is in), none of CoreJava's terms (guarantee,
+# MarketPlace Global, Minnesota, supplement panel, FDA line), the roaster is "our roasting partner". CoreJava's
+# page carries none of the house coffee terms. The other product appears only as a "You might also like" card.
+HC_ROASTS = [("light", "Light", "Fresh fruit, citrus, light body."),
+             ("medium", "Medium (Colombia)", "Cherry, plum, chocolate, cane sugar."),
+             ("dark", "Dark", "Deep body, baker&rsquo;s chocolate, caramelized sugar.")]
 HC_SIZE = "12 oz (340 g), about 34 cups at 2 tbsp (10 g) per 8 fl oz"
+HC_TERMS = ("Roasted to order; ships in about 2 to 3 business days.",
+            "$5.95 flat US shipping.",
+            "No returns on opened coffee; damaged or wrong bags replaced within 30 days.",
+            "One-time purchase; no subscription.")
 
-def hc_card(h, line, notes, details, cta):
-    rows = "".join(f"<li>{d}</li>" for d in details)
-    return f"""<article class="hc-card" id="{h['id']}" aria-labelledby="{h['id']}-h">
-  <div class="frame hc-img">{pic(h['img'], h['alt'], sizes="(max-width: 860px) 100vw, 45vw")}</div>
-  <div class="hc-body">
-    <h2 id="{h['id']}-h">{h['name']}</h2>
-    <p class="hc-line">{line}</p>
-    <p class="hc-price"><b>${h['price']}</b> / 12 oz bag<span>+ $5.95 US shipping</span></p>
-    {notes}
-    <ul class="terms hc-details">{rows}</ul>
-    <a class="btn big" data-buy="{h['key']}" href="#">{cta}</a>
+_HC = {h["key"]: dict(h) for h in HOUSE}
+_HC["cupofjoe"].update(short="Cup of Joe", alt="The Cup of Joe Everyday Coffee bag design (front of the 12 oz bag, Medium label shown)")
+_HC["mushroom"].update(short="Mushroom Coffee Blend", alt="The Morning Upgrade Mushroom Coffee Blend bag design (front of the 12 oz bag)")
+
+def crumbs(name):
+    return (f'<nav class="crumbs pcrumbs" aria-label="Breadcrumb"><a href="/">Home</a> <span aria-hidden="true">&rsaquo;</span> '
+            f'<a href="/shop.html">Shop</a> <span aria-hidden="true">&rsaquo;</span> <span aria-current="page">{name}</span></nav>')
+
+# One card per product, used on /shop, on home and in "You might also like". View + a quick Buy.
+CARD = {
+    "corejava": {"img": HERO_IMG, "alt": "The CoreJava bag", "eyebrow": "Instant &middot; 30 servings",
+                 "line": "Dark roast Colombian instant coffee with MCT powder, L&#8209;theanine and 150 mg caffeine per scoop.",
+                 "price": "<b>$69.95</b> a month<span>Subscribe &amp; Save, or $79.95 for 1 bag</span>",
+                 "buy": ("subscribe", "Subscribe, $69.95/mo"), "alt_buy": ("onetime", "or buy 1 bag, $79.95")},
+    "cupofjoe": {"img": "house-cupofjoe", "alt": "The Cup of Joe Everyday Coffee bag design", "eyebrow": "Ground &middot; 12 oz",
+                 "line": "Everyday ground coffee in 3 roasts: light, medium (Colombia) or dark.",
+                 "price": "<b>$27.95</b> a bag<span>About 34 cups</span>", "buy": ("cupofjoe", "Buy, $27.95")},
+    "mushroom": {"img": "house-mushroom", "alt": "The Mushroom Coffee Blend bag design", "eyebrow": "Ground &middot; 12 oz",
+                 "line": "Medium roast coffee with mushroom powder. Notes of dark chocolate and nougat.",
+                 "price": "<b>$33.95</b> a bag<span>About 34 cups</span>", "buy": ("mushroom", "Buy, $33.95")},
+}
+CARD_SIZES = "(max-width: 600px) 100vw, (max-width: 860px) 50vw, 30vw"
+
+def product_card(key, h="h3", eager=False, cls=""):
+    p = next(x for x in PRODUCTS if x["key"] == key); c = CARD[key]
+    alt_buy = (f'<p class="pc-alt"><a data-buy="{c["alt_buy"][0]}" href="#">{c["alt_buy"][1]}</a></p>' if c.get("alt_buy") else "")
+    return f"""<article class="pcard{(" " + cls) if cls else ""}" id="pc-{p['fn'][:-5]}" aria-labelledby="pc-{key}-h">
+  <a class="frame pc-img" href="/{p['fn']}" tabindex="-1">{pic(c['img'], c['alt'], sizes=CARD_SIZES, eager=eager)}</a>
+  <div class="pc-body">
+    <p class="eyebrow">{c['eyebrow']}</p>
+    <{h} id="pc-{key}-h"><a href="/{p['fn']}">{p['name']}</a></{h}>
+    <p class="pc-line">{c['line']}</p>
+    <p class="pc-price">{c['price']}</p>
+    <div class="pc-acts"><a class="btn ghost" href="/{p['fn']}">View<span class="sr"> {p['nav']}</span></a><a class="btn" data-buy="{c['buy'][0]}" href="#">{c['buy'][1]}</a></div>
+    {alt_buy}
   </div>
 </article>"""
 
-_HC = {h["key"]: dict(h) for h in HOUSE}
-_HC["cupofjoe"]["alt"] = "The Cup of Joe Everyday Coffee bag design (front of the 12 oz bag, Medium label shown)"
-_HC["mushroom"]["alt"] = "The Morning Upgrade Mushroom Coffee Blend bag design (front of the 12 oz bag)"
+def xsell(key):
+    others = [p["key"] for p in PRODUCTS if p["key"] != key]
+    return ('<section class="xsell" aria-labelledby="xsell-h"><div class="wrap">\n  <div class="shead"><h2 id="xsell-h">You might also like</h2></div>\n  <div class="pgrid two">'
+            + "".join(product_card(k) for k in others) + '</div>\n  <p class="allc"><a href="/shop.html">See all 3 coffees</a></p>\n</div></section>\n')
 
-HOUSE_COFFEE = """
-<section style="padding-top:36px;padding-bottom:28px"><div class="wrap" style="max-width:860px">
-  <p class="eyebrow">House coffee</p>
-  <h1 style="font-size:clamp(34px,4.6vw,54px)">Our house coffees</h1>
-  <p class="lead">2 ground coffees under our own name, roasted to order by our roasting partner and shipped in 12 oz bags. One-time orders, $5.95 flat US shipping.</p>
+# ---------- /shop.html: all products ----------
+_CMP3 = [  # (row, CoreJava, Cup of Joe, Mushroom Coffee Blend)
+    ("What it is", "Instant coffee with MCT powder, L&#8209;theanine and caffeine", "100% roasted coffee", "Medium roast coffee with mushroom powder"),
+    ("Format", "Instant: 1 scoop in hot water", "Ground: drip, pour-over or French press", "Ground: drip, pour-over or French press"),
+    ("Size", "30 servings, 7.5 oz (213 g)", "12 oz (340 g), about 34 cups", "12 oz (340 g), about 34 cups"),
+    ("Price per bag", "$79.95, or $69.95 a month on Subscribe &amp; Save", "$27.95", "$33.95"),
+    ("Shipping", "$8.95 flat; ships in about 2 business days", "$5.95 flat; roasted to order, ships in 2 to 3 business days", "$5.95 flat; roasted to order, ships in 2 to 3 business days"),
+    ("Returns", "90-day guarantee on unopened bags", "Damaged or wrong bags replaced within 30 days", "Damaged or wrong bags replaced within 30 days"),
+]
+_CMP3_NAMES = ["CoreJava", "Cup of Joe", "Mushroom Coffee Blend"]
+SHOP_COMPARE = ('<div class="cmp-m">' + "".join(
+    f'<div><h3>{n}</h3><dl>' + "".join(f"<div><dt>{r[0]}</dt><dd>{r[k + 1]}</dd></div>" for r in _CMP3) + "</dl></div>"
+    for k, n in enumerate(_CMP3_NAMES)) + '</div>'
+    + '<div class="tbl cmp-t"><table class="cmp cmp3"><thead><tr><th scope="col"><span class="sr">Compare</span></th>'
+    + "".join(f'<th scope="col"><a href="/{p["fn"]}">{n}</a></th>' for n, p in zip(_CMP3_NAMES, PRODUCTS)) + "</tr></thead><tbody>"
+    + "".join(f'<tr><th scope="row">{r[0]}</th><td>{r[1]}</td><td>{r[2]}</td><td>{r[3]}</td></tr>' for r in _CMP3) + "</tbody></table></div>")
+
+SHOP = """
+<section class="cat-hero"><div class="wrap">
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> <span aria-hidden="true">&rsaquo;</span> <span aria-current="page">Shop</span></nav>
+  <h1>Shop our coffee</h1>
+  <p class="lead">3 coffees: CoreJava, our instant coffee with MCT powder and L&#8209;theanine, and 2 ground house coffees roasted to order.</p>
 </div></section>
-<section style="padding-top:0"><div class="wrap hc-grid">
-""" + hc_card(_HC["cupofjoe"], "Good coffee. No fuss. 3 roasts; you pick yours at checkout.",
-    '<h3 class="hc-h">The roasts</h3><dl class="hc-roasts">' + "".join(f"<div><dt>{r}</dt><dd>{n}</dd></div>" for r, n in HC_ROASTS) + '</dl>'
-    + '<p class="fine hc-pick">You pick the roast at checkout.</p>',
-    ["100% roasted coffee, ground.", HC_SIZE + ".", "For drip, pour-over or French press.", "Roasted to order; ships in about 2 to 3 business days."],
-    "Buy Cup of Joe, $27.95") + hc_card(_HC["mushroom"], "Medium roast coffee with mushroom powder.",
-    '<h3 class="hc-h">Tasting notes</h3><p class="hc-notes">Dark chocolate, nougat, mild acidity.</p>',
-    ["Medium roast coffee with mushroom powder, ground.", HC_SIZE + ".", "Full ingredient list coming soon.", "Roasted to order; ships in about 2 to 3 business days."],
-    "Buy the Mushroom Blend, $33.95") + """
+<section class="cat"><div class="wrap">
+  <div class="catgrid">
+    <h2 class="cg-h cg-a" id="instant">Functional instant coffee</h2>
+    """ + product_card("corejava", eager=True, cls="cg-1") + """
+    <h2 class="cg-h cg-b" id="house">House coffees, ground</h2>
+    """ + product_card("cupofjoe", cls="cg-2") + """
+    """ + product_card("mushroom", cls="cg-3") + """
+  </div>
 </div></section>
-<section class="alt tight"><div class="wrap legal" style="max-width:860px">
+<section class="alt"><div class="wrap">
+  <div class="shead"><h2>Which one?</h2><p>The 3 side by side.</p></div>
+  """ + SHOP_COMPARE + """
+  <p class="fine" style="margin-top:16px">Prices are before shipping and any tax. CoreJava is made by MarketPlace Global and sold by us as an independent ISR; the house coffees are ours, roasted to order by our roasting partner. <a href="/shipping-returns.html">Shipping &amp; returns</a> for each.</p>
+</div></section>
+<section class="tight"><div class="wrap cat-help">
+  <p>Questions? Read the <a href="/faq.html">FAQ</a>, see <a href="/ingredients.html">what&rsquo;s in CoreJava</a>, or email hello@themorningupgrades.com. A person answers.</p>
+  <p><a href=\"""" + MANAGE_SUB + """\" rel="noopener">Manage a CoreJava subscription</a></p>
+</div></section>
+"""
+
+# ---------- /corejava.html: CoreJava (the former /shop product page, unchanged in substance) ----------
+# Phones: photo, then the buy block (first checkout button inside 2 screens), then the gallery and details.
+COREJAVA_PAGE = """
+<section class="shop"><div class="wrap">""" + crumbs("CoreJava") + """</div><div class="wrap shopgrid">
+  """ + SHOP_GALLERY_STAGE + """
+  <div class="shop-buy">
+    <h1>Instant coffee with MCT powder and L&#8209;theanine<span>CoreJava, made by MarketPlace Global. 30 servings a bag.</span></h1>
+    <p class="lead">Dark roast Colombian coffee, 150 mg caffeine, 400 mg L-theanine and 1,500 mg MCTs from coconut in each scoop. Add hot water and stir.</p>
+    """ + picker(cta=PLAN_CTA_LP, terms=True) + bonus_block(ship=False) + """
+    <p class="fine" style="margin-top:14px">Questions? hello@themorningupgrades.com. A person answers.</p>
+  </div>
+  """ + SHOP_GALLERY_THUMBS + """
+  <div class="shop-details">
+    <dl class="specs">
+      <div><dt>Serving</dt><dd>1 level scoop (7 g) in 8 fl oz of hot water. 30 servings in a resealable 7.5 oz (213 g) bag.</dd></div>
+      <div><dt>Ingredients</dt><dd>The 4 above, plus the rest of <a href="/ingredients.html">the label</a>.</dd></div>
+      <div><dt>Taste</dt><dd>Dark roast, a little smoother than drip.</dd></div>
+      <div><dt>Allergens</dt><dd>Contains tree nuts (coconut).</dd></div>
+      <div><dt>For</dt><dd>Adults. Not for children, or if you&rsquo;re pregnant or nursing. Contains caffeine.</dd></div>
+      <div><dt>Made by</dt><dd>MarketPlace Global. Sold by Rector &amp; Stull LLC, Independent MarketPlace Global ISR. <a href="/corejava-coffee.html">CoreJava, explained</a>.</dd></div>
+      <div><dt>Shipping</dt><dd><span data-ship="policy">Ships from Minnesota within about 2 business days, then 3&ndash;6 days in transit. $8.95 flat US shipping.</span> <a href="/shipping-returns.html">Shipping &amp; returns</a>.</dd></div>
+    </dl>
+    """ + facts_panel() + """
+  </div>
+</div></section>
+""" + RITUAL + COMPARE + PLEDGES + xsell("corejava") + """
+<section class="alt" style="text-align:center"><div class="wrap">
+  <h2>Ready to order?</h2>
+  <p class="lead" style="margin:0 auto 28px">$69.95 a month on Subscribe &amp; Save, or $79.95 for 1 bag.</p>
+""" + CTA_BLOCK + """
+</div></section>
+"""
+
+# ---------- house coffee product pages ----------
+HC_SLIDES = {
+    "cupofjoe": [("house-cupofjoe", "The Cup of Joe Everyday Coffee bag design, Medium (Colombia) label", "Medium", "medium"),
+                 ("house-cupofjoe-light", "The Cup of Joe Everyday Coffee bag design, Light label", "Light", "light"),
+                 ("house-cupofjoe-dark", "The Cup of Joe Everyday Coffee bag design, Dark label", "Dark", "dark"),
+                 ("house-cupofjoe-side", "Side panel of the Cup of Joe label: 100% roasted coffee, 2 tbsp (10 g) per 8 fl oz, drip, pour-over or French press, about 34 cups per bag, net wt 12 oz (340 g)", "Side panel"),
+                 ("lux-pour", "Hot water pouring from a kettle into a stoneware cup", "Brewing")],
+    "mushroom": [("house-mushroom", "The Morning Upgrade Mushroom Coffee Blend bag design (front of the 12 oz bag)", "The bag"),
+                 ("lux-pour", "Hot water pouring from a kettle into a stoneware cup", "Brewing"),
+                 ("lux-cup", "A cup of black coffee on a saucer, from above, in morning light", "In the cup")],
+}
+
+def roast_picker():
+    opts = "".join(f'<label class="ropt{" on" if k == "medium" else ""}"><input type="radio" name="roast" value="{k}" data-notes="{n}"{" checked" if k == "medium" else ""}>'
+                   f'<span>{lbl}</span></label>' for k, lbl, n in HC_ROASTS)
+    med = HC_ROASTS[1]
+    return f"""<fieldset class="roastpick" data-roast-pick><legend>Roast</legend>
+      <div class="ropts">{opts}</div>
+      <p class="rnotes" aria-live="polite"><b data-roast-name>{med[1]}</b><span data-roast-notes>{med[2]}</span></p>
+      <p class="fine rconfirm">You&rsquo;ll confirm your roast at checkout.</p>
+    </fieldset>"""
+
+HC_BREW = """
+<section class="alt"><div class="wrap howto">
+  <div class="frame howto-media">""" + pic("lux-stonecup", "A stoneware cup of black coffee on a travertine slab in long window shadows", sizes="(max-width: 860px) 100vw, 58vw") + """</div>
+  <div class="howto-copy">
+    <div class="shead"><h2>How to brew it</h2><p>The ratio from the bag.</p></div>
+    <ol class="nums">
+      <li><span>01</span><div>2 tbsp per 8 fl oz<i>10 g of ground coffee per cup. Add more for a stronger cup.</i></div></li>
+      <li><span>02</span><div>Drip, pour-over or French press<i>For a French press, steep about 4 minutes, then press.</i></div></li>
+      <li><span>03</span><div>Keep the bag sealed<i>Somewhere cool, dark and dry. A bag makes about 34 cups.</i></div></li>
+    </ol>
+  </div>
+</div></section>
+"""
+
+HC_POLICY = """
+<section class="alt tight" id="house-terms"><div class="wrap legal" style="max-width:860px">
   <h2>Shipping and returns for house coffee</h2>
   <ul class="clean">
     <li>Roasted to order by our roasting partner. Ships in about 2 to 3 business days, then 3 to 6 days in transit.</li>
@@ -1249,6 +1387,81 @@ HOUSE_COFFEE = """
   <p class="fine">Sold by Rector &amp; Stull LLC under The Morning Upgrade name. Secure checkout by Stripe. Full terms on <a href="/shipping-returns.html#house-coffee">Shipping &amp; returns</a>. Questions? hello@themorningupgrades.com.</p>
 </div></section>
 """
+
+def house_page(key, sub, lead, middle, specs, cta):
+    h = _HC[key]; slides = HC_SLIDES[key]
+    rows = "".join(f"<div><dt>{a}</dt><dd>{b}</dd></div>" for a, b in specs)
+    terms = '<ul class="terms">' + "".join(f"<li>{t}</li>" for t in HC_TERMS) + "</ul>"
+    return f"""
+<section class="shop hshop"><div class="wrap">{crumbs(h['short'] if key == 'cupofjoe' else 'Mushroom Coffee Blend')}</div><div class="wrap shopgrid">
+  {gallery_stage(slides, h['name'] + ' images', cls='pstage-house')}
+  <div class="shop-buy">
+    <h1>{h['name']}<span>{sub}</span></h1>
+    <p class="lead">{lead}</p>
+    {middle}
+    <div class="hbuy">
+      <p class="hc-price"><b>${h['price']}</b> / 12 oz bag<span>+ $5.95 flat US shipping</span></p>
+      <a class="btn big" data-buy="{key}" data-buy-main href="#">{cta}</a>
+      {terms}
+    </div>
+    <p class="fine" style="margin-top:14px">Questions? hello@themorningupgrades.com. A person answers.</p>
+  </div>
+  {gallery_thumbs(slides)}
+  <div class="shop-details">
+    <dl class="specs">{rows}</dl>
+  </div>
+</div></section>
+""" + HC_BREW + xsell(key) + HC_POLICY
+
+_ROAST_DL = '<dl class="hc-roasts">' + "".join(f"<div><dt>{lbl}</dt><dd>{n}</dd></div>" for k, lbl, n in HC_ROASTS) + "</dl>"
+CUPOFJOE_PAGE = house_page("cupofjoe", "Ground coffee in 3 roasts. 12 oz bag, about 34 cups.",
+    "Good coffee. No fuss. 100% roasted coffee, ground for drip, pour-over or French press.",
+    roast_picker(),
+    [("What it is", "100% roasted coffee, ground."),
+     ("Roasts", _ROAST_DL),
+     ("Size", HC_SIZE + "."),
+     ("Brew", "Drip, pour-over or French press."),
+     ("Roasting", "Roasted to order by our roasting partner; ships in about 2 to 3 business days."),
+     ("Returns", "No returns on opened coffee. Damaged or wrong bags are replaced within 30 days. <a href=\"#house-terms\">House coffee terms</a>."),
+     ("Sold by", "Rector &amp; Stull LLC, under The Morning Upgrade name.")],
+    "Buy Cup of Joe, $27.95")
+MUSHROOM_PAGE = house_page("mushroom", "Ground coffee. 12 oz bag, about 34 cups.",
+    "Medium roast coffee with mushroom powder, ground for drip, pour-over or French press.",
+    '<div class="hnotes"><h2 class="hc-h">Tasting notes</h2><p class="hc-notes">Dark chocolate, nougat, mild acidity.</p></div>',
+    [("What it is", "Medium roast coffee with mushroom powder, ground."),
+     ("Ingredients", "Full ingredient list coming soon. We&rsquo;ll post it here once we have the spec sheet."),
+     ("Tasting notes", "Dark chocolate, nougat, mild acidity."),
+     ("Size", HC_SIZE + "."),
+     ("Brew", "Drip, pour-over or French press."),
+     ("Roasting", "Roasted to order by our roasting partner; ships in about 2 to 3 business days."),
+     ("Returns", "No returns on opened coffee. Damaged or wrong bags are replaced within 30 days. <a href=\"#house-terms\">House coffee terms</a>."),
+     ("Sold by", "Rector &amp; Stull LLC, under The Morning Upgrade name.")],
+    "Buy the Mushroom Blend, $33.95")
+
+# /house-coffee.html (Nov 4 2026 to the shop pass): a redirect page now. Old #anchors go to their product page.
+def redirect_page(dest, canonical, title, hashmap=None):
+    js = f"var d={_json.dumps(dest)};"
+    if hashmap:
+        js += f"var m={_json.dumps(hashmap)},h=(location.hash||'').slice(1);if(m[h])d=m[h];"
+    js += "try{var q=location.search||'';if(q&&d.indexOf('#')<0)d+=q;else if(q){var p=d.split('#');d=p[0]+q+'#'+p[1];}}catch(e){}location.replace(d);"
+    return f"""<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{title}</title><meta name="robots" content="noindex">
+<link rel="canonical" href="{SITE}{canonical}">
+<link rel="icon" href="/img/mark.jpg">
+<script>(function(){{{js}}})();</script>
+<meta http-equiv="refresh" content="0; url={dest}">
+</head><body style="background:#F5F1EA;color:#1F1915;font-family:system-ui,sans-serif;padding:24px">
+<p><a href="{dest}">This page has moved. Continue to the shop</a></p></body></html>
+"""
+# Home: the 3 coffees, after the quiz (the hero and picker above stay CoreJava's)
+HOME = HOME.replace("<!--OUR_COFFEES-->", """<section class="tight ourc" aria-labelledby="ourc-h"><div class="wrap">
+  <div class="shead"><h2 id="ourc-h">Our coffees</h2><p>CoreJava, and 2 ground house coffees. <a href="/shop.html">Shop all 3</a>.</p></div>
+  <div class="pgrid three">""" + "".join(product_card(p["key"]) for p in PRODUCTS) + """</div>
+</div></section>""")
+
+REDIRECTS = {"house-coffee.html": redirect_page("/shop.html#house", "/shop.html", "House coffee: moved to the shop | The Morning Upgrade",
+                                              {"cup-of-joe": "/cup-of-joe.html", "mushroom-blend": "/mushroom-coffee-blend.html"})}
 
 # ---------- LEGAL ----------
 SHIPPING = """
@@ -1262,7 +1475,7 @@ SHIPPING = """
   <h2>Returns and refunds</h2>
   <p>MarketPlace Global, the maker, backs every customer order with a 90-day money-back guarantee on unopened product in resalable condition, and replaces anything that arrives damaged, defective or incorrect if you tell us within 30 calendar days of delivery. Email hello@themorningupgrades.com with your order number (and a photo if it&rsquo;s damaged) and we handle the return authorization for you. Return shipping on change-of-mind returns is paid by the customer; original shipping isn&rsquo;t refunded. Opened bags can&rsquo;t be returned for a change of mind, for food-safety reasons.</p>
   <h2 id="house-coffee">House coffee</h2>
-  <p>Our <a href="/house-coffee.html">house coffees</a> (Cup of Joe Everyday Coffee and The Morning Upgrade Mushroom Coffee Blend) have their own terms. Everything above is for CoreJava.</p>
+  <p>Our <a href="/shop.html#house">house coffees</a> (<a href="/cup-of-joe.html">Cup of Joe Everyday Coffee</a> and <a href="/mushroom-coffee-blend.html">The Morning Upgrade Mushroom Coffee Blend</a>) have their own terms. Everything above is for CoreJava.</p>
   <ul class="clean"><li><strong>Shipping:</strong> roasted to order by our roasting partner, then shipped in about 2 to 3 business days, then 3 to 6 days in transit. $5.95 flat US shipping. US addresses only.</li>
   <li><strong>Returns:</strong> we can&rsquo;t take returns on opened coffee. If a bag arrives damaged or wrong, email hello@themorningupgrades.com within 30 days of delivery with your order number (and a photo) and we&rsquo;ll replace it.</li>
   <li><strong>Guarantee:</strong> the 90-day money-back guarantee is CoreJava&rsquo;s and doesn&rsquo;t cover house coffee.</li>
@@ -1367,7 +1580,7 @@ ORDER_COMPLETE = """
         <li>Keep the bag sealed, somewhere cool and dark.</li>
         <li>If a bag arrives damaged or wrong, email us within 30 days of delivery and we&rsquo;ll replace it.</li>
       </ul>
-      <p style="margin-top:22px"><a class="btn ghost" href="/house-coffee.html">House coffees</a> <a class="btn ghost" href="/">Back to the site</a></p>
+      <p style="margin-top:22px"><a class="btn ghost" href="/shop.html#house">Our coffees</a> <a class="btn ghost" href="/">Back to the site</a></p>
     </div>
     <div data-line="corejava">
     <p>Stripe has emailed your receipt. We set up your CoreJava customer account with MarketPlace Global, the maker, who ships from Maple Grove, Minnesota within about 2 business days; you'll get a tracking email when it leaves. If anything looks wrong, reply to the receipt or write hello@themorningupgrades.com.</p>
@@ -1388,7 +1601,7 @@ ORDER_COMPLETE = """
       <p class="eyebrow" style="margin-bottom:6px">Your next bag</p>
       <h3>Subscribe &amp; Save: $69.95 a month</h3>
       <p>If you like it, Subscribe &amp; Save sends a bag every 30 days for $69.95 a month; 1 bag on its own is $79.95. Plus shipping and tax. Pause or cancel from your receipt.</p>
-      <p style="margin:0"><a class="btn sm" data-buy="subscribe" href="/shop.html">Subscribe &amp; Save &mdash; $69.95/mo</a></p>
+      <p style="margin:0"><a class="btn sm" data-buy="subscribe" href="/corejava.html">Subscribe &amp; Save &mdash; $69.95/mo</a></p>
     </div>
     <div class="card" style="margin-top:22px;padding:22px 22px;background:var(--tint);box-shadow:none">
       <p class="eyebrow" style="margin-bottom:6px">Your first-order bonus</p>
@@ -1634,7 +1847,8 @@ def guide_page(eyebrow, h1, lede, body, fn=None, faq=(), sources=(), img=None):
     <h2 style="font-size:22px;margin:0 0 8px">Ours, if you want to skip the blender</h2>
     <p>An instant coffee with MCT powder from coconut, natural caffeine and L-theanine in 1 scoop. 1 level scoop in 8 oz of hot water, 30 servings a bag. <a href="/ingredients.html">See every ingredient</a>.</p>
     <p class="bonus" data-bonus hidden><strong>Free with your first order:</strong> the Recipe Pack, 12 ways to drink it plus a 30-morning tracker.</p>
-    <p style="margin:0"><a class="btn" href="/shop.html">Shop the coffee</a></p>
+    <p style="margin:0"><a class="btn" href="/corejava.html">See CoreJava</a></p>
+    <p class="fine" style="margin:12px 0 0">We also sell 2 ground house coffees. <a href="/shop.html">See all 3 coffees</a>.</p>
   </div>
   <div style="margin-top:28px">{capture("guide", heading="Get the 7 Mornings guide")}</div>
   {rel_html}
@@ -1961,7 +2175,7 @@ G_TRAVEL = guide_page("How-to", "Instant coffee for travel, camping and dorms",
   <h2>Why a dorm runs on it</h2>
   <p>No machine to store, no grounds to clean, no pods to buy. A bag of 30 servings fits in a desk drawer and a kettle does the rest. <a href="/iced-instant-coffee-recipe.html">Iced</a> works too, with ice from the dining hall.</p>
   <h2>Ours on the road</h2>
-  <p>Ours is 1 level scoop in 8 fl oz of hot water, with the MCT powder already in it, so there's no oil or blender to pack. Each scoop has 150 mg of caffeine in total; count it toward your day. <a href="/shop.html">See the coffee</a>.</p>
+  <p>Ours is 1 level scoop in 8 fl oz of hot water, with the MCT powder already in it, so there's no oil or blender to pack. Each scoop has 150 mg of caffeine in total; count it toward your day. <a href="/corejava.html">See the coffee</a>.</p>
   """,
   fn="instant-coffee-for-travel-camping-dorm.html", img="desk",
   faq=[
@@ -2542,7 +2756,8 @@ def recipe_page(r):
   <div class="card" style="margin-top:28px;padding:24px;background:var(--tint);box-shadow:none">
     <h2 style="font-size:22px;margin:0 0 8px">The instant coffee we use</h2>
     <p>Dark-roast instant coffee with MCT powder from coconut, natural caffeine and L-theanine. 1 level scoop in hot water, 30 servings a bag. <a href="/ingredients.html">See every ingredient</a>.</p>
-    <p style="margin:0"><a class="btn" href="/shop.html">See the coffee</a></p>
+    <p style="margin:0"><a class="btn" href="/corejava.html">See the coffee</a></p>
+    <p class="fine" style="margin:12px 0 0">For drip or French press, see our ground house coffees: <a href="/shop.html#house">all 3 coffees</a>.</p>
   </div>
   <h2>More recipes</h2>
   <ul class="clean">{"".join(f'<li><a href="/{x["slug"]}.html">{x["name"]}</a></li>' for x in rel)}</ul>
@@ -2586,12 +2801,12 @@ NOT_FOUND = """
   <h1 style="font-size:clamp(30px,4vw,44px)">That page isn&rsquo;t here.</h1>
   <p class="lead">The link may be old or have a typo. Here&rsquo;s where most things live:</p>
   <ul class="clean">
-    <li><a href="/shop.html">The coffee</a>: instant coffee with MCT powder, natural caffeine and L-theanine, 30 servings a bag.</li>
+    <li><a href="/shop.html">The shop</a>: all 3 coffees. <a href="/corejava.html">CoreJava</a>, our instant coffee with MCT powder, natural caffeine and L-theanine, and 2 ground house coffees.</li>
     <li><a href="/ingredients.html">Every ingredient</a>, from the label.</li>
     <li><a href="/guides.html">Guides &amp; recipes</a>: MCT coffee, L-theanine, iced instant coffee.</li>
     <li><a href="/faq.html">Questions</a>: taste, caffeine, shipping, returns.</li>
   </ul>
-  <p><a class="btn" href="/shop.html">See the coffee</a> &nbsp; <a class="btn ghost" href="/">Home</a></p>
+  <p><a class="btn" href="/shop.html">Shop all coffees</a> &nbsp; <a class="btn ghost" href="/">Home</a></p>
   <p class="fine">Still stuck? hello@themorningupgrades.com</p>
 </div></section>
 """
@@ -2599,10 +2814,12 @@ NOT_FOUND = """
 PAGES = {
   "404.html": ("Page not found — The Morning Upgrade", "That page isn't here. Try the shop, the ingredients, the guides or the FAQ.", NOT_FOUND, og_img("props-og"), True),
   "index.html": ("CoreJava MCT Coffee with L-Theanine | The Morning Upgrade", "Instant coffee with MCT powder, natural caffeine and L-theanine. 1 scoop in hot water, 30 servings a bag. $69.95 a month or $79.95 a bag.", HOME, og_img("lux-og"), False),
-  "shop.html": ("Buy CoreJava MCT Coffee: $69.95/mo or $79.95 a Bag", "CoreJava price: $79.95 for a 30-serving bag or $69.95 a month on Subscribe & Save. Dark roast instant coffee with MCT powder, L-theanine and natural caffeine.", SHOP, og_img("lux-og"), False),
+  "shop.html": ("Shop Coffee: CoreJava, Cup of Joe & Mushroom Blend", "All 3 coffees: CoreJava instant coffee with MCT and L-theanine ($69.95/mo or $79.95), Cup of Joe ($27.95) and our Mushroom Coffee Blend ($33.95).", SHOP, og_img("lux-og"), False),
+  "corejava.html": ("Buy CoreJava MCT Coffee: $69.95/mo or $79.95 a Bag", "CoreJava price: $79.95 for a 30-serving bag or $69.95 a month on Subscribe & Save. Dark roast instant coffee with MCT powder, L-theanine and natural caffeine.", COREJAVA_PAGE, og_img("lux-og"), False),
+  "cup-of-joe.html": ("Cup of Joe Everyday Coffee: Ground, 12 oz | Morning Upgrade", "Cup of Joe Everyday Coffee: 100% roasted coffee, ground, in light, medium (Colombia) or dark. 12 oz bag, about 34 cups. $27.95, roasted to order.", CUPOFJOE_PAGE, og_img("house-cupofjoe"), False),
+  "mushroom-coffee-blend.html": ("Mushroom Coffee Blend, Ground, 12 oz | Morning Upgrade", "The Morning Upgrade Mushroom Coffee Blend: medium roast coffee with mushroom powder, ground. Dark chocolate and nougat notes. 12 oz, $33.95.", MUSHROOM_PAGE, og_img("house-mushroom"), False),
   "corejava-coffee.html": ("CoreJava Coffee: Ingredients, Price & How to Make It", "CoreJava is MarketPlace Global's dark roast instant coffee with MCT powder, L-theanine and 150 mg caffeine. Ingredients, price and how to make it.", COREJAVA, og_img("props-og"), False),
   "ingredients.html": ("CoreJava Ingredients & Supplement Facts | Morning Upgrade", "What's in a scoop of CoreJava: MCT powder, natural caffeine, L-theanine and 4 more named ingredients, plus the full Supplement Facts panel.", ING, og_img("lux-og"), False),
-  "house-coffee.html": ("House Coffee: Cup of Joe & Mushroom Blend | Morning Upgrade", "2 house coffees, roasted to order: Cup of Joe Everyday Coffee ($27.95; light, medium or dark) and our Mushroom Coffee Blend ($33.95). 12 oz bags.", HOUSE_COFFEE, og_img("house-og"), False),
   "faq.html": ("Coffee FAQ: Taste, Caffeine, Shipping | The Morning Upgrade", "How it tastes, how much caffeine is in a scoop, how Subscribe & Save works, shipping, returns, and who you're buying from.", FAQ, og_img("pour"), False),
   # ISR pages: reachable by URL, noindex, not linked from the customer nav or footer (owner, Nov 2026)
   "partner.html": ("Build with us — The Morning Upgrade", "Join our team and sell the coffee with the same videos, site and email system we use. Honest numbers first.", PARTNER, og_img("props-og"), True),
@@ -2639,12 +2856,14 @@ PAGES = {
 # Sticky bar: checkout on the buy pages; a link to the shop on guides and the 404; none after a
 # purchase or sign-up.
 STICKY = {fn: "shop" for fn in list(GUIDE_META) + ["guides.html", "404.html", "about.html", "privacy.html", "terms.html"]}
-STICKY.update({"order-complete.html": None, "thanks.html": None, "start.html": None, "house-coffee.html": None})   # house coffee: the CoreJava checkout bar doesn't belong   # /start: the picker is the page
+STICKY.update({"order-complete.html": None, "thanks.html": None, "start.html": None, "shop.html": None,   # /start: the picker is the page; /shop: every card has its own buy
+               "cup-of-joe.html": "cupofjoe", "mushroom-coffee-blend.html": "mushroom"})   # house coffee: its own checkout bar, never CoreJava's
 
 # LCP image preloads
 PRELOAD = {"index.html": preload(HERO_IMG, HERO_SIZES), "start.html": f'<link rel="preload" as="image" type="image/webp" href="{LP_VIDEO_POSTER}" fetchpriority="high">',
            "ingredients.html": preload("lux-ingredients", "(max-width: 860px) 100vw, 50vw"),
-           "shop.html": preload(HERO_IMG, SHOP_STAGE_SIZES)}
+           "corejava.html": preload(HERO_IMG, SHOP_STAGE_SIZES), "shop.html": preload(HERO_IMG, CARD_SIZES),
+           "cup-of-joe.html": preload("house-cupofjoe", SHOP_STAGE_SIZES), "mushroom-coffee-blend.html": preload("house-mushroom", SHOP_STAGE_SIZES)}
 
 PAGES["90-mornings.html"] = ("90 Mornings — The Morning Upgrade", "A chapter-by-chapter email series for your first 90 mornings with the coffee. Coming soon.", NINETY, og_img("props-og"), True)
 PAGES["quiz.html"] = ("Which Morning Are You? A 3-Question Quiz | Morning Upgrade",
@@ -2701,11 +2920,16 @@ for code in CREATORS:
     with open(os.path.join(HERE, "c", code, "index.html"), "w") as f: f.write(creator_page(code))
 print("wrote creator links:", ", ".join(f"/c/{c}" for c in CREATORS))
 
+# Moved pages: a noindex redirect at the old URL (not in the sitemap)
+for _fn, _html_out in REDIRECTS.items():
+    with open(os.path.join(HERE, _fn), "w") as f: f.write(_html_out)
+print("wrote redirects:", ", ".join(REDIRECTS))
+
 # ---------- robots.txt + sitemap.xml + llms.txt ----------
 import datetime as _dt
 _today = _dt.date.today().isoformat()
 _indexable = [fn for fn,(t,d,b,og,ni) in PAGES.items() if not ni]
-_prio = {"index.html": "1.0", "shop.html": "0.9", "house-coffee.html": "0.7", "corejava-coffee.html": "0.8", "ingredients.html": "0.8", "faq.html": "0.7"}
+_prio = {"index.html": "1.0", "shop.html": "0.9", "corejava.html": "0.9", "cup-of-joe.html": "0.7", "mushroom-coffee-blend.html": "0.7", "corejava-coffee.html": "0.8", "ingredients.html": "0.8", "faq.html": "0.7"}
 _prio.update({fn: "0.6" for fn in GUIDE_META})
 _prio.update({fn: "0.5" for fn in RECIPE_BY})
 _old_lastmod = {}
@@ -2746,13 +2970,16 @@ Facts as stated on the site (updated {_today}):
 - Contains caffeine. For adults; not for children or anyone pregnant or nursing. Ask a physician first if you take medication or have a medical condition.
 - Product copy quotes the label rather than adding claims of its own. The guides are general information, not medical advice.
 - People shown in the site's videos are AI presenters, and the site says so.
-- House coffees (separate from CoreJava, not MarketPlace Global products): Cup of Joe Everyday Coffee, 100% ground coffee, 12 oz (340 g), $27.95 a bag, roast chosen at checkout (Light, Medium from Colombia, or Dark); and The Morning Upgrade Mushroom Coffee Blend, medium roast coffee with mushroom powder, 12 oz (340 g), $33.95 a bag. One-time orders only. Roasted to order by a roasting partner; ships in about 2-3 business days, then 3-6 days in transit; $5.95 flat US shipping. No returns on opened coffee; damaged or wrong bags replaced within 30 days. The CoreJava 90-day guarantee does not apply.
+- House coffees (separate from CoreJava, not MarketPlace Global products): Cup of Joe Everyday Coffee, 100% ground coffee, 12 oz (340 g), $27.95 a bag, roast chosen at checkout (Light, Medium from Colombia, or Dark); and The Morning Upgrade Mushroom Coffee Blend, medium roast coffee with mushroom powder, 12 oz (340 g), $33.95 a bag. One-time orders only. Roasted to order by a roasting partner; ships in about 2-3 business days, then 3-6 days in transit; $5.95 flat US shipping. No returns on opened coffee; damaged or wrong bags replaced within 30 days. The CoreJava 90-day guarantee does not apply. Pages: {SITE}/cup-of-joe.html and {SITE}/mushroom-coffee-blend.html.
+- Shop: {SITE}/shop.html lists all 3 coffees; CoreJava's product page is {SITE}/corejava.html.
 - Contact: hello@themorningupgrades.com. Rector & Stull LLC, 30 N Gould St Ste R, Sheridan, WY 82801.
 
 ## Product
 
 {_llm_link("shop.html")}
-{_llm_link("house-coffee.html")}
+{_llm_link("corejava.html")}
+{_llm_link("cup-of-joe.html")}
+{_llm_link("mushroom-coffee-blend.html")}
 {_llm_link("corejava-coffee.html")}
 {_llm_link("ingredients.html")}
 {_llm_link("faq.html")}
